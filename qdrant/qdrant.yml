@@ -1,0 +1,57 @@
+# Qdrant configuration file for Smart Technologies B2C Website
+
+# Service configuration
+service:
+  # HTTP port for REST API
+  http_port: 6333
+  # gRPC port for API
+  grpc_port: 6334
+  # Enable telemetry
+  enable_telemetry: false
+  # CORS configuration
+  cors:
+    allow_origins:
+      - "http://localhost:3000"
+      - "http://localhost:8080"
+      - "http://127.0.0.1:3000"
+      - "http://127.0.0.1:8080"
+    allow_methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+    allow_headers:
+      - "*"
+    allow_credentials: true
+
+# Storage configuration
+storage:
+  # Path to storage
+  storage_path: /qdrant/storage
+  # Performance tuning
+  performance:
+    # Maximum search threads
+    max_search_threads: 4
+    # Update threads
+    update_threads: 2
+  # WAL configuration
+  wal:
+    # WAL size in bytes
+    wal_capacity_mb: 32
+    # Number of segments to keep
+    segments_per_wal: 1
+
+# Logging configuration
+log_level: INFO
+
+# Cluster configuration (for future scaling)
+cluster:
+  enabled: false
+
+# Security configuration
+security:
+  # Enable API key authentication
+  api_key_enabled: false
+  # Enable read-only mode
+  read_only_mode: false

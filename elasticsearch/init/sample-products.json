@@ -1,0 +1,293 @@
+[
+  {
+    "id": "prod_001",
+    "name": "Smartphone Pro Max 128GB",
+    "description": "Latest flagship smartphone with advanced camera system, 5G connectivity, and all-day battery life. Features a stunning display and powerful processor for seamless performance.",
+    "price": 899.99,
+    "stock_quantity": 50,
+    "category": "Electronics",
+    "is_active": true,
+    "created_at": "2024-01-15T10:00:00Z",
+    "updated_at": "2024-01-15T10:00:00Z",
+    "tags": ["smartphone", "5g", "camera", "flagship"],
+    "brand": "TechBrand",
+    "sku": "PHONE-PRO-MAX-128",
+    "weight": 0.2,
+    "dimensions": {
+      "length": 15.5,
+      "width": 7.5,
+      "height": 0.8
+    },
+    "images": [
+      {
+        "url": "https://example.com/images/phone1-front.jpg",
+        "alt_text": "Smartphone Pro Max front view",
+        "is_primary": true
+      },
+      {
+        "url": "https://example.com/images/phone1-back.jpg",
+        "alt_text": "Smartphone Pro Max back view",
+        "is_primary": false
+      }
+    ],
+    "variants": [
+      {
+        "id": "var_001_1",
+        "name": "128GB Space Gray",
+        "price": 899.99,
+        "stock_quantity": 20,
+        "attributes": {
+          "color": "Space Gray",
+          "storage": "128GB"
+        }
+      },
+      {
+        "id": "var_001_2",
+        "name": "256GB Silver",
+        "price": 999.99,
+        "stock_quantity": 30,
+        "attributes": {
+          "color": "Silver",
+          "storage": "256GB"
+        }
+      }
+    ],
+    "attributes": {
+      "screen_size": "6.7 inches",
+      "processor": "A17 Pro",
+      "camera_mp": "48MP",
+      "battery_mah": "4500"
+    },
+    "rating": 4.5,
+    "review_count": 1250,
+    "sales_count": 5000,
+    "view_count": 15000
+  },
+  {
+    "id": "prod_002",
+    "name": "UltraBook Pro 15.6\" Laptop",
+    "description": "High-performance laptop designed for professionals and creatives. Features stunning 4K display, powerful processor, and all-day battery life in a slim, lightweight design.",
+    "price": 1499.99,
+    "stock_quantity": 25,
+    "category": "Computers",
+    "is_active": true,
+    "created_at": "2024-01-10T09:30:00Z",
+    "updated_at": "2024-01-10T09:30:00Z",
+    "tags": ["laptop", "ultrabook", "4k", "professional"],
+    "brand": "ComputeTech",
+    "sku": "LAPTOP-ULTRA-156",
+    "weight": 1.5,
+    "dimensions": {
+      "length": 35.5,
+      "width": 25.0,
+      "height": 1.5
+    },
+    "images": [
+      {
+        "url": "https://example.com/images/laptop1-open.jpg",
+        "alt_text": "UltraBook Pro open view",
+        "is_primary": true
+      }
+    ],
+    "variants": [
+      {
+        "id": "var_002_1",
+        "name": "16GB RAM 512GB SSD",
+        "price": 1499.99,
+        "stock_quantity": 15,
+        "attributes": {
+          "ram": "16GB",
+          "storage": "512GB SSD"
+        }
+      },
+      {
+        "id": "var_002_2",
+        "name": "32GB RAM 1TB SSD",
+        "price": 1899.99,
+        "stock_quantity": 10,
+        "attributes": {
+          "ram": "32GB",
+          "storage": "1TB SSD"
+        }
+      }
+    ],
+    "attributes": {
+      "processor": "Intel Core i7-13700H",
+      "graphics": "NVIDIA RTX 4060",
+      "display": "15.6\" 4K OLED",
+      "battery_hours": "12"
+    },
+    "rating": 4.7,
+    "review_count": 850,
+    "sales_count": 1200,
+    "view_count": 8000
+  },
+  {
+    "id": "prod_003",
+    "name": "Wireless Noise-Canceling Headphones",
+    "description": "Premium wireless headphones with industry-leading noise cancellation, exceptional sound quality, and comfortable all-day wear. Perfect for travel and focused work.",
+    "price": 349.99,
+    "stock_quantity": 100,
+    "category": "Audio",
+    "is_active": true,
+    "created_at": "2024-01-05T14:20:00Z",
+    "updated_at": "2024-01-05T14:20:00Z",
+    "tags": ["headphones", "wireless", "noise-canceling", "bluetooth"],
+    "brand": "AudioPro",
+    "sku": "HEADPHONE-WIRELESS-NC",
+    "weight": 0.25,
+    "dimensions": {
+      "length": 18.0,
+      "width": 15.0,
+      "height": 8.0
+    },
+    "images": [
+      {
+        "url": "https://example.com/images/headphones1-black.jpg",
+        "alt_text": "Wireless headphones in black",
+        "is_primary": true
+      }
+    ],
+    "variants": [
+      {
+        "id": "var_003_1",
+        "name": "Midnight Black",
+        "price": 349.99,
+        "stock_quantity": 50,
+        "attributes": {
+          "color": "Midnight Black"
+        }
+      },
+      {
+        "id": "var_003_2",
+        "name": "Silver",
+        "price": 349.99,
+        "stock_quantity": 50,
+        "attributes": {
+          "color": "Silver"
+        }
+      }
+    ],
+    "attributes": {
+      "battery_hours": "30",
+      "bluetooth_version": "5.3",
+      "driver_size": "40mm",
+      "frequency_response": "20Hz-20kHz"
+    },
+    "rating": 4.6,
+    "review_count": 2100,
+    "sales_count": 3500,
+    "view_count": 12000
+  },
+  {
+    "id": "prod_004",
+    "name": "Smart TV 55\" 4K QLED",
+    "description": "Stunning 55-inch 4K QLED TV with vibrant colors, deep blacks, and smart features. Perfect for movie nights and gaming with low input lag and high refresh rate.",
+    "price": 799.99,
+    "stock_quantity": 15,
+    "category": "Electronics",
+    "is_active": true,
+    "created_at": "2024-01-08T11:45:00Z",
+    "updated_at": "2024-01-08T11:45:00Z",
+    "tags": ["tv", "4k", "qled", "smart", "gaming"],
+    "brand": "ViewTech",
+    "sku": "TV-QLED-55-4K",
+    "weight": 18.5,
+    "dimensions": {
+      "length": 123.0,
+      "width": 71.0,
+      "height": 6.0
+    },
+    "images": [
+      {
+        "url": "https://example.com/images/tv1-front.jpg",
+        "alt_text": "55\" QLED TV front view",
+        "is_primary": true
+      }
+    ],
+    "variants": [
+      {
+        "id": "var_004_1",
+        "name": "55\" QLED",
+        "price": 799.99,
+        "stock_quantity": 15,
+        "attributes": {
+          "size": "55 inches",
+          "technology": "QLED"
+        }
+      }
+    ],
+    "attributes": {
+      "resolution": "3840x2160",
+      "refresh_rate": "120Hz",
+      "hdr": "HDR10+",
+      "smart_os": "ViewOS 3.0",
+      "hdmi_ports": "4",
+      "usb_ports": "2"
+    },
+    "rating": 4.4,
+    "review_count": 650,
+    "sales_count": 800,
+    "view_count": 5000
+  },
+  {
+    "id": "prod_005",
+    "name": "Fitness Tracker Smartwatch",
+    "description": "Advanced fitness tracker with heart rate monitoring, GPS tracking, and smartphone integration. Water-resistant design with 7-day battery life for continuous health monitoring.",
+    "price": 199.99,
+    "stock_quantity": 75,
+    "category": "Wearables",
+    "is_active": true,
+    "created_at": "2024-01-12T16:00:00Z",
+    "updated_at": "2024-01-12T16:00:00Z",
+    "tags": ["fitness", "tracker", "smartwatch", "health", "gps"],
+    "brand": "FitTech",
+    "sku": "WATCH-FITNESS-PRO",
+    "weight": 0.05,
+    "dimensions": {
+      "length": 4.5,
+      "width": 3.5,
+      "height": 1.2
+    },
+    "images": [
+      {
+        "url": "https://example.com/images/watch1-black.jpg",
+        "alt_text": "Fitness tracker in black",
+        "is_primary": true
+      }
+    ],
+    "variants": [
+      {
+        "id": "var_005_1",
+        "name": "Black Silicone Band",
+        "price": 199.99,
+        "stock_quantity": 40,
+        "attributes": {
+          "color": "Black",
+          "band_material": "Silicone"
+        }
+      },
+      {
+        "id": "var_005_2",
+        "name": "Blue Sport Band",
+        "price": 199.99,
+        "stock_quantity": 35,
+        "attributes": {
+          "color": "Blue",
+          "band_material": "Sport"
+        }
+      }
+    ],
+    "attributes": {
+      "display": "1.4\" AMOLED",
+      "battery_days": "7",
+      "water_resistance": "5ATM",
+      "gps": "Built-in GPS",
+      "sensors": "Heart rate, SpO2, Accelerometer"
+    },
+    "rating": 4.3,
+    "review_count": 1800,
+    "sales_count": 2500,
+    "view_count": 9000
+  }
+]

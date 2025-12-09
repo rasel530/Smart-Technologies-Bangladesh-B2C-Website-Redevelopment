@@ -1,0 +1,177 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: smarttech_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - smarttech_network
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: smarttech_backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=smart_dev
+      - DB_PASSWORD=smart_dev_password_2024
+      - DB_NAME=smart_ecommerce_dev
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=redis_smarttech_2024
+      - ELASTICSEARCH_NODE=http://elasticsearch:9200
+      - FRONTEND_URL=http://localhost:3000
+      - JWT_SECRET=smarttech-jwt-secret-key-2024
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - smarttech_network
+    depends_on:
+      - postgres
+      - redis
+      - elasticsearch
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: smarttech_elasticsearch
+    restart: always
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+      - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./elasticsearch/init:/usr/share/elasticsearch/init:ro
+      - ./elasticsearch/scripts:/usr/share/elasticsearch/scripts:ro
+    networks:
+      - smarttech_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  redis:
+    image: redis:${REDIS_VERSION:-7-alpine}
+    container_name: smarttech_redis
+    restart: always
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_smarttech_2024}
+      - REDIS_MAXMEMORY=${REDIS_MAXMEMORY:-512mb}
+      - REDIS_MAXCLIENTS=${REDIS_MAXCLIENTS:-10000}
+    networks:
+      - smarttech_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis_smarttech_2024}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: smarttech_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: smart_ecommerce_dev
+      POSTGRES_USER: smart_dev
+      POSTGRES_PASSWORD: smart_dev_password_2024
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgresql/init:/docker-entrypoint-initdb.d
+    networks:
+      - smarttech_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smart_dev -d smart_ecommerce_dev"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  qdrant:
+    image: qdrant/qdrant:${QDRANT_VERSION:-latest}
+    container_name: smarttech_qdrant
+    restart: unless-stopped
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+      - "${QDRANT_GRPC_PORT:-6334}:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+      - ./qdrant/qdrant.yml:/qdrant/config/production.yaml:ro
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=${QDRANT_PORT:-6333}
+      - QDRANT__SERVICE__GRPC_PORT=${QDRANT_GRPC_PORT:-6334}
+      - QDRANT__LOG_LEVEL=${QDRANT_LOG_LEVEL:-INFO}
+    networks:
+      - smarttech_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${QDRANT_PORT:-6333}/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: smarttech_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@smarttech.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./postgresql/pgadmin-servers.json:/pgadmin4/servers.json
+    networks:
+      - smarttech_network
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+  redis_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  qdrant_data:
+    driver: local
+
+networks:
+  smarttech_network:
+    driver: bridge

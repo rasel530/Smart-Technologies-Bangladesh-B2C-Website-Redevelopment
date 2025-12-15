@@ -7,7 +7,7 @@ A modern, scalable e-commerce platform built with Next.js 14 and NestJS for Smar
 This is a monorepo containing:
 
 - **frontend/** - Next.js 14 frontend application with TypeScript and Tailwind CSS
-- **backend/** - NestJS backend API with TypeScript
+- **backend/** - Node.js backend API with TypeScript
 - **shared/** - Shared types and utilities
 - **doc/** - Project documentation and requirements
 - **infrastructure/** - Docker configurations and deployment scripts
@@ -83,7 +83,7 @@ This is a monorepo containing:
 ### Technology Stack
 
 - **Frontend:** Next.js 14, React 18, TypeScript, Tailwind CSS
-- **Backend:** NestJS, TypeScript, PostgreSQL, Redis
+- **Backend:** Node.js, TypeScript, PostgreSQL, Redis
 - **Search:** Elasticsearch
 - **Containerization:** Docker, Docker Compose
 - **Package Management:** pnpm

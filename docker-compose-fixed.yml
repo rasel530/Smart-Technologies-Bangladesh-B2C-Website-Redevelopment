@@ -10,6 +10,9 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:3001
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     networks:
       - smarttech_network
     depends_on:
@@ -22,30 +25,23 @@ services:
     container_name: smarttech_backend
     restart: unless-stopped
     ports:
-      - "${BACKEND_PORT:-3001}:3000"
+      - "${BACKEND_PORT:-3001}:3001"
     environment:
       - NODE_ENV=production
-      - PORT=3000
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USERNAME=smart_dev
       - DB_PASSWORD=smart_dev_password_2024
       - DB_NAME=smart_ecommerce_dev
-      - DATABASE_URL=postgresql://smart_dev:smart_dev_password_2024@postgres:5432/smart_ecommerce_dev
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=redis_smarttech_2024
       - ELASTICSEARCH_NODE=http://elasticsearch:9200
       - FRONTEND_URL=http://localhost:3000
       - JWT_SECRET=smarttech-jwt-secret-key-2024
+    # Remove volume mount to use container's built node_modules
     networks:
       - smarttech_network
-    healthcheck:
-      test: ["CMD", "node", "healthcheck.js"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       - postgres
       - redis

@@ -11,11 +11,11 @@ WORKDIR /app
 COPY package.json package-lock.json* pnpm-lock.yaml* ./
 RUN \
   if [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm i --frozen-lockfile; \
+  corepack enable pnpm && pnpm i --frozen-lockfile; \
   elif [ -f package-lock.json ]; then \
-    npm i; \
+  npm i; \
   else \
-    echo "Lockfile not found." && exit 1; \
+  echo "Lockfile not found." && exit 1; \
   fi
 
 # Rebuild the source code only when needed
@@ -31,9 +31,9 @@ COPY . .
 
 RUN \
   if [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm run build; \
+  corepack enable pnpm && pnpm run build; \
   else \
-    npm run build; \
+  npm run build; \
   fi
 
 # Production image, copy all the files and run next

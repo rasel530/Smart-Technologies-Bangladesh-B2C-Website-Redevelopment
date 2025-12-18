@@ -1,0 +1,260 @@
+{
+  "summary": {
+    "testDuration": 62,
+    "totalSuites": 9,
+    "totalTests": 9,
+    "totalPassed": 0,
+    "totalFailed": 9,
+    "successRate": 0,
+    "criticalFailures": 9,
+    "productionReady": false,
+    "timestamp": "2025-12-18T06:35:02.238Z"
+  },
+  "suites": [
+    {
+      "name": "Database Connection Management",
+      "critical": true,
+      "total": 0,
+      "passed": 0,
+      "failed": 1,
+      "details": [
+        {
+          "test": "Database Connection Management",
+          "status": "FAILED",
+          "message": "Cannot read properties of undefined (reading 'passed')"
+        }
+      ],
+      "successRate": 0
+    },
+    {
+      "name": "Configuration Validation",
+      "critical": true,
+      "total": 0,
+      "passed": 0,
+      "failed": 1,
+      "details": [
+        {
+          "test": "Configuration Validation",
+          "status": "FAILED",
+          "message": "Cannot read properties of undefined (reading 'passed')"
+        }
+      ],
+      "successRate": 0
+    },
+    {
+      "name": "Authentication Security",
+      "critical": true,
+      "total": 0,
+      "passed": 0,
+      "failed": 1,
+      "details": [
+        {
+          "test": "Authentication Security",
+          "status": "FAILED",
+          "message": "jest is not defined"
+        }
+      ],
+      "successRate": 0
+    },
+    {
+      "name": "Logger Performance",
+      "critical": true,
+      "total": 0,
+      "passed": 0,
+      "failed": 1,
+      "details": [
+        {
+          "test": "Logger Performance",
+          "status": "FAILED",
+          "message": "Cannot read properties of undefined (reading 'passed')"
+        }
+      ],
+      "successRate": 0
+    },
+    {
+      "name": "Bangladesh-Specific Features",
+      "critical": true,
+      "total": 0,
+      "passed": 0,
+      "failed": 1,
+      "details": [
+        {
+          "test": "Bangladesh-Specific Features",
+          "status": "FAILED",
+          "message": "Cannot read properties of undefined (reading 'passed')"
+        }
+      ],
+      "successRate": 0
+    },
+    {
+      "name": "Error Handling & Graceful Degradation",
+      "critical": true,
+      "total": 0,
+      "passed": 0,
+      "failed": 1,
+      "details": [
+        {
+          "test": "Error Handling & Graceful Degradation",
+          "status": "FAILED",
+          "message": "Cannot read properties of undefined (reading 'passed')"
+        }
+      ],
+      "successRate": 0
+    },
+    {
+      "name": "Service Initialization",
+      "critical": true,
+      "total": 0,
+      "passed": 0,
+      "failed": 1,
+      "details": [
+        {
+          "test": "Service Initialization",
+          "status": "FAILED",
+          "message": "Cannot read properties of undefined (reading 'passed')"
+        }
+      ],
+      "successRate": 0
+    },
+    {
+      "name": "Health Check Endpoints",
+      "critical": true,
+      "total": 0,
+      "passed": 0,
+      "failed": 1,
+      "details": [
+        {
+          "test": "Health Check Endpoints",
+          "status": "FAILED",
+          "message": "Cannot read properties of undefined (reading 'passed')"
+        }
+      ],
+      "successRate": 0
+    },
+    {
+      "name": "Graceful Shutdown Procedures",
+      "critical": true,
+      "total": 0,
+      "passed": 0,
+      "failed": 1,
+      "details": [
+        {
+          "test": "Graceful Shutdown Procedures",
+          "status": "FAILED",
+          "message": "Cannot read properties of undefined (reading 'passed')"
+        }
+      ],
+      "successRate": 0
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "HIGH",
+      "category": "Critical Failure",
+      "suite": "Database Connection Management",
+      "recommendation": "Address critical failures in Database Connection Management immediately as these impact system stability and security",
+      "details": [
+        "Cannot read properties of undefined (reading 'passed')"
+      ]
+    },
+    {
+      "priority": "HIGH",
+      "category": "Critical Failure",
+      "suite": "Configuration Validation",
+      "recommendation": "Address critical failures in Configuration Validation immediately as these impact system stability and security",
+      "details": [
+        "Cannot read properties of undefined (reading 'passed')"
+      ]
+    },
+    {
+      "priority": "HIGH",
+      "category": "Critical Failure",
+      "suite": "Authentication Security",
+      "recommendation": "Address critical failures in Authentication Security immediately as these impact system stability and security",
+      "details": [
+        "jest is not defined"
+      ]
+    },
+    {
+      "priority": "HIGH",
+      "category": "Critical Failure",
+      "suite": "Logger Performance",
+      "recommendation": "Address critical failures in Logger Performance immediately as these impact system stability and security",
+      "details": [
+        "Cannot read properties of undefined (reading 'passed')"
+      ]
+    },
+    {
+      "priority": "HIGH",
+      "category": "Critical Failure",
+      "suite": "Bangladesh-Specific Features",
+      "recommendation": "Address critical failures in Bangladesh-Specific Features immediately as these impact system stability and security",
+      "details": [
+        "Cannot read properties of undefined (reading 'passed')"
+      ]
+    },
+    {
+      "priority": "HIGH",
+      "category": "Critical Failure",
+      "suite": "Error Handling & Graceful Degradation",
+      "recommendation": "Address critical failures in Error Handling & Graceful Degradation immediately as these impact system stability and security",
+      "details": [
+        "Cannot read properties of undefined (reading 'passed')"
+      ]
+    },
+    {
+      "priority": "HIGH",
+      "category": "Critical Failure",
+      "suite": "Service Initialization",
+      "recommendation": "Address critical failures in Service Initialization immediately as these impact system stability and security",
+      "details": [
+        "Cannot read properties of undefined (reading 'passed')"
+      ]
+    },
+    {
+      "priority": "HIGH",
+      "category": "Critical Failure",
+      "suite": "Health Check Endpoints",
+      "recommendation": "Address critical failures in Health Check Endpoints immediately as these impact system stability and security",
+      "details": [
+        "Cannot read properties of undefined (reading 'passed')"
+      ]
+    },
+    {
+      "priority": "HIGH",
+      "category": "Critical Failure",
+      "suite": "Graceful Shutdown Procedures",
+      "recommendation": "Address critical failures in Graceful Shutdown Procedures immediately as these impact system stability and security",
+      "details": [
+        "Cannot read properties of undefined (reading 'passed')"
+      ]
+    },
+    {
+      "priority": "HIGH",
+      "category": "Database Reliability",
+      "suite": "Database Connection Management",
+      "recommendation": "Review database connection pooling and retry mechanisms to ensure high availability",
+      "details": [
+        "Connection failures can lead to service downtime and poor user experience"
+      ]
+    },
+    {
+      "priority": "HIGH",
+      "category": "Security",
+      "suite": "Authentication Security",
+      "recommendation": "Address authentication security issues immediately to prevent unauthorized access",
+      "details": [
+        "Security vulnerabilities can lead to data breaches and system compromise"
+      ]
+    },
+    {
+      "priority": "MEDIUM",
+      "category": "Monitoring",
+      "suite": "Logger Performance",
+      "recommendation": "Optimize logger configuration for better performance and debugging capabilities",
+      "details": [
+        "Poor logging performance can impact system monitoring and troubleshooting"
+      ]
+    }
+  ]
+}

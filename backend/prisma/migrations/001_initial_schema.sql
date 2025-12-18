@@ -25,6 +25,9 @@ CREATE TYPE "SocialProvider" AS ENUM ('GOOGLE', 'FACEBOOK');
 -- CreateEnum
 CREATE TYPE "CouponType" AS ENUM ('PERCENTAGE', 'FIXED_AMOUNT');
 
+-- CreateEnum
+CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED');
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
@@ -324,12 +327,6 @@ CREATE TABLE "coupons" (
 
     CONSTRAINT "coupons_pkey" PRIMARY KEY ("id")
 );
-
--- CreateEnum
-CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED');
-
--- Add OrderStatus enum to orders table
-ALTER TABLE "orders" ADD COLUMN "status" "OrderStatus" NOT NULL DEFAULT 'PENDING';
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");

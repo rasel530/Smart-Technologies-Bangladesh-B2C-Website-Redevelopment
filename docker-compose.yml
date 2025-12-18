@@ -35,9 +35,11 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=redis_smarttech_2024
+      - REDIS_URL=redis://:redis_smarttech_2024@redis:6379
       - ELASTICSEARCH_NODE=http://elasticsearch:9200
       - FRONTEND_URL=http://localhost:3000
       - JWT_SECRET=smarttech-jwt-secret-key-2024
+      - OLLAMA_HOST=http://ollama:11434
     networks:
       - smarttech_network
     healthcheck:
@@ -102,7 +104,7 @@ services:
   postgres:
     image: postgres:15-alpine
     container_name: smarttech_postgres
-    restart: unless-stopped
+    restart: always
     environment:
       POSTGRES_DB: smart_ecommerce_dev
       POSTGRES_USER: smart_dev
@@ -138,20 +140,41 @@ services:
     networks:
       - smarttech_network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:${QDRANT_PORT:-6333}/ || exit 1"]
+      test: ["CMD", "sh", "-c", "timeout 10 bash -c 'echo > /dev/tcp/localhost/6333' || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 30s
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: smarttech_ollama
+    restart: unless-stopped
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    networks:
+      - smarttech_network
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
+      start_period: 60s
 
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: smarttech_pgadmin
-    restart: unless-stopped
+    restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@smarttech.com
       PGADMIN_DEFAULT_PASSWORD: admin123
       PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_DEFAULT_SERVER_URL: 'http://postgres:5432'
+      PGADMIN_MASTER_PASSWORD: pgadmin_master_2024
     ports:
       - "5050:80"
     volumes:
@@ -161,6 +184,12 @@ services:
       - smarttech_network
     depends_on:
       - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/browser/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
 volumes:
   postgres_data:
@@ -172,6 +201,8 @@ volumes:
   elasticsearch_data:
     driver: local
   qdrant_data:
+    driver: local
+  ollama_data:
     driver: local
 
 networks:

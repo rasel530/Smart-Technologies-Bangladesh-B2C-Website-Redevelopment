@@ -1,0 +1,519 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Roles Enum
+enum UserRole {
+  ADMIN
+  MANAGER
+  CUSTOMER
+}
+
+// User Status Enum
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+// Bangladesh Divisions Enum
+enum Division {
+  DHAKA
+  CHITTAGONG
+  RAJSHAHI
+  SYLHET
+  KHULNA
+  BARISHAL
+  RANGPUR
+  MYMENSINGH
+}
+
+// Address Types Enum
+enum AddressType {
+  SHIPPING
+  BILLING
+}
+
+// Product Status Enum
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  OUT_OF_STOCK
+  DISCONTINUED
+}
+
+// Order Status Enum
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+// Payment Methods Enum
+enum PaymentMethod {
+  CREDIT_CARD
+  BANK_TRANSFER
+  CASH_ON_DELIVERY
+  BKASH
+  NAGAD
+  ROCKET
+}
+
+// Payment Status Enum
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+// Social Providers Enum
+enum SocialProvider {
+  GOOGLE
+  FACEBOOK
+}
+
+// Coupon Types Enum
+enum CouponType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+// User Management System
+model User {
+  id            String      @id @default(uuid())
+  email         String      @unique
+  emailVerified DateTime?
+  phone         String?     @unique
+  phoneVerified DateTime?
+  password      String?
+  firstName     String
+  lastName      String
+  dateOfBirth   DateTime?
+  gender        String?
+  role          UserRole    @default(CUSTOMER)
+  status        UserStatus  @default(PENDING)
+  image         String?
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  lastLoginAt   DateTime?
+  
+  // User relationships
+  addresses     Address[]
+  userSessions   UserSession[]
+  socialAccounts UserSocialAccount[]
+  orders        Order[]
+  reviews        Review[]
+  cart          Cart?
+  wishlist      Wishlist?
+  emailVerificationTokens EmailVerificationToken[]
+  phoneOTPs      PhoneOTP[]
+  passwordHistory PasswordHistory[]
+  
+  @@map("users")
+}
+
+// Address Management with Bangladesh-specific structure
+model Address {
+  id            String      @id @default(uuid())
+  userId        String
+  type          AddressType  @default(SHIPPING)
+  firstName     String
+  lastName      String
+  phone         String?
+  address       String
+  addressLine2   String?
+  city           String
+  district       String
+  division       Division
+  upazila       String?
+  postalCode     String?
+  isDefault      Boolean     @default(false)
+  
+  user          User         @relation(fields: [userId], references: [id])
+  orders        Order[]
+  
+  @@map("addresses")
+}
+
+// Session Management
+model UserSession {
+  id            String      @id @default(uuid())
+  userId        String
+  token         String
+  expiresAt     DateTime
+  createdAt     DateTime    @default(now())
+  
+  user          User         @relation(fields: [userId], references: [id])
+  
+  @@map("user_sessions")
+}
+
+// Social Account Management
+model UserSocialAccount {
+  id            String      @id @default(uuid())
+  userId        String
+  provider      SocialProvider
+  providerId   String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  user          User         @relation(fields: [userId], references: [id])
+  
+  @@map("user_social_accounts")
+}
+
+// Brand Management
+model Brand {
+  id            String      @id @default(uuid())
+  name          String
+  slug          String      @unique
+  description   String?
+  website       String?
+  isActive      Boolean     @default(true)
+  
+  products      Product[]
+  
+  @@map("brands")
+}
+
+// Category Management with Hierarchy
+model Category {
+  id            String      @id @default(uuid())
+  name          String
+  slug          String      @unique
+  description   String?
+  isActive      Boolean     @default(true)
+  parentId      String?     // Self-referencing for hierarchy
+  bannerImage   String?
+  icon          String?
+  sortOrder     Int         @default(0)
+  
+  // Category relationships
+  parentCategory Category?   @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  subcategories  Category[]   @relation("CategoryHierarchy")
+  products     Product[]
+  
+  @@map("categories")
+}
+
+// Product Catalog System
+model Product {
+  id            String      @id @default(uuid())
+  sku           String      @unique
+  name          String
+  nameEn        String
+  nameBn        String?
+  slug          String      @unique
+  shortDescription String?
+  description   String?
+  categoryId    String
+  brandId       String
+  regularPrice  Decimal     @db.Decimal(12, 2)
+  salePrice     Decimal?     @db.Decimal(12, 2)
+  costPrice     Decimal     @db.Decimal(12, 2)
+  taxRate       Decimal     @default(0) @db.Decimal(5, 2)
+  stockQuantity Int         @default(0)
+  lowStockThreshold Int         @default(10)
+  status        ProductStatus @default(ACTIVE)
+  metaTitle     String?
+  metaDescription String?
+  metaKeywords  String?
+  isFeatured    Boolean     @default(false)
+  isNewArrival  Boolean     @default(false)
+  isBestSeller  Boolean     @default(false)
+  
+  // Bangladesh-specific warranty
+  warrantyPeriod Int?      // in months
+  warrantyType  String?
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  publishedAt   DateTime?
+  
+  // Product relationships
+  images        ProductImage[]
+  specifications ProductSpecification[]
+  variants      ProductVariant[]
+  reviews        Review[]
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  wishlistItems WishlistItem[]
+  
+  category      Category       @relation(fields: [categoryId], references: [id])
+  brand         Brand          @relation(fields: [brandId], references: [id])
+  
+  @@map("products")
+}
+
+// Product Image Management
+model ProductImage {
+  id            String      @id @default(uuid())
+  productId      String
+  url           String
+  alt           String?
+  sortOrder     Int         @default(0)
+  
+  product       Product       @relation(fields: [productId], references: [id])
+  
+  @@map("product_images")
+}
+
+// Product Specification Management
+model ProductSpecification {
+  id            String      @id @default(uuid())
+  productId      String
+  name          String
+  value         String
+  sortOrder     Int         @default(0)
+  
+  product       Product       @relation(fields: [productId], references: [id])
+  
+  @@map("product_specifications")
+}
+
+// Product Variant Management
+model ProductVariant {
+  id            String      @id @default(uuid())
+  productId      String
+  name          String
+  sku           String
+  price         Decimal     @db.Decimal(12, 2)
+  comparePrice Decimal?     @db.Decimal(12, 2)
+  stock         Int         @default(0)
+  isActive      Boolean     @default(true)
+  
+  product       Product       @relation(fields: [productId], references: [id])
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  
+  @@map("product_variants")
+}
+
+// Shopping Cart System
+model Cart {
+  id            String      @id @default(uuid())
+  userId        String?     @unique     // null for guest carts
+  sessionId     String?     // for guest carts
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  expiresAt     DateTime?
+  
+  // Cart items relationship
+  items         CartItem[]
+  
+  user          User?         @relation(fields: [userId], references: [id])
+  
+  @@map("carts")
+}
+
+// Cart Item Management
+model CartItem {
+  id            String      @id @default(uuid())
+  cartId        String
+  productId      String
+  variantId     String?     // null if no variant
+  quantity       Int
+  unitPrice     Decimal     @db.Decimal(12, 2)
+  totalPrice    Decimal     @db.Decimal(12, 2)
+  addedAt       DateTime    @default(now())
+  
+  cart          Cart          @relation(fields: [cartId], references: [id])
+  product       Product       @relation(fields: [productId], references: [id])
+  variant       ProductVariant? @relation(fields: [variantId], references: [id])
+  
+  @@map("cart_items")
+}
+
+// Wishlist Management
+model Wishlist {
+  id            String      @id @default(uuid())
+  userId        String      @unique
+  name          String?
+  isPrivate     Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  expiresAt     DateTime?
+  
+  // Wishlist items relationship
+  items         WishlistItem[]
+  
+  user          User?         @relation(fields: [userId], references: [id])
+  
+  @@map("wishlists")
+}
+
+// Wishlist Item Management
+model WishlistItem {
+  id            String      @id @default(uuid())
+  wishlistId     String
+  productId      String
+  addedAt       DateTime    @default(now())
+  
+  wishlist      Wishlist       @relation(fields: [wishlistId], references: [id])
+  product       Product       @relation(fields: [productId], references: [id])
+  
+  @@map("wishlist_items")
+}
+
+// Order Management System
+model Order {
+  id            String      @id @default(uuid())
+  orderNumber    String      @unique
+  userId        String
+  addressId     String
+  subtotal       Decimal     @db.Decimal(12, 2)
+  tax           Decimal     @default(0) @db.Decimal(12, 2)
+  shippingCost  Decimal     @default(0) @db.Decimal(12, 2)
+  discount       Decimal     @default(0) @db.Decimal(12, 2)
+  total          Decimal     @db.Decimal(12, 2)
+  
+  // Order status management
+  paymentMethod PaymentMethod
+  paymentStatus PaymentStatus @default(PENDING)
+  paidAt        DateTime?
+  status        OrderStatus @default(PENDING)
+  notes         String?
+  internalNotes String?
+  
+  // Order timestamps
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  confirmedAt   DateTime?
+  shippedAt     DateTime?
+  deliveredAt   DateTime?
+  
+  // Order relationships
+  items         OrderItem[]
+  transactions  Transaction[]
+  user          User         @relation(fields: [userId], references: [id])
+  address       Address       @relation(fields: [addressId], references: [id])
+  
+  @@map("orders")
+}
+
+// Order Item Management
+model OrderItem {
+  id            String      @id @default(uuid())
+  orderId       String
+  productId      String
+  variantId     String?
+  quantity       Int
+  unitPrice     Decimal     @db.Decimal(12, 2)
+  totalPrice    Decimal     @db.Decimal(12, 2)
+  
+  order         Order          @relation(fields: [orderId], references: [id])
+  product       Product       @relation(fields: [productId], references: [id])
+  variant       ProductVariant? @relation(fields: [variantId], references: [id])
+  
+  @@map("order_items")
+}
+
+// Transaction Management
+model Transaction {
+  id            String      @id @default(uuid())
+  orderId       String
+  paymentMethod PaymentMethod
+  amount        Decimal     @db.Decimal(12, 2)
+  currency      String      @default("BDT")
+  status        PaymentStatus @default(PENDING)
+  transactionId String?
+  gatewayResponse Json?     // JSON response from payment gateway
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  order         Order         @relation(fields: [orderId], references: [id])
+  
+  @@map("transactions")
+}
+
+// Review System
+model Review {
+  id            String      @id @default(uuid())
+  productId      String
+  userId        String
+  rating        Int         // 1-5 stars
+  title         String
+  comment       String?
+  isVerified    Boolean     @default(false)
+  isApproved    Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  user          User         @relation(fields: [userId], references: [id])
+  product       Product       @relation(fields: [productId], references: [id])
+  
+  @@map("reviews")
+}
+
+// Coupon Management
+model Coupon {
+  id            String      @id @default(uuid())
+  code          String      @unique
+  type          CouponType
+  value         Decimal     @db.Decimal(12, 2)
+  minAmount     Decimal     @db.Decimal(12, 2)
+  maxDiscount   Decimal     @db.Decimal(5, 2)
+  usageLimit   Int
+  usedCount    Int         @default(0)
+  isActive      Boolean     @default(true)
+  expiresAt     DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  @@map("coupons")
+}
+
+// Email Verification Token System
+model EmailVerificationToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  
+  @@map("email_verification_tokens")
+}
+
+// Phone OTP System
+model PhoneOTP {
+  id        String   @id @default(uuid())
+  userId    String?
+  phone     String
+  otp       String
+  expiresAt DateTime
+  verifiedAt DateTime?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+  
+  @@map("phone_otps")
+}
+
+// Password History Model
+model PasswordHistory {
+  id           String    @id @default(uuid())
+  userId       String
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  user         User      @relation(fields: [userId], references: [id])
+  
+  @@map("password_history")
+}

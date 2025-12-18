@@ -1,9 +1,0 @@
-// This is a backup of the original schema before Prisma 7 migration
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}

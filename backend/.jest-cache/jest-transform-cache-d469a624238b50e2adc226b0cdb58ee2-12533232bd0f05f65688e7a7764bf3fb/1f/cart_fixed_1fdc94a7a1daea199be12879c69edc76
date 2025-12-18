@@ -1,0 +1,49 @@
+14e8a83c0e737e84a1b052014902eb02
+/* istanbul ignore next */
+function cov_256gqyxd2r() {
+  var path = "E:\\Drive D Backup\\Smart Technologies Bangladesh B2C Website Redevelopment\\backend\\routes\\cart_fixed.js";
+  var hash = "04161e7c008ebabf0127bbea7c9bf1ffc325361d";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "E:\\Drive D Backup\\Smart Technologies Bangladesh B2C Website Redevelopment\\backend\\routes\\cart_fixed.js",
+    statementMap: {
+      "0": {
+        start: {
+          line: 1,
+          column: 16
+        },
+        end: {
+          line: 1,
+          column: 34
+        }
+      }
+    },
+    fnMap: {},
+    branchMap: {},
+    s: {
+      "0": 0
+    },
+    f: {},
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "04161e7c008ebabf0127bbea7c9bf1ffc325361d"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    // @ts-ignore
+    cov_256gqyxd2r = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_256gqyxd2r();
+const express =
+/* istanbul ignore next */
+(cov_256gqyxd2r().s[0]++, require('express'));
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJjb3ZfMjU2Z3F5eGQyciIsImFjdHVhbENvdmVyYWdlIiwiZXhwcmVzcyIsInMiLCJyZXF1aXJlIl0sInNvdXJjZXMiOlsiY2FydF9maXhlZC5qcyJdLCJzb3VyY2VzQ29udGVudCI6WyJjb25zdCBleHByZXNzID0gcmVxdWlyZSgnZXhwcmVzcycpOyBcclxuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7SUFlWTtJQUFBQSxjQUFBLFlBQUFBLENBQUE7TUFBQSxPQUFBQyxjQUFBO0lBQUE7RUFBQTtFQUFBLE9BQUFBLGNBQUE7QUFBQTtBQUFBRCxjQUFBO0FBZlosTUFBTUUsT0FBTztBQUFBO0FBQUEsQ0FBQUYsY0FBQSxHQUFBRyxDQUFBLE9BQUdDLE9BQU8sQ0FBQyxTQUFTLENBQUMiLCJpZ25vcmVMaXN0IjpbXX0=

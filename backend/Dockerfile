@@ -7,8 +7,16 @@ WORKDIR /app
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Copy environment file
+COPY .env ./
+
+# Install dependencies and OpenSSL for Prisma
+RUN npm ci --only=production && \
+    apk add --no-cache openssl
+
+# Copy Prisma schema and generate Prisma client
+COPY prisma ./prisma/
+RUN npx prisma generate
 
 # Copy application code
 COPY . .

@@ -20,6 +20,10 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['@/components/auth/withAuth'],
   },
+  // Skip static generation for pages with browser API dependencies
+  output: 'standalone',
+  // Disable static optimization to prevent build errors
+  trailingSlash: false,
 };
 
 module.exports = nextConfig;

@@ -1,0 +1,609 @@
+{
+  "passed": [
+    {
+      "category": "Registration",
+      "testName": "Invalid Email Format Rejection",
+      "status": "PASS",
+      "message": "Invalid email format correctly rejected",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.432Z"
+    },
+    {
+      "category": "Email Verification",
+      "testName": "Invalid Token Rejection",
+      "status": "PASS",
+      "message": "Invalid verification token correctly rejected",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.449Z"
+    },
+    {
+      "category": "Phone OTP",
+      "testName": "Invalid OTP Rejection",
+      "status": "PASS",
+      "message": "Invalid OTP correctly rejected",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.463Z"
+    },
+    {
+      "category": "Login",
+      "testName": "Invalid Credentials Rejection",
+      "status": "PASS",
+      "message": "Invalid credentials correctly rejected",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.485Z"
+    },
+    {
+      "category": "Login",
+      "testName": "Missing Identifier Validation",
+      "status": "PASS",
+      "message": "Missing identifier correctly detected",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.496Z"
+    },
+    {
+      "category": "Security",
+      "testName": "SQL Injection Protection",
+      "status": "PASS",
+      "message": "SQL injection attempt blocked",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.536Z"
+    },
+    {
+      "category": "Security",
+      "testName": "XSS Protection",
+      "status": "PASS",
+      "message": "XSS attempt appears to be handled",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.542Z"
+    }
+  ],
+  "failed": [
+    {
+      "category": "Endpoint Availability",
+      "testName": "Register",
+      "status": "FAIL",
+      "message": "Endpoint POST /api/auth/register not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.277Z"
+    },
+    {
+      "category": "Endpoint Availability",
+      "testName": "Login",
+      "status": "FAIL",
+      "message": "Endpoint POST /api/auth/login not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.285Z"
+    },
+    {
+      "category": "Endpoint Availability",
+      "testName": "Logout",
+      "status": "FAIL",
+      "message": "Endpoint POST /api/auth/logout not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.291Z"
+    },
+    {
+      "category": "Endpoint Availability",
+      "testName": "Refresh Token",
+      "status": "FAIL",
+      "message": "Endpoint POST /api/auth/refresh not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.304Z"
+    },
+    {
+      "category": "Endpoint Availability",
+      "testName": "Verify Email",
+      "status": "FAIL",
+      "message": "Endpoint POST /api/auth/verify-email not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.316Z"
+    },
+    {
+      "category": "Endpoint Availability",
+      "testName": "Resend Verification",
+      "status": "FAIL",
+      "message": "Endpoint POST /api/auth/resend-verification not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.322Z"
+    },
+    {
+      "category": "Endpoint Availability",
+      "testName": "Send OTP",
+      "status": "FAIL",
+      "message": "Endpoint POST /api/auth/send-otp not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.331Z"
+    },
+    {
+      "category": "Endpoint Availability",
+      "testName": "Verify OTP",
+      "status": "FAIL",
+      "message": "Endpoint POST /api/auth/verify-otp not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.336Z"
+    },
+    {
+      "category": "Endpoint Availability",
+      "testName": "Resend OTP",
+      "status": "FAIL",
+      "message": "Endpoint POST /api/auth/resend-otp not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.345Z"
+    },
+    {
+      "category": "Endpoint Availability",
+      "testName": "Change Password",
+      "status": "FAIL",
+      "message": "Endpoint POST /api/auth/change-password not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.351Z"
+    },
+    {
+      "category": "Endpoint Availability",
+      "testName": "Forgot Password",
+      "status": "FAIL",
+      "message": "Endpoint POST /api/auth/forgot-password not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.359Z"
+    },
+    {
+      "category": "Endpoint Availability",
+      "testName": "Reset Password",
+      "status": "FAIL",
+      "message": "Endpoint POST /api/auth/reset-password not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.365Z"
+    },
+    {
+      "category": "Endpoint Availability",
+      "testName": "Get Password Policy",
+      "status": "FAIL",
+      "message": "Endpoint GET /api/auth/password-policy not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.371Z"
+    },
+    {
+      "category": "Endpoint Availability",
+      "testName": "Validate Phone",
+      "status": "FAIL",
+      "message": "Endpoint POST /api/auth/validate-phone not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.378Z"
+    },
+    {
+      "category": "Endpoint Availability",
+      "testName": "Get Operators",
+      "status": "FAIL",
+      "message": "Endpoint GET /api/auth/operators not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.384Z"
+    },
+    {
+      "category": "Endpoint Availability",
+      "testName": "Validate Remember Me",
+      "status": "FAIL",
+      "message": "Endpoint POST /api/auth/validate-remember-me not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.389Z"
+    },
+    {
+      "category": "Endpoint Availability",
+      "testName": "Refresh from Remember Me",
+      "status": "FAIL",
+      "message": "Endpoint POST /api/auth/refresh-from-remember-me not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.395Z"
+    },
+    {
+      "category": "Endpoint Availability",
+      "testName": "Disable Remember Me",
+      "status": "FAIL",
+      "message": "Endpoint POST /api/auth/disable-remember-me not found (404)",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.404Z"
+    },
+    {
+      "category": "Registration",
+      "testName": "Valid Email Registration",
+      "status": "FAIL",
+      "message": "Route not found",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/v1/api/auth/register was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/v1/api/auth/register পাওয়া যায়নি",
+        "path": "/api/v1/api/auth/register",
+        "method": "POST",
+        "timestamp": "2025-12-29T05:42:01.410Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      },
+      "timestamp": "2025-12-29T05:42:01.410Z"
+    },
+    {
+      "category": "Registration",
+      "testName": "Weak Password Rejection",
+      "status": "FAIL",
+      "message": "Weak password should be rejected",
+      "details": {
+        "success": false,
+        "error": {
+          "error": "Route not found",
+          "message": "The requested route POST /api/v1/api/auth/register was not found",
+          "messageBn": "অনুরোধকৃত রুট POST /api/v1/api/auth/register পাওয়া যায়নি",
+          "path": "/api/v1/api/auth/register",
+          "method": "POST",
+          "timestamp": "2025-12-29T05:42:01.415Z",
+          "availableEndpoints": {
+            "auth": "/api/v1/auth",
+            "users": "/api/v1/users",
+            "products": "/api/v1/products",
+            "categories": "/api/v1/categories",
+            "brands": "/api/v1/brands",
+            "orders": "/api/v1/orders",
+            "cart": "/api/v1/cart",
+            "wishlist": "/api/v1/wishlist",
+            "reviews": "/api/v1/reviews",
+            "coupons": "/api/v1/coupons",
+            "docs": "/api-docs"
+          }
+        },
+        "status": 404
+      },
+      "timestamp": "2025-12-29T05:42:01.416Z"
+    },
+    {
+      "category": "Registration",
+      "testName": "Password Mismatch Validation",
+      "status": "FAIL",
+      "message": "Password mismatch should be detected",
+      "details": {
+        "success": false,
+        "error": {
+          "error": "Route not found",
+          "message": "The requested route POST /api/v1/api/auth/register was not found",
+          "messageBn": "অনুরোধকৃত রুট POST /api/v1/api/auth/register পাওয়া যায়নি",
+          "path": "/api/v1/api/auth/register",
+          "method": "POST",
+          "timestamp": "2025-12-29T05:42:01.421Z",
+          "availableEndpoints": {
+            "auth": "/api/v1/auth",
+            "users": "/api/v1/users",
+            "products": "/api/v1/products",
+            "categories": "/api/v1/categories",
+            "brands": "/api/v1/brands",
+            "orders": "/api/v1/orders",
+            "cart": "/api/v1/cart",
+            "wishlist": "/api/v1/wishlist",
+            "reviews": "/api/v1/reviews",
+            "coupons": "/api/v1/coupons",
+            "docs": "/api-docs"
+          }
+        },
+        "status": 404
+      },
+      "timestamp": "2025-12-29T05:42:01.422Z"
+    },
+    {
+      "category": "Registration",
+      "testName": "Phone Registration",
+      "status": "FAIL",
+      "message": "Route not found",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/v1/api/auth/register was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/v1/api/auth/register পাওয়া যায়নি",
+        "path": "/api/v1/api/auth/register",
+        "method": "POST",
+        "timestamp": "2025-12-29T05:42:01.427Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      },
+      "timestamp": "2025-12-29T05:42:01.427Z"
+    },
+    {
+      "category": "Registration",
+      "testName": "Missing Contact Info Validation",
+      "status": "FAIL",
+      "message": "Missing email/phone should be detected",
+      "details": {
+        "success": false,
+        "error": {
+          "error": "Route not found",
+          "message": "The requested route POST /api/v1/api/auth/register was not found",
+          "messageBn": "অনুরোধকৃত রুট POST /api/v1/api/auth/register পাওয়া যায়নি",
+          "path": "/api/v1/api/auth/register",
+          "method": "POST",
+          "timestamp": "2025-12-29T05:42:01.437Z",
+          "availableEndpoints": {
+            "auth": "/api/v1/auth",
+            "users": "/api/v1/users",
+            "products": "/api/v1/products",
+            "categories": "/api/v1/categories",
+            "brands": "/api/v1/brands",
+            "orders": "/api/v1/orders",
+            "cart": "/api/v1/cart",
+            "wishlist": "/api/v1/wishlist",
+            "reviews": "/api/v1/reviews",
+            "coupons": "/api/v1/coupons",
+            "docs": "/api-docs"
+          }
+        },
+        "status": 404
+      },
+      "timestamp": "2025-12-29T05:42:01.438Z"
+    },
+    {
+      "category": "Email Verification",
+      "testName": "Resend Verification Email",
+      "status": "FAIL",
+      "message": "Route not found",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/v1/api/auth/resend-verification was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/v1/api/auth/resend-verification পাওয়া যায়নি",
+        "path": "/api/v1/api/auth/resend-verification",
+        "method": "POST",
+        "timestamp": "2025-12-29T05:42:01.443Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      },
+      "timestamp": "2025-12-29T05:42:01.443Z"
+    },
+    {
+      "category": "Phone OTP",
+      "testName": "Send OTP",
+      "status": "FAIL",
+      "message": "Route not found",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/v1/api/auth/send-otp was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/v1/api/auth/send-otp পাওয়া যায়নি",
+        "path": "/api/v1/api/auth/send-otp",
+        "method": "POST",
+        "timestamp": "2025-12-29T05:42:01.454Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      },
+      "timestamp": "2025-12-29T05:42:01.454Z"
+    },
+    {
+      "category": "Phone OTP",
+      "testName": "Resend OTP",
+      "status": "FAIL",
+      "message": "Route not found",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/v1/api/auth/resend-otp was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/v1/api/auth/resend-otp পাওয়া যায়নি",
+        "path": "/api/v1/api/auth/resend-otp",
+        "method": "POST",
+        "timestamp": "2025-12-29T05:42:01.468Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      },
+      "timestamp": "2025-12-29T05:42:01.468Z"
+    },
+    {
+      "category": "Phone OTP",
+      "testName": "Phone Number Validation",
+      "status": "FAIL",
+      "message": "Route not found",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/v1/api/auth/validate-phone was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/v1/api/auth/validate-phone পাওয়া যায়নি",
+        "path": "/api/v1/api/auth/validate-phone",
+        "method": "POST",
+        "timestamp": "2025-12-29T05:42:01.473Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      },
+      "timestamp": "2025-12-29T05:42:01.473Z"
+    },
+    {
+      "category": "Login",
+      "testName": "Valid Email Login",
+      "status": "FAIL",
+      "message": "Route not found",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/v1/api/auth/login was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/v1/api/auth/login পাওয়া যায়নি",
+        "path": "/api/v1/api/auth/login",
+        "method": "POST",
+        "timestamp": "2025-12-29T05:42:01.479Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      },
+      "timestamp": "2025-12-29T05:42:01.479Z"
+    },
+    {
+      "category": "Login",
+      "testName": "Phone Login",
+      "status": "FAIL",
+      "message": "Route not found",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/v1/api/auth/login was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/v1/api/auth/login পাওয়া যায়নি",
+        "path": "/api/v1/api/auth/login",
+        "method": "POST",
+        "timestamp": "2025-12-29T05:42:01.490Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      },
+      "timestamp": "2025-12-29T05:42:01.490Z"
+    }
+  ],
+  "warnings": [
+    {
+      "category": "Login",
+      "testName": "Remember Me Functionality",
+      "status": "WARN",
+      "message": "Remember me option may not be working correctly",
+      "details": {
+        "success": false,
+        "error": {
+          "error": "Route not found",
+          "message": "The requested route POST /api/v1/api/auth/login was not found",
+          "messageBn": "অনুরোধকৃত রুট POST /api/v1/api/auth/login পাওয়া যায়নি",
+          "path": "/api/v1/api/auth/login",
+          "method": "POST",
+          "timestamp": "2025-12-29T05:42:01.500Z",
+          "availableEndpoints": {
+            "auth": "/api/v1/auth",
+            "users": "/api/v1/users",
+            "products": "/api/v1/products",
+            "categories": "/api/v1/categories",
+            "brands": "/api/v1/brands",
+            "orders": "/api/v1/orders",
+            "cart": "/api/v1/cart",
+            "wishlist": "/api/v1/wishlist",
+            "reviews": "/api/v1/reviews",
+            "coupons": "/api/v1/coupons",
+            "docs": "/api-docs"
+          }
+        },
+        "status": 404
+      },
+      "timestamp": "2025-12-29T05:42:01.501Z"
+    },
+    {
+      "category": "Session Management",
+      "testName": "Session Tests",
+      "status": "WARN",
+      "message": "Skipping session tests - no auth token available",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.501Z"
+    },
+    {
+      "category": "Password Management",
+      "testName": "Password Tests",
+      "status": "WARN",
+      "message": "Skipping password tests - login failed",
+      "details": {},
+      "timestamp": "2025-12-29T05:42:01.506Z"
+    },
+    {
+      "category": "Security",
+      "testName": "Rate Limiting",
+      "status": "WARN",
+      "message": "Rate limiting may not be properly configured",
+      "details": {
+        "success": false,
+        "error": {
+          "error": "Route not found",
+          "message": "The requested route POST /api/v1/api/auth/login was not found",
+          "messageBn": "অনুরোধকৃত রুট POST /api/v1/api/auth/login পাওয়া যায়নি",
+          "path": "/api/v1/api/auth/login",
+          "method": "POST",
+          "timestamp": "2025-12-29T05:42:01.531Z",
+          "availableEndpoints": {
+            "auth": "/api/v1/auth",
+            "users": "/api/v1/users",
+            "products": "/api/v1/products",
+            "categories": "/api/v1/categories",
+            "brands": "/api/v1/brands",
+            "orders": "/api/v1/orders",
+            "cart": "/api/v1/cart",
+            "wishlist": "/api/v1/wishlist",
+            "reviews": "/api/v1/reviews",
+            "coupons": "/api/v1/coupons",
+            "docs": "/api-docs"
+          }
+        },
+        "status": 404
+      },
+      "timestamp": "2025-12-29T05:42:01.531Z"
+    }
+  ],
+  "info": []
+}

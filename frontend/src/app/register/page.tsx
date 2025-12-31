@@ -1,13 +1,21 @@
+'use client';
+
 import React, { useState } from 'react';
 import { RegistrationForm } from '@/components/auth/RegistrationForm';
 import { RegistrationData } from '@/types/auth';
 
 export default function RegisterPage() {
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
+  const [selectedDivision, setSelectedDivision] = useState('');  // Add default division
 
   const handleRegistration = async (data: Partial<RegistrationData>) => {
     try {
       console.log('Registration data:', data);
+      
+      // Set default division if none provided
+      if (data.division && !selectedDivision) {
+        setSelectedDivision(data.division);
+      }
       
       // Simulate API call
       const response = await fetch('/api/auth/register', {
@@ -94,8 +102,7 @@ export default function RegisterPage() {
           <div className="bg-white rounded-lg shadow-lg p-6 md:p-8">
             <RegistrationForm
               onSubmit={handleRegistration}
-              onLanguageChange={handleLanguageChange}
-              initialLanguage={language}
+              language={language}
               className="w-full"
             />
           </div>
@@ -111,7 +118,7 @@ export default function RegisterPage() {
                 {language === 'bn' ? 'লগইন করুন' : 'Sign in'}
               </a>
             </p>
-            
+             
             <div className="mt-4 pt-4 border-t border-secondary-200">
               <p className="text-xs text-secondary-500 mb-2">
                 {language === 'bn' ? 'নিবন্ধন করুন এবং বিশেষ করুন।' : 'By registering, you agree to our'}

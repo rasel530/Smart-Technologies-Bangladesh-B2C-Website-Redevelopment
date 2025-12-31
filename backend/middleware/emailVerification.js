@@ -13,6 +13,12 @@ class EmailVerificationMiddleware {
   requireEmailVerification() {
     return async (req, res, next) => {
       try {
+        // Skip verification if testing mode or email verification is disabled
+        if (configService.isTestingMode() || configService.isEmailVerificationDisabled()) {
+          req.emailVerified = true;
+          return next();
+        }
+
         // If no user is attached (not authenticated), skip verification
         if (!req.user || !req.userId) {
           return next();

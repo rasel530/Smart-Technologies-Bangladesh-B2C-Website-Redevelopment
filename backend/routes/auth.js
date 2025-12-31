@@ -7,8 +7,14 @@ const { emailService } = require('../services/emailService');
 const { smsService } = require('../services/smsService');
 const { otpService } = require('../services/otpService');
 const { authMiddleware } = require('../middleware/auth');
+const { sessionMiddleware } = require('../middleware/session');
+const { sessionService } = require('../services/sessionService');
 const { passwordService } = require('../services/passwordService');
 const { phoneValidationService } = require('../services/phoneValidationService');
+const { configService } = require('../services/config');
+const { loggerService } = require('../services/logger');
+const { loginSecurityService } = require('../services/loginSecurityService');
+const { loginSecurityMiddleware } = require('../middleware/loginSecurity');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -26,16 +32,25 @@ const handleValidationErrors = (req, res, next) => {
 };
 
 // Register endpoint
+// Standardized property names: firstName, lastName, phone (matching frontend convention)
 router.post('/register', [
-  body('email').optional().isEmail().normalizeEmail(),
-  body('password').isLength({ min: 8, max: 128 }),
-  body('firstName').notEmpty().trim(),
-  body('lastName').notEmpty().trim(),
-  body('phone').notEmpty().trim()
+  body('email').optional().trim().isEmail().withMessage('Invalid email format').normalizeEmail().withMessage('Email format is invalid'),
+  body('password').isLength({ min: 8, max: 128 }).withMessage('Password must be between 8 and 128 characters'),
+  body('firstName').optional().notEmpty().trim().withMessage('First name is required'),
+  body('lastName').optional().notEmpty().trim().withMessage('Last name is required'),
+  body('phone').optional().notEmpty().trim().withMessage('Phone number is required'),
+  body('confirmPassword').notEmpty().trim().withMessage('Password confirmation is required')
 ], handleValidationErrors, async (req, res) => {
   try {
-  const { email, password, firstName, lastName, phone } = req.body;
-
+  const {
+    email,
+    password,
+    firstName,
+    lastName,
+    phone,
+    confirmPassword
+  } = req.body;
+  
   // Validate that at least email or phone is provided
   if (!email && !phone) {
     return res.status(400).json({
@@ -44,6 +59,16 @@ router.post('/register', [
       messageBn: 'অনুগ্রহ ইমেল বা ফোন নম্বর দিন'
     });
   }
+  
+  // Validate confirm password matches
+  if (password !== confirmPassword) {
+    return res.status(400).json({
+      error: 'Passwords do not match',
+      message: 'Password and confirm password must match',
+      messageBn: 'পাসওয়ার্ড এবং নিশ্চিত পাসওয়ার্ড মিলতে হবে'
+    });
+  }
+
 
   // Validate password strength
   const userInfo = { firstName, lastName, email, phone };
@@ -146,8 +171,13 @@ router.post('/register', [
     // Save password to history
     await passwordService.savePasswordToHistory(user.id, hashedPassword);
 
-    // Handle verification based on what's provided
-    if (email) {
+    // Check if testing mode is enabled
+    const isTestingMode = configService.isTestingMode();
+    const isEmailVerificationDisabled = configService.isEmailVerificationDisabled();
+    const isPhoneVerificationDisabled = configService.isPhoneVerificationDisabled();
+
+    // Handle verification based on what's provided and testing mode
+    if (email && !isEmailVerificationDisabled) {
       // Email verification flow
       const verificationToken = emailService.generateVerificationToken();
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
@@ -198,7 +228,7 @@ router.post('/register', [
         requiresEmailVerification: true
       });
 
-    } else if (phoneValidation?.isValid) {
+    } else if (phoneValidation?.isValid && !isPhoneVerificationDisabled) {
       // Phone verification flow
       const otpResult = await otpService.generatePhoneOTP(phoneValidation.normalizedPhone, user.id);
 
@@ -233,11 +263,37 @@ router.post('/register', [
       });
 
     } else {
-      // This should not happen due to earlier validation
-      return res.status(500).json({
-        error: 'Registration failed',
-        message: 'Invalid registration data',
-        messageBn: 'অবৈধ নিবন্ধন ডাটা'
+      // Skip verification - activate account immediately (testing mode or verification disabled)
+      const updatedUser = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          status: 'ACTIVE',
+          emailVerified: email ? new Date() : null,
+          phoneVerified: phoneValidation?.isValid ? new Date() : null
+        },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          phone: true,
+          role: true,
+          status: true,
+          emailVerified: true,
+          phoneVerified: true
+        }
+      });
+
+      res.status(201).json({
+        message: isTestingMode
+          ? 'Registration successful in testing mode. Account is automatically activated.'
+          : 'Registration successful. Account is activated without verification.',
+        messageBn: isTestingMode
+          ? 'টেস্টিং মোডে নিবন্ধন সফল। অ্যাকাউন্ট স্বয়ংক্রিয় সক্রিয় করা হয়েছে।'
+          : 'নিবন্ধন সফল। যাচাই ছাড়া অ্যাকাউন্ট সক্রিয় করা হয়েছে।',
+        user: updatedUser,
+        testingMode: isTestingMode,
+        verificationSkipped: true
       });
     }
 
@@ -253,22 +309,62 @@ router.post('/register', [
 
 // Login endpoint
 router.post('/login', [
-  body('email').isEmail().normalizeEmail(),
-  body('password').notEmpty()
-], handleValidationErrors, async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  body('identifier').notEmpty().trim(),
+  body('password').notEmpty().trim(),
+  body('rememberMe').optional().isBoolean(),
+  body('captcha').optional().isString(),
+  body('deviceFingerprint').optional().isString()
+], handleValidationErrors,
+  loginSecurityMiddleware.enforce(),
+  async (req, res) => {
+  const { identifier, password, rememberMe, captcha, deviceFingerprint } = req.body;
 
-    // Find user
-    const user = await prisma.user.findUnique({
-      where: { email }
-    });
+  try {
+
+    // Determine if identifier is email or phone
+    const isEmail = identifier.includes('@');
+    let user;
+    let loginType;
+
+    if (isEmail) {
+      // Validate email format
+      if (!emailService.validateEmail(identifier)) {
+        return res.status(400).json({
+          error: 'Invalid email format',
+          message: 'Please provide a valid email address',
+          messageBn: 'অনুগ্রহ ইমেল ঠিকানা দিন'
+        });
+      }
+      
+      // Find user by email
+      user = await prisma.user.findUnique({
+        where: { email: identifier }
+      });
+      loginType = 'email';
+    } else {
+      // Validate phone number
+      const phoneValidation = phoneValidationService.validateForUseCase(identifier, 'login');
+      if (!phoneValidation.isValid) {
+        return res.status(400).json({
+          error: 'Invalid phone format',
+          message: phoneValidation.error,
+          messageBn: phoneValidation.errorBn,
+          code: phoneValidation.code
+        });
+      }
+      
+      // Find user by phone
+      user = await prisma.user.findUnique({
+        where: { phone: phoneValidation.normalizedPhone }
+      });
+      loginType = 'phone';
+    }
 
     if (!user || !user.password) {
       return res.status(401).json({
         error: 'Invalid credentials',
-        message: 'Invalid email or password',
-        messageBn: 'অবৈধ ইমেল বা পাসওয়ার্ড'
+        message: `Invalid ${loginType} or password`,
+        messageBn: loginType === 'email' ? 'অবৈধ ইমেল বা পাসওয়ার্ড' : 'অবৈধ ফোন বা পাসওয়ার্ড'
       });
     }
 
@@ -277,17 +373,62 @@ router.post('/login', [
     if (!isValidPassword) {
       return res.status(401).json({
         error: 'Invalid credentials',
-        message: 'Invalid email or password',
-        messageBn: 'অবৈধ ইমেল বা পাসওয়ার্ড'
+        message: `Invalid ${loginType} or password`,
+        messageBn: loginType === 'email' ? 'অবৈধ ইমেল বা পাসওয়ার্ড' : 'অবৈধ ফোন বা পাসওয়ার্ড'
       });
     }
 
-    // Check if email is verified
-    if (user.status === 'PENDING') {
+    // Check if user is verified (skip if testing mode or verification disabled)
+    const isTestingMode = configService.isTestingMode();
+    const isEmailVerificationDisabled = configService.isEmailVerificationDisabled();
+    const isPhoneVerificationDisabled = configService.isPhoneVerificationDisabled();
+    
+    const requiresVerification =
+      (loginType === 'email' && !isEmailVerificationDisabled) ||
+      (loginType === 'phone' && !isPhoneVerificationDisabled);
+    
+    if (user.status === 'PENDING' && requiresVerification && !isTestingMode) {
+      const verificationMessage = loginType === 'email'
+        ? 'Please verify your email address before logging in'
+        : 'Please verify your phone number before logging in';
+      const verificationMessageBn = loginType === 'email'
+        ? 'লগিন করার আগে ইমেল যাচাই করুন'
+        : 'লগিন করার আগে ফোন নম্বর যাচাই করুন';
+      
       return res.status(403).json({
-        error: 'Email not verified',
-        message: 'Please verify your email address before logging in',
-        messageBn: 'লগিন করার আগে ইমেল যাচাই করুন'
+        error: 'Account not verified',
+        message: verificationMessage,
+        messageBn: verificationMessageBn,
+        requiresVerification: true,
+        verificationType: loginType
+      });
+    }
+    
+    // Auto-activate pending users in testing mode or when verification is disabled
+    if (user.status === 'PENDING' && (isTestingMode || !requiresVerification)) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          status: 'ACTIVE',
+          emailVerified: loginType === 'email' ? new Date() : user.emailVerified,
+          phoneVerified: loginType === 'phone' ? new Date() : user.phoneVerified
+        }
+      });
+      
+      // Refresh user data after update
+      user = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: {
+          id: true,
+          email: true,
+          phone: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          status: true,
+          emailVerified: true,
+          phoneVerified: true
+        }
       });
     }
 
@@ -297,51 +438,160 @@ router.post('/login', [
       data: { lastLoginAt: new Date() }
     });
 
-    // Generate JWT token
+    // Create secure session instead of JWT token
+    const sessionResult = await sessionService.createSession(user.id, req, {
+      loginType,
+      rememberMe: rememberMe || false,
+      maxAge: rememberMe ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000 // 7 days if remember me, 24 hours default
+    });
+
+    if (!sessionResult.sessionId) {
+      return res.status(500).json({
+        error: 'Login failed',
+        message: 'Unable to create session',
+        messageBn: 'লগিন ব্যর্থ হয়েছে'
+      });
+    }
+
+    // Set session cookie with remember me options
+    sessionMiddleware.setSessionCookie(res, sessionResult.sessionId, {
+      maxAge: sessionResult.maxAge,
+      rememberMe: rememberMe || false
+    });
+
+    // Add session headers
+    const sessionHeaders = sessionMiddleware.sessionHeaders(sessionResult);
+    Object.keys(sessionHeaders).forEach(key => {
+      res.set(key, sessionHeaders[key]);
+    });
+
+    // Generate JWT token for API compatibility (shorter expiry)
     const jwtSecretLogin = process.env.JWT_SECRET;
     if (!jwtSecretLogin) {
       throw new Error('JWT_SECRET environment variable is required');
     }
     
     const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role },
+      {
+        userId: user.id,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        sessionId: sessionResult.sessionId
+      },
       jwtSecretLogin,
-      { expiresIn: '7d' }
+      { expiresIn: process.env.JWT_EXPIRES_IN || '15m' } // Shorter expiry for JWT, session manages long-term auth
     );
 
-    res.json({
-      message: 'Login successful',
-      messageBn: 'লগিন সফল',
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-        status: user.status
-      },
-      token
+
+    // Record successful login and clear failed attempts
+    return loginSecurityMiddleware.recordSuccessfulLogin(req, { id: user.id }, (req, res) => {
+      res.json({
+        message: 'Login successful',
+        messageBn: 'লগিন সফল',
+        user: {
+          id: user.id,
+          email: user.email,
+          phone: user.phone,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+          status: user.status
+        },
+        token, // For API compatibility
+        sessionId: sessionResult.sessionId,
+        expiresAt: sessionResult.expiresAt,
+        maxAge: sessionResult.maxAge,
+        loginType,
+        rememberMe: rememberMe || false,
+        securityContext: req.securityContext
+      });
     });
 
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({
-      error: 'Login failed',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
-      messageBn: 'লগিন ব্যর্থ হয়েছে'
+    console.error('Login error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
+    
+    // Record failed attempt due to system error
+    req.authError = 'system_error';
+    return loginSecurityMiddleware.recordFailedLogin()(req, res, () => {
+      res.status(500).json({
+        error: 'Login failed',
+        message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+        messageBn: 'লগিন ব্যর্থ হয়েছে'
+      });
     });
   }
 });
 
+// Basic captcha validation function (integrate with actual captcha service)
+async function validateCaptcha(captcha, ip) {
+  // This is a placeholder - integrate with reCAPTCHA, hCaptcha, or similar
+  // For now, we'll accept any captcha if security doesn't require it
+  return true;
+}
+
 // Logout endpoint
-router.post('/logout', async (req, res) => {
+router.post('/logout', [
+  body('allDevices').optional().isBoolean()
+], async (req, res) => {
   try {
-    // In a real implementation, you would invalidate token
-    // For now, we'll just return success
+    const { allDevices } = req.body;
+    const sessionId = sessionMiddleware.getSessionId(req);
+
+    if (!sessionId) {
+      return res.status(400).json({
+        error: 'No session found',
+        message: 'No active session to logout',
+        messageBn: 'লগআউট করার জন্য কোনো সেশন পাওয়া যায়নি'
+      });
+    }
+
+    // Validate session to get user ID
+    const validation = await sessionService.validateSession(sessionId, req);
+    
+    if (!validation.valid) {
+      // Clear session cookie anyway
+      sessionMiddleware.clearSessionCookie(res);
+      
+      return res.json({
+        message: 'Logout successful',
+        messageBn: 'লগআউট সফল',
+        sessionExpired: true
+      });
+    }
+
+    let result;
+    if (allDevices) {
+      // Destroy all sessions for this user
+      result = await sessionService.destroyAllUserSessions(validation.userId, sessionId);
+    } else {
+      // Destroy current session only
+      result = await sessionService.destroySession(sessionId, 'user_logout');
+    }
+
+    if (!result.success) {
+      return res.status(500).json({
+        error: 'Logout failed',
+        message: result.reason,
+        messageBn: 'লগআউট ব্যর্থ হয়েছে'
+      });
+    }
+
+    // Clear session cookie
+    sessionMiddleware.clearSessionCookie(res);
+
     res.json({
       message: 'Logout successful',
-      messageBn: 'লগআউট সফল'
+      messageBn: 'লগআউট সফল',
+      allDevices: allDevices || false,
+      destroyedCount: allDevices ? result.destroyedCount : 1
     });
+
   } catch (error) {
     console.error('Logout error:', error);
     res.status(500).json({
@@ -401,7 +651,7 @@ router.post('/refresh', async (req, res) => {
     const newToken = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
       jwtSecretNew,
-      { expiresIn: '7d' }
+      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
 
     res.json({
@@ -1202,6 +1452,222 @@ router.get('/operators', async (req, res) => {
       error: 'Failed to get operators',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
       messageBn: 'অপারেটর পাওতে ব্যর্থ হয়েছে'
+    });
+  }
+});
+
+// Remember me token validation endpoint
+router.post('/validate-remember-me', [
+  body('token').notEmpty().trim()
+], handleValidationErrors, async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({
+        error: 'Token required',
+        message: 'Remember me token is required',
+        messageBn: 'রিমেম্বার মি টোকেন প্রয়োজন'
+      });
+    }
+
+    // Validate remember me token
+    const validation = await sessionService.validateRememberMeToken(token);
+    
+    if (!validation.valid) {
+      return res.status(400).json({
+        error: 'Invalid token',
+        message: validation.reason || 'Remember me token is invalid or expired',
+        messageBn: validation.reason || 'রিমেম্বার মি টোকেন অবৈধ বা মেয়াদীপূর্ণ'
+      });
+    }
+
+    // Get user details
+    const user = await prisma.user.findUnique({
+      where: { id: validation.userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        role: true,
+        status: true
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        error: 'User not found',
+        message: 'User account not found',
+        messageBn: 'ব্যবহার্টার পাওয়া যায়নি'
+      });
+    }
+
+    res.json({
+      message: 'Remember me token is valid',
+      messageBn: 'রিমেম্বার মি টোকেন বৈধ',
+      user,
+      tokenValid: true,
+      createdAt: validation.createdAt
+    });
+
+  } catch (error) {
+    console.error('Remember me token validation error:', error);
+    res.status(500).json({
+      error: 'Validation failed',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      messageBn: 'যাচাই ব্যর্থ হয়েছে'
+    });
+  }
+});
+
+// Refresh session using remember me token
+router.post('/refresh-from-remember-me', [
+  body('token').notEmpty().trim()
+], handleValidationErrors, async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({
+        error: 'Token required',
+        message: 'Remember me token is required',
+        messageBn: 'রিমেম্বার মি টোকেন প্রয়োজন'
+      });
+    }
+
+    // Refresh session using remember me token
+    const refreshResult = await sessionService.refreshFromRememberMeToken(token, req);
+    
+    if (!refreshResult.success) {
+      return res.status(400).json({
+        error: 'Session refresh failed',
+        message: refreshResult.reason || 'Failed to refresh session from remember me token',
+        messageBn: refreshResult.reason || 'রিমেম্বার মি টোকেন থেকে সেশন রিফ্রেশ ব্যর্থ হয়েছে'
+      });
+    }
+
+    // Get user details
+    const user = await prisma.user.findUnique({
+      where: { id: refreshResult.userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        role: true,
+        status: true
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        error: 'User not found',
+        message: 'User account not found',
+        messageBn: 'ব্যবহার্টার পাওয়া যায়নি'
+      });
+    }
+
+    // Set session cookie
+    sessionMiddleware.setSessionCookie(res, refreshResult.sessionId, {
+      maxAge: refreshResult.maxAge,
+      rememberMe: true
+    });
+
+    // Add session headers
+    const sessionHeaders = sessionMiddleware.sessionHeaders(refreshResult);
+    Object.keys(sessionHeaders).forEach(key => {
+      res.set(key, sessionHeaders[key]);
+    });
+
+    // Generate JWT token for API compatibility
+    const jwtSecretLogin = process.env.JWT_SECRET;
+    if (!jwtSecretLogin) {
+      throw new Error('JWT_SECRET environment variable is required');
+    }
+    
+    const jwtToken = jwt.sign(
+      {
+        userId: user.id,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        sessionId: refreshResult.sessionId
+      },
+      jwtSecretLogin,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '15m' }
+    );
+
+    res.json({
+      message: 'Session refreshed successfully',
+      messageBn: 'সেশন সফল হয়েছে',
+      user,
+      token: jwtToken,
+      sessionId: refreshResult.sessionId,
+      expiresAt: refreshResult.expiresAt,
+      maxAge: refreshResult.maxAge,
+      rememberMe: true,
+      refreshedFrom: 'remember_me_token'
+    });
+
+  } catch (error) {
+    console.error('Remember me session refresh error:', error);
+    res.status(500).json({
+      error: 'Session refresh failed',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      messageBn: 'সেশন রিফ্রেশ ব্যর্থ হয়েছে'
+    });
+  }
+});
+
+// Disable remember me functionality
+router.post('/disable-remember-me', [
+  authMiddleware.authenticate(),
+  body('allDevices').optional().isBoolean()
+], handleValidationErrors, async (req, res) => {
+  try {
+    const { allDevices } = req.body;
+    const userId = req.user.id;
+    const currentSessionId = req.sessionId;
+
+    if (allDevices) {
+      // Destroy all remember me sessions for this user
+      const result = await sessionService.destroyAllUserSessions(userId, currentSessionId);
+      
+      // Clear remember me cookies
+      res.clearCookie('rememberMe');
+      res.clearCookie('rememberMeEnabled');
+
+      res.json({
+        message: 'Remember me disabled on all devices',
+        messageBn: 'সব ডিভাইসে রিমেম্বার মি নিষ্ক্রিয় করা হয়েছে',
+        allDevices: true,
+        destroyedCount: result.destroyedCount
+      });
+    } else {
+      // Destroy current session only
+      const result = await sessionService.destroySession(currentSessionId, 'disable_remember_me');
+      
+      // Clear remember me cookies
+      res.clearCookie('rememberMe');
+      res.clearCookie('rememberMeEnabled');
+
+      res.json({
+        message: 'Remember me disabled on current device',
+        messageBn: 'বর্তমান ডিভাইসে রিমেম্বার মি নিষ্ক্রিয় করা হয়েছে',
+        allDevices: false,
+        destroyedCount: 1
+      });
+    }
+
+  } catch (error) {
+    console.error('Disable remember me error:', error);
+    res.status(500).json({
+      error: 'Failed to disable remember me',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      messageBn: 'রিমেম্বার মি নিষ্ক্রিয় করতে ব্যর্থ হয়েছে'
     });
   }
 });

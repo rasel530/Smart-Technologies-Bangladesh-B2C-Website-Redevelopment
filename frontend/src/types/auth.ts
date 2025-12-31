@@ -1,3 +1,16 @@
+export interface LoginData {
+  emailOrPhone: string;
+  password: string;
+  rememberMe?: boolean;
+}
+
+export interface LoginFormProps {
+  onSubmit: (data: LoginData) => void | Promise<void>;
+  onLanguageChange?: (lang: 'en' | 'bn') => void;
+  initialLanguage?: 'en' | 'bn';
+  className?: string;
+}
+
 export interface RegistrationData {
   // Basic Information
   firstName: string;
@@ -21,8 +34,8 @@ export interface RegistrationData {
   postalCode?: string;
   
   // Preferences
-  preferredLanguage: 'en' | 'bn';
-  marketingConsent: boolean;
+  preferredLanguage?: 'en' | 'bn';
+  marketingConsent?: boolean;
   termsAccepted: boolean;
 }
 
@@ -64,6 +77,23 @@ export interface FormState {
   isValid: boolean;
   isSubmitting: boolean;
   currentStep: number;
+}
+
+export interface ValidationStats {
+  total: number;
+  valid: number;
+  invalid: number;
+  mobile: number;
+  landline: number;
+  special: number;
+  operators: Record<string, number>;
+  areas: Record<string, number>;
+  formats: {
+    international: number;
+    local: number;
+    country_code: number;
+    unknown: number;
+  };
 }
 
 export interface PasswordStrength {
@@ -189,6 +219,7 @@ export interface User {
   phone?: string;
   firstName: string;
   lastName: string;
+  role?: string;
   isEmailVerified: boolean;
   isPhoneVerified: boolean;
   preferredLanguage: 'en' | 'bn';
@@ -200,11 +231,17 @@ export interface User {
 export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (emailOrPhone: string, password: string) => Promise<void>;
+  error: string | null;
+  login: (emailOrPhone: string, password: string, rememberMe?: boolean) => Promise<void>;
   register: (data: RegistrationData) => Promise<void>;
   logout: () => void;
   verifyEmail: (email: string, code: string) => Promise<void>;
   verifyPhone: (phone: string, code: string) => Promise<void>;
   sendEmailVerification: (email: string) => Promise<void>;
   sendPhoneVerification: (phone: string) => Promise<void>;
+  forgotPassword: (identifier: string) => Promise<void>;
+  resetPassword: (token: string, password: string, confirmPassword: string) => Promise<void>;
+  clearError: () => void;
+  extendSession: () => Promise<void>;
+  sessionTimeout: number | null;
 }

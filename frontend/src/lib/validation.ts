@@ -261,10 +261,17 @@ export const registrationSchema = z.object({
 
   termsAccepted: z
     .boolean()
-    .refine((accepted) => accepted === true, 'You must accept the terms and conditions')
+    .refine((accepted) => accepted === true, 'You must accept terms and conditions')
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Passwords do not match',
   path: ['confirmPassword']
+});
+
+// Login schema
+export const loginSchema = z.object({
+  emailOrPhone: z.string().min(1, 'Email or phone is required'),
+  password: z.string().min(1, 'Password is required'),
+  rememberMe: z.boolean().optional().default(false)
 });
 
 // Step-specific schemas
@@ -310,7 +317,7 @@ export const validateStep = (step: number, data: Partial<RegistrationData>) => {
     case 4:
       return preferencesSchema.safeParse(data);
     default:
-      return { success: false, error: { issues: [{ message: 'Invalid step' }] };
+      return { success: false, error: { issues: [{ message: 'Invalid step' }] } };
   }
 };
 
@@ -327,4 +334,22 @@ export const getRequiredFieldsForStep = (step: number): (keyof RegistrationData)
     default:
       return [];
   }
+};
+
+// Re-export phone validation functions
+export {
+  validateBangladeshPhone,
+  normalizePhoneNumber,
+  formatPhoneNumber,
+  getOperatorInfo,
+  getOperatorColor,
+  isOperator,
+  getSupportedOperators,
+  getSupportedLandlineAreas,
+  validateForUseCase,
+  createPhoneValidator,
+  formatPhoneInput,
+  MOBILE_OPERATORS,
+  LANDLINE_AREA_CODES,
+  SPECIAL_NUMBERS
 };

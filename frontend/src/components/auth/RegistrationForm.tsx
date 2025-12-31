@@ -21,7 +21,8 @@ import { cn } from '@/lib/utils';
 
 interface RegistrationFormProps {
   onSubmit: (data: Partial<RegistrationData>) => Promise<void>;
-  onLanguageChange: (language: 'en' | 'bn') => void;
+  language?: 'en' | 'bn';
+  onLanguageChange?: (language: 'en' | 'bn') => void;
   initialLanguage?: 'en' | 'bn';
   className?: string;
 }
@@ -56,7 +57,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
     formState: { errors, isValid }
   } = useForm<RegistrationData>({
     resolver: zodResolver(registrationSchema),
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -76,8 +77,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
       preferredLanguage: initialLanguage,
       marketingConsent: false,
       termsAccepted: false
-    },
-    mode: 'onChange'
+    }
   });
 
   // Watch form values
@@ -89,8 +89,10 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
   // Update language when it changes
   useEffect(() => {
-    setValue('preferredLanguage', language);
-    onLanguageChange(language);
+    if (language) {
+      setValue('preferredLanguage', language);
+      onLanguageChange?.(language);
+    }
   }, [language, setValue, onLanguageChange]);
 
   // Password strength calculation
@@ -588,10 +590,11 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
               control={control}
               render={({ field }) => (
                 <BangladeshAddress
+                  key={`address-${language}`}
                   division={field.value || ''}
                   district={watchedValues.district || ''}
                   upazila={watchedValues.upazila || ''}
-                  onDivisionChange={field.onChange}
+                  onDivisionChange={(value) => setValue('division', value)}
                   onDistrictChange={(value) => setValue('district', value)}
                   onUpazilaChange={(value) => setValue('upazila', value)}
                   errors={{

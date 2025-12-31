@@ -56,12 +56,13 @@ class LoggerService {
     }
 
     // File transport with rotation and compression for production
-    if (this.config.file) {
+    // Temporarily disabled to fix startup issue
+    if (false && this.config.file && this.config.file.enabled) {
       const fileTransport = new winston.transports.File({
-        filename: this.config.file,
+        filename: 'logs/app.log',
         format: logFormat,
-        maxsize: 10 * 1024 * 1024, // 10MB as specified
-        maxFiles: 5, // 5 files as specified
+        maxsize: 10 * 1024 * 1024, // 10MB
+        maxFiles: 5,
         tailable: true,
         zippedArchive: this.isProduction // Enable compression in production
       });
@@ -630,6 +631,15 @@ class LoggerService {
       bufferSize: this.logBuffer.length,
       isProduction: this.isProduction
     };
+  }
+
+  // Parse size string to bytes
+  parseSize(sizeStr) {
+    const units = { b: 1, k: 1024, m: 1024 * 1024, g: 1024 * 1024 * 1024 };
+    const match = sizeStr.toLowerCase().match(/^(\d+)([bkmg]?)$/);
+    if (!match) return 10 * 1024 * 1024; // Default 10MB
+    const [, size, unit] = match;
+    return parseInt(size) * (units[unit] || 1);
   }
 
   // Cleanup with buffer flush

@@ -1,0 +1,170 @@
+{
+  "timestamp": "2025-12-20T11:13:46.690Z",
+  "duration": 3937,
+  "overallStatus": "healthy",
+  "results": {
+    "database": {
+      "status": "healthy",
+      "details": {
+        "health": {
+          "status": "healthy",
+          "database": "connected",
+          "responseTime": "145ms",
+          "connectionPool": {
+            "activeConnections": 0,
+            "idleConnections": 0,
+            "totalConnections": 0,
+            "maxConnections": 10,
+            "utilizationRate": "0.00%",
+            "timeouts": {
+              "connection": 30000,
+              "idle": 10000,
+              "acquire": 30000
+            },
+            "queryCount": 1,
+            "errorCount": 0,
+            "timestamp": "2025-12-20T11:13:42.910Z"
+          },
+          "timestamp": "2025-12-20T11:13:42.911Z"
+        },
+        "stats": {
+          "users": 7,
+          "products": 6,
+          "categories": 5,
+          "brands": 4,
+          "orders": 3,
+          "reviews": 4,
+          "coupons": 3,
+          "timestamp": "2025-12-20T11:13:43.164Z"
+        }
+      },
+      "errors": []
+    },
+    "redis": {
+      "status": "healthy",
+      "details": {
+        "tests": [
+          {
+            "method": "connection-pool",
+            "status": "failed",
+            "error": "Cannot read properties of undefined (reading 'ping')"
+          },
+          {
+            "method": "direct",
+            "status": "success"
+          },
+          {
+            "method": "network",
+            "host": "redis",
+            "status": "failed"
+          },
+          {
+            "method": "network",
+            "host": "localhost",
+            "status": "success"
+          },
+          {
+            "method": "network",
+            "host": "127.0.0.1",
+            "status": "success"
+          }
+        ]
+      },
+      "errors": [
+        "Cannot read properties of undefined (reading 'ping')",
+        "failed"
+      ]
+    },
+    "api": {
+      "status": "healthy",
+      "details": {
+        "tests": [
+          {
+            "endpoint": "/",
+            "status": "success",
+            "statusCode": 200,
+            "response": {
+              "message": "Smart Technologies Bangladesh B2C Website Backend API",
+              "version": "1.0.0",
+              "status": "running",
+              "database": "connected",
+              "services": {
+                "database": "connected",
+                "config": "loaded",
+                "logger": "active"
+              }
+            }
+          },
+          {
+            "endpoint": "/health",
+            "status": "success",
+            "statusCode": 200,
+            "response": {
+              "status": "OK",
+              "timestamp": "2025-12-20T11:13:46.425Z",
+              "database": "connected",
+              "environment": "production"
+            }
+          },
+          {
+            "endpoint": "/api/db-status",
+            "status": "success",
+            "statusCode": 200,
+            "response": {
+              "status": "connected",
+              "statistics": {
+                "users": 7,
+                "products": 6,
+                "categories": 5,
+                "brands": 4,
+                "orders": 3,
+                "reviews": 4,
+                "coupons": 3,
+                "timestamp": "2025-12-20T11:13:46.504Z"
+              },
+              "timestamp": "2025-12-20T11:13:46.504Z"
+            }
+          }
+        ],
+        "baseUrl": "http://localhost:3001"
+      },
+      "errors": []
+    },
+    "dependencies": {
+      "status": "healthy",
+      "details": {
+        "tests": [
+          {
+            "service": "logger",
+            "status": "success"
+          },
+          {
+            "service": "config",
+            "status": "success"
+          },
+          {
+            "service": "prisma",
+            "status": "success"
+          },
+          {
+            "service": "email",
+            "status": "success"
+          }
+        ]
+      },
+      "errors": []
+    },
+    "configuration": {
+      "status": "completed",
+      "details": {
+        "NODE_ENV": "development",
+        "PORT": "3001",
+        "POSTGRES_DATABASE_URL": "configured",
+        "REDIS_URL": "redis://default:redis_smarttech_2024@localhost:6379",
+        "REDIS_TTL": "3600",
+        "POSTGRES_JWT_SECRET": "configured",
+        "JWT_SECRET": "configured"
+      }
+    }
+  }
+}

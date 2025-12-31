@@ -10,9 +10,15 @@ const { configService } = require('./services/config');
 const { loggerService } = require('./services/logger');
 const { authMiddleware } = require('./middleware/auth');
 const { swaggerService } = require('./swagger');
+const { loginSecurityService } = require('./services/loginSecurityService');
+const { redisConnectionPool } = require('./services/redisConnectionPool');
+const { redisFallbackService } = require('./services/redisFallbackService');
+const { redisStartupValidator } = require('./services/redisStartupValidator');
+const { rateLimitService } = require('./services/rateLimitService');
 
 // Import routes
 const authRoutes = require('./routes/auth');
+const sessionRoutes = require('./routes/sessions');
 const userRoutes = require('./routes/users');
 const productRoutes = require('./routes/products');
 const categoryRoutes = require('./routes/categories');
@@ -34,16 +40,16 @@ app.use(helmet());
 const corsConfig = configService.getCORSConfig();
 const allowedOrigins = process.env.NODE_ENV === 'production'
   ? [
-      'https://smarttechnologies-bd.com',
-      'https://www.smarttechnologies-bd.com',
-      'https://admin.smarttechnologies-bd.com'
-    ]
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com'
+  ]
   : process.env.NODE_ENV === 'staging'
-  ? [
+    ? [
       'https://staging.smarttechnologies-bd.com',
       'https://admin-staging.smarttechnologies-bd.com'
     ]
-  : [
+    : [
       'http://localhost:3000',
       'http://localhost:3001',
       'http://127.0.0.1:3000',
@@ -54,7 +60,7 @@ app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -69,20 +75,42 @@ app.use(cors({
 }));
 
 app.use(morgan('combined', { stream: loggerService.stream() }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+// Enhanced JSON parsing with error handling
+app.use(express.json({
+  limit: '10mb',
+  strict: true
+}));
+
+// Handle JSON parsing errors
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({
+      error: 'Invalid JSON',
+      message: 'The request body contains invalid JSON',
+      messageBn: 'অনুরোধ বডিতে অবৈধ JSON রয়েছে',
+      timestamp: new Date().toISOString()
+    });
+  }
+  next();
+});
+
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Request ID middleware
 app.use(authMiddleware.requestId());
 
-// Authentication middleware (optional)
-app.use('/api/v1/auth', authMiddleware.optional());
+// Login attempt rate limiting
+app.use('/api/v1/auth/login', authMiddleware.rateLimit());
 
-// Rate limiting
+// General rate limiting
 app.use(authMiddleware.rateLimit());
 
-// API routes
+// API routes - Mount with /api prefix
 app.use('/api', routeIndex);
+
+// Session management routes
+app.use('/api/v1/sessions', sessionRoutes);
 
 // Basic route
 app.get('/', (req, res) => {
@@ -104,11 +132,29 @@ app.get('/health', async (req, res) => {
   try {
     const healthStatus = await databaseService.healthCheck();
     
+    // Check Redis connection status
+    let redisStatus = 'disconnected';
+    try {
+      const { redisConnectionPool } = require('./services/redisConnectionPool');
+      if (redisConnectionPool.isInitialized) {
+        redisStatus = 'connected';
+      }
+    } catch (error) {
+      loggerService.warn('Redis status check failed', error.message);
+    }
+
     res.status(200).json({
       status: 'OK',
       timestamp: new Date().toISOString(),
       database: healthStatus.database,
-      environment: configService.get('NODE_ENV')
+      redis: redisStatus,
+      environment: configService.get('NODE_ENV'),
+      services: {
+        database: healthStatus.database === 'connected' ? 'healthy' : 'unhealthy',
+        redis: redisStatus === 'connected' ? 'healthy' : 'unhealthy',
+        loginSecurity: 'initialized',
+        rateLimiting: 'active'
+      }
     });
   } catch (error) {
     loggerService.error('Health check failed', error);
@@ -116,7 +162,71 @@ app.get('/health', async (req, res) => {
       status: 'ERROR',
       timestamp: new Date().toISOString(),
       database: 'disconnected',
-      error: 'Database connection failed'
+      redis: 'unknown',
+      error: 'Health check failed'
+    });
+  }
+});
+
+// Enhanced health check endpoint at /api/v1/health
+app.get('/api/v1/health', async (req, res) => {
+  try {
+    const healthStatus = await databaseService.healthCheck();
+    
+    // Check Redis connection status
+    let redisStatus = 'disconnected';
+    let redisStats = {};
+    try {
+      const { redisConnectionPool } = require('./services/redisConnectionPool');
+      if (redisConnectionPool.isInitialized) {
+        redisStatus = 'connected';
+        redisStats = await redisConnectionPool.getStats();
+      }
+    } catch (error) {
+      loggerService.warn('Redis status check failed', error.message);
+    }
+
+    // Check configuration validation
+    const configValidation = configService.validateConfig();
+
+    res.status(200).json({
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      environment: configService.get('NODE_ENV'),
+      services: {
+        database: {
+          status: healthStatus.database === 'connected' ? 'healthy' : 'unhealthy',
+          connectionTime: healthStatus.connectionTime
+        },
+        redis: {
+          status: redisStatus === 'connected' ? 'healthy' : 'unhealthy',
+          stats: redisStats
+        },
+        loginSecurity: {
+          status: 'initialized',
+          features: {
+            rateLimiting: 'active',
+            accountLockout: 'active',
+            ipBlocking: 'active',
+            progressiveDelay: 'active'
+          }
+        },
+        configuration: {
+          status: configValidation.isValid ? 'valid' : 'invalid',
+          errors: configValidation.errors || []
+        }
+      },
+      uptime: process.uptime(),
+      memory: process.memoryUsage()
+    });
+  } catch (error) {
+    loggerService.error('Enhanced health check failed', error);
+    res.status(503).json({
+      status: 'ERROR',
+      timestamp: new Date().toISOString(),
+      error: 'Health check failed',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
@@ -125,7 +235,7 @@ app.get('/health', async (req, res) => {
 app.get('/api/db-status', async (req, res) => {
   try {
     const stats = await databaseService.getStats();
-    
+
     res.status(200).json({
       status: 'connected',
       statistics: stats,
@@ -141,11 +251,41 @@ app.get('/api/db-status', async (req, res) => {
   }
 });
 
+// Rate limiting status endpoint
+app.get('/api/rate-limit-status', async (req, res) => {
+  try {
+    const rateLimitStatus = rateLimitService.getStatus();
+    const redisStatus = await redisFallbackService.checkRedisStatus();
+
+    res.status(200).json({
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      rateLimit: {
+        isRedisAvailable: rateLimitStatus.isRedisAvailable,
+        memoryStoreSize: rateLimitStatus.memoryStoreSize,
+        service: 'active'
+      },
+      redis: {
+        isAvailable: redisStatus,
+        fallbackMode: redisFallbackService.fallbackMode,
+        status: redisStatus ? 'available' : 'unavailable'
+      }
+    });
+  } catch (error) {
+    loggerService.error('Rate limit status check failed', error);
+    res.status(500).json({
+      status: 'error',
+      error: 'Failed to retrieve rate limiting status',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Swagger documentation endpoint
 app.get('/api-docs', (req, res) => {
   try {
     const swaggerSpec = swaggerService.generateSwaggerSpec();
-    
+
     res.setHeader('Content-Type', 'application/json');
     res.send(swaggerSpec);
   } catch (error) {
@@ -158,15 +298,108 @@ app.get('/api-docs', (req, res) => {
 });
 
 // Error handling middleware
-const { errorLogger } = require('./middleware/auth');
-app.use(errorLogger());
+app.use(authMiddleware.errorLogger());
+
+// Global error handler for consistent JSON responses
+app.use((err, req, res, next) => {
+  // Log error details
+  loggerService.error('Unhandled error', {
+    error: err.message,
+    stack: err.stack,
+    url: req.originalUrl,
+    method: req.method,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
+
+  // Default error response
+  let statusCode = 500;
+  let errorResponse = {
+    error: 'Internal server error',
+    message: 'An unexpected error occurred',
+    messageBn: 'একটি অপ্রত্যাশিত ত্রুটি',
+    timestamp: new Date().toISOString()
+  };
+
+  // Handle specific error types
+  if (err.name === 'ValidationError') {
+    statusCode = 400;
+    errorResponse = {
+      error: 'Validation error',
+      message: err.message,
+      messageBn: 'যাচাই ত্রুটি',
+      timestamp: new Date().toISOString()
+    };
+  } else if (err.name === 'UnauthorizedError') {
+    statusCode = 401;
+    errorResponse = {
+      error: 'Unauthorized',
+      message: 'Authentication required',
+      messageBn: 'প্রমাণীকরণ প্রয়োজন',
+      timestamp: new Date().toISOString()
+    };
+  } else if (err.name === 'ForbiddenError') {
+    statusCode = 403;
+    errorResponse = {
+      error: 'Forbidden',
+      message: 'Access denied',
+      messageBn: 'অ্যাক্সে অস্বীক',
+      timestamp: new Date().toISOString()
+    };
+  } else if (err.name === 'NotFoundError') {
+    statusCode = 404;
+    errorResponse = {
+      error: 'Not found',
+      message: 'Resource not found',
+      messageBn: 'সম্পদ পাওয়া যায়নি',
+      timestamp: new Date().toISOString()
+    };
+  } else if (err.name === 'ConflictError') {
+    statusCode = 409;
+    errorResponse = {
+      error: 'Conflict',
+      message: 'Resource conflict',
+      messageBn: 'সম্পদ দ্বন্দ্ব',
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  // Include stack trace in development mode
+  if (process.env.NODE_ENV === 'development') {
+    errorResponse.stack = err.stack;
+    errorResponse.details = {
+      name: err.name,
+      message: err.message
+    };
+  }
+
+  res.status(statusCode).json(errorResponse);
+});
 
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
     error: 'Route not found',
+    message: `The requested route ${req.method} ${req.originalUrl} was not found`,
+    messageBn: `অনুরোধকৃত রুট ${req.method} ${req.originalUrl} পাওয়া যায়নি`,
     path: req.originalUrl,
-    timestamp: new Date().toISOString()
+    method: req.method,
+    timestamp: new Date().toISOString(),
+    availableEndpoints: {
+      auth: '/api/v1/auth',
+      users: '/api/v1/users',
+      products: '/api/v1/products',
+      categories: '/api/v1/categories',
+      brands: '/api/v1/brands',
+      orders: '/api/v1/orders',
+      cart: '/api/v1/cart',
+      wishlist: '/api/v1/wishlist',
+      reviews: '/api/v1/reviews',
+      coupons: '/api/v1/coupons',
+      sessions: '/api/v1/sessions',
+      health: '/api/v1/health',
+      docs: '/api-docs'
+    }
   });
 });
 
@@ -186,14 +419,15 @@ process.on('SIGTERM', async () => {
 });
 
 // Start server
+loggerService.info('🚀 Attempting to start server on port', PORT);
 app.listen(PORT, '0.0.0.0', async () => {
-  loggerService.info('Server started', {
+  loggerService.info('✅ Server started successfully', {
     port: PORT,
     environment: configService.get('NODE_ENV'),
     database: 'configured',
     timestamp: new Date().toISOString()
   });
-  
+
   // Test database connection on startup
   try {
     await databaseService.connect();
@@ -201,6 +435,114 @@ app.listen(PORT, '0.0.0.0', async () => {
   } catch (error) {
     loggerService.error('Database connection failed on startup', error);
   }
+
+  // Redis startup validation
+  loggerService.info('🔄 Starting Redis connectivity validation...');
+  try {
+    const redisValidationResult = await redisStartupValidator.validateRedisStartup();
+    if (redisValidationResult) {
+      loggerService.info('✅ Redis connectivity validation passed');
+    } else {
+      loggerService.warn('⚠️ Redis connectivity validation failed, but continuing with fallback');
+    }
+  } catch (error) {
+    loggerService.error('❌ Redis startup validation failed', {
+      error: error.message,
+      stack: error.stack
+    });
+  }
+
+  // Initialize Redis fallback service
+  loggerService.info('🔄 Starting Redis fallback service initialization...');
+  try {
+    loggerService.info('📊 Redis connection pool status:', {
+      isInitialized: redisConnectionPool.isInitialized,
+      poolSize: redisConnectionPool.getPoolSize ? redisConnectionPool.getPoolSize() : 'unknown'
+    });
+    await redisFallbackService.initialize(redisConnectionPool);
+    loggerService.info('✅ Redis fallback service initialized successfully');
+  } catch (error) {
+    loggerService.error('❌ Redis fallback service initialization failed', {
+      error: error.message,
+      stack: error.stack
+    });
+  }
+
+  // Initialize rate limiting service
+  loggerService.info('🔄 Starting rate limiting service initialization...');
+  try {
+    await rateLimitService.initializeRedis();
+    loggerService.info('✅ Rate limiting service initialized successfully');
+  } catch (error) {
+    loggerService.error('❌ Rate limiting service initialization failed', {
+      error: error.message,
+      stack: error.stack
+    });
+  }
+
+  // Initialize login security service
+  loggerService.info('🔄 Starting login security service initialization...');
+  try {
+    await loginSecurityService.initialize();
+    loggerService.info('✅ Login security service initialized successfully');
+  } catch (error) {
+    loggerService.error('❌ Login security service initialization failed', {
+      error: error.message,
+      stack: error.stack
+    });
+  }
+
+  // Schedule cleanup tasks (every hour)
+  scheduleSessionCleanup();
+  scheduleSecurityCleanup();
 });
+
+// Session cleanup scheduling
+function scheduleSessionCleanup() {
+  const { sessionService } = require('./services/sessionService');
+
+  // Run cleanup every hour
+  setInterval(async () => {
+    try {
+      await sessionService.cleanupExpiredSessions();
+      loggerService.info('Scheduled session cleanup completed');
+    } catch (error) {
+      loggerService.error('Scheduled session cleanup failed', error.message);
+    }
+  }, 60 * 60 * 1000); // 1 hour
+
+  // Run initial cleanup after 5 minutes
+  setTimeout(async () => {
+    try {
+      await sessionService.cleanupExpiredSessions();
+      loggerService.info('Initial session cleanup completed');
+    } catch (error) {
+      loggerService.error('Initial session cleanup failed', error.message);
+    }
+  }, 5 * 60 * 1000); // 5 minutes
+}
+
+// Security cleanup scheduling
+function scheduleSecurityCleanup() {
+  // Run security cleanup every hour
+  setInterval(async () => {
+    try {
+      await loginSecurityService.cleanupExpiredData();
+      loggerService.info('Scheduled security cleanup completed');
+    } catch (error) {
+      loggerService.error('Scheduled security cleanup failed', error.message);
+    }
+  }, 60 * 60 * 1000); // 1 hour
+
+  // Run initial security cleanup after 10 minutes
+  setTimeout(async () => {
+    try {
+      await loginSecurityService.cleanupExpiredData();
+      loggerService.info('Initial security cleanup completed');
+    } catch (error) {
+      loggerService.error('Initial security cleanup failed', error.message);
+    }
+  }, 10 * 60 * 1000); // 10 minutes
+}
 
 module.exports = { app };

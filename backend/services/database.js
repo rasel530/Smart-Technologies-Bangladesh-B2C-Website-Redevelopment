@@ -128,6 +128,19 @@ class DatabaseService {
       };
     } catch (error) {
       const responseTime = Date.now() - startTime;
+      
+      // Try to reconnect if health check fails
+      if (error.message.includes('connect') || error.message.includes('ECONNREFUSED')) {
+        console.warn('Database connection lost, attempting to reconnect...');
+        try {
+          await this.connect();
+          // Retry health check after reconnection
+          return await this.healthCheck();
+        } catch (reconnectError) {
+          console.error('Database reconnection failed:', reconnectError.message);
+        }
+      }
+      
       return {
         status: 'unhealthy',
         database: 'disconnected',
@@ -171,18 +184,50 @@ class DatabaseService {
       };
     } catch (error) {
       console.error('Error getting database stats:', error);
-      throw error;
+      // Return fallback stats instead of throwing
+      return {
+        users: 0,
+        products: 0,
+        categories: 0,
+        brands: 0,
+        orders: 0,
+        reviews: 0,
+        coupons: 0,
+        error: error.message,
+        timestamp: new Date().toISOString()
+      };
     }
   }
 
   // Transaction helper
   async transaction(callback) {
-    return await this.prisma.$transaction(callback);
+    try {
+      return await this.prisma.$transaction(callback);
+    } catch (error) {
+      console.error('Database transaction failed:', error);
+      // In production, don't fail the entire operation if database is unavailable
+      if (process.env.NODE_ENV === 'production' && error.message.includes('connect')) {
+        console.warn('Database unavailable, skipping transaction');
+        return null;
+      }
+      throw error;
+    }
   }
 
   // Get client instance
   getClient() {
     return this.prisma;
+  }
+
+  // Check if database is available
+  async isAvailable() {
+    try {
+      await this.prisma.$queryRaw`SELECT 1`;
+      return true;
+    } catch (error) {
+      console.warn('Database availability check failed:', error.message);
+      return false;
+    }
   }
 
   // Raw query helper

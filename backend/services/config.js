@@ -1,512 +1,578 @@
-require('dotenv').config();
+const dotenv = require('dotenv');
+const path = require('path');
+const fs = require('fs');
 
+// Environment detection and configuration loading
+function loadEnvironmentConfig() {
+  const nodeEnv = process.env.NODE_ENV || 'development';
+  console.log(`🔍 Environment detected: ${nodeEnv}`);
+  
+  // Define possible environment files in order of priority
+  const envFiles = [
+    `.env.${nodeEnv}`,    // Environment-specific (e.g., .env.production, .env.docker)
+    '.env.local',         // Local overrides
+    '.env'                // Default configuration
+  ];
+  
+  // Load environment files in order, allowing overrides
+  for (const envFile of envFiles) {
+    const envPath = path.join(__dirname, '..', envFile);
+    if (fs.existsSync(envPath)) {
+      console.log(`📁 Loading environment file: ${envFile}`);
+      dotenv.config({ path: envPath, override: false });
+    } else {
+      console.log(`⚠️  Environment file not found: ${envFile}`);
+    }
+  }
+  
+  // Detect Docker environment - Enhanced detection
+  const isDockerEnvironment = fs.existsSync('/.dockerenv') ||
+    process.env.DOCKER_ENV === 'true' ||
+    process.env.IS_DOCKER === 'true' ||
+    nodeEnv === 'docker' ||
+    (process.env.REDIS_HOST && process.env.REDIS_HOST === 'redis');
+  
+  if (isDockerEnvironment) {
+    console.log('🐳 Docker environment detected, applying Docker-specific configuration');
+    process.env.NODE_ENV = 'production'; // Docker containers should run in production mode
+    process.env.IS_DOCKER = 'true';
+  }
+  
+  // Auto-configure Redis based on environment
+  if (isDockerEnvironment || nodeEnv === 'production') {
+    // Docker/Production: Use Redis service name
+    if (!process.env.REDIS_HOST || process.env.REDIS_HOST === 'localhost') {
+      process.env.REDIS_HOST = 'redis';
+      console.log('🔧 Auto-configured Redis host for Docker: redis');
+    }
+  } else if (nodeEnv === 'development') {
+    // Development: Use localhost
+    if (!process.env.REDIS_HOST) {
+      process.env.REDIS_HOST = 'localhost';
+      console.log('🔧 Auto-configured Redis host for development: localhost');
+    }
+  }
+  
+  return { nodeEnv, isDockerEnvironment };
+}
+
+// Load environment configuration
+const { nodeEnv: detectedEnv, isDockerEnvironment: isDocker } = loadEnvironmentConfig();
+
+// Validate required environment variables
+// Support both REDIS_URL and separate Redis variables
+// Support both DATABASE_URL and POSTGRES_DATABASE_URL
+const requiredEnvVars = [
+  'JWT_SECRET'
+];
+
+// Check database configuration (either DATABASE_URL or POSTGRES_DATABASE_URL)
+const hasDatabaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_DATABASE_URL;
+if (!hasDatabaseUrl) {
+  console.error('❌ Missing database configuration. Either DATABASE_URL or POSTGRES_DATABASE_URL must be provided');
+  process.exit(1);
+}
+
+// Check if either REDIS_URL or separate Redis variables are available
+const hasRedisUrl = process.env.REDIS_URL;
+const hasSeparateRedisVars = process.env.REDIS_HOST && process.env.REDIS_PORT && process.env.REDIS_PASSWORD;
+
+if (!hasRedisUrl && !hasSeparateRedisVars) {
+  console.error('❌ Missing Redis configuration. Either REDIS_URL or (REDIS_HOST, REDIS_PORT, REDIS_PASSWORD) must be provided');
+  process.exit(1);
+}
+
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+  console.error(`❌ Missing required environment variables: ${missingEnvVars.join(', ')}`);
+  process.exit(1);
+}
+
+// Database configuration
+// Support both DATABASE_URL and POSTGRES_DATABASE_URL (POSTGRES_DATABASE_URL takes precedence)
+const databaseUrl = process.env.POSTGRES_DATABASE_URL || process.env.DATABASE_URL;
+if (!databaseUrl) {
+  console.error('❌ Missing database configuration. Either DATABASE_URL or POSTGRES_DATABASE_URL must be provided');
+  process.exit(1);
+}
+
+const databaseConfig = {
+  url: databaseUrl,
+  ssl: process.env.POSTGRES_SSL === 'true',
+  connectionTimeoutMillis: 10000,
+  queryTimeoutMillis: 30000,
+  idleTimeoutMillis: 30000,
+  max: 20
+};
+
+console.log(`🔧 Database URL configured: ${databaseUrl.replace(/:[^:@]+@/, ':****@')}`);
+
+// JWT configuration - Standardize to JWT_SECRET
+const jwtConfig = {
+  secret: process.env.JWT_SECRET,
+  expiresIn: process.env.JWT_EXPIRES_IN || '24h',
+  refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d'
+};
+
+// Redis configuration with REDIS_URL parsing support
+const redisTtl = parseInt(process.env.REDIS_TTL) || 3600;
+
+// Parse REDIS_URL if available, otherwise use separate variables
+let redisHost, redisPort, redisPassword;
+
+// Use separate Redis variables (updated for local development)
+redisHost = process.env.REDIS_HOST || 'localhost';
+redisPort = parseInt(process.env.REDIS_PORT) || 6379;
+redisPassword = process.env.REDIS_PASSWORD || '';
+
+// If REDIS_URL is provided, parse it for configuration
+if (process.env.REDIS_URL) {
+  console.log(`🔍 Raw REDIS_URL: ${process.env.REDIS_URL}`);
+  try {
+    const redisUrl = new URL(process.env.REDIS_URL);
+    redisHost = redisUrl.hostname || redisHost;
+    redisPort = parseInt(redisUrl.port) || redisPort;
+    redisPassword = redisUrl.password || redisPassword;
+    
+    console.log(`✅ Parsed REDIS_URL: ${redisUrl.protocol}//${redisUrl.hostname}:${redisUrl.port}`);
+    console.log(`🔧 Final Redis config: host=${redisHost}, port=${redisPort}, password=${redisPassword ? '***' : 'none'}`);
+  } catch (error) {
+    console.warn(`⚠️  Failed to parse REDIS_URL: ${error.message}. Using separate variables.`);
+  }
+}
+
+// Log the final Redis configuration for debugging
+console.log(`🔧 Redis configuration: host=${redisHost}, port=${redisPort}, password=${redisPassword ? '***' : 'none'}`);
+
+// Create Redis configuration with enhanced stability
+const redisConfig = {
+  host: redisHost,
+  port: redisPort,
+  password: redisPassword,
+  db: 0,
+  retryDelayOnFailover: 100,
+  maxRetriesPerRequest: 3,
+  lazyConnect: true,
+  keepAlive: 30000,
+  connectTimeout: 15000,
+  commandTimeout: 5000,
+  maxmemoryPolicy: 'allkeys-lru',
+  // Enhanced reconnection strategy with exponential backoff
+  socket: {
+    keepAlive: true,
+    reconnectStrategy: (retries) => {
+      if (retries > 20) {
+        console.error('❌ Redis reconnection failed after 20 attempts');
+        return false;
+      }
+      // Exponential backoff with jitter
+      const baseDelay = 1000;
+      const maxDelay = 30000; // Increased max delay to 30 seconds
+      const exponentialDelay = Math.min(baseDelay * Math.pow(2, retries), maxDelay);
+      const jitter = Math.random() * 1000; // Add jitter to prevent thundering herd
+      const delay = exponentialDelay + jitter;
+      
+      console.log(`🔄 Redis reconnection attempt ${retries + 1}, delay: ${Math.round(delay)}ms`);
+      return delay;
+    },
+    noDelay: true,
+    connectTimeout: 20000, // Increased timeout to 20 seconds
+    commandTimeout: 10000, // Increased timeout to 10 seconds
+    // Additional socket stability options
+    family: 4, // Force IPv4
+    noDelay: true,
+    keepAlive: true,
+    keepAliveInitialDelay: 0
+  },
+  // Connection pooling configuration
+  connectionPool: {
+    min: 2, // Minimum connections
+    max: 10, // Maximum connections
+    acquireTimeoutMillis: 30000,
+    createTimeoutMillis: 30000,
+    destroyTimeoutMillis: 5000,
+    idleTimeoutMillis: 30000,
+    reapIntervalMillis: 1000
+  },
+  // Health check configuration
+  healthCheck: {
+    enabled: true,
+    interval: 30000, // Check every 30 seconds
+    timeout: 5000, // 5 second timeout for health check
+    maxRetries: 3,
+    onFailure: (error) => {
+      console.error('❌ Redis health check failed:', error.message);
+    },
+    onRecovery: () => {
+      console.log('✅ Redis connection recovered');
+    }
+  }
+};
+
+// Cache configuration
+const cacheConfig = {
+  redis: redisConfig,
+  ttl: redisTtl,
+  keyPrefix: 'smarttech:',
+  defaultCacheOptions: {
+    ttl: redisTtl,
+    updateAgeOnGet: false
+  }
+};
+
+// Email configuration
+const emailConfig = {
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT) || 587,
+  secure: process.env.SMTP_SECURE === 'true',
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
+  },
+  from: process.env.EMAIL_FROM || 'noreply@smarttech.com'
+};
+
+// SMS configuration
+const smsConfig = {
+  apiKey: process.env.SMS_API_KEY,
+  apiSecret: process.env.SMS_API_SECRET,
+  sender: process.env.SMS_SENDER || 'SmartTech'
+};
+
+// Server configuration
+const serverConfig = {
+  port: parseInt(process.env.PORT) || 3000,
+  host: process.env.HOST || 'localhost',
+  cors: {
+    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:3000', 'http://localhost:3001'],
+    credentials: true
+  },
+  rateLimit: {
+    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 900000, // 15 minutes
+    max: parseInt(process.env.RATE_LIMIT_MAX) || 100
+  }
+};
+
+// Security configuration
+const securityConfig = {
+  bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS) || 12,
+  passwordMinLength: parseInt(process.env.PASSWORD_MIN_LENGTH) || 8,
+  maxLoginAttempts: parseInt(process.env.MAX_LOGIN_ATTEMPTS) || 5,
+  lockoutDuration: parseInt(process.env.LOCKOUT_DURATION) || 900000, // 15 minutes
+  sessionSecret: process.env.SESSION_SECRET || 'fallback-secret-key',
+  cookieMaxAge: parseInt(process.env.COOKIE_MAX_AGE) || 86400000 // 24 hours
+};
+
+// File upload configuration
+const uploadConfig = {
+  maxFileSize: parseInt(process.env.MAX_FILE_SIZE) || 5 * 1024 * 1024, // 5MB
+  allowedTypes: process.env.ALLOWED_FILE_TYPES ? process.env.ALLOWED_FILE_TYPES.split(',') : ['image/jpeg', 'image/png', 'image/gif'],
+  destination: process.env.UPLOAD_DEST || 'uploads/'
+};
+
+// Logging configuration
+const loggingConfig = {
+  level: process.env.LOG_LEVEL || 'info',
+  format: process.env.LOG_FORMAT || 'combined',
+  file: {
+    enabled: process.env.LOG_FILE_ENABLED === 'true',
+    filename: process.env.LOG_FILENAME || 'logs/app.log',
+    maxSize: process.env.LOG_MAX_SIZE || '10m',
+    maxFiles: parseInt(process.env.LOG_MAX_FILES) || 5
+  }
+};
+
+// Configuration service class
 class ConfigService {
   constructor() {
-    this.config = {
-      // Server configuration
-      PORT: process.env.PORT || 3001,
-      NODE_ENV: process.env.NODE_ENV || 'development',
-      
-      // Database configuration
-      DATABASE_URL: process.env.DATABASE_URL,
-      DATABASE_SSL: process.env.DATABASE_SSL === 'true',
-      
-      // JWT configuration
-      JWT_SECRET: process.env.JWT_SECRET,
-      JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
-      
-      // CORS configuration
-      CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:3000',
-      CORS_CREDENTIALS: process.env.CORS_CREDENTIALS === 'true',
-      
-      // File upload configuration
-      MAX_FILE_SIZE: process.env.MAX_FILE_SIZE || '5242880', // 5MB
-      UPLOAD_PATH: process.env.UPLOAD_PATH || './uploads',
-      
-      // Email configuration
-      SMTP_HOST: process.env.SMTP_HOST,
-      SMTP_PORT: process.env.SMTP_PORT || 587,
-      SMTP_USER: process.env.SMTP_USER,
-      SMTP_PASS: process.env.SMTP_PASS,
-      SMTP_FROM: process.env.SMTP_FROM || 'noreply@smarttechnologies.bd',
-      
-      // SMS configuration
-      TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
-      TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
-      TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER,
-      
-      // Payment gateway configuration
-      BKASH_API_KEY: process.env.BKASH_API_KEY,
-      BKASH_API_SECRET: process.env.BKASH_API_SECRET,
-      NAGAD_API_KEY: process.env.NAGAD_API_KEY,
-      NAGAD_API_SECRET: process.env.NAGAD_API_SECRET,
-      ROCKET_API_KEY: process.env.ROCKET_API_KEY,
-      ROCKET_API_SECRET: process.env.ROCKET_API_SECRET,
-      
-      // Redis configuration (for caching)
-      REDIS_URL: process.env.REDIS_URL || 'redis://localhost:6379',
-      REDIS_TTL: process.env.REDIS_TTL || 3600, // 1 hour
-      
-      // Elasticsearch configuration
-      ELASTICSEARCH_URL: process.env.ELASTICSEARCH_URL || 'http://localhost:9200',
-      ELASTICSEARCH_INDEX: process.env.ELASTICSEARCH_INDEX || 'smart_ecommerce'
-    };
-
-    this.validateConfig();
+    this.database = databaseConfig;
+    this.jwt = jwtConfig;
+    this.cache = cacheConfig;
+    this.email = emailConfig;
+    this.sms = smsConfig;
+    this.server = serverConfig;
+    this.security = securityConfig;
+    this.upload = uploadConfig;
+    this.logging = loggingConfig;
   }
 
-  validateConfig() {
-    console.log('🔍 Starting configuration validation...');
-    const startTime = Date.now();
-    
-    // JWT Secret validation - no fallback in any environment
-    if (!this.config.JWT_SECRET) {
-      throw new Error('JWT_SECRET is required in all environments. Please set a secure JWT secret in your environment variables.');
-    }
-
-    const requiredFields = [
-      'DATABASE_URL'
-    ];
-
-    const missingFields = requiredFields.filter(field => !this.config[field]);
-    
-    // Enhanced validation for critical services including payment gateway secrets
-    const criticalFields = [
-      'DATABASE_URL',
-      'JWT_SECRET',
-      'BKASH_API_KEY',
-      'BKASH_API_SECRET',
-      'NAGAD_API_KEY',
-      'NAGAD_API_SECRET',
-      'ROCKET_API_KEY',
-      'ROCKET_API_SECRET'
-    ];
-    
-    const missingCriticalFields = criticalFields.filter(field => !this.config[field]);
-    
-    if (missingFields.length > 0) {
-      console.error('❌ Missing required environment variables:', {
-        missing: missingFields,
-        environment: this.config.NODE_ENV,
-        timestamp: new Date().toISOString(),
-        validationDuration: Date.now() - startTime
-      });
-      if (this.config.NODE_ENV === 'production') {
-        throw new Error(`Missing required environment variables: ${missingFields.join(', ')}`);
-      } else {
-        console.warn('⚠️  Missing environment variables (using defaults):', missingFields);
-      }
-    }
-    
-    if (missingCriticalFields.length > 0) {
-      console.warn('⚠️  Missing critical payment gateway configuration:', {
-        missing: missingCriticalFields,
-        impact: 'Payment processing will be disabled for these gateways',
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    // Validate database URL format
-    if (this.config.DATABASE_URL) {
-      try {
-        new URL(this.config.DATABASE_URL);
-      } catch (error) {
-        console.error('❌ Invalid DATABASE_URL format:', error.message);
-        if (this.config.NODE_ENV === 'production') {
-          throw new Error('Invalid DATABASE_URL format');
-        }
-      }
-    }
-
-    // Validate external service URLs
-    const serviceUrls = ['ELASTICSEARCH_URL', 'REDIS_URL'];
-    serviceUrls.forEach(urlField => {
-      if (this.config[urlField]) {
-        try {
-          if (urlField === 'REDIS_URL') {
-            // Debug the actual config value
-            console.log(`🔍 Raw config value for ${urlField}:`, this.config[urlField]);
-            console.log(`🔍 Config object keys:`, Object.keys(this.config));
-            
-            const redisUrl = this.config[urlField] && this.config[urlField].trim();
-            console.log(`🔍 Redis URL found: "${redisUrl}"`);
-            
-            if (!redisUrl || !redisUrl.startsWith('redis://')) {
-              throw new Error('REDIS_URL must use redis:// protocol');
-            }
-            // Basic format validation using regex - handles password authentication
-            const redisUrlPattern = /^redis:\/\/(?::([^@]*)@)?([^:]+):(\d+)$/;
-            if (!redisUrlPattern.test(redisUrl)) {
-              throw new Error('REDIS_URL must use valid format (redis://host:port, redis://:password@host:port, or redis://username:password@host:port)');
-            }
-            console.log('✅ Redis URL validation passed');
-          } else {
-            // For other URLs, use URL constructor
-            const url = new URL(this.config[urlField]);
-          if (urlField === 'ELASTICSEARCH_URL' && !['http:', 'https:'].includes(url.protocol)) {
-            throw new Error('ELASTICSEARCH_URL must use http:// or https:// protocol');
-          }
-          }
-        } catch (error) {
-          console.error(`❌ Invalid ${urlField} format:`, error.message);
-          if (this.config.NODE_ENV === 'production') {
-            throw new Error(`Invalid ${urlField} format`);
-          }
-        }
-      }
-    });
-
-    // Validate SMTP configuration
-    const smtpFields = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'];
-    const missingSmtpFields = smtpFields.filter(field => !this.config[field]);
-    
-    if (missingSmtpFields.length > 0) {
-      console.warn('⚠️  Missing SMTP configuration:', {
-        missing: missingSmtpFields,
-        impact: 'Email functionality will be disabled',
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    // Validate SMTP port if provided
-    if (this.config.SMTP_PORT) {
-      const smtpPort = parseInt(this.config.SMTP_PORT);
-      if (isNaN(smtpPort) || smtpPort < 1 || smtpPort > 65535) {
-        console.error('❌ Invalid SMTP_PORT:', this.config.SMTP_PORT);
-        if (this.config.NODE_ENV === 'production') {
-          throw new Error('Invalid SMTP_PORT number');
-        }
-      }
-    }
-
-    // Validate file upload security settings
-    if (this.config.MAX_FILE_SIZE) {
-      const maxSize = parseInt(this.config.MAX_FILE_SIZE);
-      if (isNaN(maxSize) || maxSize <= 0) {
-        console.error('❌ Invalid MAX_FILE_SIZE:', this.config.MAX_FILE_SIZE);
-        if (this.config.NODE_ENV === 'production') {
-          throw new Error('Invalid MAX_FILE_SIZE');
-        }
-      }
-      // Security check: limit file size to 50MB maximum
-      if (maxSize > 52428800) {
-        console.warn('⚠️  MAX_FILE_SIZE exceeds 50MB security limit:', this.config.MAX_FILE_SIZE);
-        if (this.config.NODE_ENV === 'production') {
-          throw new Error('MAX_FILE_SIZE exceeds security limit of 50MB');
-        }
-      }
-    }
-
-    // Validate upload path security
-    if (this.config.UPLOAD_PATH) {
-      // Prevent path traversal attacks
-      if (this.config.UPLOAD_PATH.includes('..') || this.config.UPLOAD_PATH.includes('~')) {
-        console.error('❌ Unsafe UPLOAD_PATH detected:', this.config.UPLOAD_PATH);
-        if (this.config.NODE_ENV === 'production') {
-          throw new Error('Unsafe UPLOAD_PATH detected');
-        }
-      }
-    }
-
-    // Validate CORS origin
-    if (this.config.CORS_ORIGIN) {
-      if (this.config.CORS_ORIGIN === '*') {
-        console.warn('⚠️  Wildcard CORS_ORIGIN detected, this may be insecure in production');
-      }
-    }
-
-    // Validate port
-    const port = parseInt(this.config.PORT);
-    if (isNaN(port) || port < 1 || port > 65535) {
-      console.error('❌ Invalid PORT:', this.config.PORT);
-      if (this.config.NODE_ENV === 'production') {
-        throw new Error('Invalid PORT number');
-      }
-    }
-
-    // Validate JWT expiration
-    if (this.config.JWT_EXPIRES_IN && !/^\d+[smhdw]$/.test(this.config.JWT_EXPIRES_IN)) {
-      console.error('❌ Invalid JWT_EXPIRES_IN format:', this.config.JWT_EXPIRES_IN);
-      if (this.config.NODE_ENV === 'production') {
-        throw new Error('Invalid JWT_EXPIRES_IN format');
-      }
-    }
-
-    console.log('✅ Configuration validated successfully', {
-      validationDuration: Date.now() - startTime,
-      environment: this.config.NODE_ENV,
-      criticalServicesConfigured: missingCriticalFields.length === 0,
-      timestamp: new Date().toISOString()
-    });
-  }
-
+  // Helper functions
   get(key) {
-    return this.config[key];
+    return process.env[key];
   }
 
-  getAll() {
-    return { ...this.config };
+  getDatabaseUrl() {
+    return this.database.url;
   }
 
-  isProduction() {
-    return this.config.NODE_ENV === 'production';
+  getJwtSecret() {
+    return this.jwt.secret;
   }
 
-  isDevelopment() {
-    return this.config.NODE_ENV === 'development';
+  getRedisConfig() {
+    return redisConfig;
   }
 
-  isTest() {
-    return this.config.NODE_ENV === 'test';
+  getCacheConfig() {
+    return this.cache;
   }
 
-  // Database helpers
-  getDatabaseConfig() {
+  getEmailConfig() {
+    return this.email;
+  }
+
+  getSmsConfig() {
+    return this.sms;
+  }
+
+  getServerConfig() {
+    return this.server;
+  }
+
+  getSecurityConfig() {
+    return this.security;
+  }
+
+  getUploadConfig() {
+    return this.upload;
+  }
+
+  getLoggingConfig() {
+    return this.logging;
+  }
+
+  getPasswordPolicyConfig() {
     return {
-      url: this.config.DATABASE_URL,
-      ssl: this.config.DATABASE_SSL === 'true',
-      connectionTimeout: 10000,
-      queryTimeout: 30000,
-      statementTimeout: 30000,
-      pool: {
-        min: 2,
-        max: 10,
-        acquireTimeoutMillis: 30000,
-        createTimeoutMillis: 30000,
-        destroyTimeoutMillis: 5000,
-        idleTimeoutMillis: 10000,
-        reapIntervalMillis: 1000,
-        createRetryIntervalMillis: 200
-      }
+      minLength: this.security.passwordMinLength || 8,
+      maxLength: 128,
+      bcryptRounds: this.security.bcryptRounds || 12,
+      requireUppercase: true,
+      requireLowercase: true,
+      requireNumbers: true,
+      requireSpecialChars: true,
+      preventSequential: true,
+      preventRepeated: true,
+      preventPersonalInfo: true,
+      bangladeshPatterns: true,
+      minStrengthScore: 2
     };
   }
 
-  // JWT helpers
-  getJWTConfig() {
-    return {
-      secret: this.config.JWT_SECRET,
-      expiresIn: this.config.JWT_EXPIRES_IN,
-      algorithm: 'HS256',
-      issuer: 'smart-technologies-bd'
-    };
-  }
-
-  // CORS helpers
   getCORSConfig() {
     return {
-      origin: this.config.CORS_ORIGIN,
-      credentials: this.config.CORS_CREDENTIALS === 'true',
+      credentials: this.server.cors.credentials,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
       exposedHeaders: ['X-Total-Count', 'X-Page-Count']
     };
   }
 
-  // File upload helpers
-  getFileUploadConfig() {
-    return {
-      maxSize: parseInt(this.config.MAX_FILE_SIZE),
-      allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-      uploadPath: this.config.UPLOAD_PATH,
-      allowedMimeTypes: [
-        'image/jpeg',
-        'image/png', 
-        'image/gif',
-        'image/webp'
-      ]
-    };
+  // Environment helpers
+  isDevelopment() {
+    return process.env.NODE_ENV === 'development';
   }
 
-  // Payment gateway helpers with environment-specific URLs
-  getPaymentConfig() {
-    const isProduction = this.isProduction();
+  isProduction() {
+    return process.env.NODE_ENV === 'production';
+  }
+
+  isTest() {
+    return process.env.NODE_ENV === 'test';
+  }
+
+  isDocker() {
+    return process.env.IS_DOCKER === 'true' ||
+           process.env.REDIS_HOST === 'redis' ||
+           fs.existsSync('/.dockerenv');
+  }
+
+  // Testing and verification helpers
+  isTestingMode() {
+    return process.env.TESTING_MODE === 'true' || this.isTest();
+  }
+
+  isEmailVerificationDisabled() {
+    return process.env.DISABLE_EMAIL_VERIFICATION === 'true' || this.isTestingMode();
+  }
+
+  isPhoneVerificationDisabled() {
+    return process.env.DISABLE_PHONE_VERIFICATION === 'true' || this.isTestingMode();
+  }
+
+  // Get Redis configuration with environment-specific logic
+  getRedisConfigWithEnvironment() {
+    const baseConfig = this.getRedisConfig();
+    
+    // Apply environment-specific overrides
+    if (this.isDocker()) {
+      console.log('🐳 Applying Docker-specific Redis configuration');
+      return {
+        ...baseConfig,
+        host: process.env.REDIS_HOST || 'redis',
+        port: parseInt(process.env.REDIS_PORT) || 6379,
+        password: process.env.REDIS_PASSWORD || '',
+        // Docker-specific connection settings
+        socket: {
+          ...baseConfig.socket,
+          connectTimeout: 15000, // Longer timeout for Docker
+          keepAlive: true,
+          family: 4, // Force IPv4 in Docker
+          noDelay: true
+        }
+      };
+    } else if (this.isDevelopment()) {
+      console.log('💻 Applying development-specific Redis configuration');
+      return {
+        ...baseConfig,
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT) || 6379,
+        password: process.env.REDIS_PASSWORD || '',
+        // Development-specific connection settings
+        socket: {
+          ...baseConfig.socket,
+          connectTimeout: 10000,
+          keepAlive: true,
+          family: 4,
+          noDelay: true
+        }
+      };
+    }
+    
+    return baseConfig;
+  }
+
+  // Validate Redis connectivity configuration
+  validateRedisConfig() {
+    const config = this.getRedisConfigWithEnvironment();
+    const errors = [];
+    
+    if (!config.host) {
+      errors.push('Redis host is required');
+    }
+    
+    if (!config.port || isNaN(parseInt(config.port))) {
+      errors.push('Redis port must be a valid number');
+    }
+    
+    if (config.port < 1 || config.port > 65535) {
+      errors.push('Redis port must be between 1 and 65535');
+    }
     
     return {
-      bkash: {
-        apiKey: this.config.BKASH_API_KEY,
-        apiSecret: this.config.BKASH_API_SECRET,
-        baseUrl: isProduction
-          ? 'https://checkout.pay.bka.sh/v1.2.0-beta'
-          : 'https://checkout.sandbox.bka.sh/v1.2.0-beta'
-      },
-      nagad: {
-        apiKey: this.config.NAGAD_API_KEY,
-        apiSecret: this.config.NAGAD_API_SECRET,
-        baseUrl: isProduction
-          ? 'https://api.nagad.com/v1'
-          : 'https://api.sandbox.nagad.com/v1'
-      },
-      rocket: {
-        apiKey: this.config.ROCKET_API_KEY,
-        apiSecret: this.config.ROCKET_API_SECRET,
-        baseUrl: isProduction
-          ? 'https://api.rocket.com/v1'
-          : 'https://api.sandbox.rocket.com/v1'
+      isValid: errors.length === 0,
+      errors,
+      config: {
+        host: config.host,
+        port: config.port,
+        hasPassword: !!config.password,
+        environment: process.env.NODE_ENV,
+        isDocker: this.isDocker()
       }
     };
   }
 
-  // Cache helpers
-  getCacheConfig() {
-    return {
-      redis: {
-        url: this.config.REDIS_URL,
-        ttl: parseInt(this.config.REDIS_TTL),
-        keyPrefix: 'smart_ecommerce:',
-        retryDelayOnFailover: 100,
-        maxRetriesPerRequest: 3
-      }
-    };
-  }
-
-  // Search helpers
-  getSearchConfig() {
-    return {
-      elasticsearch: {
-        url: this.config.ELASTICSEARCH_URL,
-        index: this.config.ELASTICSEARCH_INDEX,
-        maxResults: 100,
-        timeout: 5000
-      }
-    };
-  }
-
-  // Email helpers
-  getEmailConfig() {
-    return {
-      host: this.config.SMTP_HOST,
-      port: parseInt(this.config.SMTP_PORT),
-      secure: this.config.SMTP_PORT === '465',
-      auth: {
-        user: this.config.SMTP_USER,
-        pass: this.config.SMTP_PASS
-      },
-      from: this.config.SMTP_FROM,
-      templates: {
-        welcome: './emails/welcome.html',
-        orderConfirmation: './emails/order-confirmation.html',
-        passwordReset: './emails/password-reset.html'
-      }
-    };
-  }
-
-  // SMS helpers
-  getSMSConfig() {
-    return {
-      twilioAccountSid: this.config.TWILIO_ACCOUNT_SID,
-      twilioAuthToken: this.config.TWILIO_AUTH_TOKEN,
-      twilioPhoneNumber: this.config.TWILIO_PHONE_NUMBER
-    };
-  }
-
-  // Rate limiting helpers
-  getRateLimitConfig() {
-    return {
-      windowMs: 15 * 60 * 1000, // 15 minutes
-      max: this.isProduction() ? 100 : 1000, // More lenient in development
-      message: 'Too many requests from this IP, please try again later.',
-      standardHeaders: true
-    };
-  }
-
-  // Security helpers
-getSecurityConfig() {
-return {
-  bcryptRounds: 12,
-  passwordMinLength: 8,
-  passwordMaxLength: 128,
-  sessionMaxAge: 24 * 60 * 60 * 1000, // 24 hours
-  cookieSecure: this.isProduction(),
-  helmet: {
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"]
-      }
-    },
-    hsts: {
-      maxAge: 31536000, // 1 year
-      includeSubDomains: false
+  // Configuration validation
+  validateConfig() {
+    const errors = [];
+    
+    // Validate JWT secret
+    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+      errors.push('JWT_SECRET must be at least 32 characters long');
     }
-  }
-};
-}
-
-// Password policy helpers
-getPasswordPolicyConfig() {
-return {
-  // Basic requirements
-  minLength: parseInt(process.env.PASSWORD_MIN_LENGTH) || 8,
-  maxLength: parseInt(process.env.PASSWORD_MAX_LENGTH) || 128,
-  
-  // Character requirements
-  requireUppercase: process.env.PASSWORD_REQUIRE_UPPERCASE === 'true',
-  requireLowercase: process.env.PASSWORD_REQUIRE_LOWERCASE === 'true',
-  requireNumbers: process.env.PASSWORD_REQUIRE_NUMBERS === 'true',
-  requireSpecialChars: process.env.PASSWORD_REQUIRE_SPECIAL === 'true',
-  
-  // Pattern restrictions
-  preventSequential: process.env.PASSWORD_PREVENT_SEQUENTIAL !== 'false',
-  preventRepeated: process.env.PASSWORD_PREVENT_REPEATED !== 'false',
-  preventPersonalInfo: process.env.PASSWORD_PREVENT_PERSONAL_INFO !== 'false',
-  preventCommonPatterns: process.env.PASSWORD_PREVENT_COMMON_PATTERNS !== 'false',
-  
-  // Strength requirements
-  minStrengthScore: parseInt(process.env.PASSWORD_MIN_STRENGTH_SCORE) || 2,
-  
-  // History and reuse
-  passwordHistoryLimit: parseInt(process.env.PASSWORD_HISTORY_LIMIT) || 5,
-  preventReuse: process.env.PASSWORD_PREVENT_REUSE !== 'false',
-  
-  // Bangladesh-specific settings
-  bangladeshPatterns: process.env.PASSWORD_BANGLADESH_PATTERNS === 'true',
-  
-  // Temporary password settings
-  tempPasswordLength: parseInt(process.env.TEMP_PASSWORD_LENGTH) || 12,
-  tempPasswordExpiry: parseInt(process.env.TEMP_PASSWORD_EXPIRY) || 1, // hours
-  
-  // Rate limiting
-  maxPasswordAttempts: parseInt(process.env.MAX_PASSWORD_ATTEMPTS) || 5,
-  passwordAttemptWindow: parseInt(process.env.PASSWORD_ATTEMPT_WINDOW) || 15, // minutes
-  lockoutDuration: parseInt(process.env.PASSWORD_LOCKOUT_DURATION) || 30 // minutes
-};
-}
-
-  // Logging helpers
-  getLoggingConfig() {
+    
+    // Validate Redis configuration
+    if (!process.env.REDIS_HOST) {
+      errors.push('REDIS_HOST is required');
+    }
+    
+    if (!process.env.REDIS_PORT || isNaN(parseInt(process.env.REDIS_PORT))) {
+      errors.push('REDIS_PORT must be a valid number');
+    }
+    
+    // Validate database URL
+    if (!process.env.DATABASE_URL) {
+      errors.push('DATABASE_URL is required');
+    }
+    
     return {
-      level: this.isProduction() ? 'info' : 'debug',
-      format: this.isProduction() ? 'json' : 'dev',
-      colorize: !this.isProduction(),
-      timestamp: true,
-      file: this.isProduction() ? './logs/app.log' : null,
-      console: !this.isProduction()
-    };
-  }
-
-  // API helpers
-  getAPIConfig() {
-    return {
-      version: '1.0.0',
-      prefix: '/api/v1',
-      rateLimit: this.getRateLimitConfig(),
-      pagination: {
-        defaultLimit: 20,
-        maxLimit: 100
-      },
-      timeout: 30000,
-      compression: true,
-      trustProxy: this.isProduction()
+      isValid: errors.length === 0,
+      errors
     };
   }
 }
 
-// Singleton instance
+// Create singleton instance
 const configService = new ConfigService();
 
+// Export configuration objects and service
 module.exports = {
-  ConfigService,
+  database: databaseConfig,
+  jwt: jwtConfig,
+  cache: cacheConfig,
+  email: emailConfig,
+  sms: smsConfig,
+  server: serverConfig,
+  security: securityConfig,
+  upload: uploadConfig,
+  logging: loggingConfig,
+
+  // Helper functions
+  getDatabaseUrl: () => databaseConfig.url,
+  getJwtSecret: () => jwtConfig.secret,
+  getRedisConfig: () => redisConfig,
+  getCacheConfig: () => cacheConfig,
+  getEmailConfig: () => emailConfig,
+  getSmsConfig: () => smsConfig,
+  getServerConfig: () => serverConfig,
+  getSecurityConfig: () => securityConfig,
+  getUploadConfig: () => uploadConfig,
+  getLoggingConfig: () => loggingConfig,
+
+  // Environment helpers
+  isDevelopment: () => process.env.NODE_ENV === 'development',
+  isProduction: () => process.env.NODE_ENV === 'production',
+  isTest: () => process.env.NODE_ENV === 'test',
+  
+  // Testing and verification helpers
+  isTestingMode: () => process.env.TESTING_MODE === 'true' || process.env.NODE_ENV === 'test',
+  isEmailVerificationDisabled: () => process.env.DISABLE_EMAIL_VERIFICATION === 'true' || process.env.NODE_ENV === 'test',
+  isPhoneVerificationDisabled: () => process.env.DISABLE_PHONE_VERIFICATION === 'true' || process.env.NODE_ENV === 'test',
+  
+  // Configuration validation
+  validateConfig: () => {
+    const errors = [];
+    
+    // Validate JWT secret
+    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+      errors.push('JWT_SECRET must be at least 32 characters long');
+    }
+    
+    // Validate Redis configuration (support both REDIS_URL and separate variables)
+    const hasRedisUrl = process.env.REDIS_URL;
+    const hasSeparateRedisVars = process.env.REDIS_HOST && process.env.REDIS_PORT && process.env.REDIS_PASSWORD;
+    
+    if (!hasRedisUrl && !hasSeparateRedisVars) {
+      errors.push('Either REDIS_URL or (REDIS_HOST, REDIS_PORT, REDIS_PASSWORD) must be provided');
+    }
+    
+    if (hasSeparateRedisVars) {
+      if (!process.env.REDIS_PORT || isNaN(parseInt(process.env.REDIS_PORT))) {
+        errors.push('REDIS_PORT must be a valid number');
+      }
+    }
+    
+    // Validate database URL (support both DATABASE_URL and POSTGRES_DATABASE_URL)
+    if (!process.env.DATABASE_URL && !process.env.POSTGRES_DATABASE_URL) {
+      errors.push('Either DATABASE_URL or POSTGRES_DATABASE_URL is required');
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  },
+
+  // Config service instance
   configService
 };

@@ -1,0 +1,143 @@
+{
+  "timestamp": "2025-12-23T06:01:07.422Z",
+  "duration": 3955,
+  "overallStatus": "unhealthy",
+  "results": {
+    "database": {
+      "status": "healthy",
+      "details": {
+        "health": {
+          "status": "healthy",
+          "database": "connected",
+          "responseTime": "46ms",
+          "connectionPool": {
+            "activeConnections": 0,
+            "idleConnections": 0,
+            "totalConnections": 0,
+            "maxConnections": 10,
+            "utilizationRate": "0.00%",
+            "timeouts": {
+              "connection": 30000,
+              "idle": 10000,
+              "acquire": 30000
+            },
+            "queryCount": 1,
+            "errorCount": 0,
+            "timestamp": "2025-12-23T06:01:03.517Z"
+          },
+          "timestamp": "2025-12-23T06:01:03.517Z"
+        },
+        "stats": {
+          "users": 7,
+          "products": 6,
+          "categories": 5,
+          "brands": 4,
+          "orders": 3,
+          "reviews": 4,
+          "coupons": 3,
+          "timestamp": "2025-12-23T06:01:03.590Z"
+        }
+      },
+      "errors": []
+    },
+    "redis": {
+      "status": "healthy",
+      "details": {
+        "tests": [
+          {
+            "method": "connection-pool",
+            "status": "success"
+          },
+          {
+            "method": "direct",
+            "status": "success"
+          },
+          {
+            "method": "network",
+            "host": "redis",
+            "status": "failed"
+          },
+          {
+            "method": "network",
+            "host": "localhost",
+            "status": "success"
+          },
+          {
+            "method": "network",
+            "host": "127.0.0.1",
+            "status": "success"
+          }
+        ]
+      },
+      "errors": [
+        "failed"
+      ]
+    },
+    "api": {
+      "status": "unhealthy",
+      "details": {
+        "tests": [
+          {
+            "endpoint": "/",
+            "status": "error",
+            "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+          },
+          {
+            "endpoint": "/health",
+            "status": "failed",
+            "statusCode": 404,
+            "error": "Not Found"
+          },
+          {
+            "endpoint": "/api/db-status",
+            "status": "failed",
+            "statusCode": 500,
+            "error": "Internal Server Error"
+          }
+        ],
+        "baseUrl": "http://localhost:3000"
+      },
+      "errors": [
+        "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
+        "Not Found",
+        "Internal Server Error"
+      ]
+    },
+    "dependencies": {
+      "status": "healthy",
+      "details": {
+        "tests": [
+          {
+            "service": "logger",
+            "status": "success"
+          },
+          {
+            "service": "config",
+            "status": "success"
+          },
+          {
+            "service": "prisma",
+            "status": "success"
+          },
+          {
+            "service": "email",
+            "status": "success"
+          }
+        ]
+      },
+      "errors": []
+    },
+    "configuration": {
+      "status": "completed",
+      "details": {
+        "NODE_ENV": "development",
+        "PORT": "3000",
+        "POSTGRES_DATABASE_URL": "configured",
+        "REDIS_URL": "redis://:redis_smarttech_2024@localhost:6379",
+        "REDIS_TTL": "3600",
+        "POSTGRES_JWT_SECRET": "configured",
+        "JWT_SECRET": "configured"
+      }
+    }
+  }
+}

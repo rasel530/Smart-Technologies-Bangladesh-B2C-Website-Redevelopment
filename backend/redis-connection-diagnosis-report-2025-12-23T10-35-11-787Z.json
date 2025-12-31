@@ -1,0 +1,389 @@
+{
+  "testDuration": "91 seconds",
+  "totalEvents": 6,
+  "errorCount": 0,
+  "connectionPatterns": {
+    "frequentDisconnections": false,
+    "connectionStability": "stable",
+    "primaryIssue": "none"
+  },
+  "recommendations": [
+    {
+      "issue": "General optimization",
+      "cause": "Connection reliability improvements",
+      "solution": "Configure proper keepalive, disable Nagle's algorithm, use IPv4",
+      "priority": "medium"
+    }
+  ],
+  "rawEvents": [
+    {
+      "type": "connect",
+      "client": "basic",
+      "timestamp": 1766486020939
+    },
+    {
+      "type": "ready",
+      "client": "basic",
+      "timestamp": 1766486020945
+    },
+    {
+      "type": "end",
+      "client": "basic",
+      "timestamp": 1766486050974
+    },
+    {
+      "type": "connect",
+      "client": "enhanced",
+      "timestamp": 1766486051048
+    },
+    {
+      "type": "ready",
+      "client": "enhanced",
+      "timestamp": 1766486051058
+    },
+    {
+      "type": "end",
+      "client": "enhanced",
+      "timestamp": 1766486081434
+    }
+  ],
+  "testResults": [
+    {
+      "timestamp": "2025-12-23T10:33:40.835Z",
+      "message": "Starting Redis Connection Deep Diagnosis",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:33:40.840Z",
+      "message": "=== Testing Direct Redis Connection (Bypassing Pool) ===",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:33:40.841Z",
+      "message": "Redis configuration",
+      "data": {
+        "host": "localhost",
+        "port": 6379,
+        "hasPassword": true,
+        "connectTimeout": 15000,
+        "keepAlive": true
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:33:40.843Z",
+      "message": "Test 1: Basic connection attempt",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:33:40.938Z",
+      "message": "Basic client connected",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:33:40.945Z",
+      "message": "Basic client ready",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:33:40.948Z",
+      "message": "Basic client ping successful",
+      "data": {
+        "response": "PONG"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:33:40.956Z",
+      "message": "Basic client operations successful",
+      "data": {
+        "value": "test-value"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:33:40.957Z",
+      "message": "Monitoring basic connection stability for 30 seconds...",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:10.974Z",
+      "message": "Basic client connection ended",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:10.974Z",
+      "message": "Basic client disconnected gracefully",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:10.974Z",
+      "message": "Test 2: Enhanced socket settings connection attempt",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:11.047Z",
+      "message": "Enhanced client connected",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:11.057Z",
+      "message": "Enhanced client ready",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:11.060Z",
+      "message": "Enhanced client ping successful",
+      "data": {
+        "response": "PONG"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:34:11.060Z",
+      "message": "Testing rapid operations...",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:11.066Z",
+      "message": "Completed 1 rapid operations",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:11.133Z",
+      "message": "Completed 21 rapid operations",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:11.187Z",
+      "message": "Completed 41 rapid operations",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:11.251Z",
+      "message": "Completed 61 rapid operations",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:11.339Z",
+      "message": "Completed 81 rapid operations",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:11.417Z",
+      "message": "Rapid operations completed successfully",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:11.418Z",
+      "message": "Monitoring enhanced connection stability for 30 seconds...",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.434Z",
+      "message": "Enhanced client connection ended",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.434Z",
+      "message": "Enhanced client disconnected gracefully",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.434Z",
+      "message": "Test 3: Multiple concurrent connections",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.513Z",
+      "message": "Concurrent client 0 connected",
+      "data": {
+        "ping": "PONG"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.514Z",
+      "message": "Concurrent client 1 connected",
+      "data": {
+        "ping": "PONG"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.515Z",
+      "message": "Concurrent client 2 connected",
+      "data": {
+        "ping": "PONG"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.525Z",
+      "message": "Concurrent client 3 connected",
+      "data": {
+        "ping": "PONG"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.527Z",
+      "message": "Concurrent client 4 connected",
+      "data": {
+        "ping": "PONG"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.527Z",
+      "message": "Concurrent connections established",
+      "data": {
+        "attempted": 5,
+        "successful": 5
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.529Z",
+      "message": "Concurrent client 0 operation successful",
+      "data": {
+        "value": "value-0"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.530Z",
+      "message": "Concurrent client 4 operation successful",
+      "data": {
+        "value": "value-4"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.530Z",
+      "message": "Concurrent client 3 operation successful",
+      "data": {
+        "value": "value-3"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.530Z",
+      "message": "Concurrent client 2 operation successful",
+      "data": {
+        "value": "value-2"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.530Z",
+      "message": "Concurrent client 1 operation successful",
+      "data": {
+        "value": "value-1"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.533Z",
+      "message": "All concurrent clients disconnected",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.533Z",
+      "message": "=== Testing Connection Pool Behavior ===",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.698Z",
+      "message": "Connection pool status",
+      "data": {
+        "isInitialized": false,
+        "hasClient": false,
+        "isReconnecting": false,
+        "retryAttempts": 0,
+        "maxRetryAttempts": 10,
+        "activeConnections": 0,
+        "connectionNames": []
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.701Z",
+      "message": "Retrieved client 0 from pool",
+      "data": {
+        "clientExists": false
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.702Z",
+      "message": "Retrieved client 1 from pool",
+      "data": {
+        "clientExists": false
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.702Z",
+      "message": "Retrieved client 2 from pool",
+      "data": {
+        "clientExists": false
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:34:41.702Z",
+      "message": "Monitoring connection pool behavior for 30 seconds...",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:35:11.706Z",
+      "message": "Connection pool status change",
+      "data": {
+        "initial": {
+          "isInitialized": false,
+          "hasClient": false,
+          "isReconnecting": false,
+          "retryAttempts": 0,
+          "maxRetryAttempts": 10,
+          "activeConnections": 0,
+          "connectionNames": []
+        },
+        "final": {
+          "isInitialized": false,
+          "hasClient": false,
+          "isReconnecting": false,
+          "retryAttempts": 0,
+          "maxRetryAttempts": 10,
+          "activeConnections": 0,
+          "connectionNames": []
+        },
+        "timeElapsed": "30 seconds"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:35:11.707Z",
+      "message": "=== Testing Redis Server Configuration ===",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:35:11.784Z",
+      "message": "Redis server configuration test failed",
+      "data": {
+        "error": "Cannot read properties of undefined (reading 'get')",
+        "stack": "TypeError: Cannot read properties of undefined (reading 'get')\n    at RedisConnectionDeepDiagnosis.testRedisServerConfiguration (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\redis-connection-deep-diagnosis.js:321:48)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async RedisConnectionDeepDiagnosis.runCompleteDiagnosis (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\redis-connection-deep-diagnosis.js:452:7)\n    at async runDiagnosis (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\redis-connection-deep-diagnosis.js:473:20)"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:35:11.786Z",
+      "message": "=== Connection Event Analysis ===",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T10:35:11.786Z",
+      "message": "Event summary",
+      "data": {
+        "totalEvents": 6,
+        "errors": 0,
+        "connects": 2,
+        "ends": 2
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:35:11.786Z",
+      "message": "Connection timing analysis",
+      "data": {
+        "averageGap": 30109,
+        "minGap": 30109,
+        "maxGap": 30109,
+        "totalConnections": 2
+      }
+    },
+    {
+      "timestamp": "2025-12-23T10:35:11.786Z",
+      "message": "=== Generating Diagnosis Report ===",
+      "data": {}
+    }
+  ]
+}

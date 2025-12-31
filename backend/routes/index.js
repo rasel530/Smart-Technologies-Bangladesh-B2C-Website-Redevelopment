@@ -12,26 +12,26 @@ const couponRoutes = require('./coupons');
 
 const router = express.Router();
 
-// API versioning
-router.use('/api/v1', (req, res, next) => {
-  req.apiVersion = 'v1';
-  next();
-});
+// API versioning - Removed to fix route mounting issue
+// router.use('/v1', (req, res, next) => {
+//   req.apiVersion = 'v1';
+//   next();
+// });
 
-// Route modules
-router.use('/api/v1/auth', authRoutes);
-router.use('/api/v1/users', userRoutes);
-router.use('/api/v1/products', productRoutes);
-router.use('/api/v1/categories', categoryRoutes);
-router.use('/api/v1/brands', brandRoutes);
-router.use('/api/v1/orders', orderRoutes);
-router.use('/api/v1/cart', cartRoutes);
-router.use('/api/v1/wishlist', wishlistRoutes);
-router.use('/api/v1/reviews', reviewRoutes);
-router.use('/api/v1/coupons', couponRoutes);
+// Route modules - prefixed with /v1
+router.use('/v1/auth', authRoutes);
+router.use('/v1/users', userRoutes);
+router.use('/v1/products', productRoutes);
+router.use('/v1/categories', categoryRoutes);
+router.use('/v1/brands', brandRoutes);
+router.use('/v1/orders', orderRoutes);
+router.use('/v1/cart', cartRoutes);
+router.use('/v1/wishlist', wishlistRoutes);
+router.use('/v1/reviews', reviewRoutes);
+router.use('/v1/coupons', couponRoutes);
 
 // API documentation endpoint
-router.get('/api', (req, res) => {
+router.get('/', (req, res) => {
   res.json({
     name: 'Smart Technologies Bangladesh B2C API',
     version: '1.0.0',
@@ -47,7 +47,9 @@ router.get('/api', (req, res) => {
         cart: '/api/v1/cart',
         wishlist: '/api/v1/wishlist',
         reviews: '/api/v1/reviews',
-        coupons: '/api/v1/coupons'
+        coupons: '/api/v1/coupons',
+        sessions: '/api/v1/sessions',
+        health: '/api/v1/health'
       }
     },
     documentation: '/api-docs'

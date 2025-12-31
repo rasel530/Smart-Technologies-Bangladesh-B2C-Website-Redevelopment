@@ -1,0 +1,325 @@
+{
+  "summary": {
+    "total": 23,
+    "passed": 6,
+    "failed": 17,
+    "skipped": 0
+  },
+  "endpoints": {
+    "GET /health": {
+      "status": "PASSED",
+      "details": "Server is running"
+    },
+    "GET /api/v1/health": {
+      "status": "PASSED",
+      "details": "Enhanced health check working"
+    },
+    "GET /api/db-status": {
+      "status": "PASSED",
+      "details": "Database connection working"
+    },
+    "GET /api/rate-limit-status": {
+      "status": "PASSED",
+      "details": "Rate limiting service working"
+    },
+    "POST /api/v1/auth/register": {
+      "status": "FAILED",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/v1/auth/register was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/v1/auth/register পাওয়া যায়নি",
+        "path": "/api/v1/auth/register",
+        "method": "POST",
+        "timestamp": "2025-12-23T08:56:05.595Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    "POST /api/v1/auth/login": {
+      "status": "FAILED",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/v1/auth/login was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/v1/auth/login পাওয়া যায়নি",
+        "path": "/api/v1/auth/login",
+        "method": "POST",
+        "timestamp": "2025-12-23T08:56:05.603Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    "GET /api/v1/auth/password-policy": {
+      "status": "FAILED",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/v1/auth/password-policy was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/v1/auth/password-policy পাওয়া যায়নি",
+        "path": "/api/v1/auth/password-policy",
+        "method": "GET",
+        "timestamp": "2025-12-23T08:56:05.617Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    "GET /api/v1/auth/operators": {
+      "status": "FAILED",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/v1/auth/operators was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/v1/auth/operators পাওয়া যায়নি",
+        "path": "/api/v1/auth/operators",
+        "method": "GET",
+        "timestamp": "2025-12-23T08:56:05.623Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    "* /api/v1/sessions/*": {
+      "status": "FAILED",
+      "details": "No session ID available"
+    },
+    "GET /api/v1/products": {
+      "status": "FAILED",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/v1/products was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/v1/products পাওয়া যায়নি",
+        "path": "/api/v1/products",
+        "method": "GET",
+        "timestamp": "2025-12-23T08:56:05.630Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    "GET /api/v1/products/featured/list": {
+      "status": "FAILED",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/v1/products/featured/list was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/v1/products/featured/list পাওয়া যায়নি",
+        "path": "/api/v1/products/featured/list",
+        "method": "GET",
+        "timestamp": "2025-12-23T08:56:05.637Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    "GET /api/v1/categories": {
+      "status": "FAILED",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/v1/categories was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/v1/categories পাওয়া যায়নি",
+        "path": "/api/v1/categories",
+        "method": "GET",
+        "timestamp": "2025-12-23T08:56:05.642Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    "GET /api/v1/categories/tree/all": {
+      "status": "FAILED",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/v1/categories/tree/all was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/v1/categories/tree/all পাওয়া যায়নি",
+        "path": "/api/v1/categories/tree/all",
+        "method": "GET",
+        "timestamp": "2025-12-23T08:56:05.647Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    "GET /api/v1/brands": {
+      "status": "FAILED",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/v1/brands was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/v1/brands পাওয়া যায়নি",
+        "path": "/api/v1/brands",
+        "method": "GET",
+        "timestamp": "2025-12-23T08:56:05.652Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    "* /api/v1/users/*": {
+      "status": "FAILED",
+      "details": "No auth token available"
+    },
+    "* /api/v1/cart/*": {
+      "status": "FAILED",
+      "details": "No auth token available"
+    },
+    "* /api/v1/wishlist/*": {
+      "status": "FAILED",
+      "details": "No auth token or user ID available"
+    },
+    "GET /api/v1/reviews": {
+      "status": "FAILED",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/v1/reviews was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/v1/reviews পাওয়া যায়নি",
+        "path": "/api/v1/reviews",
+        "method": "GET",
+        "timestamp": "2025-12-23T08:56:05.657Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    "GET /api/v1/coupons": {
+      "status": "FAILED",
+      "details": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/v1/coupons was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/v1/coupons পাওয়া যায়নি",
+        "path": "/api/v1/coupons",
+        "method": "GET",
+        "timestamp": "2025-12-23T08:56:05.662Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    "GET /api/v1/coupons/code/:code": {
+      "status": "PASSED",
+      "details": "Coupon by code working"
+    },
+    "* /api/v1/orders/*": {
+      "status": "FAILED",
+      "details": "No auth token available"
+    },
+    "GET /api/v1/nonexistent": {
+      "status": "PASSED",
+      "details": "404 error handling working"
+    },
+    "POST /api/v1/auth/register (invalid)": {
+      "status": "FAILED",
+      "details": "Validation error handling failed"
+    }
+  },
+  "redisStatus": "unavailable",
+  "databaseStatus": "connected",
+  "timestamp": "2025-12-23T08:56:05.387Z"
+}

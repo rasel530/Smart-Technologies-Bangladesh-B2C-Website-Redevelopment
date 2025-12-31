@@ -487,12 +487,12 @@ class PhoneValidationService {
   /**
    * Validate phone number for specific use case
    * @param {string} phone - Phone number
-   * @param {string} useCase - Use case ('registration', 'otp', 'sms', 'verification')
+   * @param {string} useCase - Use case ('registration', 'otp', 'sms', 'verification', 'login')
    * @returns {Object} Validation result with use-case specific rules
    */
   validateForUseCase(phone, useCase) {
     const baseValidation = this.validateBangladeshPhoneNumber(phone, {
-      allowLandline: useCase !== 'otp' && useCase !== 'sms',
+      allowLandline: useCase !== 'otp' && useCase !== 'sms' && useCase !== 'login',
       allowMobile: true,
       allowSpecial: false
     });
@@ -522,6 +522,21 @@ class PhoneValidationService {
           };
         }
         return baseValidation;
+      
+      case 'login':
+        if (baseValidation.type !== 'mobile') {
+          return {
+            isValid: false,
+            error: 'Only mobile numbers can be used for login',
+            errorBn: 'শুধুমাত্রমাত্র মোবাইল নম্বর দিয়ে লগিন করা যায়',
+            code: 'MOBILE_ONLY'
+          };
+        }
+        return {
+          ...baseValidation,
+          canLogin: true,
+          requiresVerification: false // Phone should already be verified for login
+        };
       
       case 'verification':
         return {

@@ -1,0 +1,97 @@
+{
+  "summary": {
+    "total": 10,
+    "passed": 0,
+    "failed": 10,
+    "partial": 0,
+    "successRate": "0.0"
+  },
+  "categories": {
+    "critical": 3,
+    "major": 2,
+    "minor": 4
+  },
+  "details": [
+    {
+      "testNumber": 1,
+      "testName": "Server Health Check",
+      "status": "FAIL",
+      "details": "Server not responding",
+      "error": "An unexpected error occurred",
+      "timestamp": "2025-12-19T14:40:14.498Z"
+    },
+    {
+      "testNumber": 2,
+      "testName": "Password Policy",
+      "status": "FAIL",
+      "details": "Failed to get password policy",
+      "error": "An unexpected error occurred",
+      "timestamp": "2025-12-19T14:40:14.531Z"
+    },
+    {
+      "testNumber": 3,
+      "testName": "Phone Validation",
+      "status": "FAIL",
+      "details": "Phone validation failed",
+      "error": "An unexpected error occurred",
+      "timestamp": "2025-12-19T14:40:14.554Z"
+    },
+    {
+      "testNumber": 4,
+      "testName": "Get Operators",
+      "status": "FAIL",
+      "details": "Failed to get operators",
+      "error": "An unexpected error occurred",
+      "timestamp": "2025-12-19T14:40:14.572Z"
+    },
+    {
+      "testNumber": 5,
+      "testName": "Email Registration",
+      "status": "FAIL",
+      "details": "Request failed",
+      "error": "An unexpected error occurred",
+      "timestamp": "2025-12-19T14:40:14.596Z"
+    },
+    {
+      "testNumber": 6,
+      "testName": "Phone Registration",
+      "status": "FAIL",
+      "details": "Request failed",
+      "error": "An unexpected error occurred",
+      "timestamp": "2025-12-19T14:40:14.606Z"
+    },
+    {
+      "testNumber": 7,
+      "testName": "Invalid Credentials",
+      "status": "FAIL",
+      "details": "Request failed",
+      "error": "An unexpected error occurred",
+      "timestamp": "2025-12-19T14:40:14.624Z"
+    },
+    {
+      "testNumber": 8,
+      "testName": "Weak Password",
+      "status": "FAIL",
+      "details": "Request failed",
+      "error": "An unexpected error occurred",
+      "timestamp": "2025-12-19T14:40:14.642Z"
+    },
+    {
+      "testNumber": 9,
+      "testName": "Invalid Email",
+      "status": "FAIL",
+      "details": "Request failed",
+      "error": "An unexpected error occurred",
+      "timestamp": "2025-12-19T14:40:14.667Z"
+    },
+    {
+      "testNumber": 10,
+      "testName": "Invalid Phone",
+      "status": "FAIL",
+      "details": "Request failed",
+      "error": "An unexpected error occurred",
+      "timestamp": "2025-12-19T14:40:14.681Z"
+    }
+  ],
+  "timestamp": "2025-12-19T14:40:14.684Z"
+}

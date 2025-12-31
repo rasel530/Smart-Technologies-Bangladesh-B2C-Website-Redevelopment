@@ -1,0 +1,979 @@
+{
+  "summary": {
+    "totalTests": 80,
+    "passed": 14,
+    "failed": 66,
+    "passRate": "17.5"
+  },
+  "categories": {
+    "registration": {
+      "passed": 0,
+      "failed": 10,
+      "tests": [
+        {
+          "name": "Registration with valid email data",
+          "status": "FAILED",
+          "duration": 34,
+          "error": "Expected status 201, got 404",
+          "stack": "Error: Expected status 201, got 404\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:182:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testRegistrationFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:171:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2997:5)"
+        },
+        {
+          "name": "Registration with valid phone data",
+          "status": "FAILED",
+          "duration": 4,
+          "error": "Expected status 201, got 404",
+          "stack": "Error: Expected status 201, got 404\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:209:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testRegistrationFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:198:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2997:5)"
+        },
+        {
+          "name": "Registration with duplicate email should fail",
+          "status": "FAILED",
+          "duration": 8,
+          "error": "Expected status 409, got 404",
+          "stack": "Error: Expected status 409, got 404\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:243:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testRegistrationFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:221:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2997:5)"
+        },
+        {
+          "name": "Registration with weak password should fail",
+          "status": "FAILED",
+          "duration": 5,
+          "error": "Expected status 400, got 404",
+          "stack": "Error: Expected status 400, got 404\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:265:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testRegistrationFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:254:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2997:5)"
+        },
+        {
+          "name": "Registration with password mismatch should fail",
+          "status": "FAILED",
+          "duration": 5,
+          "error": "Expected status 400, got 404",
+          "stack": "Error: Expected status 400, got 404\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:287:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testRegistrationFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:276:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2997:5)"
+        },
+        {
+          "name": "Registration without email or phone should fail",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Expected status 400, got 404",
+          "stack": "Error: Expected status 400, got 404\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:308:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testRegistrationFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:298:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2997:5)"
+        },
+        {
+          "name": "Email verification flow",
+          "status": "FAILED",
+          "duration": 4,
+          "error": "Registration failed",
+          "stack": "Error: Registration failed\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:332:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testRegistrationFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:319:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2997:5)"
+        },
+        {
+          "name": "Resend verification email",
+          "status": "FAILED",
+          "duration": 4,
+          "error": "Registration failed",
+          "stack": "Error: Registration failed\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:374:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testRegistrationFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:361:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2997:5)"
+        },
+        {
+          "name": "Phone OTP verification flow",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Registration failed",
+          "stack": "Error: Registration failed\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:406:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testRegistrationFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:393:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2997:5)"
+        },
+        {
+          "name": "Resend OTP",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Send OTP failed",
+          "stack": "Error: Send OTP failed\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:442:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testRegistrationFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:433:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2997:5)"
+        }
+      ]
+    },
+    "loginLogout": {
+      "passed": 0,
+      "failed": 10,
+      "tests": [
+        {
+          "name": "Login with valid email credentials",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:483:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testLoginLogoutFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:469:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2998:5)"
+        },
+        {
+          "name": "Login with valid phone credentials",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:520:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testLoginLogoutFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:506:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2998:5)"
+        },
+        {
+          "name": "Login with invalid credentials should fail",
+          "status": "FAILED",
+          "duration": 5,
+          "error": "Expected status 401, got 404",
+          "stack": "Error: Expected status 401, got 404\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:562:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testLoginLogoutFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:543:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2998:5)"
+        },
+        {
+          "name": "Login with non-existent user should fail",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Expected status 401, got 404",
+          "stack": "Error: Expected status 401, got 404\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:580:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testLoginLogoutFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:573:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2998:5)"
+        },
+        {
+          "name": "Login with unverified email should fail",
+          "status": "FAILED",
+          "duration": 5,
+          "error": "Expected status 403, got 404",
+          "stack": "Error: Expected status 403, got 404\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:606:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testLoginLogoutFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:587:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2998:5)"
+        },
+        {
+          "name": "Logout functionality",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:630:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testLoginLogoutFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:617:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2998:5)"
+        },
+        {
+          "name": "Logout from all devices",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:667:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testLoginLogoutFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:654:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2998:5)"
+        },
+        {
+          "name": "Remember me functionality",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:714:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testLoginLogoutFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:701:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2998:5)"
+        },
+        {
+          "name": "Token refresh",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:754:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testLoginLogoutFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:741:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2998:5)"
+        },
+        {
+          "name": "Refresh from remember me token",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:794:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testLoginLogoutFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:781:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2998:5)"
+        }
+      ]
+    },
+    "passwordRecovery": {
+      "passed": 0,
+      "failed": 10,
+      "tests": [
+        {
+          "name": "Forgot password with valid email",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:848:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPasswordRecoveryFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:835:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2999:5)"
+        },
+        {
+          "name": "Forgot password with invalid email",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Expected status 200, got 404",
+          "stack": "Error: Expected status 200, got 404\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:871:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPasswordRecoveryFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:865:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2999:5)"
+        },
+        {
+          "name": "Reset password with valid token",
+          "status": "FAILED",
+          "duration": 1,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:896:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPasswordRecoveryFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:883:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2999:5)"
+        },
+        {
+          "name": "Reset password with expired token should fail",
+          "status": "FAILED",
+          "duration": 1,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:944:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPasswordRecoveryFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:931:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2999:5)"
+        },
+        {
+          "name": "Reset password with invalid token should fail",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Expected status 400, got 404",
+          "stack": "Error: Expected status 400, got 404\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:985:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPasswordRecoveryFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:977:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2999:5)"
+        },
+        {
+          "name": "Change password",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1005:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPasswordRecoveryFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:992:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2999:5)"
+        },
+        {
+          "name": "Change password with wrong current password should fail",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1046:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPasswordRecoveryFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1033:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2999:5)"
+        },
+        {
+          "name": "Change password with weak new password should fail",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1086:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPasswordRecoveryFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1073:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2999:5)"
+        },
+        {
+          "name": "Get password policy",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Expected status 200, got 404",
+          "stack": "Error: Expected status 200, got 404\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1117:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPasswordRecoveryFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1113:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2999:5)"
+        },
+        {
+          "name": "Password reuse prevention",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1141:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPasswordRecoveryFlow (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1128:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2999:5)"
+        }
+      ]
+    },
+    "sessionManagement": {
+      "passed": 0,
+      "failed": 10,
+      "tests": [
+        {
+          "name": "Session creation on login",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1202:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testSessionManagement (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1189:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3000:5)"
+        },
+        {
+          "name": "Session validation",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1242:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testSessionManagement (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1229:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3000:5)"
+        },
+        {
+          "name": "Session expiration",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1279:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testSessionManagement (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1266:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3000:5)"
+        },
+        {
+          "name": "Concurrent sessions",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1321:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testSessionManagement (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1308:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3000:5)"
+        },
+        {
+          "name": "Session cleanup on logout",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1367:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testSessionManagement (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1354:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3000:5)"
+        },
+        {
+          "name": "Remember me token validation",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1408:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testSessionManagement (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1395:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3000:5)"
+        },
+        {
+          "name": "Disable remember me",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1454:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testSessionManagement (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1441:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3000:5)"
+        },
+        {
+          "name": "Redis session storage",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1491:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testSessionManagement (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1478:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3000:5)"
+        },
+        {
+          "name": "Session timeout warning",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1527:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testSessionManagement (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1514:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3000:5)"
+        },
+        {
+          "name": "Session extension",
+          "status": "FAILED",
+          "duration": 4,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1577:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testSessionManagement (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1564:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3000:5)"
+        }
+      ]
+    },
+    "security": {
+      "passed": 6,
+      "failed": 4,
+      "tests": [
+        {
+          "name": "SQL injection prevention",
+          "status": "PASSED",
+          "duration": 3,
+          "details": {
+            "message": "SQL injection prevented or rejected"
+          }
+        },
+        {
+          "name": "XSS protection (input sanitization)",
+          "status": "PASSED",
+          "duration": 2,
+          "details": {
+            "message": "XSS protection working"
+          }
+        },
+        {
+          "name": "CSRF protection",
+          "status": "PASSED",
+          "duration": 3,
+          "details": {
+            "message": "CSRF protection should be implemented in production"
+          }
+        },
+        {
+          "name": "Rate limiting",
+          "status": "PASSED",
+          "duration": 21,
+          "details": {
+            "message": "Rate limiting not detected (may not be enabled)"
+          }
+        },
+        {
+          "name": "Brute force protection",
+          "status": "PASSED",
+          "duration": 26,
+          "details": {
+            "message": "Brute force protection may not be enabled"
+          }
+        },
+        {
+          "name": "Password hashing (bcrypt strength)",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1767:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testSecurity (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1753:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3001:5)"
+        },
+        {
+          "name": "Token security (JWT validation)",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1803:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testSecurity (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1790:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3001:5)"
+        },
+        {
+          "name": "Input validation",
+          "status": "FAILED",
+          "duration": 4,
+          "error": "Invalid email not rejected",
+          "stack": "Error: Invalid email not rejected\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1850:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testSecurity (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1837:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3001:5)"
+        },
+        {
+          "name": "Authentication bypass attempts",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Authentication bypass possible",
+          "stack": "Error: Authentication bypass possible\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1879:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testSecurity (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1870:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3001:5)"
+        },
+        {
+          "name": "Disposable email prevention",
+          "status": "PASSED",
+          "duration": 4,
+          "details": {
+            "message": "Disposable email prevention may not be enabled"
+          }
+        }
+      ]
+    },
+    "performance": {
+      "passed": 2,
+      "failed": 8,
+      "tests": [
+        {
+          "name": "Registration response time",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Registration failed",
+          "stack": "Error: Registration failed\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1930:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPerformance (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1915:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3002:5)"
+        },
+        {
+          "name": "Login response time",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1955:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPerformance (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1942:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3002:5)"
+        },
+        {
+          "name": "Concurrent user registration",
+          "status": "FAILED",
+          "duration": 8,
+          "error": "Too many failed registrations: 0/10",
+          "stack": "Error: Too many failed registrations: 0/10\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2003:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPerformance (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:1981:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3002:5)"
+        },
+        {
+          "name": "Concurrent user login",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2024:44\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPerformance (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2010:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3002:5)"
+        },
+        {
+          "name": "Session management under load",
+          "status": "FAILED",
+          "duration": 1,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2067:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPerformance (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2054:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3002:5)"
+        },
+        {
+          "name": "Database query performance",
+          "status": "PASSED",
+          "duration": 28,
+          "details": {
+            "message": "Database query completed",
+            "count": 7,
+            "duration": "28ms"
+          }
+        },
+        {
+          "name": "Password change performance",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2134:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPerformance (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2121:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3002:5)"
+        },
+        {
+          "name": "OTP verification performance",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Cannot read properties of undefined (reading 'findFirst')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'findFirst')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2179:40\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPerformance (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2170:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3002:5)"
+        },
+        {
+          "name": "Email verification performance",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2225:46\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testPerformance (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2211:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3002:5)"
+        },
+        {
+          "name": "Average response time across all endpoints",
+          "status": "PASSED",
+          "duration": 4,
+          "details": {
+            "message": "Average response time calculated",
+            "avgDuration": "1.33ms"
+          }
+        }
+      ]
+    },
+    "errorHandling": {
+      "passed": 5,
+      "failed": 5,
+      "tests": [
+        {
+          "name": "Network failure scenarios",
+          "status": "PASSED",
+          "duration": 3,
+          "details": {
+            "message": "Network error handling working"
+          }
+        },
+        {
+          "name": "Invalid JSON in request body",
+          "status": "PASSED",
+          "duration": 6,
+          "details": {
+            "message": "JSON handling working"
+          }
+        },
+        {
+          "name": "Missing required fields",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Missing fields not rejected",
+          "stack": "Error: Missing fields not rejected\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2331:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testErrorHandling (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2324:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3003:5)"
+        },
+        {
+          "name": "Invalid data types",
+          "status": "FAILED",
+          "duration": 4,
+          "error": "Invalid data type not rejected",
+          "stack": "Error: Invalid data type not rejected\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2349:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testErrorHandling (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2342:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3003:5)"
+        },
+        {
+          "name": "Bilingual error messages",
+          "status": "FAILED",
+          "duration": 4,
+          "error": "Validation error not returned",
+          "stack": "Error: Validation error not returned\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2364:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testErrorHandling (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2356:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3003:5)"
+        },
+        {
+          "name": "Database connection failure handling",
+          "status": "FAILED",
+          "duration": 7,
+          "error": "Duplicate user not handled correctly",
+          "stack": "Error: Duplicate user not handled correctly\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2401:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testErrorHandling (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2376:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3003:5)"
+        },
+        {
+          "name": "Timeout scenarios",
+          "status": "PASSED",
+          "duration": 4,
+          "details": {
+            "message": "Timeout handling working",
+            "duration": "4ms"
+          }
+        },
+        {
+          "name": "Email service unavailability",
+          "status": "PASSED",
+          "duration": 5,
+          "details": {
+            "message": "Email service error handling working"
+          }
+        },
+        {
+          "name": "SMS service unavailability",
+          "status": "PASSED",
+          "duration": 5,
+          "details": {
+            "message": "SMS service error handling working"
+          }
+        },
+        {
+          "name": "Redis connection failure handling",
+          "status": "FAILED",
+          "duration": 4,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2494:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testErrorHandling (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2478:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3003:5)"
+        }
+      ]
+    },
+    "integration": {
+      "passed": 1,
+      "failed": 9,
+      "tests": [
+        {
+          "name": "Frontend-backend integration",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Registration endpoint not working",
+          "stack": "Error: Registration endpoint not working\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2534:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testIntegration (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2520:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3004:5)"
+        },
+        {
+          "name": "Email service integration",
+          "status": "FAILED",
+          "duration": 3,
+          "error": "Registration failed",
+          "stack": "Error: Registration failed\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2569:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testIntegration (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2556:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3004:5)"
+        },
+        {
+          "name": "SMS service integration",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Send OTP failed",
+          "stack": "Error: Send OTP failed\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2594:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testIntegration (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2585:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3004:5)"
+        },
+        {
+          "name": "Database integration",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Registration failed",
+          "stack": "Error: Registration failed\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2623:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testIntegration (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2610:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3004:5)"
+        },
+        {
+          "name": "Redis integration",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2656:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testIntegration (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2643:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3004:5)"
+        },
+        {
+          "name": "Complete user lifecycle",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Registration failed",
+          "stack": "Error: Registration failed\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2696:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testIntegration (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2683:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3004:5)"
+        },
+        {
+          "name": "Phone validation service integration",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Phone validation failed",
+          "stack": "Error: Phone validation failed\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2757:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testIntegration (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2748:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3004:5)"
+        },
+        {
+          "name": "Password service integration",
+          "status": "FAILED",
+          "duration": 2,
+          "error": "Get password policy failed",
+          "stack": "Error: Get password policy failed\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2773:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testIntegration (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2768:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3004:5)"
+        },
+        {
+          "name": "Session service integration",
+          "status": "FAILED",
+          "duration": 4,
+          "error": "Cannot read properties of undefined (reading 'id')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2797:42\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:102:20)\n    at async testIntegration (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:2784:3)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\comprehensive-authentication-test.test.js:3004:5)"
+        },
+        {
+          "name": "Rate limiting service integration",
+          "status": "PASSED",
+          "duration": 14,
+          "details": {
+            "message": "Rate limiting service integration working",
+            "rateLimited": false
+          }
+        }
+      ]
+    }
+  },
+  "performanceMetrics": {
+    "registration": [],
+    "login": [],
+    "logout": [],
+    "passwordChange": [],
+    "passwordReset": [],
+    "sessionValidation": [],
+    "otpVerification": []
+  },
+  "issues": [
+    {
+      "category": "registration",
+      "test": "Registration with valid email data",
+      "error": "Expected status 201, got 404"
+    },
+    {
+      "category": "registration",
+      "test": "Registration with valid phone data",
+      "error": "Expected status 201, got 404"
+    },
+    {
+      "category": "registration",
+      "test": "Registration with duplicate email should fail",
+      "error": "Expected status 409, got 404"
+    },
+    {
+      "category": "registration",
+      "test": "Registration with weak password should fail",
+      "error": "Expected status 400, got 404"
+    },
+    {
+      "category": "registration",
+      "test": "Registration with password mismatch should fail",
+      "error": "Expected status 400, got 404"
+    },
+    {
+      "category": "registration",
+      "test": "Registration without email or phone should fail",
+      "error": "Expected status 400, got 404"
+    },
+    {
+      "category": "registration",
+      "test": "Email verification flow",
+      "error": "Registration failed"
+    },
+    {
+      "category": "registration",
+      "test": "Resend verification email",
+      "error": "Registration failed"
+    },
+    {
+      "category": "registration",
+      "test": "Phone OTP verification flow",
+      "error": "Registration failed"
+    },
+    {
+      "category": "registration",
+      "test": "Resend OTP",
+      "error": "Send OTP failed"
+    },
+    {
+      "category": "loginLogout",
+      "test": "Login with valid email credentials",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "loginLogout",
+      "test": "Login with valid phone credentials",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "loginLogout",
+      "test": "Login with invalid credentials should fail",
+      "error": "Expected status 401, got 404"
+    },
+    {
+      "category": "loginLogout",
+      "test": "Login with non-existent user should fail",
+      "error": "Expected status 401, got 404"
+    },
+    {
+      "category": "loginLogout",
+      "test": "Login with unverified email should fail",
+      "error": "Expected status 403, got 404"
+    },
+    {
+      "category": "loginLogout",
+      "test": "Logout functionality",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "loginLogout",
+      "test": "Logout from all devices",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "loginLogout",
+      "test": "Remember me functionality",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "loginLogout",
+      "test": "Token refresh",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "loginLogout",
+      "test": "Refresh from remember me token",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "passwordRecovery",
+      "test": "Forgot password with valid email",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "passwordRecovery",
+      "test": "Forgot password with invalid email",
+      "error": "Expected status 200, got 404"
+    },
+    {
+      "category": "passwordRecovery",
+      "test": "Reset password with valid token",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "passwordRecovery",
+      "test": "Reset password with expired token should fail",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "passwordRecovery",
+      "test": "Reset password with invalid token should fail",
+      "error": "Expected status 400, got 404"
+    },
+    {
+      "category": "passwordRecovery",
+      "test": "Change password",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "passwordRecovery",
+      "test": "Change password with wrong current password should fail",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "passwordRecovery",
+      "test": "Change password with weak new password should fail",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "passwordRecovery",
+      "test": "Get password policy",
+      "error": "Expected status 200, got 404"
+    },
+    {
+      "category": "passwordRecovery",
+      "test": "Password reuse prevention",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "sessionManagement",
+      "test": "Session creation on login",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "sessionManagement",
+      "test": "Session validation",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "sessionManagement",
+      "test": "Session expiration",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "sessionManagement",
+      "test": "Concurrent sessions",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "sessionManagement",
+      "test": "Session cleanup on logout",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "sessionManagement",
+      "test": "Remember me token validation",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "sessionManagement",
+      "test": "Disable remember me",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "sessionManagement",
+      "test": "Redis session storage",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "sessionManagement",
+      "test": "Session timeout warning",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "sessionManagement",
+      "test": "Session extension",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "security",
+      "test": "Password hashing (bcrypt strength)",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "security",
+      "test": "Token security (JWT validation)",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "security",
+      "test": "Input validation",
+      "error": "Invalid email not rejected"
+    },
+    {
+      "category": "security",
+      "test": "Authentication bypass attempts",
+      "error": "Authentication bypass possible"
+    },
+    {
+      "category": "performance",
+      "test": "Registration response time",
+      "error": "Registration failed"
+    },
+    {
+      "category": "performance",
+      "test": "Login response time",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "performance",
+      "test": "Concurrent user registration",
+      "error": "Too many failed registrations: 0/10"
+    },
+    {
+      "category": "performance",
+      "test": "Concurrent user login",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "performance",
+      "test": "Session management under load",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "performance",
+      "test": "Password change performance",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "performance",
+      "test": "OTP verification performance",
+      "error": "Cannot read properties of undefined (reading 'findFirst')"
+    },
+    {
+      "category": "performance",
+      "test": "Email verification performance",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "errorHandling",
+      "test": "Missing required fields",
+      "error": "Missing fields not rejected"
+    },
+    {
+      "category": "errorHandling",
+      "test": "Invalid data types",
+      "error": "Invalid data type not rejected"
+    },
+    {
+      "category": "errorHandling",
+      "test": "Bilingual error messages",
+      "error": "Validation error not returned"
+    },
+    {
+      "category": "errorHandling",
+      "test": "Database connection failure handling",
+      "error": "Duplicate user not handled correctly"
+    },
+    {
+      "category": "errorHandling",
+      "test": "Redis connection failure handling",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "integration",
+      "test": "Frontend-backend integration",
+      "error": "Registration endpoint not working"
+    },
+    {
+      "category": "integration",
+      "test": "Email service integration",
+      "error": "Registration failed"
+    },
+    {
+      "category": "integration",
+      "test": "SMS service integration",
+      "error": "Send OTP failed"
+    },
+    {
+      "category": "integration",
+      "test": "Database integration",
+      "error": "Registration failed"
+    },
+    {
+      "category": "integration",
+      "test": "Redis integration",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+      "category": "integration",
+      "test": "Complete user lifecycle",
+      "error": "Registration failed"
+    },
+    {
+      "category": "integration",
+      "test": "Phone validation service integration",
+      "error": "Phone validation failed"
+    },
+    {
+      "category": "integration",
+      "test": "Password service integration",
+      "error": "Get password policy failed"
+    },
+    {
+      "category": "integration",
+      "test": "Session service integration",
+      "error": "Cannot read properties of undefined (reading 'id')"
+    }
+  ],
+  "timestamp": "2025-12-29T07:56:18.874Z"
+}

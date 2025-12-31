@@ -1,0 +1,257 @@
+{
+  "testDuration": "90 seconds",
+  "timestamp": "2025-12-23T11:58:48.104Z",
+  "summary": {
+    "connectionPoolFixed": true,
+    "directConnectionStable": true,
+    "healthCheckPassed": false
+  },
+  "recommendations": [
+    {
+      "issue": "Connection appears stable",
+      "solution": "Monitor for continued stability in production",
+      "priority": "low"
+    }
+  ],
+  "testResults": [
+    {
+      "timestamp": "2025-12-23T11:57:17.718Z",
+      "message": "Starting Redis Connection Fix Verification",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T11:57:17.720Z",
+      "message": "=== Testing Fixed Connection Pool ===",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T11:57:17.720Z",
+      "message": "Initializing Redis connection pool...",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T11:57:17.758Z",
+      "message": "Initial pool status",
+      "data": {
+        "isInitialized": true,
+        "hasClient": true,
+        "isReconnecting": false,
+        "retryAttempts": 0,
+        "maxRetryAttempts": 10,
+        "activeConnections": 0,
+        "connectionNames": [],
+        "connectionLock": false
+      }
+    },
+    {
+      "timestamp": "2025-12-23T11:57:17.759Z",
+      "message": "Retrieved client from pool",
+      "data": {
+        "clientExists": true,
+        "serviceName": "test-service"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T11:57:17.760Z",
+      "message": "Testing basic Redis operations...",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T11:57:17.762Z",
+      "message": "SET/GET operation successful",
+      "data": {
+        "value": "test-fix-value"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T11:57:17.763Z",
+      "message": "EXISTS operation successful",
+      "data": {
+        "exists": 1
+      }
+    },
+    {
+      "timestamp": "2025-12-23T11:57:17.764Z",
+      "message": "DEL operation successful",
+      "data": {
+        "deleted": 1
+      }
+    },
+    {
+      "timestamp": "2025-12-23T11:57:17.768Z",
+      "message": "TTL operation successful",
+      "data": {
+        "ttl": 30
+      }
+    },
+    {
+      "timestamp": "2025-12-23T11:57:17.770Z",
+      "message": "Hash operations successful",
+      "data": {
+        "hashData": {
+          "counter": "18"
+        }
+      }
+    },
+    {
+      "timestamp": "2025-12-23T11:57:17.772Z",
+      "message": "Sorted set operations successful",
+      "data": {
+        "zrange": [
+          "member1",
+          "member2"
+        ]
+      }
+    },
+    {
+      "timestamp": "2025-12-23T11:57:17.773Z",
+      "message": "Monitoring connection stability for 60 seconds...",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T11:58:17.959Z",
+      "message": "Final pool status",
+      "data": {
+        "isInitialized": true,
+        "hasClient": true,
+        "isReconnecting": false,
+        "retryAttempts": 0,
+        "maxRetryAttempts": 10,
+        "activeConnections": 1,
+        "connectionNames": [
+          "test-service"
+        ],
+        "connectionLock": false
+      }
+    },
+    {
+      "timestamp": "2025-12-23T11:58:17.960Z",
+      "message": "Testing concurrent client operations...",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T11:58:17.968Z",
+      "message": "Concurrent operations completed",
+      "data": {
+        "results": [
+          {
+            "index": 0,
+            "value": "value-0"
+          },
+          {
+            "index": 1,
+            "value": "value-1"
+          },
+          {
+            "index": 2,
+            "value": "value-2"
+          }
+        ]
+      }
+    },
+    {
+      "timestamp": "2025-12-23T11:58:17.969Z",
+      "message": "✅ Connection pool test completed successfully",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T11:58:17.969Z",
+      "message": "=== Testing Direct Redis Connection for Comparison ===",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T11:58:18.018Z",
+      "message": "Direct client connected",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T11:58:18.021Z",
+      "message": "Direct client ready",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T11:58:18.024Z",
+      "message": "Direct client operations successful",
+      "data": {
+        "value": "direct-value"
+      }
+    },
+    {
+      "timestamp": "2025-12-23T11:58:18.024Z",
+      "message": "Monitoring direct connection for 30 seconds...",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T11:58:48.036Z",
+      "message": "Direct client ended",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T11:58:48.036Z",
+      "message": "Direct client test completed",
+      "data": {
+        "events": 3,
+        "errors": 0
+      }
+    },
+    {
+      "timestamp": "2025-12-23T11:58:48.036Z",
+      "message": "=== Testing Health Check Endpoint ===",
+      "data": {}
+    },
+    {
+      "timestamp": "2025-12-23T11:58:48.103Z",
+      "message": "Health check response",
+      "data": {
+        "status": "OK",
+        "timestamp": "2025-12-23T11:58:48.091Z",
+        "version": "1.0.0",
+        "environment": "production",
+        "services": {
+          "database": {
+            "status": "healthy"
+          },
+          "redis": {
+            "status": "unhealthy",
+            "stats": {}
+          },
+          "loginSecurity": {
+            "status": "initialized",
+            "features": {
+              "rateLimiting": "active",
+              "accountLockout": "active",
+              "ipBlocking": "active",
+              "progressiveDelay": "active"
+            }
+          },
+          "configuration": {
+            "status": "invalid",
+            "errors": [
+              "JWT_SECRET must be at least 32 characters long"
+            ]
+          }
+        },
+        "uptime": 30547.599690279,
+        "memory": {
+          "rss": 123572224,
+          "heapTotal": 46706688,
+          "heapUsed": 42026512,
+          "external": 1329322,
+          "arrayBuffers": 114890
+        }
+      }
+    },
+    {
+      "timestamp": "2025-12-23T11:58:48.104Z",
+      "message": "Redis health status",
+      "data": {
+        "healthy": false
+      }
+    },
+    {
+      "timestamp": "2025-12-23T11:58:48.104Z",
+      "message": "=== Generating Verification Report ===",
+      "data": {}
+    }
+  ]
+}

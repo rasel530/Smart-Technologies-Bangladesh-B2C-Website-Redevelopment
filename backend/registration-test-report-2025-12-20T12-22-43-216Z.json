@@ -1,0 +1,531 @@
+{
+  "summary": {
+    "total": 65,
+    "passed": 5,
+    "failed": 60,
+    "passRate": "7.69%"
+  },
+  "performance": {
+    "averageResponseTime": 7,
+    "slowestTest": 81,
+    "fastestTest": 4
+  },
+  "security": [
+    {
+      "test": "Rate Limiting",
+      "status": "FAIL",
+      "totalRequests": 10,
+      "rateLimitedRequests": 0
+    }
+  ],
+  "integration": [],
+  "detailedResults": [
+    {
+      "testName": "Email-based registration with valid data",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:42.806Z",
+      "email": "test1766233362723@example.com",
+      "error": "Internal server error",
+      "responseTime": 81
+    },
+    {
+      "testName": "Phone-based registration with valid data",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:42.814Z",
+      "phone": "+8801725972204",
+      "error": "Internal server error",
+      "responseTime": 8
+    },
+    {
+      "testName": "Property name compatibility (fname/lname)",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:42.821Z",
+      "email": "test1766233362815@example.com",
+      "error": "Internal server error",
+      "responseTime": 6
+    },
+    {
+      "testName": "Invalid email format: invalid-email",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.830Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject invalid email format"
+    },
+    {
+      "testName": "Invalid email format: @invalid.com",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.836Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject invalid email format"
+    },
+    {
+      "testName": "Invalid email format: invalid@",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.841Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject invalid email format"
+    },
+    {
+      "testName": "Invalid email format: invalid..email@example.com",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.848Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject invalid email format"
+    },
+    {
+      "testName": "Invalid email format: invalid@.com",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.854Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject invalid email format"
+    },
+    {
+      "testName": "Invalid phone format: 1234567890",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.860Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject invalid phone format"
+    },
+    {
+      "testName": "Invalid phone format: +8801234567890",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.866Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject invalid phone format"
+    },
+    {
+      "testName": "Invalid phone format: +441234567890",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.871Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject invalid phone format"
+    },
+    {
+      "testName": "Invalid phone format: +11234567890",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.876Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject invalid phone format"
+    },
+    {
+      "testName": "Invalid phone format: 0171234567",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.885Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject invalid phone format"
+    },
+    {
+      "testName": "Invalid phone format: 017123456789",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.890Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject invalid phone format"
+    },
+    {
+      "testName": "Weak password rejection: password",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.895Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject weak password"
+    },
+    {
+      "testName": "Weak password rejection: 123456",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.901Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject weak password"
+    },
+    {
+      "testName": "Weak password rejection: qwerty",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.905Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject weak password"
+    },
+    {
+      "testName": "Weak password rejection: abc123",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.911Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject weak password"
+    },
+    {
+      "testName": "Weak password rejection: password123",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.917Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject weak password"
+    },
+    {
+      "testName": "Weak password rejection: 12345678",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.922Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject weak password"
+    },
+    {
+      "testName": "Weak password rejection: admin",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.927Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject weak password"
+    },
+    {
+      "testName": "Weak password rejection: letmein",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.933Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject weak password"
+    },
+    {
+      "testName": "Missing required field: email",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.938Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject missing required field"
+    },
+    {
+      "testName": "Missing required field: password",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.943Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject missing required field"
+    },
+    {
+      "testName": "Missing required field: confirmPassword",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.948Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject missing required field"
+    },
+    {
+      "testName": "Missing required field: firstName",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.953Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject missing required field"
+    },
+    {
+      "testName": "Missing required field: lastName",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:42.959Z",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Should reject missing required field"
+    },
+    {
+      "testName": "Bangladesh phone validation: +8801712345678",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:42.965Z",
+      "phone": "+8801712345678",
+      "error": "Internal server error"
+    },
+    {
+      "testName": "Bangladesh phone validation: +8801812345678",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:42.970Z",
+      "phone": "+8801812345678",
+      "error": "Internal server error"
+    },
+    {
+      "testName": "Bangladesh phone validation: +8801912345678",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:42.975Z",
+      "phone": "+8801912345678",
+      "error": "Internal server error"
+    },
+    {
+      "testName": "Bangladesh phone validation: +8801612345678",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:42.980Z",
+      "phone": "+8801612345678",
+      "error": "Internal server error"
+    },
+    {
+      "testName": "Bangladesh phone validation: +8801312345678",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:42.987Z",
+      "phone": "+8801312345678",
+      "error": "Internal server error"
+    },
+    {
+      "testName": "Bangladesh phone validation: 01712345678",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:42.992Z",
+      "phone": "01712345678",
+      "error": "Internal server error"
+    },
+    {
+      "testName": "Bangladesh phone validation: 01812345678",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:42.997Z",
+      "phone": "01812345678",
+      "error": "Internal server error"
+    },
+    {
+      "testName": "Local operator detection",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:43.003Z",
+      "phone": "+8801712345678",
+      "error": "Internal server error"
+    },
+    {
+      "testName": "Bilingual error messages",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:43.008Z",
+      "error": "Expected validation error for bilingual message test"
+    },
+    {
+      "testName": "XSS sanitization: <script>alert(\"xss\")</script>",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:43.013Z",
+      "original": "<script>alert(\"xss\")</script>",
+      "error": "Internal server error",
+      "note": "XSS attempt rejected"
+    },
+    {
+      "testName": "XSS sanitization: javascript:alert(\"xss\")",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:43.018Z",
+      "original": "javascript:alert(\"xss\")",
+      "error": "Internal server error",
+      "note": "XSS attempt rejected"
+    },
+    {
+      "testName": "XSS sanitization: <img src=\"x\" onerror=\"alert(1)\">",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:43.023Z",
+      "original": "<img src=\"x\" onerror=\"alert(1)\">",
+      "error": "Internal server error",
+      "note": "XSS attempt rejected"
+    },
+    {
+      "testName": "XSS sanitization: \"><script>alert(\"xss\")</script>",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:43.027Z",
+      "original": "\"><script>alert(\"xss\")</script>",
+      "error": "Internal server error",
+      "note": "XSS attempt rejected"
+    },
+    {
+      "testName": "XSS sanitization: \"><script>alert(document.cookie)</script>",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:43.037Z",
+      "original": "\"><script>alert(document.cookie)</script>",
+      "error": "Internal server error",
+      "note": "XSS attempt rejected"
+    },
+    {
+      "testName": "Rate limiting",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:43.090Z",
+      "totalRequests": 10,
+      "rateLimitedRequests": 0,
+      "error": "Rate limiting not detected"
+    },
+    {
+      "testName": "Password strength validation: 123",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:43.096Z",
+      "password": "123",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Weak password should be rejected"
+    },
+    {
+      "testName": "Password strength validation: password",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:43.104Z",
+      "password": "password",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Weak password should be rejected"
+    },
+    {
+      "testName": "Password strength validation: 12345678",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:43.110Z",
+      "password": "12345678",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Weak password should be rejected"
+    },
+    {
+      "testName": "Password strength validation: PASSWORD",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:43.116Z",
+      "password": "PASSWORD",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Weak password should be rejected"
+    },
+    {
+      "testName": "Password strength validation: password123",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:43.121Z",
+      "password": "password123",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Weak password should be rejected"
+    },
+    {
+      "testName": "Password strength validation: PASSWORD123",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:43.126Z",
+      "password": "PASSWORD123",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Weak password should be rejected"
+    },
+    {
+      "testName": "Password strength validation: Pass123",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:43.132Z",
+      "password": "Pass123",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Weak password should be rejected"
+    },
+    {
+      "testName": "Password strength validation: Password!",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:43.138Z",
+      "password": "Password!",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Weak password should be rejected"
+    },
+    {
+      "testName": "Password strength validation: Password123",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:43.143Z",
+      "password": "Password123",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "error": "Weak password should be rejected"
+    },
+    {
+      "testName": "Email verification token generation",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:43.149Z",
+      "email": "test1766233363144@example.com",
+      "error": "Internal server error"
+    },
+    {
+      "testName": "OTP generation for phone verification",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:43.154Z",
+      "phone": "+8801718021470",
+      "error": "Internal server error"
+    },
+    {
+      "testName": "Email verification endpoint functionality",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:43.158Z",
+      "email": "test1766233363154@example.com",
+      "error": "Internal server error"
+    },
+    {
+      "testName": "User creation in database",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:43.164Z",
+      "email": "test1766233363159@example.com",
+      "error": "Internal server error"
+    },
+    {
+      "testName": "Proper phone data storage",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:43.169Z",
+      "phone": "+8801789270908",
+      "error": "Internal server error"
+    },
+    {
+      "testName": "Relationship integrity",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:43.173Z",
+      "error": "Internal server error"
+    },
+    {
+      "testName": "Proper error responses",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:43.179Z",
+      "error": "Expected 400 status for invalid data"
+    },
+    {
+      "testName": "HTTP status code: Invalid email format",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:43.184Z",
+      "expected": 400,
+      "actual": 500,
+      "error": "Internal server error"
+    },
+    {
+      "testName": "HTTP status code: Missing required field",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:43.191Z",
+      "expected": 400,
+      "actual": 500,
+      "error": "Internal server error"
+    },
+    {
+      "testName": "HTTP status code: Password mismatch",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:43.196Z",
+      "expected": 400,
+      "actual": 500,
+      "error": "Internal server error"
+    },
+    {
+      "testName": "HTTP status code: Duplicate email",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:43.201Z",
+      "expected": 409,
+      "actual": 500,
+      "error": "Internal server error"
+    },
+    {
+      "testName": "Error message clarity",
+      "status": "FAIL",
+      "timestamp": "2025-12-20T12:22:43.206Z",
+      "error": "Expected validation error for clarity test"
+    },
+    {
+      "testName": "Duplicate email registration prevention",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:43.210Z",
+      "email": "test1766233363206@example.com",
+      "error": "First registration failed"
+    },
+    {
+      "testName": "Duplicate phone registration prevention",
+      "status": 500,
+      "timestamp": "2025-12-20T12:22:43.215Z",
+      "phone": "+8801716508589",
+      "error": "First registration failed"
+    }
+  ],
+  "timestamp": "2025-12-20T12:22:43.215Z"
+}

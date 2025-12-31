@@ -13,6 +13,12 @@ class PhoneVerificationMiddleware {
   requirePhoneVerification() {
     return async (req, res, next) => {
       try {
+        // Skip verification if testing mode or phone verification is disabled
+        if (configService.isTestingMode() || configService.isPhoneVerificationDisabled()) {
+          req.phoneVerified = true;
+          return next();
+        }
+
         // If no user is attached (not authenticated), skip verification
         if (!req.user || !req.userId) {
           return next();

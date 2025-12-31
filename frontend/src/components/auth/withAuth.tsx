@@ -24,9 +24,14 @@ const AuthWrapper: React.FC<AuthWrapperProps & WithAuthProps> = ({
   redirectTo
 }) => {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Show loading state
-  if (isLoading) {
+  if (isLoading || !mounted) {
     return fallback || (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-t-2 border-primary-600"></div>
@@ -38,8 +43,7 @@ const AuthWrapper: React.FC<AuthWrapperProps & WithAuthProps> = ({
   if (!user) {
     if (redirectTo) {
       router.push(redirectTo);
-    }
- else {
+    } else {
       router.push('/login');
     }
     return fallback || null;
@@ -104,9 +108,14 @@ export function useProtectedRoute(requiredRole?: string | string[]) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (isLoading) return;
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isLoading || !mounted) return;
 
     if (!user) {
       router.push('/login');
@@ -125,7 +134,7 @@ export function useProtectedRoute(requiredRole?: string | string[]) {
     } else {
       setIsAuthorized(true);
     }
-  }, [user, isLoading, requiredRole, router]);
+  }, [user, isLoading, requiredRole, router, mounted]);
 
   return {
     isAuthorized,

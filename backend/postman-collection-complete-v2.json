@@ -1,0 +1,3727 @@
+{
+  "info": {
+    "_postman_id": "smart-tech-b2c-api-v2",
+    "name": "Smart Technologies Bangladesh B2C API - Complete v2",
+    "description": "Comprehensive Postman collection for Smart Technologies Bangladesh B2C E-commerce API v1.0.0. Includes all 65+ endpoints across all modules with authentication, testing scripts, and environment variables.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "smart-tech-b2c-v2"
+  },
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "User Registration",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"confirmPassword\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            },
+            "description": "Register a new user account with email or phone verification"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 400\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 400, 409]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"User registration successful\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.user).to.exist;",
+                  "    });",
+                  "    ",
+                  "    if (response.user && response.user.id) {",
+                  "        pm.environment.set(\"userId\", response.user.id);",
+                  "        pm.environment.set(\"userEmail\", response.user.email);",
+                  "    }",
+                  "} else {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Error response format\", function () {",
+                  "        pm.expect(response.error).to.exist;",
+                  "        pm.expect(response.message).to.exist;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "User Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"user@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"rememberMe\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "Login user with email/phone and password, returns JWT token and session"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 403]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Login successful\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.user).to.exist;",
+                  "        pm.expect(response.token).to.exist;",
+                  "        pm.expect(response.sessionId).to.exist;",
+                  "    });",
+                  "    ",
+                  "    if (response.token) {",
+                  "        pm.environment.set(\"authToken\", response.token);",
+                  "        pm.environment.set(\"sessionId\", response.sessionId);",
+                  "        pm.environment.set(\"userId\", response.user.id);",
+                  "        pm.environment.set(\"userRole\", response.user.role);",
+                  "    }",
+                  "} else {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Error response format\", function () {",
+                  "        pm.expect(response.error).to.exist;",
+                  "        pm.expect(response.message).to.exist;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "User Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"allDevices\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            },
+            "description": "Logout user from current device or all devices"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Logout response\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh JWT Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{authToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "refresh"]
+            },
+            "description": "Refresh JWT token with existing token"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Token refreshed\", function () {",
+                  "        pm.expect(response.token).to.exist;",
+                  "    });",
+                  "    ",
+                  "    if (response.token) {",
+                  "        pm.environment.set(\"authToken\", response.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"email-verification-token\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/verify-email",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "verify-email"]
+            },
+            "description": "Verify email address with verification token"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Email verification response\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Resend Email Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/resend-verification",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "resend-verification"]
+            },
+            "description": "Resend email verification token"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404, 429]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Resend verification response\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send OTP to Phone",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+8801712345678\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/send-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "send-otp"]
+            },
+            "description": "Send OTP to phone number for verification"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"OTP send response\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "    if (response.expiresAt) {",
+                  "        pm.expect(response.expiresAt).to.exist;",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify Phone OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+8801712345678\",\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "verify-otp"]
+            },
+            "description": "Verify phone number with OTP"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"OTP verification response\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "    if (response.verifiedAt) {",
+                  "        pm.expect(response.verifiedAt).to.exist;",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Resend OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+8801712345678\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/resend-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "resend-otp"]
+            },
+            "description": "Resend OTP to phone number"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 429]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Resend OTP response\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"OldPass123!\",\n  \"newPassword\": \"NewPass123!\",\n  \"confirmPassword\": \"NewPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/change-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "change-password"]
+            },
+            "description": "Change user password (requires authentication)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 401]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Password change response\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "forgot-password"]
+            },
+            "description": "Request password reset link via email"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Forgot password response\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"reset-token\",\n  \"newPassword\": \"NewPass123!\",\n  \"confirmPassword\": \"NewPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "reset-password"]
+            },
+            "description": "Reset password with token from email"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Password reset response\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Password Policy",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/password-policy",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "password-policy"]
+            },
+            "description": "Get current password policy requirements"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Password policy response\", function () {",
+                  "    pm.expect(response.policy).to.exist;",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Validate Phone Number",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+8801712345678\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/validate-phone",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "validate-phone"]
+            },
+            "description": "Validate Bangladesh phone number format"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Phone validation response\", function () {",
+                  "    pm.expect(response.validation).to.exist;",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Supported Operators",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/operators",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "operators"]
+            },
+            "description": "Get list of supported mobile operators"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Operators response\", function () {",
+                  "    pm.expect(response.operators).to.exist;",
+                  "    pm.expect(response.operators).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Validate Remember Me Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"remember-me-token\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/validate-remember-me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "validate-remember-me"]
+            },
+            "description": "Validate remember me token"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Remember me validation response\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "    pm.expect(response.tokenValid).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh from Remember Me Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"remember-me-token\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh-from-remember-me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "refresh-from-remember-me"]
+            },
+            "description": "Refresh session using remember me token"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Session refreshed from remember me\", function () {",
+                  "        pm.expect(response.token).to.exist;",
+                  "        pm.expect(response.sessionId).to.exist;",
+                  "    });",
+                  "    ",
+                  "    if (response.token) {",
+                  "        pm.environment.set(\"authToken\", response.token);",
+                  "        pm.environment.set(\"sessionId\", response.sessionId);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Disable Remember Me",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"allDevices\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/disable-remember-me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "disable-remember-me"]
+            },
+            "description": "Disable remember me functionality"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Disable remember me response\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Authentication and authorization endpoints including registration, login, password management, and OTP verification"
+    },
+    {
+      "name": "🔐 Session Management",
+      "item": [
+        {
+          "name": "Create Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"loginType\": \"password\",\n  \"rememberMe\": true,\n  \"maxAge\": 604800000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sessions/create",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sessions", "create"]
+            },
+            "description": "Create new session for user"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 500\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 500]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Session created\", function () {",
+                  "        pm.expect(response.sessionId).to.exist;",
+                  "        pm.expect(response.expiresAt).to.exist;",
+                  "    });",
+                  "    ",
+                  "    if (response.sessionId) {",
+                  "        pm.environment.set(\"sessionId\", response.sessionId);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Validate Session",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "sessionId={{sessionId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sessions/validate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sessions", "validate"]
+            },
+            "description": "Validate existing session"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Session validation response\", function () {",
+                  "    pm.expect(response.valid).to.exist;",
+                  "    pm.expect(response.session).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "sessionId={{sessionId}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maxAge\": 86400000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sessions/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sessions", "refresh"]
+            },
+            "description": "Refresh existing session"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Session refreshed\", function () {",
+                  "        pm.expect(response.sessionId).to.exist;",
+                  "        pm.expect(response.expiresAt).to.exist;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Destroy Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"allDevices\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sessions/destroy",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sessions", "destroy"]
+            },
+            "description": "Destroy session (logout)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 500\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 500]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Session destruction response\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get User Sessions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sessions/user",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sessions", "user"]
+            },
+            "description": "Get all sessions for authenticated user"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 500\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 500]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"User sessions response\", function () {",
+                  "        pm.expect(response.sessions).to.exist;",
+                  "        pm.expect(response.sessions).to.be.an('array');",
+                  "        pm.expect(response.totalSessions).to.exist;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Session Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sessions/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sessions", "stats"]
+            },
+            "description": "Get session statistics (admin only)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403 or 500\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403, 500]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Session statistics response\", function () {",
+                  "        pm.expect(response.stats).to.exist;",
+                  "        pm.expect(response.timestamp).to.exist;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cleanup Expired Sessions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sessions/cleanup",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sessions", "cleanup"]
+            },
+            "description": "Cleanup expired sessions (admin only)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403 or 500\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403, 500]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Session cleanup response\", function () {",
+                  "        pm.expect(response.cleanedCount).to.exist;",
+                  "        pm.expect(response.timestamp).to.exist;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Check Session Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "sessionId={{sessionId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sessions/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sessions", "status"]
+            },
+            "description": "Check session status without authentication"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Session status response\", function () {",
+                  "    pm.expect(response.hasSession).to.exist;",
+                  "    pm.expect(response.sessionId).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Session management endpoints for creating, validating, refreshing, and destroying user sessions"
+    },
+    {
+      "name": "🛍️ Product Management",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products?page=1&limit=20&category=&minPrice=100&maxPrice=1000&status=ACTIVE&sortBy=price&sortOrder=asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "category",
+                  "value": ""
+                },
+                {
+                  "key": "minPrice",
+                  "value": "100"
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "1000"
+                },
+                {
+                  "key": "status",
+                  "value": "ACTIVE"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "price"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                }
+              ]
+            },
+            "description": "Get all products with filtering and pagination"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Products response\", function () {",
+                  "    pm.expect(response.products).to.exist;",
+                  "    pm.expect(response.products).to.be.an('array');",
+                  "    pm.expect(response.pagination).to.exist;",
+                  "});",
+                  "",
+                  "if (response.products && response.products.length > 0) {",
+                  "    pm.environment.set(\"productId\", response.products[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "{{productId}}"]
+            },
+            "description": "Get product details by ID"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Product response\", function () {",
+                  "        pm.expect(response.product).to.exist;",
+                  "        pm.expect(response.product.id).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Product by Slug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/slug/{{productSlug}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "slug", "{{productSlug}}"]
+            },
+            "description": "Get product details by slug"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Product by slug response\", function () {",
+                  "        pm.expect(response.product).to.exist;",
+                  "        pm.expect(response.product.slug).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Product\",\n  \"nameEn\": \"Sample Product\",\n  \"slug\": \"sample-product\",\n  \"sku\": \"SKU123\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"brandId\": \"{{brandId}}\",\n  \"regularPrice\": 100.00,\n  \"salePrice\": 80.00,\n  \"costPrice\": 50.00,\n  \"stockQuantity\": 100,\n  \"description\": \"Product description\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products"]
+            },
+            "description": "Create new product (admin only)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 400 or 401 or 409\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 400, 401, 409]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Product created\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.product).to.exist;",
+                  "    });",
+                  "    ",
+                  "    if (response.product && response.product.id) {",
+                  "        pm.environment.set(\"productId\", response.product.id);",
+                  "    }",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Product Name\",\n  \"regularPrice\": 120.00,\n  \"stockQuantity\": 150,\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "{{productId}}"]
+            },
+            "description": "Update product details (admin only)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400 or 401 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 401, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Product updated\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.product).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "{{productId}}"]
+            },
+            "description": "Delete product (admin only)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400 or 401 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 401, 404]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Product deletion response\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Featured Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/featured/list",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "featured", "list"]
+            },
+            "description": "Get list of featured products"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Featured products response\", function () {",
+                  "    pm.expect(response.products).to.exist;",
+                  "    pm.expect(response.products).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Product management endpoints for CRUD operations and product listings"
+    },
+    {
+      "name": "📂 Category Management",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories?includeInactive=false&parentOnly=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories"],
+              "query": [
+                {
+                  "key": "includeInactive",
+                  "value": "false"
+                },
+                {
+                  "key": "parentOnly",
+                  "value": "false"
+                }
+              ]
+            },
+            "description": "Get all categories with optional filtering"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Categories response\", function () {",
+                  "    pm.expect(response.categories).to.exist;",
+                  "    pm.expect(response.categories).to.be.an('array');",
+                  "});",
+                  "",
+                  "if (response.categories && response.categories.length > 0) {",
+                  "    pm.environment.set(\"categoryId\", response.categories[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Category by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", "{{categoryId}}"]
+            },
+            "description": "Get category details by ID"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Category response\", function () {",
+                  "        pm.expect(response.category).to.exist;",
+                  "        pm.expect(response.category.id).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Category Tree",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/tree/all",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", "tree", "all"]
+            },
+            "description": "Get category tree structure with hierarchical relationships"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Category tree response\", function () {",
+                  "    pm.expect(response.categories).to.exist;",
+                  "    pm.expect(response.categories).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Category\",\n  \"slug\": \"sample-category\",\n  \"description\": \"Category description\",\n  \"parentId\": null,\n  \"sortOrder\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories"]
+            },
+            "description": "Create new category (admin only)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 400 or 401 or 409\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 400, 401, 409]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Category created\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.category).to.exist;",
+                  "    });",
+                  "    ",
+                  "    if (response.category && response.category.id) {",
+                  "        pm.environment.set(\"categoryId\", response.category.id);",
+                  "    }",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Category Name\",\n  \"description\": \"Updated category description\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", "{{categoryId}}"]
+            },
+            "description": "Update category details (admin only)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400 or 401 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 401, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Category updated\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.category).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", "{{categoryId}}"]
+            },
+            "description": "Delete category (admin only)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400 or 401 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 401, 404]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Category deletion response\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Category management endpoints for CRUD operations and tree structure"
+    },
+    {
+      "name": "🏷️ Brand Management",
+      "item": [
+        {
+          "name": "Get All Brands",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/brands?includeInactive=false&search=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "brands"],
+              "query": [
+                {
+                  "key": "includeInactive",
+                  "value": "false"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Get all brands with optional filtering"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Brands response\", function () {",
+                  "    pm.expect(response.brands).to.exist;",
+                  "    pm.expect(response.brands).to.be.an('array');",
+                  "});",
+                  "",
+                  "if (response.brands && response.brands.length > 0) {",
+                  "    pm.environment.set(\"brandId\", response.brands[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Brand by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/brands/{{brandId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "brands", "{{brandId}}"]
+            },
+            "description": "Get brand details by ID"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Brand response\", function () {",
+                  "        pm.expect(response.brand).to.exist;",
+                  "        pm.expect(response.brand.id).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Brand",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Brand\",\n  \"slug\": \"sample-brand\",\n  \"description\": \"Brand description\",\n  \"website\": \"https://brand-website.com\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/brands",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "brands"]
+            },
+            "description": "Create new brand (admin only)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 400 or 401 or 409\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 400, 401, 409]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Brand created\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.brand).to.exist;",
+                  "    });",
+                  "    ",
+                  "    if (response.brand && response.brand.id) {",
+                  "        pm.environment.set(\"brandId\", response.brand.id);",
+                  "    }",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Brand",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Brand Name\",\n  \"description\": \"Updated brand description\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/brands/{{brandId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "brands", "{{brandId}}"]
+            },
+            "description": "Update brand details (admin only)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400 or 401 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 401, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Brand updated\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.brand).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Brand",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/brands/{{brandId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "brands", "{{brandId}}"]
+            },
+            "description": "Delete brand (admin only)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400 or 401 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 401, 404]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Brand deletion response\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Brand management endpoints for CRUD operations"
+    },
+    {
+      "name": "👥 User Management",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users?page=1&limit=10&search=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Get all users (admin only) with pagination and search"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401 or 403\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 403]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Users response\", function () {",
+                  "        pm.expect(response.users).to.exist;",
+                  "        pm.expect(response.users).to.be.an('array');",
+                  "        pm.expect(response.pagination).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}"]
+            },
+            "description": "Get user details by ID (self or admin)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401 or 403 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 403, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"User response\", function () {",
+                  "        pm.expect(response.user).to.exist;",
+                  "        pm.expect(response.user.id).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Updated Name\",\n  \"lastName\": \"Updated Last Name\",\n  \"phone\": \"+8801712345678\",\n  \"dateOfBirth\": \"1990-01-01\",\n  \"gender\": \"MALE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}"]
+            },
+            "description": "Update user profile (self or admin)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400 or 401 or 403 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 401, 403, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"User updated\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.user).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}"]
+            },
+            "description": "Delete user (admin only)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400 or 401 or 403 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 401, 403, 404]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"User deletion response\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get User Addresses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}/addresses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}", "addresses"]
+            },
+            "description": "Get user addresses (self or admin)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401 or 403 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 403, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"User addresses response\", function () {",
+                  "        pm.expect(response.addresses).to.exist;",
+                  "        pm.expect(response.addresses).to.be.an('array');",
+                  "    });",
+                  "    ",
+                  "    if (response.addresses && response.addresses.length > 0) {",
+                  "        pm.environment.set(\"addressId\", response.addresses[0].id);",
+                  "    }",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "User management endpoints for profile and address management"
+    },
+    {
+      "name": "📦 Order Management",
+      "item": [
+        {
+          "name": "Get All Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders?page=1&limit=20&userId=&status=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "userId",
+                  "value": ""
+                },
+                {
+                  "key": "status",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Get all orders (user or admin) with filtering"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Orders response\", function () {",
+                  "        pm.expect(response.orders).to.exist;",
+                  "        pm.expect(response.orders).to.be.an('array');",
+                  "        pm.expect(response.pagination).to.exist;",
+                  "    });",
+                  "    ",
+                  "    if (response.orders && response.orders.length > 0) {",
+                  "        pm.environment.set(\"orderId\", response.orders[0].id);",
+                  "    }",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders/{{orderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", "{{orderId}}"]
+            },
+            "description": "Get order details by ID (owner or admin)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401 or 403 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 403, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Order response\", function () {",
+                  "        pm.expect(response.order).to.exist;",
+                  "        pm.expect(response.order.id).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addressId\": \"{{addressId}}\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 2\n    }\n  ],\n  \"paymentMethod\": \"CASH_ON_DELIVERY\",\n  \"notes\": \"Order notes\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders"]
+            },
+            "description": "Create new order"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 400 or 401\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 400, 401]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Order created\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.order).to.exist;",
+                  "    });",
+                  "    ",
+                  "    if (response.order && response.order.id) {",
+                  "        pm.environment.set(\"orderId\", response.order.id);",
+                  "    }",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CONFIRMED\",\n  \"notes\": \"Order confirmed\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders/{{orderId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", "{{orderId}}", "status"]
+            },
+            "description": "Update order status (manager or admin)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400 or 401 or 403 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 401, 403, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Order status updated\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.order).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Order management endpoints for CRUD operations and status management"
+    },
+    {
+      "name": "🛒 Shopping Cart",
+      "item": [
+        {
+          "name": "Get Cart",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/{{cartId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart", "{{cartId}}"]
+            },
+            "description": "Get cart details with items and totals"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Cart response\", function () {",
+                  "        pm.expect(response.cart).to.exist;",
+                  "        pm.expect(response.cart.items).to.exist;",
+                  "        pm.expect(response.cart.subtotal).to.exist;",
+                  "        pm.expect(response.cart.total).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add Item to Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"variantId\": null,\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/{{cartId}}/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart", "{{cartId}}", "items"]
+            },
+            "description": "Add item to cart"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 400 or 401 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 400, 401, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Item added to cart\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.item).to.exist;",
+                  "    });",
+                  "    ",
+                  "    if (response.item && response.item.id) {",
+                  "        pm.environment.set(\"cartItemId\", response.item.id);",
+                  "    }",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Cart Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/{{cartId}}/items/{{cartItemId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart", "{{cartId}}", "items", "{{cartItemId}}"]
+            },
+            "description": "Update cart item quantity"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400 or 401 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 401, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Cart item updated\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.item).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Remove Item from Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/{{cartId}}/items/{{cartItemId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart", "{{cartId}}", "items", "{{cartItemId}}"]
+            },
+            "description": "Remove item from cart"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 404]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Item removed from cart\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Clear Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/{{cartId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart", "{{cartId}}"]
+            },
+            "description": "Clear entire cart"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 404]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Cart cleared\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Shopping cart management endpoints for CRUD operations"
+    },
+    {
+      "name": "💝 Wishlist Management",
+      "item": [
+        {
+          "name": "Get User's Wishlists",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wishlist/user/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wishlist", "user", "{{userId}}"]
+            },
+            "description": "Get all wishlists for a user (self or admin)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401 or 403\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 403]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"User wishlists response\", function () {",
+                  "        pm.expect(response.wishlists).to.exist;",
+                  "        pm.expect(response.wishlists).to.be.an('array');",
+                  "    });",
+                  "    ",
+                  "    if (response.wishlists && response.wishlists.length > 0) {",
+                  "        pm.environment.set(\"wishlistId\", response.wishlists[0].id);",
+                  "    }",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Wishlist by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wishlist/{{wishlistId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wishlist", "{{wishlistId}}"]
+            },
+            "description": "Get wishlist details by ID (owner or admin)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401 or 403 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 403, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Wishlist response\", function () {",
+                  "        pm.expect(response.wishlist).to.exist;",
+                  "        pm.expect(response.wishlist.id).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My Wishlist\",\n  \"isPrivate\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wishlist",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wishlist"]
+            },
+            "description": "Create new wishlist"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 401\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 401]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Wishlist created\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.wishlist).to.exist;",
+                  "    });",
+                  "    ",
+                  "    if (response.wishlist && response.wishlist.id) {",
+                  "        pm.environment.set(\"wishlistId\", response.wishlist.id);",
+                  "    }",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add Item to Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wishlist/{{wishlistId}}/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wishlist", "{{wishlistId}}", "items"]
+            },
+            "description": "Add item to wishlist"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 400 or 401 or 404 or 409\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 400, 401, 404, 409]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Item added to wishlist\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.item).to.exist;",
+                  "    });",
+                  "    ",
+                  "    if (response.item && response.item.id) {",
+                  "        pm.environment.set(\"wishlistItemId\", response.item.id);",
+                  "    }",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Remove Item from Wishlist",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wishlist/{{wishlistId}}/items/{{wishlistItemId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wishlist", "{{wishlistId}}", "items", "{{wishlistItemId}}"]
+            },
+            "description": "Remove item from wishlist"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 404]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Item removed from wishlist\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Wishlist",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wishlist/{{wishlistId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wishlist", "{{wishlistId}}"]
+            },
+            "description": "Delete wishlist"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 404]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Wishlist deleted\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Wishlist management endpoints for CRUD operations"
+    },
+    {
+      "name": "⭐ Review Management",
+      "item": [
+        {
+          "name": "Get All Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reviews?page=1&limit=20&productId=&userId=&rating=&isApproved=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reviews"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "productId",
+                  "value": ""
+                },
+                {
+                  "key": "userId",
+                  "value": ""
+                },
+                {
+                  "key": "rating",
+                  "value": ""
+                },
+                {
+                  "key": "isApproved",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Get all reviews with filtering and pagination"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Reviews response\", function () {",
+                  "    pm.expect(response.reviews).to.exist;",
+                  "    pm.expect(response.reviews).to.be.an('array');",
+                  "    pm.expect(response.pagination).to.exist;",
+                  "});",
+                  "",
+                  "if (response.reviews && response.reviews.length > 0) {",
+                  "    pm.environment.set(\"reviewId\", response.reviews[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Review by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reviews/{{reviewId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reviews", "{{reviewId}}"]
+            },
+            "description": "Get review details by ID"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Review response\", function () {",
+                  "        pm.expect(response.review).to.exist;",
+                  "        pm.expect(response.review.id).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"rating\": 5,\n  \"title\": \"Great product\",\n  \"comment\": \"Really happy with this purchase\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reviews",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reviews"]
+            },
+            "description": "Create new review for a product"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 400 or 401 or 404 or 409\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 400, 401, 404, 409]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Review created\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.review).to.exist;",
+                  "    });",
+                  "    ",
+                  "    if (response.review && response.review.id) {",
+                  "        pm.environment.set(\"reviewId\", response.review.id);",
+                  "    }",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Review",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"title\": \"Updated review title\",\n  \"comment\": \"Updated review comment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reviews/{{reviewId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reviews", "{{reviewId}}"]
+            },
+            "description": "Update review (owner or admin)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400 or 401 or 403 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 401, 403, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Review updated\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.review).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Approve Review",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reviews/{{reviewId}}/approve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reviews", "{{reviewId}}", "approve"]
+            },
+            "description": "Approve review (admin only)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401 or 403 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 403, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Review approved\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.review).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reviews/{{reviewId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reviews", "{{reviewId}}"]
+            },
+            "description": "Delete review (owner or admin)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401 or 403 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 403, 404]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Review deleted\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Review management endpoints for CRUD operations and approval"
+    },
+    {
+      "name": "🎫 Coupon Management",
+      "item": [
+        {
+          "name": "Get All Coupons",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/coupons?page=1&limit=20&isActive=true&search=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "coupons"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "isActive",
+                  "value": "true"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Get all coupons with filtering and pagination"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Coupons response\", function () {",
+                  "    pm.expect(response.coupons).to.exist;",
+                  "    pm.expect(response.coupons).to.be.an('array');",
+                  "    pm.expect(response.pagination).to.exist;",
+                  "});",
+                  "",
+                  "if (response.coupons && response.coupons.length > 0) {",
+                  "    pm.environment.set(\"couponId\", response.coupons[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Coupon by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/coupons/{{couponId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "coupons", "{{couponId}}"]
+            },
+            "description": "Get coupon details by ID"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Coupon response\", function () {",
+                  "        pm.expect(response.coupon).to.exist;",
+                  "        pm.expect(response.coupon.id).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Coupon by Code",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/coupons/code/{{couponCode}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "coupons", "code", "{{couponCode}}"]
+            },
+            "description": "Get coupon details by code"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Coupon by code response\", function () {",
+                  "        pm.expect(response.coupon).to.exist;",
+                  "        pm.expect(response.coupon.code).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Coupon",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"SAVE10\",\n  \"name\": \"10% Off\",\n  \"type\": \"PERCENTAGE\",\n  \"value\": 10.0,\n  \"minAmount\": 50.0,\n  \"maxDiscount\": 20.0,\n  \"usageLimit\": 100,\n  \"isActive\": true,\n  \"expiresAt\": \"2024-12-31T23:59:59.000Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/coupons",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "coupons"]
+            },
+            "description": "Create new coupon (admin only)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 400 or 401 or 409\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 400, 401, 409]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Coupon created\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.coupon).to.exist;",
+                  "    });",
+                  "    ",
+                  "    if (response.coupon && response.coupon.id) {",
+                  "        pm.environment.set(\"couponId\", response.coupon.id);",
+                  "    }",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Coupon",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Coupon Name\",\n  \"value\": 15.0,\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/coupons/{{couponId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "coupons", "{{couponId}}"]
+            },
+            "description": "Update coupon details (admin only)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400 or 401 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 401, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test(\"Coupon updated\", function () {",
+                  "        pm.expect(response.message).to.exist;",
+                  "        pm.expect(response.coupon).to.exist;",
+                  "    });",
+                  "}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Coupon",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/coupons/{{couponId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "coupons", "{{couponId}}"]
+            },
+            "description": "Delete coupon (admin only)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 400 or 401 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 401, 404]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Coupon deleted\", function () {",
+                  "    pm.expect(response.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Coupon management endpoints for CRUD operations and code lookup"
+    },
+    {
+      "name": "🏠 System & Utility",
+      "item": [
+        {
+          "name": "API Root Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Get API root endpoint with version info"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"API root response\", function () {",
+                  "    pm.expect(response.name).to.exist;",
+                  "    pm.expect(response.version).to.exist;",
+                  "    pm.expect(response.endpoints).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Health check with database status"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Health check response\", function () {",
+                  "    pm.expect(response.status).to.exist;",
+                  "    pm.expect(response.timestamp).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Database Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/db-status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "db-status"]
+            },
+            "description": "Database connection status"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Database status response\", function () {",
+                  "    pm.expect(response.status).to.exist;",
+                  "    pm.expect(response.timestamp).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rate Limit Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/rate-limit-status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rate-limit-status"]
+            },
+            "description": "Rate limiting status"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Rate limit status response\", function () {",
+                  "    pm.expect(response.status).to.exist;",
+                  "    pm.expect(response.timestamp).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API Documentation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api-docs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api-docs"]
+            },
+            "description": "Swagger API documentation"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "pm.test(\"API documentation response\", function () {",
+                  "    pm.expect(pm.response.text()).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "System and utility endpoints for health checks and API information"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global pre-request script",
+          "// Set timestamp for debugging",
+          "pm.environment.set(\"requestTimestamp\", new Date().toISOString());",
+          "",
+          "// Auto-refresh token if it's about to expire (within 5 minutes)",
+          "if (pm.environment.get(\"authToken\") && pm.environment.get(\"tokenExpiresAt\")) {",
+          "    var expiresAt = new Date(pm.environment.get(\"tokenExpiresAt\"));",
+          "    var now = new Date();",
+          "    var timeUntilExpiry = expiresAt.getTime() - now.getTime();",
+          "    ",
+          "    // If token expires within 5 minutes, refresh it",
+          "    if (timeUntilExpiry < 5 * 60 * 1000 && pm.environment.get(\"refreshToken\")) {",
+          "        console.log(\"Token expiring soon, refreshing...\");",
+          "        // Note: You would need to implement token refresh logic here",
+          "        // This is just a placeholder for the concept",
+          "    }",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test script",
+          "// Common response validations",
+          "pm.test(\"Response time is less than 3000ms\", function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+          "});",
+          "",
+          "pm.test(\"Response has proper Content-Type\", function () {",
+          "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+          "});",
+          "",
+          "// Log response details for debugging",
+          "console.log(\"Request: \" + pm.info.requestName + \" - Status: \" + pm.response.code + \" - Time: \" + pm.response.responseTime + \"ms\");"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001",
+      "type": "string",
+      "description": "Base URL for API requests"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string",
+      "description": "JWT authentication token"
+    },
+    {
+      "key": "sessionId",
+      "value": "",
+      "type": "string",
+      "description": "Session ID for session-based authentication"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string",
+      "description": "Current user ID"
+    },
+    {
+      "key": "userRole",
+      "value": "",
+      "type": "string",
+      "description": "Current user role"
+    },
+    {
+      "key": "productId",
+      "value": "",
+      "type": "string",
+      "description": "Product ID for testing"
+    },
+    {
+      "key": "productSlug",
+      "value": "sample-product",
+      "type": "string",
+      "description": "Product slug for testing"
+    },
+    {
+      "key": "categoryId",
+      "value": "",
+      "type": "string",
+      "description": "Category ID for testing"
+    },
+    {
+      "key": "brandId",
+      "value": "",
+      "type": "string",
+      "description": "Brand ID for testing"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string",
+      "description": "Order ID for testing"
+    },
+    {
+      "key": "cartId",
+      "value": "",
+      "type": "string",
+      "description": "Cart ID for testing"
+    },
+    {
+      "key": "cartItemId",
+      "value": "",
+      "type": "string",
+      "description": "Cart item ID for testing"
+    },
+    {
+      "key": "wishlistId",
+      "value": "",
+      "type": "string",
+      "description": "Wishlist ID for testing"
+    },
+    {
+      "key": "wishlistItemId",
+      "value": "",
+      "type": "string",
+      "description": "Wishlist item ID for testing"
+    },
+    {
+      "key": "reviewId",
+      "value": "",
+      "type": "string",
+      "description": "Review ID for testing"
+    },
+    {
+      "key": "couponId",
+      "value": "",
+      "type": "string",
+      "description": "Coupon ID for testing"
+    },
+    {
+      "key": "couponCode",
+      "value": "SAVE10",
+      "type": "string",
+      "description": "Coupon code for testing"
+    },
+    {
+      "key": "addressId",
+      "value": "",
+      "type": "string",
+      "description": "Address ID for testing"
+    },
+    {
+      "key": "requestTimestamp",
+      "value": "",
+      "type": "string",
+      "description": "Timestamp of current request"
+    },
+    {
+      "key": "tokenExpiresAt",
+      "value": "",
+      "type": "string",
+      "description": "Token expiration timestamp"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string",
+      "description": "Refresh token for obtaining new auth token"
+    }
+  ]
+}

@@ -30,6 +30,29 @@
   }
 }
 
+/* Radix UI Select Component Styles */
+[data-radix-select-trigger] {
+  cursor: pointer;
+}
+
+[data-radix-select-item] {
+  cursor: pointer;
+  user-select: none;
+}
+
+[data-radix-select-item]:hover,
+[data-radix-select-item][data-state="checked"] {
+  background-color: rgb(239 246 255);
+}
+
+[data-radix-select-item][data-state="checked"] {
+  color: rgb(37 99 235);
+}
+
+[data-radix-select-viewport] {
+  padding: 0.25rem;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

@@ -1,0 +1,32 @@
+# Development Dockerfile - runs frontend in dev mode to skip static generation
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install dependencies
+COPY package.json package-lock.json* pnpm-lock.yaml* ./
+RUN apk add --no-cache libc6-compat
+
+# Install dependencies based on lockfile
+RUN \
+  if [ -f pnpm-lock.yaml ]; then \
+  corepack enable pnpm && pnpm install; \
+  elif [ -f package-lock.json ]; then \
+  npm install; \
+  else \
+  echo "Lockfile not found." && exit 1; \
+  fi
+
+# Copy source code
+COPY . .
+
+# Expose port
+EXPOSE 3000
+
+# Set environment variables
+ENV NODE_ENV=development
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Run in development mode
+CMD ["pnpm", "dev"]

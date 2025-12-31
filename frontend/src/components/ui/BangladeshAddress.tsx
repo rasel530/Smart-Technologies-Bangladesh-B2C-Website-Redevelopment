@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import * as Select from '@radix-ui/react-select';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 import { 
   divisions, 
   districts, 
@@ -51,8 +51,41 @@ const BangladeshAddress: React.FC<BangladeshAddressProps> = ({
   className,
   disabled = false
 }) => {
+  // Debug: Log divisions data
+  console.log('BangladeshAddress - divisions:', divisions);
+  console.log('BangladeshAddress - divisions.length:', divisions.length);
+  
+  // Add key to force re-render when division changes
+  const divisionKey = division || 'empty';
   const [availableDistricts, setAvailableDistricts] = useState<District[]>([]);
   const [availableUpazilas, setAvailableUpazilas] = useState<Upazila[]>([]);
+  
+  // Use refs to track programmatic updates to prevent infinite loops
+  const isProgrammaticUpdateRef = useRef(false);
+
+  const handleDivisionChange = useCallback((newDivision: string) => {
+    isProgrammaticUpdateRef.current = true;
+    onDivisionChange(newDivision);
+    setTimeout(() => {
+      isProgrammaticUpdateRef.current = false;
+    }, 0);
+  }, [onDivisionChange]);
+
+  const handleDistrictChange = useCallback((newDistrict: string) => {
+    isProgrammaticUpdateRef.current = true;
+    onDistrictChange(newDistrict);
+    setTimeout(() => {
+      isProgrammaticUpdateRef.current = false;
+    }, 0);
+  }, [onDistrictChange]);
+
+  const handleUpazilaChange = useCallback((newUpazila: string) => {
+    isProgrammaticUpdateRef.current = true;
+    onUpazilaChange(newUpazila);
+    setTimeout(() => {
+      isProgrammaticUpdateRef.current = false;
+    }, 0);
+  }, [onUpazilaChange]);
 
   useEffect(() => {
     if (division) {
@@ -60,17 +93,19 @@ const BangladeshAddress: React.FC<BangladeshAddressProps> = ({
       setAvailableDistricts(districts);
       
       // Reset district and upazila when division changes
-      if (district && !districts.find(d => d.id === district)) {
-        onDistrictChange('');
-        onUpazilaChange('');
+      if (district && !districts.find(d => d.id === district) && !isProgrammaticUpdateRef.current) {
+        handleDistrictChange('');
+        handleUpazilaChange('');
       }
     } else {
       setAvailableDistricts([]);
       setAvailableUpazilas([]);
-      onDistrictChange('');
-      onUpazilaChange('');
+      if (!isProgrammaticUpdateRef.current) {
+        handleDistrictChange('');
+        handleUpazilaChange('');
+      }
     }
-  }, [division, onDistrictChange, onUpazilaChange]);
+  }, [division, district]);
 
   useEffect(() => {
     if (district) {
@@ -78,14 +113,16 @@ const BangladeshAddress: React.FC<BangladeshAddressProps> = ({
       setAvailableUpazilas(upazilas);
       
       // Reset upazila when district changes
-      if (upazila && !upazilas.find(u => u.id === upazila)) {
-        onUpazilaChange('');
+      if (upazila && !upazilas.find(u => u.id === upazila) && !isProgrammaticUpdateRef.current) {
+        handleUpazilaChange('');
       }
     } else {
       setAvailableUpazilas([]);
-      onUpazilaChange('');
+      if (!isProgrammaticUpdateRef.current) {
+        handleUpazilaChange('');
+      }
     }
-  }, [district, onUpazilaChange]);
+  }, [district, upazila]);
 
   const selectedDivision = getDivisionById(division);
   const selectedDistrict = getDistrictById(district);
@@ -131,7 +168,7 @@ const BangladeshAddress: React.FC<BangladeshAddressProps> = ({
         
         <Select.Root
           value={division}
-          onValueChange={onDivisionChange}
+          onValueChange={handleDivisionChange}
           disabled={disabled}
           aria-label={language === 'bn' ? 'বিভাগ নির্বাচন করুন' : 'Select division'}
           aria-invalid={!!displayError('division')}
@@ -153,21 +190,29 @@ const BangladeshAddress: React.FC<BangladeshAddressProps> = ({
           </Select.Trigger>
           
           <Select.Portal>
-            <Select.Content className="max-h-60 overflow-auto bg-white border border-secondary-200 rounded-md shadow-lg">
+            <Select.Content position="popper" sideOffset={5} className="max-h-60 overflow-auto bg-white border border-secondary-200 rounded-md shadow-lg z-50">
+              <Select.ScrollUpButton className="flex items-center justify-center h-6 cursor-default">
+                <ChevronDown className="h-4 w-4 rotate-180" />
+              </Select.ScrollUpButton>
               <Select.Viewport className="p-1">
-                <Select.Item value="" disabled className="text-secondary-500">
-                  {getPlaceholder('division')}
-                </Select.Item>
                 {divisions.map((div) => (
                   <Select.Item
                     key={div.id}
                     value={div.id}
-                    className="px-3 py-2 text-sm hover:bg-primary-50 focus:bg-primary-50 cursor-pointer rounded-md"
+                    className="px-3 py-2 text-sm hover:bg-primary-50 focus:bg-primary-50 cursor-pointer rounded-md flex items-center justify-between outline-none data-[state=checked]:bg-primary-100 data-[state=checked]:text-primary-700"
                   >
-                    {language === 'bn' ? div.nameBn : div.name}
+                    <Select.ItemText>
+                      {language === 'bn' ? div.nameBn : div.name}
+                    </Select.ItemText>
+                    <Select.ItemIndicator>
+                      <Check className="h-4 w-4" />
+                    </Select.ItemIndicator>
                   </Select.Item>
                 ))}
               </Select.Viewport>
+              <Select.ScrollDownButton className="flex items-center justify-center h-6 cursor-default">
+                <ChevronDown className="h-4 w-4" />
+              </Select.ScrollDownButton>
             </Select.Content>
           </Select.Portal>
         </Select.Root>
@@ -188,7 +233,7 @@ const BangladeshAddress: React.FC<BangladeshAddressProps> = ({
         
         <Select.Root
           value={district}
-          onValueChange={onDistrictChange}
+          onValueChange={handleDistrictChange}
           disabled={disabled || !division}
           aria-label={language === 'bn' ? 'জেলা নির্বাচন করুন' : 'Select district'}
           aria-invalid={!!displayError('district')}
@@ -210,21 +255,29 @@ const BangladeshAddress: React.FC<BangladeshAddressProps> = ({
           </Select.Trigger>
           
           <Select.Portal>
-            <Select.Content className="max-h-60 overflow-auto bg-white border border-secondary-200 rounded-md shadow-lg">
+            <Select.Content position="popper" sideOffset={5} className="max-h-60 overflow-auto bg-white border border-secondary-200 rounded-md shadow-lg z-50">
+              <Select.ScrollUpButton className="flex items-center justify-center h-6 cursor-default">
+                <ChevronDown className="h-4 w-4 rotate-180" />
+              </Select.ScrollUpButton>
               <Select.Viewport className="p-1">
-                <Select.Item value="" disabled className="text-secondary-500">
-                  {getPlaceholder('district')}
-                </Select.Item>
                 {availableDistricts.map((dist) => (
                   <Select.Item
                     key={dist.id}
                     value={dist.id}
-                    className="px-3 py-2 text-sm hover:bg-primary-50 focus:bg-primary-50 cursor-pointer rounded-md"
+                    className="px-3 py-2 text-sm hover:bg-primary-50 focus:bg-primary-50 cursor-pointer rounded-md flex items-center justify-between outline-none data-[state=checked]:bg-primary-100 data-[state=checked]:text-primary-700"
                   >
-                    {language === 'bn' ? dist.nameBn : dist.name}
+                    <Select.ItemText>
+                      {language === 'bn' ? dist.nameBn : dist.name}
+                    </Select.ItemText>
+                    <Select.ItemIndicator>
+                      <Check className="h-4 w-4" />
+                    </Select.ItemIndicator>
                   </Select.Item>
                 ))}
               </Select.Viewport>
+              <Select.ScrollDownButton className="flex items-center justify-center h-6 cursor-default">
+                <ChevronDown className="h-4 w-4" />
+              </Select.ScrollDownButton>
             </Select.Content>
           </Select.Portal>
         </Select.Root>
@@ -245,7 +298,7 @@ const BangladeshAddress: React.FC<BangladeshAddressProps> = ({
         
         <Select.Root
           value={upazila}
-          onValueChange={onUpazilaChange}
+          onValueChange={handleUpazilaChange}
           disabled={disabled || !district}
           aria-label={language === 'bn' ? 'উপজেলা নির্বাচন করুন' : 'Select upazila'}
           aria-invalid={!!displayError('upazila')}
@@ -267,21 +320,29 @@ const BangladeshAddress: React.FC<BangladeshAddressProps> = ({
           </Select.Trigger>
           
           <Select.Portal>
-            <Select.Content className="max-h-60 overflow-auto bg-white border border-secondary-200 rounded-md shadow-lg">
+            <Select.Content position="popper" sideOffset={5} className="max-h-60 overflow-auto bg-white border border-secondary-200 rounded-md shadow-lg z-50">
+              <Select.ScrollUpButton className="flex items-center justify-center h-6 cursor-default">
+                <ChevronDown className="h-4 w-4 rotate-180" />
+              </Select.ScrollUpButton>
               <Select.Viewport className="p-1">
-                <Select.Item value="" disabled className="text-secondary-500">
-                  {getPlaceholder('upazila')}
-                </Select.Item>
                 {availableUpazilas.map((upz) => (
                   <Select.Item
                     key={upz.id}
                     value={upz.id}
-                    className="px-3 py-2 text-sm hover:bg-primary-50 focus:bg-primary-50 cursor-pointer rounded-md"
+                    className="px-3 py-2 text-sm hover:bg-primary-50 focus:bg-primary-50 cursor-pointer rounded-md flex items-center justify-between outline-none data-[state=checked]:bg-primary-100 data-[state=checked]:text-primary-700"
                   >
-                    {language === 'bn' ? upz.nameBn : upz.name}
+                    <Select.ItemText>
+                      {language === 'bn' ? upz.nameBn : upz.name}
+                    </Select.ItemText>
+                    <Select.ItemIndicator>
+                      <Check className="h-4 w-4" />
+                    </Select.ItemIndicator>
                   </Select.Item>
                 ))}
               </Select.Viewport>
+              <Select.ScrollDownButton className="flex items-center justify-center h-6 cursor-default">
+                <ChevronDown className="h-4 w-4" />
+              </Select.ScrollDownButton>
             </Select.Content>
           </Select.Portal>
         </Select.Root>

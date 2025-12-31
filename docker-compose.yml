@@ -2,7 +2,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: smarttech_frontend
     restart: unless-stopped
     ports:
@@ -10,6 +10,7 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:3001
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      - NODE_ENV=development
     networks:
       - smarttech_network
     depends_on:
@@ -24,34 +25,63 @@ services:
     ports:
       - "${BACKEND_PORT:-3001}:3000"
     environment:
+      # Environment Detection - Critical for Redis configuration
       - NODE_ENV=production
+      - IS_DOCKER=true
+      - DOCKER_ENV=true
+      
+      # Application Configuration
       - PORT=3000
+      - FRONTEND_URL=http://localhost:3000
+      - JWT_SECRET=smarttech-super-secret-jwt-key-change-in-production-2024
+      
+      # Database Configuration
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USERNAME=smart_dev
       - DB_PASSWORD=smart_dev_password_2024
       - DB_NAME=smart_ecommerce_dev
       - DATABASE_URL=postgresql://smart_dev:smart_dev_password_2024@postgres:5432/smart_ecommerce_dev
+      
+      # Redis Configuration (Docker-specific)
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=redis_smarttech_2024
       - REDIS_URL=redis://:redis_smarttech_2024@redis:6379
+      - REDIS_TTL=3600
+      
+      # External Services
       - ELASTICSEARCH_NODE=http://elasticsearch:9200
-      - FRONTEND_URL=http://localhost:3000
-      - JWT_SECRET=smarttech-jwt-secret-key-2024
       - OLLAMA_HOST=http://ollama:11434
+      
+      # Testing Configuration (Disabled in Production)
+      - DISABLE_EMAIL_VERIFICATION=false
+      - DISABLE_PHONE_VERIFICATION=false
+      - TESTING_MODE=false
+      
+      # Security Configuration
+      - BCRYPT_ROUNDS=12
+      
+      # File Upload Configuration
+      - MAX_FILE_SIZE=5242880
+      - UPLOAD_PATH="./uploads"
+    volumes:
+      - ./backend/.env.docker:/app/.env:ro
     networks:
       - smarttech_network
     healthcheck:
-      test: ["CMD", "node", "healthcheck.js"]
+      test: ["CMD", "node", "docker-health-check.js"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s  # Increased startup time for Redis validation
     depends_on:
-      - postgres
-      - redis
-      - elasticsearch
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
@@ -88,7 +118,7 @@ services:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
-      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - ./redis/redis-stable.conf:/usr/local/etc/redis/redis.conf:ro
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_smarttech_2024}
       - REDIS_MAXMEMORY=${REDIS_MAXMEMORY:-512mb}
@@ -99,7 +129,8 @@ services:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis_smarttech_2024}", "ping"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
+      start_period: 30s
 
   postgres:
     image: postgres:15-alpine

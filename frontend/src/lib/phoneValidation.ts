@@ -252,7 +252,8 @@ const validateMobileNumber = (phone: string): BangladeshPhoneValidation => {
     metadata: {
       length: normalizedPhone.length,
       countryCode: '+880',
-      numberWithoutCountry: normalizedPhone.substring(3)
+      numberWithoutCountry: normalizedPhone.substring(3),
+      category: 'mobile'
     }
   };
 };
@@ -330,6 +331,8 @@ const validateSpecialNumbers = (phone: string): BangladeshPhoneValidation => {
           examples: info.examples,
           metadata: {
             length: phone.length,
+            countryCode: 'BD',
+            numberWithoutCountry: phone,
             category: type
           }
         };
@@ -370,21 +373,17 @@ const getFormatSuggestions = (): string[] => {
 /**
  * Get valid examples
  */
-const getValidExamples = () => {
-  return {
-    mobile: [
-      '+8801712345678',
-      '01712345678',
-      '+8801812345678',
-      '01812345678'
-    ],
-    landline: [
-      '+880212345678',
-      '0212345678',
-      '+880311234567',
-      '0311234567'
-    ]
-  };
+const getValidExamples = (): string[] => {
+  return [
+    '+8801712345678',
+    '01712345678',
+    '+8801812345678',
+    '01812345678',
+    '+880212345678',
+    '0212345678',
+    '+880311234567',
+    '0311234567'
+  ];
 };
 
 /**
@@ -411,17 +410,17 @@ export const formatPhoneNumber = (
   }
 
   const normalized = validation.normalizedPhone;
-  
+
   switch (format) {
     case 'international':
       return normalized || phone;
-      
+
     case 'local':
       if (normalized && normalized.startsWith('+880')) {
         return normalized.substring(3);
       }
       return normalized || phone;
-      
+
     case 'display':
       if (validation.type === 'mobile') {
         if (normalized && normalized.startsWith('+880')) {
@@ -435,7 +434,7 @@ export const formatPhoneNumber = (
         }
       }
       return normalized || phone;
-      
+
     default:
       return normalized || phone;
   }
@@ -470,7 +469,7 @@ export const getOperatorInfo = (phone: string) => {
 export const isOperator = (phone: string, operator: string): boolean => {
   const operatorInfo = getOperatorInfo(phone);
   if (!operatorInfo) return false;
-  
+
   return operatorInfo.operator?.toLowerCase() === operator.toLowerCase();
 };
 
@@ -527,7 +526,7 @@ export const validateForUseCase = (
         canReceiveOTP: baseValidation.type === 'mobile',
         requiresVerification: true
       };
-    
+
     case 'otp':
     case 'sms':
       if (baseValidation.type !== 'mobile') {
@@ -539,13 +538,13 @@ export const validateForUseCase = (
         };
       }
       return baseValidation;
-    
+
     case 'verification':
       return {
         ...baseValidation,
         isVerifiable: true
       };
-    
+
     default:
       return baseValidation;
   }
@@ -568,6 +567,7 @@ export const generateValidationStats = (phoneNumbers: string[]) => {
       international: number;
       local: number;
       country_code: number;
+      unknown: number;
     };
   } = {
     total: phoneNumbers.length,
@@ -581,25 +581,30 @@ export const generateValidationStats = (phoneNumbers: string[]) => {
     formats: {
       international: 0,
       local: 0,
-      country_code: 0
+      country_code: 0,
+      unknown: 0
     }
   };
 
   phoneNumbers.forEach(phone => {
     const validation = validateBangladeshPhone(phone);
-    
+
     if (validation.isValid) {
       stats.valid++;
       if (validation.type === 'mobile') stats.mobile++;
       else if (validation.type === 'landline') stats.landline++;
       else if (validation.type === 'special') stats.special++;
-      
-      stats.formats[validation.format || 'unknown']++;
-      
+
+      if (validation.format === 'international' || validation.format === 'local' || validation.format === 'country_code') {
+        stats.formats[validation.format]++;
+      } else if (validation.format === 'unknown') {
+        stats.formats.unknown++;
+      }
+
       if (validation.operator) {
         stats.operators[validation.operator] = (stats.operators[validation.operator] || 0) + 1;
       }
-      
+
       if (validation.areaCode) {
         stats.areas[validation.areaCode] = (stats.areas[validation.areaCode] || 0) + 1;
       }
@@ -616,7 +621,7 @@ export const generateValidationStats = (phoneNumbers: string[]) => {
  */
 export const getOperatorColor = (operator?: string): string => {
   if (!operator) return 'text-gray-500';
-  
+
   const colors: Record<string, string> = {
     'Grameenphone': 'text-green-600',
     'Robi': 'text-pink-600',
@@ -624,7 +629,7 @@ export const getOperatorColor = (operator?: string): string => {
     'Airtel': 'text-blue-600',
     'Teletalk': 'text-purple-600'
   };
-  
+
   return colors[operator] || 'text-gray-500';
 };
 
@@ -633,10 +638,10 @@ export const getOperatorColor = (operator?: string): string => {
  */
 export const createPhoneValidator = (debounceMs = 300) => {
   let timeout: NodeJS.Timeout;
-  
+
   return (phone: string, callback: (result: BangladeshPhoneValidation) => void) => {
     clearTimeout(timeout);
-    
+
     timeout = setTimeout(() => {
       const validation = validateBangladeshPhone(phone);
       callback(validation);
@@ -650,18 +655,18 @@ export const createPhoneValidator = (debounceMs = 300) => {
 export const formatPhoneInput = (value: string): string => {
   // Remove all non-digit characters except +
   let cleaned = value.replace(/[^\d+]/g, '');
-  
+
   // Limit to 15 characters (max Bangladesh phone length)
   if (cleaned.length > 15) {
     cleaned = cleaned.substring(0, 15);
   }
-  
+
   // Auto-format as user types
   if (cleaned.startsWith('+880') && cleaned.length === 4) {
     // User just typed +880, wait for more
     return cleaned;
   } else if (cleaned.startsWith('+880') && cleaned.length > 4) {
-    // Format as +880 XXX XXX XXXX
+    // Format as +880 XXX XXXX
     const rest = cleaned.substring(4);
     if (rest.length <= 3) {
       return `+880 ${rest}`;
@@ -680,6 +685,6 @@ export const formatPhoneInput = (value: string): string => {
       return `${cleaned.slice(0, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7, 11)}`;
     }
   }
-  
+
   return cleaned;
 };

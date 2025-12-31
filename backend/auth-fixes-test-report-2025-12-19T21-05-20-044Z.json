@@ -1,0 +1,39 @@
+{
+  "timestamp": "2025-12-19T21-05-20-044Z",
+  "overallStatus": {
+    "status": "critical",
+    "score": -1
+  },
+  "testResults": {
+    "redisConnection": {
+      "status": "error",
+      "issues": [
+        "Redis connection test error: Cannot read properties of undefined (reading 'error')"
+      ]
+    },
+    "propertyMappings": {
+      "status": "failed",
+      "issues": [
+        "Registration failed with status 500"
+      ]
+    },
+    "jwtConfiguration": {
+      "status": "failed",
+      "issues": [
+        "JWT_SECRET not configured"
+      ]
+    },
+    "endToEndFlow": {
+      "status": "failed",
+      "issues": [
+        "Registration flow test failed"
+      ]
+    }
+  },
+  "recommendations": [
+    "🔧 Fix Redis connection configuration and ensure stable connections",
+    "🔧 Fix property name mismatches between frontend and backend",
+    "🔧 Fix JWT token configuration (should be 15m expiry)",
+    "🔧 Fix end-to-end authentication flow issues"
+  ]
+}

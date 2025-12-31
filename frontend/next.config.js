@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
   output: 'standalone',
   images: {
     domains: ['localhost', 'smarttech.com', 'api.smarttech.com'],
@@ -18,6 +15,10 @@ const nextConfig = {
         destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/:path*`,
       },
     ];
+  },
+  // Disable static generation for pages that have SSR issues
+  experimental: {
+    serverComponentsExternalPackages: ['@/components/auth/withAuth'],
   },
 };
 

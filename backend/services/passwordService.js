@@ -72,6 +72,8 @@ class PasswordService {
    * @param {Object} result - Validation result object to update
    */
   validateCustomRules(password, userInfo, result) {
+    const lowerPassword = password.toLowerCase();
+    
     // Check for uppercase letters if required
     if (this.passwordPolicy.requireUppercase && !/[A-Z]/.test(password)) {
       result.feedback.push('Password must contain at least one uppercase letter');
@@ -180,8 +182,8 @@ class PasswordService {
    * @returns {boolean} True if meets requirements
    */
   checkMinimumRequirements(password, result) {
-    const hasMinLength = password.length >= this.passwordPolicy.passwordMinLength;
-    const hasMaxLength = password.length <= this.passwordPolicy.passwordMaxLength;
+    const hasMinLength = password.length >= this.passwordPolicy.minLength;
+    const hasMaxLength = password.length <= this.passwordPolicy.maxLength;
     const hasUppercase = /[A-Z]/.test(password);
     const hasLowercase = /[a-z]/.test(password);
     const hasNumbers = /\d/.test(password);
@@ -330,8 +332,8 @@ class PasswordService {
    */
   getPasswordPolicy() {
     return {
-      minLength: this.passwordPolicy.passwordMinLength,
-      maxLength: this.passwordPolicy.passwordMaxLength,
+      minLength: this.passwordPolicy.minLength,
+      maxLength: this.passwordPolicy.maxLength,
       requireUppercase: true,
       requireLowercase: true,
       requireNumbers: true,

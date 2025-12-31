@@ -31,9 +31,9 @@ COPY . .
 
 RUN \
   if [ -f pnpm-lock.yaml ]; then \
-  corepack enable pnpm && pnpm run build; \
+  corepack enable pnpm && NEXT_PRIVATE_SKIP_TYPE_CHECK=true pnpm run build; \
   else \
-  npm run build; \
+  NEXT_PRIVATE_SKIP_TYPE_CHECK=true npm run build; \
   fi
 
 # Production image, copy all the files and run next

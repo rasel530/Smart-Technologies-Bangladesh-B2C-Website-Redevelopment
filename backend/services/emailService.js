@@ -10,7 +10,16 @@ class EmailService {
     this.transporter = null;
     this.isConfigured = false;
     this.fallbackMode = false;
-    this.initializeTransporter();
+    this.initializationPromise = null;
+    // Initialize asynchronously without blocking
+    this.initializationPromise = this.initializeTransporter().catch(err => {
+      this.logger.error('Email service initialization error', err.message, {
+        timestamp: new Date().toISOString(),
+        errorName: err.name,
+        errorCode: err.code,
+        errorStack: err.stack
+      });
+    });
   }
 
   /**
@@ -33,11 +42,11 @@ class EmailService {
       errors.push('SMTP_PORT must be between 1 and 65535');
     }
 
-    if (!emailConfig.user) {
+    if (!emailConfig.auth || !emailConfig.auth.user) {
       errors.push('SMTP_USER is required');
     }
 
-    if (emailConfig.pass === undefined || emailConfig.pass === null) {
+    if (!emailConfig.auth || emailConfig.auth.pass === undefined || emailConfig.auth.pass === null) {
       errors.push('SMTP_PASS is required');
     }
 
@@ -53,7 +62,7 @@ class EmailService {
       config: {
         host: emailConfig.host,
         port: emailConfig.port,
-        user: emailConfig.user,
+        user: emailConfig.auth?.user,
         from: emailConfig.from,
         secure: emailConfig.secure
       }
@@ -63,7 +72,7 @@ class EmailService {
   /**
    * Initialize email transporter with validation and fallback
    */
-  initializeTransporter() {
+  async initializeTransporter() {
     try {
       const validation = this.validateConfig();
       
@@ -78,14 +87,23 @@ class EmailService {
       }
 
       const emailConfig = this.config.getEmailConfig();
+      
+      this.logger.info('Initializing email transporter', {
+        host: emailConfig.host,
+        port: emailConfig.port,
+        secure: emailConfig.secure,
+        hasUser: !!emailConfig.auth?.user,
+        hasPass: !!emailConfig.auth?.pass,
+        timestamp: new Date().toISOString()
+      });
 
       this.transporter = nodemailer.createTransporter({
         host: emailConfig.host,
         port: emailConfig.port,
         secure: emailConfig.secure,
         auth: {
-          user: emailConfig.user,
-          pass: emailConfig.pass
+          user: emailConfig.auth.user,
+          pass: emailConfig.auth.pass
         },
         tls: {
           rejectUnauthorized: false // Allow for some SMTP configurations
@@ -96,31 +114,36 @@ class EmailService {
       });
 
       // Verify connection
-      this.transporter.verify((error, success) => {
-        if (error) {
-          this.logger.error('Email service connection failed', error.message, {
-            timestamp: new Date().toISOString(),
-            host: emailConfig.host,
-            port: emailConfig.port
-          });
-          this.transporter = null;
-          this.isConfigured = false;
-          this.fallbackMode = true;
-        } else {
-          this.logger.info('Email service connected successfully', {
-            host: emailConfig.host,
-            port: emailConfig.port,
-            from: emailConfig.from,
-            timestamp: new Date().toISOString()
-          });
-          this.isConfigured = true;
-          this.fallbackMode = false;
-        }
-      });
+      try {
+        await this.transporter.verify();
+        this.logger.info('Email service connected successfully', {
+          host: emailConfig.host,
+          port: emailConfig.port,
+          from: emailConfig.from,
+          timestamp: new Date().toISOString()
+        });
+        this.isConfigured = true;
+        this.fallbackMode = false;
+      } catch (verifyError) {
+        this.logger.error('Email service connection failed', verifyError.message, {
+          timestamp: new Date().toISOString(),
+          host: emailConfig.host,
+          port: emailConfig.port,
+          errorName: verifyError.name,
+          errorCode: verifyError.code,
+          errorStack: verifyError.stack
+        });
+        this.transporter = null;
+        this.isConfigured = false;
+        this.fallbackMode = true;
+      }
 
     } catch (error) {
       this.logger.error('Failed to initialize email service', error.message, {
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        errorName: error.name,
+        errorCode: error.code,
+        errorStack: error.stack
       });
       this.transporter = null;
       this.isConfigured = false;

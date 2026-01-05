@@ -20,6 +20,7 @@ const { rateLimitService } = require('./services/rateLimitService');
 const authRoutes = require('./routes/auth');
 const sessionRoutes = require('./routes/sessions');
 const userRoutes = require('./routes/users');
+const oauthRoutes = require('./routes/oauth');
 const productRoutes = require('./routes/products');
 const categoryRoutes = require('./routes/categories');
 const brandRoutes = require('./routes/brands');
@@ -108,6 +109,9 @@ app.use(authMiddleware.rateLimit());
 
 // API routes - Mount with /api prefix
 app.use('/api', routeIndex);
+
+// OAuth routes
+app.use('/api/v1/oauth', oauthRoutes);
 
 // Session management routes
 app.use('/api/v1/sessions', sessionRoutes);
@@ -388,6 +392,7 @@ app.use((req, res) => {
     availableEndpoints: {
       auth: '/api/v1/auth',
       users: '/api/v1/users',
+      oauth: '/api/v1/oauth',
       products: '/api/v1/products',
       categories: '/api/v1/categories',
       brands: '/api/v1/brands',

@@ -217,7 +217,7 @@ const validateMobileNumber = (phone: string): BangladeshPhoneValidation => {
   // Normalize to international format
   let normalizedPhone = phone;
   if (phone.startsWith('01')) {
-    normalizedPhone = `+880${phone}`;
+    normalizedPhone = `+880${phone.substring(1)}`; // Remove the leading 0
   } else if (phone.startsWith('880')) {
     normalizedPhone = `+${phone}`;
   }
@@ -262,11 +262,23 @@ const validateMobileNumber = (phone: string): BangladeshPhoneValidation => {
  * Validate landline numbers
  */
 const validateLandlineNumber = (phone: string): BangladeshPhoneValidation => {
-  // Landline patterns
+  // Build valid area code patterns from the LANDLINE_AREA_CODES object
+  const validAreaCodes = Object.keys(LANDLINE_AREA_CODES);
+  const twoDigitAreaCodes = validAreaCodes.filter(code => code.length === 2);
+  const threeDigitAreaCodes = validAreaCodes.filter(code => code.length === 3);
+  
+  // Create regex patterns for valid area codes
+  const twoDigitPattern = twoDigitAreaCodes.join('|');
+  const threeDigitPattern = threeDigitAreaCodes.join('|');
+  
+  // Landline patterns - only accepts valid area codes
   const landlinePatterns = [
-    /^\+8802[1-9]\d{7}$/, // International: +8802XXXXXXXX
-    /^8802[1-9]\d{7}$/, // Without +: 8802XXXXXXXX
-    /^02[1-9]\d{7}$/, // Local: 02XXXXXXXX
+    new RegExp(`^\\+880(${twoDigitPattern})[1-9]\\d{7}$`), // International: +88002XXXXXXXX (13 chars total: +880 + 9 digits)
+    new RegExp(`^\\+880(${threeDigitPattern})[1-9]\\d{6}$`), // International: +880031XXXXXXX (13 chars total: +880 + 9 digits)
+    new RegExp(`^880(${twoDigitPattern})[1-9]\\d{7}$`), // Without +: 88002XXXXXXXX (12 chars total: 880 + 9 digits)
+    new RegExp(`^880(${threeDigitPattern})[1-9]\\d{6}$`), // Without +: 880031XXXXXXX (12 chars total: 880 + 9 digits)
+    new RegExp(`^(${twoDigitPattern})[1-9]\\d{7}$`), // Local: 02XXXXXXXX (10 digits total)
+    new RegExp(`^(${threeDigitPattern})[1-9]\\d{6}$`), // Local: 031XXXXXXX (10 digits total)
   ];
 
   if (!landlinePatterns.some(pattern => pattern.test(phone))) {
@@ -280,16 +292,34 @@ const validateLandlineNumber = (phone: string): BangladeshPhoneValidation => {
 
   // Normalize to international format
   let normalizedPhone = phone;
-  if (phone.startsWith('02')) {
-    normalizedPhone = `+880${phone}`;
-  } else if (phone.startsWith('8802')) {
+  if (phone.startsWith('+880')) {
+    // Already in international format
+    normalizedPhone = phone;
+  } else if (phone.startsWith('02') && phone.length === 10) {
+    // 2-digit area code (Dhaka): 02XXXXXXXXX
+    normalizedPhone = `+880${phone.substring(1)}`; // Remove the leading 0
+  } else if (phone.match(/^\d{3}[1-9]\d{6}$/)) {
+    // 3-digit area code: 0XXXXXXXX (10 digits total)
+    normalizedPhone = `+880${phone.substring(1)}`; // Remove leading 0, then add country code
+  } else if (phone.match(/^8802[1-9]\d{7}$/)) {
+    normalizedPhone = `+${phone}`;
+  } else if (phone.match(/^880\d{3}[1-9]\d{6}$/)) {
     normalizedPhone = `+${phone}`;
   }
 
-  // Extract area code
+  // Extract area code from normalized phone
   let areaCode: string | undefined;
-  if (normalizedPhone.startsWith('+8802')) {
-    areaCode = normalizedPhone.substring(3, 5);
+  
+  // Try 2-digit area code first
+  const twoDigitCandidate = normalizedPhone.substring(3, 5);
+  if (validAreaCodes.includes(twoDigitCandidate)) {
+    areaCode = twoDigitCandidate;
+  } else {
+    // Try 3-digit area code
+    const threeDigitCandidate = normalizedPhone.substring(3, 6);
+    if (validAreaCodes.includes(threeDigitCandidate)) {
+      areaCode = threeDigitCandidate;
+    }
   }
 
   const areaInfo = areaCode ? LANDLINE_AREA_CODES[areaCode] : undefined;
@@ -354,7 +384,8 @@ const validateSpecialNumbers = (phone: string): BangladeshPhoneValidation => {
 const detectFormat = (phone: string): 'international' | 'country_code' | 'local' | 'unknown' => {
   if (phone.startsWith('+880')) return 'international';
   if (phone.startsWith('880')) return 'country_code';
-  if (phone.startsWith('01')) return 'local';
+  if (phone.startsWith('01')) return 'local'; // Mobile
+  if (phone.startsWith('02') || phone.match(/^\d{3}[1-9]/)) return 'local'; // Landline
   return 'unknown';
 };
 
@@ -365,8 +396,10 @@ const getFormatSuggestions = (): string[] => {
   return [
     '+8801XXXXXXXXX (International format)',
     '01XXXXXXXXX (Local format)',
-    '+8802XXXXXXXX (Landline international)',
-    '02XXXXXXXX (Landline local)'
+    '+880212345678 (Landline international - Dhaka)',
+    '0212345678 (Landline local - Dhaka)',
+    '+880311234567 (Landline international - Chittagong)',
+    '0311234567 (Landline local - Chittagong)'
   ];
 };
 
@@ -382,7 +415,11 @@ const getValidExamples = (): string[] => {
     '+880212345678',
     '0212345678',
     '+880311234567',
-    '0311234567'
+    '0311234567',
+    '+880411234567',
+    '0411234567',
+    '+880511234567',
+    '0511234567'
   ];
 };
 
@@ -683,6 +720,24 @@ export const formatPhoneInput = (value: string): string => {
       return `${cleaned.slice(0, 4)} ${cleaned.slice(4)}`;
     } else {
       return `${cleaned.slice(0, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7, 11)}`;
+    }
+  } else if (cleaned.startsWith('02') && cleaned.length <= 10) {
+    // Format as 02X XXX XXXX (Dhaka landline)
+    if (cleaned.length <= 3) {
+      return cleaned;
+    } else if (cleaned.length <= 6) {
+      return `${cleaned.slice(0, 3)} ${cleaned.slice(3)}`;
+    } else {
+      return `${cleaned.slice(0, 3)} ${cleaned.slice(3, 6)} ${cleaned.slice(6, 10)}`;
+    }
+  } else if (cleaned.match(/^\d{3}/) && cleaned.length <= 10) {
+    // Format as XXX XXX XXXX (3-digit area code landline)
+    if (cleaned.length <= 4) {
+      return cleaned;
+    } else if (cleaned.length <= 7) {
+      return `${cleaned.slice(0, 4)} ${cleaned.slice(4)}`;
+    } else {
+      return `${cleaned.slice(0, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7, 10)}`;
     }
   }
 

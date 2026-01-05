@@ -10,7 +10,12 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:3001
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      - NEXT_PUBLIC_BACKEND_API_URL=http://localhost:3001/api
       - NODE_ENV=development
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
     networks:
       - smarttech_network
     depends_on:
@@ -19,14 +24,14 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: smarttech_backend
     restart: unless-stopped
     ports:
-      - "${BACKEND_PORT:-3001}:3000"
+      - "3001:3000"
     environment:
       # Environment Detection - Critical for Redis configuration
-      - NODE_ENV=production
+      - NODE_ENV=development
       - IS_DOCKER=true
       - DOCKER_ENV=true
       
@@ -54,10 +59,10 @@ services:
       - ELASTICSEARCH_NODE=http://elasticsearch:9200
       - OLLAMA_HOST=http://ollama:11434
       
-      # Testing Configuration (Disabled in Production)
-      - DISABLE_EMAIL_VERIFICATION=false
-      - DISABLE_PHONE_VERIFICATION=false
-      - TESTING_MODE=false
+      # Testing Configuration (Enabled in Development)
+      - DISABLE_EMAIL_VERIFICATION=true
+      - DISABLE_PHONE_VERIFICATION=true
+      - TESTING_MODE=true
       
       # Security Configuration
       - BCRYPT_ROUNDS=12
@@ -66,15 +71,10 @@ services:
       - MAX_FILE_SIZE=5242880
       - UPLOAD_PATH="./uploads"
     volumes:
-      - ./backend/.env.docker:/app/.env:ro
+      - ./backend:/app
+      - /app/node_modules
     networks:
       - smarttech_network
-    healthcheck:
-      test: ["CMD", "node", "docker-health-check.js"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s  # Increased startup time for Redis validation
     depends_on:
       postgres:
         condition: service_healthy
@@ -215,12 +215,6 @@ services:
       - smarttech_network
     depends_on:
       - postgres
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80/browser/ || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
 
 volumes:
   postgres_data:

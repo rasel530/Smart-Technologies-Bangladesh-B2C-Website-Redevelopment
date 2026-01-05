@@ -39,7 +39,16 @@ router.post('/register', [
   body('firstName').optional().notEmpty().trim().withMessage('First name is required'),
   body('lastName').optional().notEmpty().trim().withMessage('Last name is required'),
   body('phone').optional().notEmpty().trim().withMessage('Phone number is required'),
-  body('confirmPassword').notEmpty().trim().withMessage('Password confirmation is required')
+  body('confirmPassword').notEmpty().trim().withMessage('Password confirmation is required'),
+  body('dateOfBirth').optional().isISO8601().withMessage('Invalid date format'),
+  body('gender').optional().isIn(['male', 'female', 'other']).withMessage('Invalid gender'),
+  body('nationalId').optional().trim(),
+  body('division').optional().trim(),
+  body('district').optional().trim(),
+  body('upazila').optional().trim(),
+  body('addressLine1').optional().trim(),
+  body('addressLine2').optional().trim(),
+  body('postalCode').optional().trim()
 ], handleValidationErrors, async (req, res) => {
   try {
   const {
@@ -48,7 +57,19 @@ router.post('/register', [
     firstName,
     lastName,
     phone,
-    confirmPassword
+    confirmPassword,
+    dateOfBirth,
+    gender,
+    nationalId,
+    division,
+    district,
+    upazila,
+    addressLine1,
+    addressLine2,
+    postalCode,
+    preferredLanguage,
+    marketingConsent,
+    termsAccepted
   } = req.body;
   
   // Validate that at least email or phone is provided
@@ -153,6 +174,8 @@ router.post('/register', [
         firstName,
         lastName,
         phone: phoneValidation?.normalizedPhone || phone,
+        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+        gender,
         role: 'CUSTOMER',
         status: 'PENDING'
       },
@@ -167,6 +190,32 @@ router.post('/register', [
         createdAt: true
       }
     });
+
+    // Create address if address information is provided
+    if (addressLine1 && division && district) {
+      try {
+        await prisma.address.create({
+          data: {
+            userId: user.id,
+            type: 'SHIPPING',
+            firstName,
+            lastName,
+            phone: phoneValidation?.normalizedPhone || phone,
+            address: addressLine1,
+            addressLine2,
+            city: district,
+            district,
+            division: division.toUpperCase(),
+            upazila: upazila,
+            postalCode,
+            isDefault: true
+          }
+        });
+      } catch (addressError) {
+        console.error('Failed to create address:', addressError);
+        // Don't fail registration if address creation fails
+      }
+    }
 
     // Save password to history
     await passwordService.savePasswordToHistory(user.id, hashedPassword);
@@ -183,23 +232,101 @@ router.post('/register', [
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
       // Save verification token to database
-      await prisma.emailVerificationToken.create({
-        data: {
-          userId: user.id,
-          token: verificationToken,
-          expiresAt
-        }
-      });
+      try {
+        await prisma.emailVerificationToken.create({
+          data: {
+            userId: user.id,
+            token: verificationToken,
+            expiresAt
+          }
+        });
+      } catch (dbError) {
+        console.error('Failed to create email verification token:', dbError);
+        // Cleanup user if token creation fails
+        await prisma.user.delete({
+          where: { id: user.id }
+        });
+        
+        return res.status(500).json({
+          error: 'Registration failed',
+          message: 'Failed to create verification token. Please try again.',
+          messageBn: 'যাচাই টোকেন তৈরি করতে ব্যর্থ হয়েছে। অনুগ্রহ চেষ্টা করুন।',
+          timestamp: new Date().toISOString()
+        });
+      }
 
       // Send verification email
-      const emailResult = await emailService.sendVerificationEmail(
-        email,
-        `${firstName} ${lastName}`,
-        verificationToken
-      );
+      try {
+        const emailResult = await emailService.sendVerificationEmail(
+          email,
+          `${firstName} ${lastName}`,
+          verificationToken
+        );
 
-      if (!emailResult.success) {
-        // If email fails, delete user and token for cleanup
+        // Check if email was sent in fallback mode (testing mode)
+        if (!emailResult.success && !emailResult.fallback) {
+          // If email fails and not in fallback mode, delete user and token for cleanup
+          await prisma.emailVerificationToken.delete({
+            where: { userId: user.id }
+          });
+          await prisma.user.delete({
+            where: { id: user.id }
+          });
+
+          return res.status(500).json({
+            error: 'Registration failed',
+            message: 'Failed to send verification email. Please try again later.',
+            messageBn: 'যাচাই ইমেল পাঠানো ব্যর্থ হয়েছে। অনুগ্রহ চেষ্টা করুন।',
+            timestamp: new Date().toISOString()
+          });
+        }
+
+        // Email sent successfully (or in fallback mode)
+        res.setHeader('Content-Type', 'application/json');
+        res.status(201).json({
+          message: emailResult.fallback
+            ? 'Registration successful. (Email verification skipped in testing mode)'
+            : 'Registration successful. Please check your email to verify your account.',
+          messageBn: emailResult.fallback
+            ? 'নিবন্ধন সফল। (টেস্টিং মোডে ইমেল যাচাই এড়িয়ে হয়েছে)'
+            : 'নিবন্ধন সফল। আপনার অ্যাকাউন্ট যাচাই করার জন্য ইমেল চেক করুন।',
+          user: {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+            status: user.status
+          },
+          requiresEmailVerification: true,
+          fallbackMode: emailResult.fallback || false,
+          timestamp: new Date().toISOString()
+        });
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+        
+        // In testing mode, allow registration to proceed even if email fails
+        if (isTestingMode) {
+          console.warn('Email failed but continuing in testing mode');
+          res.setHeader('Content-Type', 'application/json');
+          return res.status(201).json({
+            message: 'Registration successful in testing mode. Email verification skipped.',
+            messageBn: 'টেস্টিং মোডে নিবন্ধন সফল। ইমেল যাচাই এড়িয়ে হয়েছে।',
+            user: {
+              id: user.id,
+              email: user.email,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              role: user.role,
+              status: user.status
+            },
+            requiresEmailVerification: false,
+            testingMode: true,
+            timestamp: new Date().toISOString()
+          });
+        }
+        
+        // If not in testing mode and email fails, cleanup and return error
         await prisma.emailVerificationToken.delete({
           where: { userId: user.id }
         });
@@ -207,60 +334,69 @@ router.post('/register', [
           where: { id: user.id }
         });
 
+        res.setHeader('Content-Type', 'application/json');
         return res.status(500).json({
           error: 'Registration failed',
           message: 'Failed to send verification email. Please try again later.',
-          messageBn: 'যাচাই ইমেল পাঠানো ব্যর্থ হয়েছে। অনুগ্রহ চেষ্টা করুন।'
+          messageBn: 'যাচাই ইমেল পাঠানো ব্যর্থ হয়েছে। অনুগ্রহ চেষ্টা করুন।',
+          timestamp: new Date().toISOString()
         });
       }
 
-      res.status(201).json({
-        message: 'Registration successful. Please check your email to verify your account.',
-        messageBn: 'নিবন্ধন সফল। আপনার অ্যাকাউন্ট যাচাই করার জন্য ইমেল চেক করুন।',
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-          status: user.status
-        },
-        requiresEmailVerification: true
-      });
-
     } else if (phoneValidation?.isValid && !isPhoneVerificationDisabled) {
       // Phone verification flow
-      const otpResult = await otpService.generatePhoneOTP(phoneValidation.normalizedPhone, user.id);
+      try {
+        const otpResult = await otpService.generatePhoneOTP(phoneValidation.normalizedPhone, user.id);
 
-      if (!otpResult.success) {
-        // If OTP fails, delete user for cleanup
+        if (!otpResult.success) {
+          // If OTP fails, delete user for cleanup
+          await prisma.user.delete({
+            where: { id: user.id }
+          });
+
+          res.setHeader('Content-Type', 'application/json');
+          return res.status(500).json({
+            error: 'Registration failed',
+            message: otpResult.error || 'Failed to send OTP. Please try again later.',
+            messageBn: otpResult.errorBn || 'OTP পাঠানো ব্যর্থ হয়েছে। অনুগ্রহ চেষ্টা করুন।',
+            timestamp: new Date().toISOString()
+          });
+        }
+
+        res.setHeader('Content-Type', 'application/json');
+        res.status(201).json({
+          message: 'Registration successful. Please check your phone for OTP verification.',
+          messageBn: 'নিবন্ধন সফল। আপনার ফোনে OTP যাচাই করার জন্য চেক করুন।',
+          user: {
+            id: user.id,
+            phone: user.phone,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+            status: user.status
+          },
+          requiresPhoneVerification: true,
+          phone: phoneValidation.normalizedPhone,
+          operator: phoneValidation.operator,
+          operatorDetails: phoneValidation.operatorDetails,
+          timestamp: new Date().toISOString()
+        });
+      } catch (otpError) {
+        console.error('OTP generation failed:', otpError);
+        
+        // Cleanup user if OTP generation fails
         await prisma.user.delete({
           where: { id: user.id }
         });
 
+        res.setHeader('Content-Type', 'application/json');
         return res.status(500).json({
           error: 'Registration failed',
-          message: otpResult.error || 'Failed to send OTP. Please try again later.',
-          messageBn: otpResult.errorBn || 'OTP পাঠানো ব্যর্থ হয়েছে। অনুগ্রহ চেষ্টা করুন।'
+          message: 'Failed to generate OTP. Please try again later.',
+          messageBn: 'OTP তৈরি করতে ব্যর্থ হয়েছে। অনুগ্রহ চেষ্টা করুন।',
+          timestamp: new Date().toISOString()
         });
       }
-
-      res.status(201).json({
-        message: 'Registration successful. Please check your phone for OTP verification.',
-        messageBn: 'নিবন্ধন সফল। আপনার ফোনে OTP যাচাই করার জন্য চেক করুন।',
-        user: {
-          id: user.id,
-          phone: user.phone,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-          status: user.status
-        },
-        requiresPhoneVerification: true,
-        phone: phoneValidation.normalizedPhone,
-        operator: phoneValidation.operator,
-        operatorDetails: phoneValidation.operatorDetails
-      });
 
     } else {
       // Skip verification - activate account immediately (testing mode or verification disabled)
@@ -299,11 +435,34 @@ router.post('/register', [
 
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({
+    console.error('Registration error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      meta: error.meta
+    });
+    
+    // Ensure we always return JSON, even in case of unexpected errors
+    const errorResponse = {
       error: 'Registration failed',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
-      messageBn: 'নিবন্ধন ব্যর্থ হয়েছে'
-    });
+      messageBn: 'নিবন্ধন ব্যর্থ হয়েছে',
+      timestamp: new Date().toISOString()
+    };
+    
+    // Add development details if available
+    if (process.env.NODE_ENV === 'development') {
+      errorResponse.details = {
+        name: error.name,
+        code: error.code,
+        stack: error.stack
+      };
+    }
+    
+    // Set proper content type to ensure JSON response
+    res.setHeader('Content-Type', 'application/json');
+    res.status(500).json(errorResponse);
   }
 });
 

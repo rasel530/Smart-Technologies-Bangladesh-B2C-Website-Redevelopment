@@ -10,6 +10,7 @@ import { FormInput } from '@/components/ui/FormInput';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
 
 export default function LoginPage() {
   const { login, isLoading, error, clearError } = useAuth();
@@ -118,6 +119,9 @@ export default function LoginPage() {
             </button>
           </div>
         </div>
+
+        {/* Social Login Buttons */}
+        <SocialLoginButtons isLoading={isLoading} />
 
         {/* Login Form */}
         <form onSubmit={handleSubmit(handleLoginSubmit)} className="space-y-6">

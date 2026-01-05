@@ -17,8 +17,9 @@ export default function RegisterPage() {
         setSelectedDivision(data.division);
       }
       
-      // Simulate API call
-      const response = await fetch('/api/auth/register', {
+      // Call backend API for registration
+      const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3001/api';
+      const response = await fetch(`${backendApiUrl}/v1/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -27,20 +28,70 @@ export default function RegisterPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
+        let errorMessage = 'Registration failed';
+        let errorMessageBn = 'নিবন্ধন ব্যর্থ হয়েছে';
+        
+        try {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            errorMessage = errorData.message || errorData.error || errorMessage;
+            errorMessageBn = errorData.messageBn || errorMessage;
+          } else {
+            // Response is not JSON, get text instead
+            const errorText = await response.text();
+            console.error('Non-JSON error response:', errorText);
+            errorMessage = `Server error (${response.status})`;
+            errorMessageBn = `সার্ভার ত্রুটি (${response.status})`;
+          }
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError);
+          errorMessage = `Server error (${response.status})`;
+          errorMessageBn = `সার্ভার ত্রুটি (${response.status})`;
+        }
+        
+        // Show error alert
+        alert(`${language === 'bn' ? 'নিবন্ধন ব্যর্থ: ' : 'Registration failed: '}${errorMessage}`);
+        throw new Error(errorMessage);
       }
 
-      const result = await response.json();
-      console.log('Registration successful:', result);
+      let result;
+      try {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          result = await response.json();
+          console.log('Registration successful:', result);
+        } else {
+          const responseText = await response.text();
+          console.error('Non-JSON success response:', responseText);
+          throw new Error('Invalid response format from server');
+        }
+      } catch (parseError) {
+        console.error('Failed to parse success response:', parseError);
+        throw new Error('Failed to process registration response');
+      }
+      
+      // Show success message
+      const successMessage = result?.message || result?.messageBn || 'Registration successful!';
+      alert(successMessage);
       
       // Handle successful registration
-      // Redirect to verification page or dashboard
-      // window.location.href = '/verify';
+      // Redirect to verification page or dashboard based on response
+      if (result?.requiresEmailVerification) {
+        window.location.href = '/verify-email';
+      } else if (result?.requiresPhoneVerification) {
+        window.location.href = '/verify-phone';
+      } else {
+        // Registration complete, redirect to login or dashboard
+        window.location.href = '/login';
+      }
       
     } catch (error) {
       console.error('Registration error:', error);
-      // Handle error display
+      // Show error to user
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      const errorMessageBn = errorMessage; // You could translate this
+      alert(`${language === 'bn' ? 'ত্রুটি: ' : 'Error: '}${errorMessage}`);
     }
   };
 

@@ -34,7 +34,10 @@ function loadEnvironmentConfig() {
   
   if (isDockerEnvironment) {
     console.log('🐳 Docker environment detected, applying Docker-specific configuration');
-    process.env.NODE_ENV = 'production'; // Docker containers should run in production mode
+    // Respect the NODE_ENV from docker-compose.yml instead of forcing production
+    if (!process.env.NODE_ENV || process.env.NODE_ENV === 'docker') {
+      process.env.NODE_ENV = 'production';
+    }
     process.env.IS_DOCKER = 'true';
   }
   
@@ -233,11 +236,11 @@ const emailConfig = {
   from: process.env.EMAIL_FROM || 'noreply@smarttech.com'
 };
 
-// SMS configuration
+// SMS configuration (Twilio)
 const smsConfig = {
-  apiKey: process.env.SMS_API_KEY,
-  apiSecret: process.env.SMS_API_SECRET,
-  sender: process.env.SMS_SENDER || 'SmartTech'
+  apiKey: process.env.TWILIO_ACCOUNT_SID,
+  apiSecret: process.env.TWILIO_AUTH_TOKEN,
+  sender: process.env.TWILIO_PHONE_NUMBER || 'SmartTech'
 };
 
 // Server configuration

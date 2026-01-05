@@ -194,7 +194,7 @@ class PhoneValidationService {
     // Normalize to international format
     let normalizedPhone = phone;
     if (phone.startsWith('01')) {
-      normalizedPhone = `+880${phone}`;
+      normalizedPhone = `+880${phone.substring(1)}`; // Remove the leading 0
     } else if (phone.startsWith('880')) {
       normalizedPhone = `+${phone}`;
     }
@@ -239,11 +239,23 @@ class PhoneValidationService {
    * @returns {Object} Landline validation result
    */
   validateLandlineNumber(phone) {
-    // Landline patterns
+    // Build valid area code patterns from the landlineAreaCodes object
+    const validAreaCodes = Object.keys(this.landlineAreaCodes);
+    const twoDigitAreaCodes = validAreaCodes.filter(code => code.length === 2);
+    const threeDigitAreaCodes = validAreaCodes.filter(code => code.length === 3);
+    
+    // Create regex patterns for valid area codes
+    const twoDigitPattern = twoDigitAreaCodes.join('|');
+    const threeDigitPattern = threeDigitAreaCodes.join('|');
+    
+    // Landline patterns - only accepts valid area codes
     const landlinePatterns = [
-      /^\+8802[1-9]\d{7}$/, // International: +8802XXXXXXXX
-      /^8802[1-9]\d{7}$/, // Without +: 8802XXXXXXXX
-      /^02[1-9]\d{7}$/, // Local: 02XXXXXXXX
+      new RegExp(`^\\+880(${twoDigitPattern})[1-9]\\d{7}$`), // International: +88002XXXXXXXX
+      new RegExp(`^\\+880(${threeDigitPattern})[1-9]\\d{6}$`), // International: +880031XXXXXXX
+      new RegExp(`^880(${twoDigitPattern})[1-9]\\d{7}$`), // Without +: 88002XXXXXXXX
+      new RegExp(`^880(${threeDigitPattern})[1-9]\\d{6}$`), // Without +: 880031XXXXXXX
+      new RegExp(`^(${twoDigitPattern})[1-9]\\d{7}$`), // Local: 02XXXXXXXX
+      new RegExp(`^(${threeDigitPattern})[1-9]\\d{6}$`), // Local: 031XXXXXXX
     ];
 
     if (!landlinePatterns.some(pattern => pattern.test(phone))) {
@@ -257,16 +269,34 @@ class PhoneValidationService {
 
     // Normalize to international format
     let normalizedPhone = phone;
-    if (phone.startsWith('02')) {
+    if (phone.startsWith('+880')) {
+      // Already in international format
+      normalizedPhone = phone;
+    } else if (phone.startsWith('02') && phone.length === 10) {
+      // 2-digit area code (Dhaka): 02XXXXXXXX
+      normalizedPhone = `+880${phone.substring(1)}`; // Remove the leading 0
+    } else if (phone.match(/^\d{3}[1-9]\d{6}$/)) {
+      // 3-digit area code: XXX XXXXXX
       normalizedPhone = `+880${phone}`;
-    } else if (phone.startsWith('8802')) {
+    } else if (phone.startsWith('8802') && phone.length === 11) {
+      normalizedPhone = `+${phone}`;
+    } else if (phone.match(/^880\d{3}[1-9]\d{6}$/)) {
       normalizedPhone = `+${phone}`;
     }
 
-    // Extract area code
+    // Extract area code from normalized phone
     let areaCode;
-    if (normalizedPhone.startsWith('+8802')) {
-      areaCode = normalizedPhone.substring(3, 5);
+    
+    // Try 2-digit area code first
+    const twoDigitCandidate = normalizedPhone.substring(3, 5);
+    if (validAreaCodes.includes(twoDigitCandidate)) {
+      areaCode = twoDigitCandidate;
+    } else {
+      // Try 3-digit area code
+      const threeDigitCandidate = normalizedPhone.substring(3, 6);
+      if (validAreaCodes.includes(threeDigitCandidate)) {
+        areaCode = threeDigitCandidate;
+      }
     }
 
     const areaInfo = this.landlineAreaCodes[areaCode];
@@ -330,7 +360,7 @@ class PhoneValidationService {
   detectFormat(phone) {
     if (phone.startsWith('+880')) return 'international';
     if (phone.startsWith('880')) return 'country_code';
-    if (phone.startsWith('01')) return 'local';
+    if (phone.startsWith('01') || phone.startsWith('02') || phone.match(/^\d{2}[1-9]/)) return 'local';
     return 'unknown';
   }
 

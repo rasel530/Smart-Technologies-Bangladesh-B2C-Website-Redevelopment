@@ -7,6 +7,8 @@ services:
     restart: unless-stopped
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
+    mem_limit: 2g
+    memswap_limit: 3g
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:3001/api/v1
       - NEXT_PUBLIC_APP_URL=http://localhost:3000

@@ -23,7 +23,6 @@ COPY . .
 # Run database migrations on startup
 COPY scripts/run-migrations.js ./scripts/run-migrations.js
 RUN chmod +x ./scripts/run-migrations.js
-CMD ["sh", "-c", "node scripts/run-migrations.js && npm run dev"]
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs
@@ -40,5 +39,5 @@ EXPOSE 3000
 ENV NODE_ENV=development
 ENV PORT=3000
 
-# Start the application with nodemon for hot-reloading
-CMD ["npm", "run", "dev"]
+# Start the application with nodemon for hot-reloading and run migrations first
+CMD ["sh", "-c", "node scripts/run-migrations.js && npm run dev"]

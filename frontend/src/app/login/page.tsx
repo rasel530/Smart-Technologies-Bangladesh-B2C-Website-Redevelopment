@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff, Lock, Mail, User, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import { LoginData, LoginFormProps } from '@/types/auth';
 import { loginSchema } from '@/lib/validation';
 import { FormInput } from '@/components/ui/FormInput';
@@ -11,15 +11,16 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
+import { useShowToast } from '@/components/ui/Toast';
 
 export default function LoginPage() {
-  const { login, isLoading, error, clearError } = useAuth();
+  const { login, error, clearError } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
-  const [loginError, setLoginError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const toast = useShowToast();
 
   // Load language preference from localStorage on mount
   useEffect(() => {
@@ -55,18 +56,107 @@ export default function LoginPage() {
   const password = watch('password');
 
   const handleLoginSubmit = async (data: LoginData) => {
+    console.log('[LoginPage DIAGNOSTIC] === FORM SUBMIT START ===');
+    console.log('[LoginPage DIAGNOSTIC] Form submitted with data:', {
+      emailOrPhone: data.emailOrPhone,
+      password: data.password ? '***' : 'empty',
+      rememberMe: data.rememberMe
+    });
+    
     clearError();
-    setLoginError(null);
+    console.log('[LoginPage DIAGNOSTIC] Error cleared');
+    
     setIsSubmitting(true);
+    console.log('[LoginPage DIAGNOSTIC] isSubmitting set to true');
+    
+    // Show loading toast
+    const loadingTitle = language === 'bn' ? 'লগইন করা হচ্ছে' : 'Logging In';
+    const loadingMessage = language === 'bn'
+      ? 'অনুগ্রহ করে অপেক্ষা করুন...'
+      : 'Please wait while we log you in...';
+    console.log('[LoginPage DIAGNOSTIC] Showing loading toast');
+    toast.info(loadingMessage, loadingTitle);
     
     try {
+      console.log('[LoginPage DIAGNOSTIC] Step 1: Calling login function...');
       await login(data.emailOrPhone, data.password, data.rememberMe);
+      console.log('[LoginPage DIAGNOSTIC] Step 2: Login function returned successfully, redirecting to /account');
+      
+      // Show success toast
+      const successTitle = language === 'bn' ? 'লগইন সফল' : 'Login Successful';
+      const successMessage = language === 'bn'
+        ? 'আপনি সফলভাবে লগইন হয়েছেন'
+        : 'You have successfully logged in';
+      console.log('[LoginPage DIAGNOSTIC] Showing success toast');
+      toast.success(successMessage, successTitle);
+      
       // Redirect to account page after successful login
+      console.log('[LoginPage DIAGNOSTIC] Step 3: Redirecting to /account');
       router.push('/account');
+      console.log('[LoginPage DIAGNOSTIC] === FORM SUBMIT SUCCESS ===');
     } catch (error: any) {
-      console.error('Login failed:', error);
-      setLoginError(error.message || 'Login failed. Please try again.');
+      console.error('[LoginPage DIAGNOSTIC] === FORM SUBMIT ERROR ===');
+      console.error('[LoginPage DIAGNOSTIC] Error caught:', error);
+      console.error('[LoginPage DIAGNOSTIC] Error type:', typeof error);
+      console.error('[LoginPage DIAGNOSTIC] Error name:', error?.name);
+      console.error('[LoginPage DIAGNOSTIC] Error message:', error?.message);
+      
+      // Show toast notification with error details
+      const errorTitle = language === 'bn' ? 'লগইন ব্যর্থ' : 'Login Error';
+      
+      if (typeof error === 'string') {
+        // Simple string error
+        console.log('[LoginPage DIAGNOSTIC] Error is a string:', error);
+        toast.error(error, errorTitle);
+      } else if (error && typeof error === 'object') {
+        // Extract specific error message from backend response
+        console.log('[LoginPage DIAGNOSTIC] Error is an object:', JSON.stringify(error, null, 2));
+        
+        let errorMessage: string;
+        
+        // Use bilingual messages if available
+        if (language === 'bn') {
+          errorMessage = error.messageBn || error.message || 'লগইন ব্যর্থ হয়েছে';
+        } else {
+          errorMessage = error.message || 'Login failed';
+        }
+        
+        console.log('[LoginPage DIAGNOSTIC] Extracted error message:', errorMessage);
+        
+        // Handle verification errors specifically
+        if (error.requiresVerification) {
+          console.log('[LoginPage DIAGNOSTIC] Error requires verification:', error.verificationType);
+          const verificationTypeText = error.verificationType === 'email'
+            ? (language === 'bn' ? 'ইমেল' : 'email')
+            : (language === 'bn' ? 'ফোন' : 'phone');
+          
+          const verificationMessage = language === 'bn'
+            ? `আপনার ${verificationTypeText} নম্বর যাচাই করা প্রয়োজন। ${errorMessage || ''}`
+            : `Your ${verificationTypeText} needs verification. ${errorMessage || ''}`;
+          
+          toast.error(verificationMessage, errorTitle);
+        } else {
+          // Display specific error message from backend
+          // The backend returns detailed messages like:
+          // - "Invalid email or password" / "অবৈধ ইমেল বা পাসওয়ার্ড"
+          // - "Invalid phone number or password" / "অবৈধ ফোন নম্বর বা পাসওয়ার্ড"
+          // - "Please verify your email address before logging in" / "লগিন করার আগে ইমেল যাচাই করুন"
+          // - "Unable to create session" / "লগিন ব্যর্থ হয়েছে"
+          // - "Failed to create remember me token" / "Remember me token creation failed"
+          console.log('[LoginPage DIAGNOSTIC] Showing error toast:', errorMessage);
+          toast.error(errorMessage, errorTitle);
+        }
+      } else {
+        // Fallback error for unexpected error formats
+        console.log('[LoginPage DIAGNOSTIC] Error has unexpected format, using fallback');
+        const fallbackMessage = language === 'bn'
+          ? 'একটি অপ্রত্যাশিত ত্রুটি ঘটেছে। অনুগ্রহ করে পরে আবার চেষ্টা করুন।'
+          : 'An unexpected error occurred. Please try again later.';
+        toast.error(fallbackMessage, errorTitle);
+      }
+      console.log('[LoginPage DIAGNOSTIC] === FORM SUBMIT ERROR ===');
     } finally {
+      console.log('[LoginPage DIAGNOSTIC] Finally block: Setting isSubmitting to false');
       setIsSubmitting(false);
     }
   };
@@ -121,10 +211,26 @@ export default function LoginPage() {
         </div>
 
         {/* Social Login Buttons */}
-        <SocialLoginButtons isLoading={isLoading} />
+        <SocialLoginButtons isLoading={isSubmitting} />
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit(handleLoginSubmit)} className="space-y-6">
+        <form
+          onSubmit={(e) => {
+            console.log('[LoginPage] Form onSubmit triggered');
+            handleSubmit(handleLoginSubmit)(e);
+          }}
+          className="space-y-6"
+          noValidate
+          onInvalid={(e) => {
+            e.preventDefault();
+            // Show validation error toast
+            const validationTitle = language === 'bn' ? 'যাচাইকরণ ত্রুটি' : 'Validation Error';
+            const validationMessage = language === 'bn'
+              ? 'অনুগ্রহ করে সকল প্রয়োজনীয় ক্ষেত্রগুলি পূরণ করুন'
+              : 'Please fill in all required fields correctly';
+            toast.warning(validationMessage, validationTitle);
+          }}
+        >
           <div className="space-y-4">
             {/* Email or Phone Field */}
             <Controller
@@ -208,22 +314,6 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Login Error */}
-            {loginError && (
-              <div className="rounded-md bg-red-50 border border-red-200 p-4">
-                <div className="flex">
-                  <AlertCircle className="h-5 w-5 text-red-400" />
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-red-800">
-                      {language === 'bn' ? 'লগইন ব্যর্থ' : 'Login Error'}
-                    </h3>
-                    <p className="text-sm text-red-700 mt-1">
-                      {loginError}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Forgot Password Link */}
@@ -240,12 +330,13 @@ export default function LoginPage() {
           <div>
             <button
               type="submit"
-              disabled={isSubmitting || isLoading}
+              disabled={isSubmitting}
+              onClick={() => console.log('[LoginPage] Login button clicked, isSubmitting:', isSubmitting)}
               className={cn(
                 'w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium',
                 {
-                  'bg-primary-600 text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500': !isSubmitting && !isLoading,
-                  'bg-primary-400 text-gray-300 cursor-not-allowed': isSubmitting || isLoading
+                  'bg-primary-600 text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500': !isSubmitting,
+                  'bg-primary-400 text-gray-300 cursor-not-allowed': isSubmitting
                 }
               )}
             >

@@ -36,10 +36,12 @@ class RateLimitService {
     };
 
     return async (req, res, next) => {
+      console.log('[RATE LIMIT SERVICE] Middleware called for:', req.originalUrl);
       try {
         const key = config.keyGenerator(req);
         const now = Date.now();
         const windowStart = now - config.windowMs;
+        console.log('[RATE LIMIT SERVICE] Key:', key, 'Window start:', windowStart);
 
         // Check if we should skip this request
         if (this.shouldSkipRequest(req, res, config)) {

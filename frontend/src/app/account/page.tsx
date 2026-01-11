@@ -1,11 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { User as UserType } from '@/types/auth';
 import { withAuth } from '@/components/auth/withAuth';
 import { formatDate, getInitials } from '@/lib/utils';
+import { ProfileAPI, UserProfile } from '@/lib/api/profile';
+import ProfileEditForm from '@/components/profile/ProfileEditForm';
+import ProfilePictureUpload from '@/components/profile/ProfilePictureUpload';
+import EmailPhoneChange from '@/components/profile/EmailPhoneChange';
+import AccountSettings from '@/components/profile/AccountSettings';
+import AddressesTab from '@/components/profile/AddressesTab';
 import {
   User as UserIcon,
   Mail,
@@ -18,23 +24,59 @@ import {
   Package,
   Heart,
   CreditCard,
-  ChevronRight
+  ChevronRight,
+  Edit
 } from 'lucide-react';
 
 interface AccountPageProps {}
 
 const AccountPage: React.FC<AccountPageProps> = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('profile');
+  const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
+  const [profileData, setProfileData] = useState<UserProfile | null>(null);
+  const profileLoadedRef = React.useRef(false);
+
+  useEffect(() => {
+    // Only load profile data once to prevent duplicate API calls
+    if (!profileLoadedRef.current && user) {
+      loadProfileData();
+      profileLoadedRef.current = true;
+    }
+  }, [user]);
+
+  const loadProfileData = async () => {
+    // Only load profile data if not already loaded
+    if (!profileLoadedRef.current && user) {
+      try {
+        const response = await ProfileAPI.getProfile();
+        setProfileData(response.user);
+        // Also update AuthContext user state to prevent stale data
+        updateUser(response.user as unknown as any);
+        // Mark profile as loaded
+        profileLoadedRef.current = true;
+      } catch (error) {
+        console.error('Failed to load profile data:', error);
+      }
+    }
+  };
+
+  const handleProfileUpdate = (updatedUser: UserProfile) => {
+    setProfileData(updatedUser);
+    // Also update AuthContext user state to prevent logout on refresh
+    updateUser(updatedUser as unknown as any);
+  };
 
   const handleLogout = async () => {
     setIsLoading(true);
     try {
       await logout();
       router.push('/');
+      // Reset profile loaded ref on logout
+      profileLoadedRef.current = false;
     } catch (error) {
       console.error('Logout error:', error);
       setIsLoading(false);
@@ -94,7 +136,14 @@ const AccountPage: React.FC<AccountPageProps> = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'profile':
-        return <ProfileTab user={user} language={language} />;
+        return isEditing
+          ? <ProfileEditForm
+              user={profileData || (user as unknown as UserProfile)}
+              language={language}
+              onUpdate={handleProfileUpdate}
+              onCancel={() => setIsEditing(false)}
+            />
+          : <ProfileTab user={profileData || user} language={language} onEdit={() => setIsEditing(true)} onUpdate={handleProfileUpdate} />;
       case 'orders':
         return <OrdersTab language={language} />;
       case 'wishlist':
@@ -106,9 +155,9 @@ const AccountPage: React.FC<AccountPageProps> = () => {
       case 'security':
         return <SecurityTab language={language} />;
       case 'settings':
-        return <SettingsTab language={language} onLanguageChange={handleLanguageChange} />;
+        return <AccountSettings language={language} />;
       default:
-        return <ProfileTab user={user} language={language} />;
+        return <ProfileTab user={profileData || user} language={language} onEdit={() => setIsEditing(true)} onUpdate={handleProfileUpdate} />;
     }
   };
 
@@ -235,14 +284,30 @@ const AccountPage: React.FC<AccountPageProps> = () => {
 };
 
 // Tab Components
-const ProfileTab: React.FC<{ user: UserType | null; language: 'en' | 'bn' }> = ({ user, language }) => {
+const ProfileTab: React.FC<{ user: UserType | UserProfile | null; language: 'en' | 'bn'; onEdit: () => void; onUpdate: (user: UserProfile) => void }> = ({ user, language, onEdit, onUpdate }) => {
   if (!user) return null;
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">
-        {language === 'en' ? 'Profile Information' : 'প্রোফাইল তথ্য'}
-      </h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold text-gray-900">
+          {language === 'en' ? 'Profile Information' : 'প্রোফাইল তথ্য'}
+        </h2>
+        <button
+          onClick={onEdit}
+          className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+        >
+          <Edit className="h-4 w-4" />
+          <span>{language === 'en' ? 'Edit Profile' : 'প্রোফাইল সম্পাদনা'}</span>
+        </button>
+      </div>
+
+      <ProfilePictureUpload
+        user={user as UserProfile}
+        language={language}
+        onUpdate={onUpdate}
+        key={user?.image || 'default'}
+      />
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
@@ -264,11 +329,11 @@ const ProfileTab: React.FC<{ user: UserType | null; language: 'en' | 'bn' }> = (
               {user.email || 'Not provided'}
               {user.email && (
                 <span className={`ml-2 px-2 py-1 text-xs rounded ${
-                  user.isEmailVerified 
-                    ? 'bg-green-100 text-green-800' 
+                  (user as any).emailVerified || (user as any).isEmailVerified
+                    ? 'bg-green-100 text-green-800'
                     : 'bg-yellow-100 text-yellow-800'
                 }`}>
-                  {user.isEmailVerified 
+                  {(user as any).emailVerified || (user as any).isEmailVerified
                     ? (language === 'en' ? 'Verified' : 'যাচাইকৃত')
                     : (language === 'en' ? 'Not Verified' : 'যাচাইকৃত নয়')
                   }
@@ -297,11 +362,11 @@ const ProfileTab: React.FC<{ user: UserType | null; language: 'en' | 'bn' }> = (
               {user.phone || 'Not provided'}
               {user.phone && (
                 <span className={`ml-2 px-2 py-1 text-xs rounded ${
-                  user.isPhoneVerified 
-                    ? 'bg-green-100 text-green-800' 
+                  (user as any).phoneVerified || (user as any).isPhoneVerified
+                    ? 'bg-green-100 text-green-800'
                     : 'bg-yellow-100 text-yellow-800'
                 }`}>
-                  {user.isPhoneVerified 
+                  {(user as any).phoneVerified || (user as any).isPhoneVerified
                     ? (language === 'en' ? 'Verified' : 'যাচাইকৃত')
                     : (language === 'en' ? 'Not Verified' : 'যাচাইকৃত নয়')
                   }
@@ -313,9 +378,7 @@ const ProfileTab: React.FC<{ user: UserType | null; language: 'en' | 'bn' }> = (
       </div>
 
       <div className="mt-6 pt-6 border-t border-gray-200">
-        <button className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
-          {language === 'en' ? 'Edit Profile' : 'প্রোফাইল সম্পাদনা'}
-        </button>
+        <EmailPhoneChange user={user} language={language} onUpdate={() => {}} />
       </div>
     </div>
   );
@@ -366,21 +429,6 @@ const PaymentTab: React.FC<{ language: 'en' | 'bn' }> = ({ language }) => (
   </div>
 );
 
-const AddressesTab: React.FC<{ language: 'en' | 'bn' }> = ({ language }) => (
-  <div className="text-center py-12">
-    <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-    <h3 className="text-lg font-medium text-gray-900 mb-2">
-      {language === 'en' ? 'No saved addresses' : 'কোনো সংরক্ষিত ঠিকানা নেই'}
-    </h3>
-    <p className="text-gray-600">
-      {language === 'en' 
-        ? 'Add a delivery address for faster checkout.'
-        : 'দ্রুত চেকআউটের জন্য ডেলিভারি ঠিকানা যোগ করুন।'
-      }
-    </p>
-  </div>
-);
-
 const SecurityTab: React.FC<{ language: 'en' | 'bn' }> = ({ language }) => (
   <div className="space-y-6">
     <h2 className="text-xl font-bold text-gray-900 mb-6">
@@ -425,57 +473,5 @@ const SecurityTab: React.FC<{ language: 'en' | 'bn' }> = ({ language }) => (
   </div>
 );
 
-const SettingsTab: React.FC<{ language: 'en' | 'bn'; onLanguageChange: (lang: 'en' | 'bn') => void }> = ({ 
-  language, 
-  onLanguageChange 
-}) => (
-  <div className="space-y-6">
-    <h2 className="text-xl font-bold text-gray-900 mb-6">
-      {language === 'en' ? 'Account Settings' : 'অ্যাকাউন্ট সেটিংস'}
-    </h2>
-    
-    <div className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
-          {language === 'en' ? 'Email Notifications' : 'ইমেল নোটিফিকেশন'}
-        </label>
-        <div className="space-y-2">
-          <label className="flex items-center">
-            <input type="checkbox" className="mr-3" defaultChecked />
-            <span className="text-sm text-gray-700">
-              {language === 'en' ? 'Order updates' : 'অর্ডার আপডেট'}
-            </span>
-          </label>
-          <label className="flex items-center">
-            <input type="checkbox" className="mr-3" defaultChecked />
-            <span className="text-sm text-gray-700">
-              {language === 'en' ? 'Special offers' : 'বিশেষ অফার'}
-            </span>
-          </label>
-          <label className="flex items-center">
-            <input type="checkbox" className="mr-3" />
-            <span className="text-sm text-gray-700">
-              {language === 'en' ? 'Newsletter' : 'নিউজলেটার'}
-            </span>
-          </label>
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
-          {language === 'en' ? 'Privacy' : 'গোপনীয়তা'}
-        </label>
-        <div className="space-y-2">
-          <button className="text-sm text-primary-600 hover:text-primary-700">
-            {language === 'en' ? 'Download my data' : 'আমার ডাটা ডাউনলোড করুন'}
-          </button>
-          <button className="text-sm text-red-600 hover:text-red-700">
-            {language === 'en' ? 'Delete my account' : 'আমার অ্যাকাউন্ট ডিলিট করুন'}
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-);
 
 export default withAuth(AccountPage);

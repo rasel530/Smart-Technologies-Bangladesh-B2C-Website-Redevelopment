@@ -10,19 +10,36 @@ class LoginSecurityMiddleware {
   // Main login security middleware
   enforce() {
     return async (req, res, next) => {
+      console.log('[LOGIN SECURITY] Middleware started');
       try {
         const { identifier, password } = req.body;
-        const ip = req.ip;
+        // Get IP with fallback for Docker/proxy scenarios
+        const ip = req.ip ||
+                   req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+                   req.headers['x-real-ip'] ||
+                   req.connection?.remoteAddress ||
+                   'unknown';
         const userAgent = req.get('User-Agent');
+        console.log('[LOGIN SECURITY] Step 1: Got request data', { identifier, ip });
 
+        console.log('[LOGIN SECURITY] Step 2: Checking if security disabled');
         // Skip security checks for testing mode if configured
         if (process.env.DISABLE_LOGIN_SECURITY === 'true') {
+          console.log('[LOGIN SECURITY] Security disabled, calling next()');
           return next();
         }
 
+        console.log('[LOGIN SECURITY] Step 3: Checking user lockout');
         // Check if user is locked out
-        const userLockout = await this.loginSecurityService.isUserLockedOut(identifier);
-        if (userLockout.isLocked) {
+        let userLockout;
+        try {
+          userLockout = await this.loginSecurityService.isUserLockedOut(identifier);
+        } catch (lockoutError) {
+          console.log('[LOGIN SECURITY] User lockout check failed:', lockoutError.message);
+          userLockout = { isLocked: false };
+        }
+        console.log('[LOGIN SECURITY] Step 4: User lockout check complete', userLockout);
+        if (userLockout && userLockout.isLocked) {
           this.logger.logSecurity('Blocked Login Attempt - User Locked Out', null, {
             identifier,
             ip,
@@ -47,8 +64,15 @@ class LoginSecurityMiddleware {
         }
 
         // Check if IP is blocked
-        const ipBlock = await this.loginSecurityService.isIPBlocked(ip);
-        if (ipBlock.isBlocked) {
+        let ipBlock;
+        try {
+          ipBlock = await this.loginSecurityService.isIPBlocked(ip);
+        } catch (ipError) {
+          console.log('[LOGIN SECURITY] IP block check failed:', ipError.message);
+          ipBlock = { isBlocked: false };
+        }
+        
+        if (ipBlock && ipBlock.isBlocked) {
           this.logger.logSecurity('Blocked Login Attempt - IP Blocked', null, {
             identifier,
             ip,
@@ -73,8 +97,15 @@ class LoginSecurityMiddleware {
         }
 
         // Check for suspicious patterns
-        const suspiciousCheck = await this.loginSecurityService.checkSuspiciousPatterns(identifier, ip, userAgent);
-        if (suspiciousCheck.isSuspicious) {
+        let suspiciousCheck;
+        try {
+          suspiciousCheck = await this.loginSecurityService.checkSuspiciousPatterns(identifier, ip, userAgent);
+        } catch (suspiciousError) {
+          console.log('[LOGIN SECURITY] Suspicious check failed:', suspiciousError.message);
+          suspiciousCheck = { isSuspicious: false, reasons: [], riskScore: 0 };
+        }
+        
+        if (suspiciousCheck && suspiciousCheck.isSuspicious) {
           this.logger.logSecurity('Suspicious Login Pattern Detected', null, {
             identifier,
             ip,
@@ -85,7 +116,14 @@ class LoginSecurityMiddleware {
         }
 
         // Check if captcha is required
-        const captchaRequired = await this.loginSecurityService.isCaptchaRequired(identifier, ip);
+        let captchaRequired;
+        try {
+          captchaRequired = await this.loginSecurityService.isCaptchaRequired(identifier, ip);
+        } catch (captchaError) {
+          console.log('[LOGIN SECURITY] Captcha check failed:', captchaError.message);
+          captchaRequired = false;
+        }
+        
         if (captchaRequired) {
           return res.status(429).json({
             error: 'Captcha required',
@@ -132,16 +170,44 @@ class LoginSecurityMiddleware {
           deviceFingerprint: this.loginSecurityService.generateDeviceFingerprint(req)
         };
 
+        console.log('[LOGIN SECURITY] Step 5: About to call next()');
         next();
 
       } catch (error) {
+        console.log('[LOGIN SECURITY] Error in middleware:', error.message);
+        // Safely extract request data with null checks
+        const ip = req?.ip ||
+                   req?.headers?.['x-forwarded-for']?.split(',')[0]?.trim() ||
+                   req?.headers?.['x-real-ip'] ||
+                   req?.connection?.remoteAddress ||
+                   'unknown';
+        const userAgent = req?.get ? req.get('User-Agent') : 'unknown';
+        const identifier = req?.body?.identifier || 'unknown';
+        
         this.logger.error('Login security middleware error', error.message, {
-          ip: req.ip,
-          userAgent: req.get('User-Agent'),
-          identifier: req.body.identifier
+          ip,
+          userAgent,
+          identifier,
+          errorName: error.name,
+          errorStack: error.stack,
+          timestamp: new Date().toISOString()
         });
 
-        // Fail open - allow request but log error
+        // Check if response has already been sent
+        if (!res.headersSent) {
+          // Send error response to client instead of timing out
+          return res.status(500).json({
+            error: 'Login security check failed',
+            message: 'An error occurred during login security verification',
+            messageBn: 'লগইন নিরাপত্তা যাচাইয়ে ত্রুটি ঘটেছে',
+            details: process.env.NODE_ENV === 'development' ? {
+              error: error.message,
+              name: error.name
+            } : undefined
+          });
+        }
+        
+        // If response already sent, just log and move on
         next();
       }
     };
@@ -175,38 +241,35 @@ class LoginSecurityMiddleware {
   }
 
   // Record successful login (clears failed attempts)
-  recordSuccessfulLogin(req, user) {
-    return async (req, res, next) => {
-      try {
-        const { identifier } = req.body;
-        const ip = req.ip;
-        const userAgent = req.get('User-Agent');
+  async recordSuccessfulLogin(req, user) {
+    try {
+      const { identifier } = req.body;
+      const ip = req.ip;
+      const userAgent = req.get('User-Agent');
 
-        // Clear failed attempts after successful login
-        await this.loginSecurityService.clearFailedAttempts(identifier, ip);
+      // Clear failed attempts after successful login
+      await this.loginSecurityService.clearFailedAttempts(identifier, ip);
 
-        this.logger.logSecurity('Successful Login', user.id, {
-          identifier,
-          ip,
-          userAgent,
-          userId: user.id,
-          timestamp: new Date().toISOString()
-        });
+      this.logger.logSecurity('Successful Login', user.id, {
+        identifier,
+        ip,
+        userAgent,
+        userId: user.id,
+        timestamp: new Date().toISOString()
+      });
 
-        // Add success headers
-        res.set({
-          'X-Login-Status': 'success',
-          'X-Security-Cleared': 'true',
-          'X-Login-Timestamp': new Date().toISOString()
-        });
+      // Add success headers
+      res.set({
+        'X-Login-Status': 'success',
+        'X-Security-Cleared': 'true',
+        'X-Login-Timestamp': new Date().toISOString()
+      });
 
-        next();
-
-      } catch (error) {
-        this.logger.error('Error recording successful login', error.message);
-        next();
-      }
-    };
+      return true; // Indicate success
+    } catch (error) {
+      this.logger.error('Error recording successful login', error.message);
+      return false; // Indicate failure but don't throw
+    }
   }
 
   // Record failed login attempt

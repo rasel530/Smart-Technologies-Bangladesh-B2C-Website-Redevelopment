@@ -156,37 +156,27 @@ export const validateAddress = (division: string, district: string, upazila: str
   return { isValid: true };
 };
 
-// Zod schema for registration
-export const registrationSchema = z.object({
+// Base schema without refinements (for .pick() operations)
+const baseRegistrationSchema = z.object({
   firstName: z
     .string()
     .min(2, 'First name must be at least 2 characters')
     .max(50, 'First name must be less than 50 characters')
-    .regex(NAME_PATTERN, 'First name can only contain letters, spaces, hyphens, and apostrophes')
-    .refine((name) => !/^\s+$/.test(name), 'First name cannot be only spaces'),
+    .regex(NAME_PATTERN, 'First name can only contain letters, spaces, hyphens, and apostrophes'),
 
   lastName: z
     .string()
     .min(2, 'Last name must be at least 2 characters')
     .max(50, 'Last name must be less than 50 characters')
-    .regex(NAME_PATTERN, 'Last name can only contain letters, spaces, hyphens, and apostrophes')
-    .refine((name) => !/^\s+$/.test(name), 'Last name cannot be only spaces'),
+    .regex(NAME_PATTERN, 'Last name can only contain letters, spaces, hyphens, and apostrophes'),
 
   email: z
     .string()
-    .optional()
-    .refine((email) => {
-      if (!email) return true; // Optional field
-      return validateEmail(email).isValid;
-    }, 'Invalid email format'),
+    .optional(),
 
   phone: z
     .string()
-    .optional()
-    .refine((phone) => {
-      if (!phone) return true; // Optional field
-      return validateBangladeshPhone(phone).isValid;
-    }, 'Invalid Bangladesh phone number'),
+    .optional(),
 
   password: z
     .string()
@@ -199,14 +189,7 @@ export const registrationSchema = z.object({
 
   dateOfBirth: z
     .date()
-    .optional()
-    .refine((date) => {
-      if (!date) return true; // Optional field
-      const now = new Date();
-      const minDate = new Date(now.getFullYear() - 120, now.getMonth(), now.getDate());
-      const maxDate = new Date(now.getFullYear() - 13, now.getMonth(), now.getDate());
-      return date >= minDate && date <= maxDate;
-    }, 'You must be between 13 and 120 years old'),
+    .optional(),
 
   gender: z
     .enum(['male', 'female', 'other'])
@@ -214,11 +197,7 @@ export const registrationSchema = z.object({
 
   nationalId: z
     .string()
-    .optional()
-    .refine((nid) => {
-      if (!nid) return true; // Optional field
-      return validateNationalId(nid).isValid;
-    }, 'Invalid National ID format'),
+    .optional(),
 
   division: z
     .string()
@@ -235,21 +214,15 @@ export const registrationSchema = z.object({
   addressLine1: z
     .string()
     .min(10, 'Address must be at least 10 characters')
-    .max(200, 'Address must be less than 200 characters')
-    .refine((address) => !/^\s+$/.test(address), 'Address cannot be only spaces'),
+    .max(200, 'Address must be less than 200 characters'),
 
   addressLine2: z
     .string()
-    .optional()
-    .refine((addr) => !addr || addr.length <= 200, 'Address line 2 must be less than 200 characters'),
+    .optional(),
 
   postalCode: z
     .string()
-    .optional()
-    .refine((code) => {
-      if (!code) return true; // Optional field
-      return POSTAL_CODE_PATTERN.test(code);
-    }, 'Postal code must be 4 digits'),
+    .optional(),
 
   preferredLanguage: z
     .enum(['en', 'bn'])
@@ -261,11 +234,75 @@ export const registrationSchema = z.object({
 
   termsAccepted: z
     .boolean()
-    .refine((accepted) => accepted === true, 'You must accept terms and conditions')
-}).refine((data) => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword']
 });
+
+// Full schema with refinements
+export const registrationSchema = baseRegistrationSchema
+  .refine((data) => !/^\s+$/.test(data.firstName), {
+    message: 'First name cannot be only spaces',
+    path: ['firstName']
+  })
+  .refine((data) => !/^\s+$/.test(data.lastName), {
+    message: 'Last name cannot be only spaces',
+    path: ['lastName']
+  })
+  .refine((data) => {
+    if (!data.email) return true; // Optional field
+    return validateEmail(data.email).isValid;
+  }, {
+    message: 'Invalid email format',
+    path: ['email']
+  })
+  .refine((data) => {
+    if (!data.phone) return true; // Optional field
+    return validateBangladeshPhone(data.phone).isValid;
+  }, {
+    message: 'Invalid Bangladesh phone number',
+    path: ['phone']
+  })
+  .refine((data) => {
+    if (!data.dateOfBirth) return true; // Optional field
+    const now = new Date();
+    const minDate = new Date(now.getFullYear() - 120, now.getMonth(), now.getDate());
+    const maxDate = new Date(now.getFullYear() - 13, now.getMonth(), now.getDate());
+    return data.dateOfBirth >= minDate && data.dateOfBirth <= maxDate;
+  }, {
+    message: 'You must be between 13 and 120 years old',
+    path: ['dateOfBirth']
+  })
+  .refine((data) => {
+    if (!data.nationalId) return true; // Optional field
+    return validateNationalId(data.nationalId).isValid;
+  }, {
+    message: 'Invalid National ID format',
+    path: ['nationalId']
+  })
+  .refine((data) => !/^\s+$/.test(data.addressLine1), {
+    message: 'Address cannot be only spaces',
+    path: ['addressLine1']
+  })
+  .refine((data) => {
+    if (!data.addressLine2) return true;
+    return data.addressLine2.length <= 200;
+  }, {
+    message: 'Address line 2 must be less than 200 characters',
+    path: ['addressLine2']
+  })
+  .refine((data) => {
+    if (!data.postalCode) return true; // Optional field
+    return POSTAL_CODE_PATTERN.test(data.postalCode);
+  }, {
+    message: 'Postal code must be 4 digits',
+    path: ['postalCode']
+  })
+  .refine((data) => data.termsAccepted === true, {
+    message: 'You must accept terms and conditions',
+    path: ['termsAccepted']
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword']
+  });
 
 // Login schema
 export const loginSchema = z.object({
@@ -274,8 +311,8 @@ export const loginSchema = z.object({
   rememberMe: z.boolean().optional().default(false)
 });
 
-// Step-specific schemas
-export const basicInfoSchema = registrationSchema.pick({
+// Step-specific schemas (using base schema to avoid .pick() on schemas with refinements)
+export const basicInfoSchema = baseRegistrationSchema.pick({
   firstName: true,
   lastName: true,
   email: true,
@@ -284,13 +321,13 @@ export const basicInfoSchema = registrationSchema.pick({
   confirmPassword: true
 });
 
-export const personalDetailsSchema = registrationSchema.pick({
+export const personalDetailsSchema = baseRegistrationSchema.pick({
   dateOfBirth: true,
   gender: true,
   nationalId: true
 });
 
-export const addressSchema = registrationSchema.pick({
+export const addressSchema = baseRegistrationSchema.pick({
   division: true,
   district: true,
   upazila: true,
@@ -299,7 +336,7 @@ export const addressSchema = registrationSchema.pick({
   postalCode: true
 });
 
-export const preferencesSchema = registrationSchema.pick({
+export const preferencesSchema = baseRegistrationSchema.pick({
   preferredLanguage: true,
   marketingConsent: true,
   termsAccepted: true

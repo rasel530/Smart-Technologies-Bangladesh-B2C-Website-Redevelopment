@@ -123,9 +123,9 @@ class SessionMiddleware {
         return this.handleInvalidSession(req, res, validation.reason, options);
       }
 
-      // Check if session is fresh (created within specified time)
+      // Check if session is fresh (last activity within specified time)
       const maxAge = options.maxAge || 30 * 60 * 1000; // 30 minutes default
-      const sessionAge = Date.now() - validation.session.createdAt.getTime();
+      const sessionAge = Date.now() - validation.session.lastActivity.getTime();
       
       if (sessionAge > maxAge) {
         return this.handleStaleSession(req, res, validation.session, options);
@@ -270,7 +270,7 @@ class SessionMiddleware {
     
     this.logger.logSecurity('Stale Session Access Attempt', session.userId, {
       sessionId: session.sessionId,
-      sessionAge: Date.now() - session.createdAt.getTime(),
+      sessionAge: Date.now() - session.lastActivity.getTime(),
       ip: req.ip,
       userAgent: req.get('User-Agent'),
       path: req.originalUrl

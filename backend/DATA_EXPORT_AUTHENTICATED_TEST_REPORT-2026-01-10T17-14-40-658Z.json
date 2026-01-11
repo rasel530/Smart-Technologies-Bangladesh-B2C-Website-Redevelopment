@@ -1,0 +1,110 @@
+{
+  "summary": {
+    "totalTests": 12,
+    "passedTests": 11,
+    "failedTests": 1,
+    "successRate": "91.67"
+  },
+  "userCreation": {
+    "success": true,
+    "message": "User already exists",
+    "userId": "db4017df-a883-47fa-976e-173beb9f586d"
+  },
+  "login": {
+    "success": true,
+    "userId": "db4017df-a883-47fa-976e-173beb9f586d",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJkYjQwMTdkZi1hODgzLTQ3ZmEtOTc2ZS0xNzNiZWI5ZjU4NmQiLCJlbWFpbCI6InRlc3QuZGF0YWV4cG9ydEBleGFtcGxlLmNvbSIsInBob25lIjoiKzg4MDE5ODc2NTQzMjEiLCJyb2xlIjoiQ1VTVE9NRVIiLCJzZXNzaW9uSWQiOiI2NWYwZDZhNWIxNjc2N2RjMjJjYTFlZDc3MjUwNDA4YjFkMWJlYzY4YzA1YzdkYzczNTYyNzVhYTMxN2RhNjM4IiwiaWF0IjoxNzY4MDY1Mjc3LCJleHAiOjE3Njg2NzAwNzcsImF1ZCI6InNtYXJ0LWVjb21tZXJjZS1jbGllbnRzIiwiaXNzIjoic21hcnQtZWNvbW1lcmNlLWFwaSJ9.fsrm2_mwCxfugWXPjS9WcYjeB5SeTVOlb8GKSt8RpAI"
+  },
+  "tests": [
+    {
+      "category": "Data Export",
+      "testName": "Get data exports returns 200 OK",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-10T17:14:37.562Z"
+    },
+    {
+      "category": "Data Export",
+      "testName": "Exports array is properly handled",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-10T17:14:37.563Z"
+    },
+    {
+      "category": "Data Export",
+      "testName": "No \"exportItem is undefined\" error",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-10T17:14:37.563Z"
+    },
+    {
+      "category": "Data Export",
+      "testName": "Create export request returns 200 OK",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-10T17:14:37.586Z"
+    },
+    {
+      "category": "Data Export",
+      "testName": "Export request has exportId",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-10T17:14:37.586Z"
+    },
+    {
+      "category": "Data Export",
+      "testName": "Export request has status",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-10T17:14:37.586Z"
+    },
+    {
+      "category": "Data Export",
+      "testName": "Export request has exportToken",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-10T17:14:37.587Z"
+    },
+    {
+      "category": "Data Export",
+      "testName": "Download export returns 200 OK",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-10T17:14:37.613Z"
+    },
+    {
+      "category": "Data Export",
+      "testName": "Download URL is provided",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-10T17:14:37.613Z"
+    },
+    {
+      "category": "Data Export",
+      "testName": "Expires at is provided",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-10T17:14:37.613Z"
+    },
+    {
+      "category": "Data Export",
+      "testName": "CSV file is generated correctly",
+      "passed": false,
+      "details": "",
+      "timestamp": "2026-01-10T17:14:40.645Z"
+    },
+    {
+      "category": "Data Export",
+      "testName": "No \"res is not defined\" error",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-10T17:14:40.645Z"
+    }
+  ],
+  "fixes": {
+    "dataExportNullChecks": true,
+    "dataExportDownloadFunctionality": true,
+    "dataExportCSVGeneration": false,
+    "allVerified": false
+  }
+}

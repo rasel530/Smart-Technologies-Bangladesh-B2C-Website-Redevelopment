@@ -1,0 +1,98 @@
+{
+  "timestamp": "2026-01-10T06:26:42.045Z",
+  "tests": [
+    {
+      "name": "Frontend login page accessible",
+      "passed": true,
+      "details": "Status: 200, Not 404: true",
+      "error": null,
+      "timestamp": "2026-01-10T06:26:56.222Z"
+    },
+    {
+      "name": "NextAuth configured pages accessible",
+      "passed": true,
+      "details": "All configured pages should be accessible",
+      "error": null,
+      "timestamp": "2026-01-10T06:27:03.524Z"
+    },
+    {
+      "name": "NextAuth error route not returning 404",
+      "passed": false,
+      "details": "Status: 404, Not 404: false",
+      "error": "Error route returns 404 - routing error still present",
+      "timestamp": "2026-01-10T06:27:03.611Z"
+    },
+    {
+      "name": "NextAuth sign-in endpoint accessible",
+      "passed": false,
+      "details": "Status: 404, Not 404: false",
+      "error": "Sign-in endpoint returns 404",
+      "timestamp": "2026-01-10T06:27:03.672Z"
+    },
+    {
+      "name": "NextAuth credentials callback not returning 404",
+      "passed": false,
+      "details": "Status: 404, Not 404: false",
+      "error": "Credentials callback returns 404 - routing error",
+      "timestamp": "2026-01-10T06:27:03.755Z"
+    },
+    {
+      "name": "Login with wrong password",
+      "passed": true,
+      "details": "Status: 401, Expected: 401",
+      "error": null,
+      "timestamp": "2026-01-10T06:27:04.047Z"
+    },
+    {
+      "name": "Login with non-existent user",
+      "passed": true,
+      "details": "Status: 401, Expected: 401",
+      "error": null,
+      "timestamp": "2026-01-10T06:27:04.072Z"
+    },
+    {
+      "name": "Login with valid credentials",
+      "passed": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIwNzFjYzFkYy02NzQ2LTQ1Y2MtYTllOS1jM2IzODhmNDE0MDIiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJwaG9uZSI6bnVsbCwicm9sZSI6IkNVU1RPTUVSIiwic2Vzc2lvbklkIjoiNTRhZTYwNzljYjJmZjk2YTQ0ZmFmYWJjYzBkOTcxOGUwNzgwNGU0YTc2MzYyNzM1NDIxMDI5ZDk2MjVjNGJlYiIsImlhdCI6MTc2ODAyNjQyNCwiZXhwIjoxNzY4NjMxMjI0LCJhdWQiOiJzbWFydC1lY29tbWVyY2UtY2xpZW50cyIsImlzcyI6InNtYXJ0LWVjb21tZXJjZS1hcGkifQ.6VVko-J_jr7kSXg_S4P88btGeLlHMZ3oAYAk3x6-Wls",
+      "details": "Status: 200, Has token: true",
+      "error": null,
+      "timestamp": "2026-01-10T06:27:04.276Z"
+    },
+    {
+      "name": "Login with phone number",
+      "passed": false,
+      "details": "Status: 401, Has token: false",
+      "error": "Login with phone failed or no token returned",
+      "timestamp": "2026-01-10T06:27:04.292Z"
+    },
+    {
+      "name": "Logout functionality",
+      "passed": true,
+      "details": "Status: 200, Expected: 200",
+      "error": null,
+      "timestamp": "2026-01-10T06:27:04.310Z"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "passed": 6,
+    "failed": 4,
+    "errors": [
+      {
+        "test": "NextAuth error route not returning 404",
+        "error": "Error route returns 404 - routing error still present"
+      },
+      {
+        "test": "NextAuth sign-in endpoint accessible",
+        "error": "Sign-in endpoint returns 404"
+      },
+      {
+        "test": "NextAuth credentials callback not returning 404",
+        "error": "Credentials callback returns 404 - routing error"
+      },
+      {
+        "test": "Login with phone number",
+        "error": "Login with phone failed or no token returned"
+      }
+    ]
+  }
+}

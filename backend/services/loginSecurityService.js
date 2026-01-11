@@ -134,6 +134,11 @@ class LoginSecurityService {
     const userKey = `login_attempts:${identifier}`;
     const attempts = await this.redis.zRange(userKey, 0, -1);
     
+    // Add null check for attempts
+    if (!attempts || !Array.isArray(attempts)) {
+      return;
+    }
+    
     const recentAttempts = attempts.filter(attempt => {
       const score = parseInt(attempt.split('-')[0]);
       return (Date.now() - score) < config.attemptWindow;
@@ -166,6 +171,11 @@ class LoginSecurityService {
     
     const ipKey = `ip_attempts:${ip}`;
     const attempts = await this.redis.zRange(ipKey, 0, -1);
+    
+    // Add null check for attempts
+    if (!attempts || !Array.isArray(attempts)) {
+      return;
+    }
     
     const recentAttempts = attempts.filter(attempt => {
       const score = parseInt(attempt.split('-')[0]);
@@ -387,10 +397,13 @@ class LoginSecurityService {
 
   // Generate device fingerprint for enhanced security
   generateDeviceFingerprint(req) {
-    const userAgent = req.get('User-Agent') || '';
-    const acceptLanguage = req.get('Accept-Language') || '';
-    const acceptEncoding = req.get('Accept-Encoding') || '';
-    const accept = req.get('Accept') || '';
+    // Add null checks for req
+    if (!req) return 'unknown';
+    
+    const userAgent = req.get ? req.get('User-Agent') || '' : '';
+    const acceptLanguage = req.get ? req.get('Accept-Language') || '' : '';
+    const acceptEncoding = req.get ? req.get('Accept-Encoding') || '' : '';
+    const accept = req.get ? req.get('Accept') || '' : '';
     
     const fingerprint = crypto
       .createHash('sha256')
@@ -413,10 +426,21 @@ class LoginSecurityService {
       
       const now = Date.now();
       const suspiciousKey = `suspicious_activity:${ip}`;
+      
+      // Add null check for redis before hGetAll
+      if (!this.redis) return suspicious;
+      
       const suspiciousData = await this.redis.hGetAll(suspiciousKey);
       
-      if (suspiciousData && suspiciousData.count) {
-        const attemptCount = parseInt(suspiciousData.count);
+      // Add null check for suspiciousData
+      if (!suspiciousData || typeof suspiciousData !== 'object') {
+        return suspicious;
+      }
+      
+      // Safe parse of count
+      const attemptCount = suspiciousData.count ? parseInt(suspiciousData.count) : 0;
+      
+      if (attemptCount > 0) {
         
         // High number of attempts from same IP
         if (attemptCount > 10) {

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .info {
+            color: blue;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 20px;
+            background: #e7f3ff;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1>Registration Endpoint Test</h1>
+    <p>This page tests if your browser can reach the backend registration endpoint.</p>
+
+    <div class="test-section">
+        <h2>Test Configuration</h2>
+        <p><strong>Backend URL:</strong> <span id="backendUrl">http://localhost:3001</span></p>
+        <p><strong>API Endpoint:</strong> <span id="apiEndpoint">/api/v1/auth/register</span></p>
+        <p><strong>Full URL:</strong> <span id="fullUrl">http://localhost:3001/api/v1/auth/register</span></p>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Registration</h2>
+        <p>Fill in the form below to test registration:</p>
+        
+        <label>Email:</label>
+        <input type="email" id="email" value="test@example.com">
+        
+        <label>Password (must be strong):</label>
+        <input type="password" id="password" value="SecureP@ssw0rd!2024">
+        
+        <label>Confirm Password:</label>
+        <input type="password" id="confirmPassword" value="SecureP@ssw0rd!2024">
+        
+        <label>First Name:</label>
+        <input type="text" id="firstName" value="Test">
+        
+        <label>Last Name:</label>
+        <input type="text" id="lastName" value="User">
+        
+        <br><br>
+        <button onclick="testRegistration()">Test Registration</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Backend Health</h2>
+        <button onclick="testHealth()">Test Health Endpoint</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:3001';
+        const API_ENDPOINT = '/api/v1/auth/register';
+
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            resultsDiv.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        async function testHealth() {
+            log('Testing health endpoint...', 'info');
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/v1/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Health check successful! Status: ${data.status}`, 'success');
+                } else {
+                    log(`❌ Health check failed! Status: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Health check error: ${error.message}`, 'error');
+                log(`   Error details: ${error.stack}`, 'error');
+            }
+        }
+
+        async function testRegistration() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+
+            log('Starting registration test...', 'info');
+            log(`   Email: ${email}`, 'info');
+            log(`   Password: ${password.replace(/./g, '*')}`, 'info');
+            log(`   First Name: ${firstName}`, 'info');
+            log(`   Last Name: ${lastName}`, 'info');
+
+            const testData = {
+                email,
+                password,
+                confirmPassword,
+                firstName,
+                lastName
+            };
+
+            log(`Sending request to: ${BACKEND_URL}${API_ENDPOINT}`, 'info');
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`${BACKEND_URL}${API_ENDPOINT}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+
+                log(`Request completed in ${duration}ms`, 'info');
+                log(`   Status: ${response.status} ${response.statusText}`, 'info');
+                log(`   OK: ${response.ok}`, 'info');
+                log(`   Headers:`, 'info');
+                
+                // Log all response headers
+                response.headers.forEach((value, key) => {
+                    log(`      ${key}: ${value}`, 'info');
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Registration successful!`, 'success');
+                    log(`   User ID: ${data.user?.id}`, 'success');
+                    log(`   Email: ${data.user?.email}`, 'success');
+                    log(`   Status: ${data.user?.status}`, 'success');
+                    log(`   Message: ${data.message}`, 'success');
+                } else {
+                    const contentType = response.headers.get('content-type');
+                    log(`❌ Registration failed!`, 'error');
+                    log(`   Status: ${response.status}`, 'error');
+                    
+                    if (contentType && contentType.includes('application/json')) {
+                        const data = await response.json();
+                        log(`   Error: ${data.error || data.message}`, 'error');
+                        if (data.details) {
+                            log(`   Details: ${JSON.stringify(data.details, null, 2)}`, 'error');
+                        }
+                    } else {
+                        const text = await response.text();
+                        log(`   Response: ${text}`, 'error');
+                    }
+                }
+            } catch (error) {
+                log(`❌ Request failed!`, 'error');
+                log(`   Error: ${error.message}`, 'error');
+                log(`   Error name: ${error.name}`, 'error');
+                
+                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    log(`   This is a "Failed to fetch" error!`, 'error');
+                    log(`   Possible causes:`, 'error');
+                    log(`   1. Backend server not running`, 'error');
+                    log(`   2. Network connectivity issue`, 'error');
+                    log(`   3. CORS issue`, 'error');
+                    log(`   4. Firewall blocking request`, 'error');
+                    log(`   5. Browser extension blocking`, 'error');
+                }
+                
+                log(`   Stack: ${error.stack}`, 'error');
+            }
+        }
+
+        // Auto-test health on page load
+        window.onload = function() {
+            log('Page loaded. Auto-testing health endpoint...', 'info');
+            testHealth();
+        };
+    </script>
+</body>
+</html>

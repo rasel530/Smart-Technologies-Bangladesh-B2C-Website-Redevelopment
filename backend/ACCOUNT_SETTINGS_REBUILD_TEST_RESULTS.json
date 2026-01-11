@@ -1,0 +1,217 @@
+{
+  "timestamp": "2026-01-10T15:01:11.699Z",
+  "duration": "0.43s",
+  "summary": {
+    "totalTests": 10,
+    "passed": 7,
+    "failed": 3,
+    "successRate": "70.00%"
+  },
+  "results": {
+    "authentication": {
+      "passed": 1,
+      "failed": 0,
+      "tests": [
+        {
+          "name": "POST /auth/login",
+          "passed": true,
+          "status": 200,
+          "hasToken": true,
+          "userId": "071cc1dc-6746-45cc-a9e9-c3b388f41402"
+        }
+      ]
+    },
+    "notificationPreferences": {
+      "passed": 2,
+      "failed": 1,
+      "tests": [
+        {
+          "name": "GET /profile/preferences/notifications",
+          "passed": true,
+          "status": 200,
+          "hasData": true,
+          "formatCorrect": true,
+          "response": {
+            "success": true,
+            "data": {
+              "preferences": {
+                "id": "aa72544e-7136-4e17-9223-822a32f812b6",
+                "userId": "071cc1dc-6746-45cc-a9e9-c3b388f41402",
+                "emailNotifications": true,
+                "smsNotifications": false,
+                "whatsappNotifications": true,
+                "marketingCommunications": true,
+                "newsletterSubscription": true,
+                "notificationFrequency": "immediate",
+                "createdAt": "2026-01-10T15:01:11.488Z",
+                "updatedAt": "2026-01-10T15:01:11.488Z"
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT /profile/preferences/notifications",
+          "passed": true,
+          "status": 200,
+          "hasData": true,
+          "formatCorrect": true,
+          "noExtraMessage": true,
+          "response": {
+            "success": true,
+            "data": {
+              "preferences": {
+                "id": "aa72544e-7136-4e17-9223-822a32f812b6",
+                "userId": "071cc1dc-6746-45cc-a9e9-c3b388f41402",
+                "emailNotifications": true,
+                "smsNotifications": false,
+                "whatsappNotifications": true,
+                "marketingCommunications": true,
+                "newsletterSubscription": true,
+                "notificationFrequency": "immediate",
+                "createdAt": "2026-01-10T15:01:11.488Z",
+                "updatedAt": "2026-01-10T15:01:11.488Z"
+              }
+            }
+          }
+        },
+        {
+          "name": "Verify notification update",
+          "passed": false,
+          "status": 200,
+          "emailUpdated": false,
+          "smsUpdated": false
+        }
+      ]
+    },
+    "communicationPreferences": {
+      "passed": 2,
+      "failed": 1,
+      "tests": [
+        {
+          "name": "GET /profile/preferences/communication",
+          "passed": true,
+          "status": 200,
+          "hasData": true,
+          "formatCorrect": true,
+          "response": {
+            "success": true,
+            "data": {
+              "preferences": {
+                "id": "14296c1f-a93f-47cb-95bb-e8d1ff378c3e",
+                "userId": "071cc1dc-6746-45cc-a9e9-c3b388f41402",
+                "preferredLanguage": "en",
+                "preferredTimezone": "UTC",
+                "preferredContactMethod": "email",
+                "marketingConsent": false,
+                "dataSharingConsent": false,
+                "createdAt": "2026-01-10T15:01:11.538Z",
+                "updatedAt": "2026-01-10T15:01:11.538Z"
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT /profile/preferences/communication",
+          "passed": true,
+          "status": 200,
+          "hasData": true,
+          "formatCorrect": true,
+          "noExtraMessage": true,
+          "response": {
+            "success": true,
+            "data": {
+              "preferences": {
+                "id": "14296c1f-a93f-47cb-95bb-e8d1ff378c3e",
+                "userId": "071cc1dc-6746-45cc-a9e9-c3b388f41402",
+                "preferredLanguage": "en",
+                "preferredTimezone": "UTC",
+                "preferredContactMethod": "email",
+                "marketingConsent": false,
+                "dataSharingConsent": false,
+                "createdAt": "2026-01-10T15:01:11.538Z",
+                "updatedAt": "2026-01-10T15:01:11.538Z"
+              }
+            }
+          }
+        },
+        {
+          "name": "Verify communication update",
+          "passed": false,
+          "status": 200,
+          "emailUpdated": false,
+          "newsletterUpdated": false
+        }
+      ]
+    },
+    "privacySettings": {
+      "passed": 2,
+      "failed": 1,
+      "tests": [
+        {
+          "name": "GET /profile/preferences/privacy",
+          "passed": true,
+          "status": 200,
+          "hasData": true,
+          "formatCorrect": true,
+          "response": {
+            "success": true,
+            "data": {
+              "settings": {
+                "id": "21f6e492-7422-419a-8db7-c8c60ab937be",
+                "userId": "071cc1dc-6746-45cc-a9e9-c3b388f41402",
+                "profileVisibility": "PRIVATE",
+                "showEmail": false,
+                "showPhone": false,
+                "showAddress": false,
+                "allowSearchByEmail": false,
+                "allowSearchByPhone": false,
+                "twoFactorEnabled": false,
+                "twoFactorSecret": null,
+                "twoFactorMethod": null,
+                "dataSharingEnabled": true,
+                "createdAt": "2026-01-10T15:01:11.644Z",
+                "updatedAt": "2026-01-10T15:01:11.644Z"
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT /profile/preferences/privacy",
+          "passed": true,
+          "status": 200,
+          "hasData": true,
+          "formatCorrect": true,
+          "noExtraMessage": true,
+          "response": {
+            "success": true,
+            "data": {
+              "settings": {
+                "id": "21f6e492-7422-419a-8db7-c8c60ab937be",
+                "userId": "071cc1dc-6746-45cc-a9e9-c3b388f41402",
+                "profileVisibility": "PUBLIC",
+                "showEmail": false,
+                "showPhone": false,
+                "showAddress": false,
+                "allowSearchByEmail": false,
+                "allowSearchByPhone": false,
+                "twoFactorEnabled": true,
+                "twoFactorSecret": null,
+                "twoFactorMethod": null,
+                "dataSharingEnabled": true,
+                "createdAt": "2026-01-10T15:01:11.644Z",
+                "updatedAt": "2026-01-10T15:01:11.670Z"
+              }
+            }
+          }
+        },
+        {
+          "name": "Verify privacy update",
+          "passed": false,
+          "status": 200,
+          "twoFactorUpdated": true,
+          "dataSharingUpdated": false
+        }
+      ]
+    }
+  }
+}

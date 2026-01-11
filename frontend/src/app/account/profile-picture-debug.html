@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Picture Debug</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .section {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+    }
+    h2 {
+      color: #666;
+      margin-top: 0;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+    .warning {
+      color: orange;
+    }
+    .info {
+      color: blue;
+    }
+    code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+    .image-preview {
+      width: 200px;
+      height: 200px;
+      border: 2px solid #ddd;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #f0f0f0;
+    }
+    .test-button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    .test-button:hover {
+      background: #0056b3;
+    }
+    .result {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .result.success {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+    }
+    .result.error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
+</head>
+<body>
+  <h1>Profile Picture Debug Tool</h1>
+  
+  <div class="section">
+    <h2>1. Test Image URL</h2>
+    <p>Expected URL: <code>/uploads/profile-pictures/profile-ace99421-639c-45a0-b553-7b677f6f5668-1767791216336-295245737.jpeg</code> (proxied through Next.js to avoid CORS)</p>
+    <button class="test-button" onclick="testImageURL()">Test Image URL</button>
+    <div id="urlResult"></div>
+  </div>
+
+  <div class="section">
+    <h2>2. Image Preview</h2>
+    <p>Image should appear below if URL is correct (using Next.js rewrite to avoid CORS):</p>
+    <img
+      id="imagePreview"
+      class="image-preview"
+      src="/uploads/profile-pictures/profile-ace99421-639c-45a0-b553-7b677f6f5668-1767791216336-295245737.jpeg"
+      alt="Profile Picture"
+      onerror="this.style.display='none'; document.getElementById('imageError').style.display='block';"
+      onload="this.style.display='block'; document.getElementById('imageError').style.display='none';"
+    />
+    <div id="imageError" style="display: none; color: red; margin-top: 10px;">
+      ❌ Image failed to load. Check:
+      <ul>
+        <li>Backend is running on port 3001</li>
+        <li>Next.js rewrite is configured in next.config.js</li>
+        <li>Static file serving is configured in backend</li>
+        <li>File exists in backend/uploads/profile-pictures/</li>
+        <li>No CORS errors in browser console (should be none with rewrite)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>3. Browser Console Check</h2>
+    <p>Open browser DevTools (F12) and check:</p>
+    <ul>
+      <li><strong>Network tab:</strong> Look for image request status (200, 404, 403, 500)</li>
+      <li><strong>Console tab:</strong> Look for JavaScript errors</li>
+      <li><strong>Elements tab:</strong> Check if <img> tag is rendered with correct src</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>4. Frontend Component Check</h2>
+    <p>In the React component, check:</p>
+    <ul>
+      <li><strong>user.image value:</strong> Should be <code>/uploads/profile-pictures/...</code></li>
+      <li><strong>getImageUrl(user.image) result:</strong> Should be full URL</li>
+      <li><strong>Component state:</strong> profileData should be updated after upload</li>
+      <li><strong>Re-render:</strong> Component should re-render with new data</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>5. Common Issues & Solutions</h2>
+    <div class="result error">
+      <strong>Issue: Image not loading (404 error)</strong><br>
+      Solution: Check backend is running and static files are configured
+    </div>
+    <div class="result error">
+      <strong>Issue: CORS error</strong><br>
+      Solution: Check CORS configuration allows frontend origin
+    </div>
+    <div class="result error">
+      <strong>Issue: Image loads but not visible</strong><br>
+      Solution: Check CSS (object-cover, width, height, z-index)
+    </div>
+    <div class="result error">
+      <strong>Issue: Data not updating after upload</strong><br>
+      Solution: Check onUpdate callback and profileData state
+    </div>
+  </div>
+
+  <script>
+    function testImageURL() {
+      const url = '/uploads/profile-pictures/profile-ace99421-639c-45a0-b553-7b677f6f5668-1767791216336-295245737.jpeg';
+      const resultDiv = document.getElementById('urlResult');
+      
+      fetch(url)
+        .then(response => {
+          if (response.ok) {
+            resultDiv.innerHTML = `<div class="result success">✅ Image accessible! Status: ${response.status} ${response.statusText}</div>`;
+          } else {
+            resultDiv.innerHTML = `<div class="result error">❌ Image returned error: ${response.status} ${response.statusText}</div>`;
+          }
+        })
+        .catch(error => {
+          resultDiv.innerHTML = `<div class="result error">❌ Failed to fetch image: ${error.message}</div>`;
+        });
+    }
+
+    // Auto-test on page load
+    window.onload = function() {
+      console.log('=== Profile Picture Debug ===');
+      console.log('1. Check Network tab for image request');
+      console.log('2. Check Console for errors');
+      console.log('3. Check Elements for <img> tag');
+      console.log('4. Expected URL:', '/uploads/profile-pictures/profile-ace99421-639c-45a0-b553-7b677f6f5668-1767791216336-295245737.jpeg');
+      console.log('5. Next.js rewrite should proxy this to backend without CORS issues');
+    };
+  </script>
+</body>
+</html>

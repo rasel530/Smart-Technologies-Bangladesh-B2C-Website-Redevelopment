@@ -1,0 +1,118 @@
+{
+  "timestamp": "2026-01-10T17:52:55.038Z",
+  "environment": {
+    "backend": "http://localhost:3001",
+    "frontend": "http://localhost:3000"
+  },
+  "summary": {
+    "total": 8,
+    "passed": 6,
+    "failed": 2,
+    "skipped": 0
+  },
+  "tests": [
+    {
+      "testName": "Login - Get JWT Token",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:52:55.215Z",
+      "details": {
+        "statusCode": 200,
+        "hasToken": true,
+        "userId": "071cc1dc-6746-45cc-a9e9-c3b388f41402"
+      },
+      "error": null
+    },
+    {
+      "testName": "Notification Settings - Get Initial",
+      "status": "FAILED",
+      "timestamp": "2026-01-10T17:52:55.222Z",
+      "details": {
+        "statusCode": 404,
+        "body": {
+          "error": "Route not found",
+          "message": "The requested route GET /api/user/preferences/notifications was not found",
+          "messageBn": "অনুরোধকৃত রুট GET /api/user/preferences/notifications পাওয়া যায়নি",
+          "path": "/api/user/preferences/notifications",
+          "method": "GET",
+          "timestamp": "2026-01-10T17:52:55.219Z",
+          "availableEndpoints": {
+            "auth": "/api/v1/auth",
+            "users": "/api/v1/users",
+            "profile": "/api/v1/profile",
+            "oauth": "/api/v1/oauth",
+            "products": "/api/v1/products",
+            "categories": "/api/v1/categories",
+            "brands": "/api/v1/brands",
+            "orders": "/api/v1/orders",
+            "cart": "/api/v1/cart",
+            "wishlist": "/api/v1/wishlist",
+            "reviews": "/api/v1/reviews",
+            "coupons": "/api/v1/coupons",
+            "user": "/api/v1/user",
+            "sessions": "/api/v1/sessions",
+            "health": "/api/v1/health",
+            "docs": "/api-docs"
+          }
+        }
+      },
+      "error": "Failed to get initial settings"
+    },
+    {
+      "testName": "Password Change - Route Exists",
+      "status": "FAILED",
+      "timestamp": "2026-01-10T17:52:55.228Z",
+      "details": {
+        "statusCode": 404,
+        "message": "Route not found (404)"
+      },
+      "error": "Password change route does not exist"
+    },
+    {
+      "testName": "Verification Modal - Close Button Exists",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:52:55.229Z",
+      "details": {
+        "hasCloseButton": true,
+        "hasCloseFunction": true,
+        "hasXIcon": true
+      },
+      "error": null
+    },
+    {
+      "testName": "Verification Modal - Modal Structure",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:52:55.229Z",
+      "details": {
+        "hasModalStructure": true
+      },
+      "error": null
+    },
+    {
+      "testName": "Verification Modal - Component Export",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:52:55.229Z",
+      "details": {
+        "hasExport": true
+      },
+      "error": null
+    },
+    {
+      "testName": "Verification Modal - Error Handling",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:52:55.229Z",
+      "details": {
+        "hasErrorHandling": true
+      },
+      "error": null
+    },
+    {
+      "testName": "Verification Modal - Close Button Event Handling",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:52:55.229Z",
+      "details": {
+        "hasStopPropagation": true
+      },
+      "error": null
+    }
+  ]
+}

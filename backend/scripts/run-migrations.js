@@ -51,38 +51,40 @@ try {
 
   // Run seed script if it exists and if database is empty
   console.log('🔄 Checking if database needs seeding...');
-  try {
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
+  (async () => {
+    try {
+      const { PrismaClient } = require('@prisma/client');
+      const prisma = new PrismaClient();
 
-    // Check if users table is empty
-    const userCount = await prisma.user.count();
-    console.log(`📊 Current user count: ${userCount}`);
+      // Check if users table is empty
+      const userCount = await prisma.user.count();
+      console.log(`📊 Current user count: ${userCount}`);
 
-    if (userCount === 0) {
-      console.log('🌱 Database is empty, running seed script...');
-      try {
-        execSync('node prisma/seed.js', {
-          stdio: 'inherit',
-          env: {
-            ...process.env,
-            DATABASE_URL: process.env.DATABASE_URL || 'postgresql://smart_dev:smart_dev_password_2024@postgres:5432/smart_ecommerce_dev'
-          }
-        });
-        console.log('✅ Seed data inserted successfully!');
-      } catch (seedError) {
-        console.warn('⚠️ Seed script failed or not found:', seedError.message);
-        console.log('⚠️ Continuing without seeding...');
+      if (userCount === 0) {
+        console.log('🌱 Database is empty, running seed script...');
+        try {
+          execSync('node prisma/seed.js', {
+            stdio: 'inherit',
+            env: {
+              ...process.env,
+              DATABASE_URL: process.env.DATABASE_URL || 'postgresql://smart_dev:smart_dev_password_2024@postgres:5432/smart_ecommerce_dev'
+            }
+          });
+          console.log('✅ Seed data inserted successfully!');
+        } catch (seedError) {
+          console.warn('⚠️ Seed script failed or not found:', seedError.message);
+          console.log('⚠️ Continuing without seeding...');
+        }
+      } else {
+        console.log('✅ Database already contains data, skipping seed');
       }
-    } else {
-      console.log('✅ Database already contains data, skipping seed');
-    }
 
-    await prisma.$disconnect();
-  } catch (checkError) {
-    console.warn('⚠️ Could not check database for seeding:', checkError.message);
-    console.log('⚠️ Continuing...');
-  }
+      await prisma.$disconnect();
+    } catch (checkError) {
+      console.warn('⚠️ Could not check database for seeding:', checkError.message);
+      console.log('⚠️ Continuing...');
+    }
+  })();
 
   process.exit(0);
 

@@ -5,6 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// Additional utility function for conditional class names
+export function cnx(...inputs: (string | boolean | undefined | null)[]) {
+  return clsx(inputs.filter(Boolean)).join(' ');
+}
+
 export function formatDate(date: Date, language: 'en' | 'bn' = 'en'): string {
   const options: Intl.DateTimeFormatOptions = {
     year: 'numeric',
@@ -57,7 +62,8 @@ export function generatePassword(): string {
   return password;
 }
 
-export function getInitials(firstName: string, lastName: string): string {
+export function getInitials(firstName: string | undefined, lastName: string | undefined): string {
+  if (!firstName || !lastName) return '??';
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 }
 

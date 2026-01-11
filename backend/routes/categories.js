@@ -41,13 +41,9 @@ router.get('/', [
         subcategories: {
           where: includeInactive ? {} : { isActive: true },
           select: { id: true, name: true, slug: true, isActive: true }
-        },
-        _count: {
-          products: true,
-          subcategories: true
         }
       },
-      orderBy: { sortOrder: 'asc', name: 'asc' }
+      orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }]
     });
 
     res.json({ categories });
@@ -81,7 +77,7 @@ router.get('/:id', [
               products: true
             }
           },
-          orderBy: { sortOrder: 'asc', name: 'asc' }
+          orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }]
         },
         products: {
           where: { status: 'ACTIVE' },
@@ -93,14 +89,13 @@ router.get('/:id', [
               select: { id: true, url: true, alt: true }
             },
             _count: {
-              reviews: true
+              _all: true
             }
           },
           orderBy: { createdAt: 'desc' }
         },
         _count: {
-          products: true,
-          subcategories: true
+          _all: true
         }
       }
     });
@@ -132,21 +127,12 @@ router.get('/tree/all', async (req, res) => {
           where: { isActive: true },
           include: {
             subcategories: {
-              where: { isActive: true },
-              include: {
-                _count: {
-                  products: true
-                }
-              }
+              where: { isActive: true }
             }
           }
-        },
-        _count: {
-          products: true,
-          subcategories: true
         }
       },
-      orderBy: { sortOrder: 'asc', name: 'asc' }
+      orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }]
     });
 
     // Build tree structure
@@ -317,14 +303,7 @@ router.delete('/:id', [
     // Check if category exists
     const category = await prisma.category.findUnique({
       where: { id },
-      include: {
-        _count: {
-          select: {
-            products: true,
-            subcategories: true
-          }
-        }
-      }
+      include: {}
     });
 
     if (!category) {

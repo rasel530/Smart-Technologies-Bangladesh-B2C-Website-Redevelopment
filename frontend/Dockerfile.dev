@@ -1,11 +1,10 @@
 # Development Dockerfile - runs frontend in dev mode to skip static generation
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
 # Install dependencies
 COPY package.json package-lock.json* pnpm-lock.yaml* ./
-RUN apk add --no-cache libc6-compat
 
 # Install dependencies based on lockfile
 RUN \

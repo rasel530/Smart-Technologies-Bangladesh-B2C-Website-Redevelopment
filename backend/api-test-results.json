@@ -1,0 +1,115 @@
+{
+  "totalTests": 23,
+  "passed": 0,
+  "failed": 23,
+  "endpoints": {
+    "POST /api/v1/auth/login": {
+      "method": "Login",
+      "status": 200,
+      "statusCode": 206,
+      "error": null
+    },
+    "GET /api/v1/user/preferences/notifications": {
+      "method": "GET",
+      "status": 404,
+      "statusCode": 6,
+      "error": null
+    },
+    "PUT /api/v1/user/preferences/notifications": {
+      "method": "PUT",
+      "status": 404,
+      "statusCode": 6,
+      "error": null
+    },
+    "GET /api/v1/user/preferences/communication": {
+      "method": "GET",
+      "status": 404,
+      "statusCode": 6,
+      "error": null
+    },
+    "PUT /api/v1/user/preferences/communication": {
+      "method": "PUT",
+      "status": 404,
+      "statusCode": 4,
+      "error": null
+    },
+    "GET /api/v1/user/preferences/privacy": {
+      "method": "GET",
+      "status": 404,
+      "statusCode": 7,
+      "error": null
+    },
+    "PUT /api/v1/user/preferences/privacy": {
+      "method": "PUT",
+      "status": 404,
+      "statusCode": 4,
+      "error": null
+    },
+    "POST /api/v1/user/password/change": {
+      "method": "POST",
+      "status": 404,
+      "statusCode": 4,
+      "error": null
+    },
+    "POST /api/v1/user/2fa/enable": {
+      "method": "POST",
+      "status": 404,
+      "statusCode": 3,
+      "error": null
+    },
+    "POST /api/v1/user/2fa/disable": {
+      "method": "POST",
+      "status": 404,
+      "statusCode": 7,
+      "error": null
+    },
+    "POST /api/v1/user/account/deletion/request": {
+      "method": "POST",
+      "status": 404,
+      "statusCode": 13,
+      "error": null
+    },
+    "GET /api/v1/user/account/deletion/status": {
+      "method": "GET",
+      "status": 404,
+      "statusCode": 5,
+      "error": null
+    },
+    "POST /api/v1/user/account/deletion/cancel": {
+      "method": "POST",
+      "status": 404,
+      "statusCode": 23,
+      "error": null
+    },
+    "GET /api/v1/user/data/export": {
+      "method": "GET",
+      "status": 404,
+      "statusCode": 17,
+      "error": null
+    },
+    "POST /api/v1/user/data/export/generate": {
+      "method": "POST",
+      "status": 404,
+      "statusCode": 22,
+      "error": null
+    },
+    "GET /api/v1/user/data/export/:exportId": {
+      "method": "GET",
+      "status": 404,
+      "statusCode": 8,
+      "error": null
+    },
+    "GET /user/preferences/notifications (No Auth)": {
+      "method": "GET",
+      "status": 404,
+      "statusCode": 4,
+      "error": null
+    },
+    "GET /user/preferences/notifications (Invalid Token)": {
+      "method": "GET",
+      "status": 404,
+      "statusCode": 37,
+      "error": null
+    }
+  }
+}

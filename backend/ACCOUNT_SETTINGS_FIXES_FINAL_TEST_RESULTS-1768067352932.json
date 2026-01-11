@@ -1,0 +1,164 @@
+{
+  "timestamp": "2026-01-10T17:49:12.489Z",
+  "environment": {
+    "backend": "http://localhost:3001",
+    "frontend": "http://localhost:3000"
+  },
+  "summary": {
+    "total": 11,
+    "passed": 8,
+    "failed": 3,
+    "skipped": 0
+  },
+  "tests": [
+    {
+      "testName": "Login - Get JWT Token",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:49:12.591Z",
+      "details": {
+        "statusCode": 200,
+        "hasToken": true,
+        "userId": "071cc1dc-6746-45cc-a9e9-c3b388f41402"
+      },
+      "error": null
+    },
+    {
+      "testName": "Notification Settings - Get Initial",
+      "status": "FAILED",
+      "timestamp": "2026-01-10T17:49:12.595Z",
+      "details": {
+        "statusCode": 404,
+        "body": {
+          "error": "Route not found",
+          "message": "The requested route GET /api/v1/account/preferences was not found",
+          "messageBn": "অনুরোধকৃত রুট GET /api/v1/account/preferences পাওয়া যায়নি",
+          "path": "/api/v1/account/preferences",
+          "method": "GET",
+          "timestamp": "2026-01-10T17:49:12.595Z",
+          "availableEndpoints": {
+            "auth": "/api/v1/auth",
+            "users": "/api/v1/users",
+            "profile": "/api/v1/profile",
+            "oauth": "/api/v1/oauth",
+            "products": "/api/v1/products",
+            "categories": "/api/v1/categories",
+            "brands": "/api/v1/brands",
+            "orders": "/api/v1/orders",
+            "cart": "/api/v1/cart",
+            "wishlist": "/api/v1/wishlist",
+            "reviews": "/api/v1/reviews",
+            "coupons": "/api/v1/coupons",
+            "user": "/api/v1/user",
+            "sessions": "/api/v1/sessions",
+            "health": "/api/v1/health",
+            "docs": "/api-docs"
+          }
+        }
+      },
+      "error": "Failed to get initial settings"
+    },
+    {
+      "testName": "Password Change - Route Exists",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:49:12.784Z",
+      "details": {
+        "statusCode": 500,
+        "message": "Route exists with unexpected status"
+      },
+      "error": null
+    },
+    {
+      "testName": "Password Change - Validation",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:49:12.791Z",
+      "details": {
+        "statusCode": 400,
+        "validationMessage": "New password and confirm password do not match",
+        "test": "Mismatched passwords rejected"
+      },
+      "error": null
+    },
+    {
+      "testName": "Password Change - Validation (Short Password)",
+      "status": "FAILED",
+      "timestamp": "2026-01-10T17:49:12.795Z",
+      "details": {
+        "statusCode": 400,
+        "body": {
+          "error": "Validation failed",
+          "details": [
+            {
+              "type": "field",
+              "value": "Short1!",
+              "msg": "Invalid value",
+              "path": "newPassword",
+              "location": "body"
+            }
+          ]
+        },
+        "test": "Expected validation error for short password"
+      },
+      "error": "Password length validation not working"
+    },
+    {
+      "testName": "Password Change - Success",
+      "status": "FAILED",
+      "timestamp": "2026-01-10T17:49:12.930Z",
+      "details": {
+        "statusCode": 500,
+        "body": {
+          "success": false,
+          "message": "Password does not meet requirements"
+        }
+      },
+      "error": "Password change failed"
+    },
+    {
+      "testName": "Verification Modal - Close Button Exists",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:49:12.932Z",
+      "details": {
+        "hasCloseButton": true,
+        "hasCloseFunction": true,
+        "hasXIcon": true
+      },
+      "error": null
+    },
+    {
+      "testName": "Verification Modal - Modal Structure",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:49:12.932Z",
+      "details": {
+        "hasModalStructure": true
+      },
+      "error": null
+    },
+    {
+      "testName": "Verification Modal - Component Export",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:49:12.932Z",
+      "details": {
+        "hasExport": true
+      },
+      "error": null
+    },
+    {
+      "testName": "Verification Modal - Error Handling",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:49:12.932Z",
+      "details": {
+        "hasErrorHandling": true
+      },
+      "error": null
+    },
+    {
+      "testName": "Verification Modal - Close Button Event Handling",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:49:12.932Z",
+      "details": {
+        "hasStopPropagation": true
+      },
+      "error": null
+    }
+  ]
+}

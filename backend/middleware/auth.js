@@ -105,14 +105,35 @@ class AuthMiddleware {
   extractToken(req) {
     const authHeader = req.headers.authorization;
     
+    this.logger.debug('Extracting token', {
+      hasAuthHeader: !!authHeader,
+      authHeaderValue: authHeader ? authHeader.substring(0, 30) + '...' : 'none'
+    });
+    
     if (!authHeader) {
       return null;
     }
     
     const parts = authHeader.split(' ');
+    
+    this.logger.debug('Token parts', {
+      partsCount: parts.length,
+      prefix: parts[0],
+      hasToken: parts.length > 1
+    });
+    
     if (parts.length !== 2 || parts[0] !== 'Bearer') {
+      this.logger.warn('Invalid authorization header format', {
+        partsCount: parts.length,
+        prefix: parts[0]
+      });
       return null;
     }
+    
+    this.logger.debug('Token extracted successfully', {
+      tokenLength: parts[1].length,
+      tokenPrefix: parts[1].substring(0, 20) + '...'
+    });
     
     return parts[1];
   }
@@ -121,16 +142,39 @@ class AuthMiddleware {
   authenticate() {
     return async (req, res, next) => {
       try {
+        // Log incoming request
+        this.logger.info('Authentication attempt', {
+          method: req.method,
+          path: req.path,
+          hasAuthHeader: !!req.headers.authorization,
+          authHeaderPrefix: req.headers.authorization ? req.headers.authorization.substring(0, 10) : 'none'
+        });
+        
         const token = this.extractToken(req);
         
         if (!token) {
+          this.logger.warn('No token provided', {
+            method: req.method,
+            path: req.path,
+            headers: Object.keys(req.headers)
+          });
           return res.status(401).json({
             error: 'Authentication required',
             message: 'No token provided'
           });
         }
         
+        this.logger.info('Token extracted', {
+          tokenLength: token.length,
+          tokenPrefix: token.substring(0, 20) + '...'
+        });
+        
         const decoded = this.verifyToken(token);
+        
+        this.logger.info('Token verified', {
+          userId: decoded.userId,
+          exp: decoded.exp
+        });
         
         // Fetch user from database
         const user = await this.prisma.user.findUnique({
@@ -142,22 +186,24 @@ class AuthMiddleware {
             firstName: true,
             lastName: true,
             role: true,
-            isActive: true,
-            isEmailVerified: true,
-            isPhoneVerified: true,
+            status: true, // Changed from isActive to status
+            emailVerified: true, // Changed from isEmailVerified to emailVerified
+            phoneVerified: true, // Changed from isPhoneVerified to phoneVerified
             createdAt: true,
             updatedAt: true
           }
         });
         
         if (!user) {
+          this.logger.warn('User not found', { userId: decoded.userId });
           return res.status(401).json({
             error: 'Authentication failed',
             message: 'User not found'
           });
         }
         
-        if (!user.isActive) {
+        if (user.status !== 'ACTIVE') {
+          this.logger.warn('Account deactivated', { userId: decoded.userId, status: user.status });
           return res.status(401).json({
             error: 'Authentication failed',
             message: 'Account is deactivated'
@@ -168,10 +214,21 @@ class AuthMiddleware {
         req.user = user;
         req.token = token;
         
+        this.logger.info('Authentication successful', {
+          userId: user.id,
+          email: user.email,
+          role: user.role
+        });
+        
         next();
         
       } catch (error) {
-        this.logger.error('Authentication error', error.message);
+        this.logger.error('Authentication error', {
+          message: error.message,
+          stack: error.stack,
+          method: req.method,
+          path: req.path
+        });
         
         return res.status(401).json({
           error: 'Authentication failed',
@@ -200,15 +257,15 @@ class AuthMiddleware {
               firstName: true,
               lastName: true,
               role: true,
-              isActive: true,
-              isEmailVerified: true,
-              isPhoneVerified: true,
+              status: true, // Changed from isActive to status
+              emailVerified: true, // Changed from isEmailVerified to emailVerified
+              phoneVerified: true, // Changed from isPhoneVerified to phoneVerified
               createdAt: true,
               updatedAt: true
             }
           });
           
-          if (user && user.isActive) {
+          if (user && user.status === 'ACTIVE') {
             req.user = user;
             req.token = token;
           }
@@ -358,7 +415,7 @@ class AuthMiddleware {
         });
       }
       
-      if (!req.user.isEmailVerified) {
+      if (!req.user.emailVerified) {
         return res.status(403).json({
           error: 'Email verification required',
           message: 'Please verify your email address'
@@ -379,7 +436,7 @@ class AuthMiddleware {
         });
       }
       
-      if (!req.user.isPhoneVerified) {
+      if (!req.user.phoneVerified) {
         return res.status(403).json({
           error: 'Phone verification required',
           message: 'Please verify your phone number'
@@ -412,7 +469,7 @@ class AuthMiddleware {
                 id: true,
                 email: true,
                 role: true,
-                isActive: true
+                status: true // Changed from isActive to status
               }
             }
           }
@@ -432,7 +489,7 @@ class AuthMiddleware {
           });
         }
         
-        if (!keyRecord.user.isActive) {
+        if (keyRecord.user.status !== 'ACTIVE') {
           return res.status(401).json({
             error: 'Account deactivated',
             message: 'The associated account has been deactivated'
@@ -615,6 +672,29 @@ class AuthMiddleware {
         return res.status(403).json({
           error: 'Access denied',
           message: 'Manager or Admin access required'
+        });
+      }
+      
+      next();
+    };
+  }
+
+  // Self or Admin middleware
+  // Allows access if the authenticated user is an admin or accessing their own resources
+  selfOrAdmin(userId) {
+    return (req, res, next) => {
+      if (!req.user) {
+        return res.status(401).json({
+          error: 'Authentication required',
+          message: 'Please authenticate first'
+        });
+      }
+      
+      // Check if user is admin or accessing their own resources
+      if (req.user.role !== 'ADMIN' && req.user.id !== userId) {
+        return res.status(403).json({
+          error: 'Access denied',
+          message: 'You can only access your own resources'
         });
       }
       

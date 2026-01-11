@@ -1,0 +1,263 @@
+{
+  "summary": {
+    "total": 11,
+    "passed": 10,
+    "failed": 1,
+    "successRate": "90.91%"
+  },
+  "tests": [
+    {
+      "category": "Notification Preferences",
+      "testName": "GET /api/v1/profile/preferences/notifications",
+      "passed": true,
+      "status": "PASS",
+      "response": {
+        "status": 200,
+        "data": {
+          "success": true,
+          "data": {
+            "preferences": {
+              "id": "def525ab-1890-4ac4-a79d-f0cf7244b12b",
+              "userId": "8d19c632-8cb2-41d5-b779-b22d64e4fa2b",
+              "emailNotifications": true,
+              "smsNotifications": false,
+              "whatsappNotifications": true,
+              "marketingCommunications": true,
+              "newsletterSubscription": true,
+              "notificationFrequency": "immediate",
+              "createdAt": "2026-01-10T15:31:35.383Z",
+              "updatedAt": "2026-01-10T15:31:35.383Z"
+            }
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "category": "Notification Preferences",
+      "testName": "PUT /api/v1/profile/preferences/notifications",
+      "passed": true,
+      "status": "PASS",
+      "response": {
+        "status": 200,
+        "data": {
+          "success": true,
+          "data": {
+            "preferences": {
+              "id": "def525ab-1890-4ac4-a79d-f0cf7244b12b",
+              "userId": "8d19c632-8cb2-41d5-b779-b22d64e4fa2b",
+              "emailNotifications": true,
+              "smsNotifications": false,
+              "whatsappNotifications": true,
+              "marketingCommunications": true,
+              "newsletterSubscription": true,
+              "notificationFrequency": "immediate",
+              "createdAt": "2026-01-10T15:31:35.383Z",
+              "updatedAt": "2026-01-10T15:31:35.383Z"
+            }
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "category": "Communication Preferences",
+      "testName": "GET /api/v1/profile/preferences/communication",
+      "passed": true,
+      "status": "PASS",
+      "response": {
+        "status": 200,
+        "data": {
+          "success": true,
+          "data": {
+            "preferences": {
+              "id": "57e00ad0-0a83-4a6d-b518-fb2570af0165",
+              "userId": "8d19c632-8cb2-41d5-b779-b22d64e4fa2b",
+              "preferredLanguage": "en",
+              "preferredTimezone": "UTC",
+              "preferredContactMethod": "email",
+              "marketingConsent": false,
+              "dataSharingConsent": false,
+              "createdAt": "2026-01-10T15:31:35.434Z",
+              "updatedAt": "2026-01-10T15:31:35.434Z"
+            }
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "category": "Communication Preferences",
+      "testName": "PUT /api/v1/profile/preferences/communication",
+      "passed": true,
+      "status": "PASS",
+      "response": {
+        "status": 200,
+        "data": {
+          "success": true,
+          "data": {
+            "preferences": {
+              "id": "57e00ad0-0a83-4a6d-b518-fb2570af0165",
+              "userId": "8d19c632-8cb2-41d5-b779-b22d64e4fa2b",
+              "preferredLanguage": "en",
+              "preferredTimezone": "UTC",
+              "preferredContactMethod": "email",
+              "marketingConsent": false,
+              "dataSharingConsent": false,
+              "createdAt": "2026-01-10T15:31:35.434Z",
+              "updatedAt": "2026-01-10T15:31:35.434Z"
+            }
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "category": "Privacy Settings",
+      "testName": "GET /api/v1/profile/preferences/privacy",
+      "passed": true,
+      "status": "PASS",
+      "response": {
+        "status": 200,
+        "data": {
+          "success": true,
+          "data": {
+            "settings": {
+              "id": "f4bd5060-733d-464c-b49d-4a285041cef7",
+              "userId": "8d19c632-8cb2-41d5-b779-b22d64e4fa2b",
+              "profileVisibility": "PUBLIC",
+              "showEmail": false,
+              "showPhone": false,
+              "showAddress": false,
+              "allowSearchByEmail": false,
+              "allowSearchByPhone": false,
+              "twoFactorEnabled": true,
+              "twoFactorSecret": null,
+              "twoFactorMethod": null,
+              "dataSharingEnabled": true,
+              "createdAt": "2026-01-10T15:31:35.544Z",
+              "updatedAt": "2026-01-10T15:35:44.815Z"
+            }
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "category": "Privacy Settings",
+      "testName": "PUT /api/v1/profile/preferences/privacy",
+      "passed": true,
+      "status": "PASS",
+      "response": {
+        "status": 200,
+        "data": {
+          "success": true,
+          "data": {
+            "settings": {
+              "id": "f4bd5060-733d-464c-b49d-4a285041cef7",
+              "userId": "8d19c632-8cb2-41d5-b779-b22d64e4fa2b",
+              "profileVisibility": "PUBLIC",
+              "showEmail": false,
+              "showPhone": false,
+              "showAddress": false,
+              "allowSearchByEmail": false,
+              "allowSearchByPhone": false,
+              "twoFactorEnabled": true,
+              "twoFactorSecret": null,
+              "twoFactorMethod": null,
+              "dataSharingEnabled": true,
+              "createdAt": "2026-01-10T15:31:35.544Z",
+              "updatedAt": "2026-01-10T15:37:31.575Z"
+            }
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "category": "Data Export",
+      "testName": "GET /api/v1/profile/data/export",
+      "passed": true,
+      "status": "PASS",
+      "response": {
+        "status": 200,
+        "data": {
+          "success": true,
+          "data": {
+            "exports": []
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "category": "Account Management",
+      "testName": "GET /api/v1/profile/account/deletion/status",
+      "passed": false,
+      "status": "FAIL",
+      "response": {
+        "status": 500,
+        "data": {
+          "error": "Failed to get deletion status",
+          "message": "\nInvalid `this.prisma.user.findUnique()` invocation in\n/app/services/accountDeletion.service.js:284:43\n\n  281  */\n  282 async getDeletionStatus(userId) {\n  283   try {\n→ 284     const user = await this.prisma.user.findUnique({\n            where: {\n              id: \"8d19c632-8cb2-41d5-b779-b22d64e4fa2b\"\n            },\n            select: {\n            ~~~~~~\n              id: true,\n              email: true,\n              firstName: true,\n              lastName: true,\n              accountStatus: true,\n              deletionRequestedAt: true,\n              deletedAt: true,\n              deletionReason: true,\n              orders: {\n                where: {\n                  status: {\n                    notIn: [\n                      \"DELIVERED\",\n                      \"CANCELLED\",\n                      \"REFUNDED\"\n                    ]\n                  }\n                },\n                select: {\n                  id: true,\n                  orderNumber: true,\n                  status: true\n                }\n              }\n            },\n            include: {\n            ~~~~~~~\n              accountDeletionRequests: {\n                where: {\n                  status: \"pending\"\n                },\n                orderBy: {\n                  requestedAt: \"desc\"\n                },\n                take: 1\n              }\n            }\n          })\n\nPlease either use `include` or `select`, but not both at the same time.",
+          "messageBn": "ডিলিশন স্ট্যাটাস পাওতে ব্যর্থ হয়েছে"
+        }
+      },
+      "error": "Status 500"
+    },
+    {
+      "category": "2FA",
+      "testName": "POST /api/v1/profile/account/2fa/enable",
+      "passed": true,
+      "status": "PASS",
+      "response": {
+        "status": 200,
+        "data": {
+          "success": true,
+          "message": "Two-factor authentication enabled successfully.",
+          "messageBn": "দুই-ফ্যাক্টর প্রমাণীকরণ সফলভাবে সক্ষম করা হয়েছে।",
+          "data": {
+            "enabled": true,
+            "qrCode": "otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "category": "2FA",
+      "testName": "GET /api/v1/profile/account/2fa/status",
+      "passed": true,
+      "status": "PASS",
+      "response": {
+        "status": 200,
+        "data": {
+          "success": true,
+          "data": {
+            "enabled": false,
+            "method": null
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "category": "2FA",
+      "testName": "POST /api/v1/profile/account/2fa/disable",
+      "passed": true,
+      "status": "PASS",
+      "response": {
+        "status": 200,
+        "data": {
+          "success": true,
+          "message": "Two-factor authentication disabled successfully.",
+          "messageBn": "দুই-ফ্যাক্টর প্রমাণীকরণ সফলভাবে অক্ষম করা হয়েছে।",
+          "data": {
+            "enabled": false
+          }
+        }
+      },
+      "error": null
+    }
+  ]
+}

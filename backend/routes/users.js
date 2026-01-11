@@ -266,7 +266,7 @@ router.delete('/:id', [
 // Get user addresses
 router.get('/:id/addresses', [
   param('id').isUUID()
-], handleValidationErrors, (req, res, next) => {
+], handleValidationErrors, authMiddleware.authenticate(), (req, res, next) => {
   // Extract id from params and use it for selfOrAdmin middleware
   const userId = req.params.id;
   return authMiddleware.selfOrAdmin(userId)(req, res, next);
@@ -285,6 +285,268 @@ router.get('/:id/addresses', [
     console.error('Get user addresses error:', error);
     res.status(500).json({
       error: 'Failed to fetch addresses',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// Create new address
+router.post('/:id/addresses', [
+  param('id').isUUID(),
+  body('type').optional().isIn(['SHIPPING', 'BILLING']),
+  body('firstName').notEmpty().trim(),
+  body('lastName').notEmpty().trim(),
+  body('phone').optional().isMobilePhone('any'),
+  body('address').notEmpty().trim(),
+  body('addressLine2').optional().trim(),
+  body('city').notEmpty().trim(),
+  body('district').notEmpty().trim(),
+  body('division').isIn(['DHAKA', 'CHITTAGONG', 'RAJSHAHI', 'SYLHET', 'KHULNA', 'BARISHAL', 'RANGPUR', 'MYMENSINGH']),
+  body('upazila').optional().trim(),
+  body('postalCode').optional().matches(/^\d{4}$/).withMessage('Postal code must be 4 digits'),
+  body('isDefault').optional().isBoolean()
+], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { type, firstName, lastName, phone, address, addressLine2, city, district, division, upazila, postalCode, isDefault } = req.body;
+
+    // Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { id }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        error: 'User not found'
+      });
+    }
+
+    // If isDefault is true, set all other addresses to false
+    if (isDefault === true) {
+      await prisma.address.updateMany({
+        where: { userId: id },
+        data: { isDefault: false }
+      });
+    }
+
+    const newAddress = await prisma.address.create({
+      data: {
+        userId: id,
+        type: type || 'SHIPPING',
+        firstName,
+        lastName,
+        phone,
+        address,
+        addressLine2,
+        city,
+        district,
+        division,
+        upazila,
+        postalCode,
+        isDefault: isDefault || false
+      }
+    });
+
+    res.status(201).json({
+      message: 'Address created successfully',
+      address: newAddress
+    });
+
+  } catch (error) {
+    console.error('Create address error:', error);
+    res.status(500).json({
+      error: 'Failed to create address',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// Update existing address
+router.put('/:id/addresses/:addressId', [
+  param('id').isUUID(),
+  param('addressId').isUUID(),
+  body('type').optional().isIn(['SHIPPING', 'BILLING']),
+  body('firstName').optional().notEmpty().trim(),
+  body('lastName').optional().notEmpty().trim(),
+  body('phone').optional().isMobilePhone('any'),
+  body('address').optional().notEmpty().trim(),
+  body('addressLine2').optional().trim(),
+  body('city').optional().notEmpty().trim(),
+  body('district').optional().notEmpty().trim(),
+  body('division').optional().isIn(['DHAKA', 'CHITTAGONG', 'RAJSHAHI', 'SYLHET', 'KHULNA', 'BARISHAL', 'RANGPUR', 'MYMENSINGH']),
+  body('upazila').optional().trim(),
+  body('postalCode').optional().matches(/^\d{4}$/).withMessage('Postal code must be 4 digits'),
+  body('isDefault').optional().isBoolean()
+], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
+  try {
+    const { id, addressId } = req.params;
+    const { type, firstName, lastName, phone, address, addressLine2, city, district, division, upazila, postalCode, isDefault } = req.body;
+
+    // Check if address exists and belongs to user
+    const existingAddress = await prisma.address.findUnique({
+      where: { id: addressId }
+    });
+
+    if (!existingAddress) {
+      return res.status(404).json({
+        error: 'Address not found'
+      });
+    }
+
+    if (existingAddress.userId !== id) {
+      return res.status(403).json({
+        error: 'Access denied'
+      });
+    }
+
+    // If isDefault is true, set all other addresses to false
+    if (isDefault === true) {
+      await prisma.address.updateMany({
+        where: { userId: id, NOT: { id: addressId } },
+        data: { isDefault: false }
+      });
+    }
+
+    const updateData = {};
+    if (type !== undefined) updateData.type = type;
+    if (firstName !== undefined) updateData.firstName = firstName;
+    if (lastName !== undefined) updateData.lastName = lastName;
+    if (phone !== undefined) updateData.phone = phone;
+    if (address !== undefined) updateData.address = address;
+    if (addressLine2 !== undefined) updateData.addressLine2 = addressLine2;
+    if (city !== undefined) updateData.city = city;
+    if (district !== undefined) updateData.district = district;
+    if (division !== undefined) updateData.division = division;
+    if (upazila !== undefined) updateData.upazila = upazila;
+    if (postalCode !== undefined) updateData.postalCode = postalCode;
+    if (isDefault !== undefined) updateData.isDefault = isDefault;
+
+    const updatedAddress = await prisma.address.update({
+      where: { id: addressId },
+      data: updateData
+    });
+
+    res.json({
+      message: 'Address updated successfully',
+      address: updatedAddress
+    });
+
+  } catch (error) {
+    console.error('Update address error:', error);
+    res.status(500).json({
+      error: 'Failed to update address',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// Delete address
+router.delete('/:id/addresses/:addressId', [
+  param('id').isUUID(),
+  param('addressId').isUUID()
+], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
+  try {
+    const { id, addressId } = req.params;
+
+    // Check if address exists and belongs to user
+    const existingAddress = await prisma.address.findUnique({
+      where: { id: addressId },
+      include: {
+        _count: {
+          select: {
+            orders: true
+          }
+        }
+      }
+    });
+
+    if (!existingAddress) {
+      return res.status(404).json({
+        error: 'Address not found'
+      });
+    }
+
+    if (existingAddress.userId !== id) {
+      return res.status(403).json({
+        error: 'Access denied'
+      });
+    }
+
+    // Check if address is used in orders
+    if (existingAddress._count.orders > 0) {
+      return res.status(400).json({
+        error: 'Cannot delete address that is used in orders',
+        suggestion: 'This address is referenced by existing orders and cannot be deleted'
+      });
+    }
+
+    await prisma.address.delete({
+      where: { id: addressId }
+    });
+
+    res.json({
+      message: 'Address deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Delete address error:', error);
+    res.status(500).json({
+      error: 'Failed to delete address',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// Set default address
+router.put('/:id/addresses/:addressId/default', [
+  param('id').isUUID(),
+  param('addressId').isUUID()
+], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
+  try {
+    const { id, addressId } = req.params;
+
+    // Check if address exists and belongs to user
+    const existingAddress = await prisma.address.findUnique({
+      where: { id: addressId }
+    });
+
+    if (!existingAddress) {
+      return res.status(404).json({
+        error: 'Address not found'
+      });
+    }
+
+    if (existingAddress.userId !== id) {
+      return res.status(403).json({
+        error: 'Access denied'
+      });
+    }
+
+    // Set all other addresses to false and this one to true
+    await prisma.$transaction([
+      prisma.address.updateMany({
+        where: { userId: id, NOT: { id: addressId } },
+        data: { isDefault: false }
+      }),
+      prisma.address.update({
+        where: { id: addressId },
+        data: { isDefault: true }
+      })
+    ]);
+
+    const updatedAddress = await prisma.address.findUnique({
+      where: { id: addressId }
+    });
+
+    res.json({
+      message: 'Default address set successfully',
+      address: updatedAddress
+    });
+
+  } catch (error) {
+    console.error('Set default address error:', error);
+    res.status(500).json({
+      error: 'Failed to set default address',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }

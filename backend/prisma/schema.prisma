@@ -95,6 +95,12 @@ enum CouponType {
   FIXED_AMOUNT
 }
 
+// Profile Visibility Enum
+enum ProfileVisibility {
+  PUBLIC
+  PRIVATE
+}
+
 // User Management System
 model User {
   id            String      @id @default(uuid())
@@ -107,13 +113,18 @@ model User {
   lastName      String
   dateOfBirth   DateTime?
   gender        String?
+  preferredLanguage String?    @default("en")
   role          UserRole    @default(CUSTOMER)
-  status        UserStatus  @default(PENDING)
+  status        UserStatus  @default(ACTIVE)
+  accountStatus  String      @default("active")
   image         String?
+  deletionRequestedAt DateTime?
+  deletionReason String?
   
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   lastLoginAt   DateTime?
+  deletedAt     DateTime?    // Soft delete timestamp for account deletion
   
   // User relationships
   addresses     Address[]
@@ -126,6 +137,11 @@ model User {
   emailVerificationTokens EmailVerificationToken[]
   phoneOTPs      PhoneOTP[]
   passwordHistory PasswordHistory[]
+  notificationPreferences UserNotificationPreferences?
+  communicationPreferences UserCommunicationPreferences?
+  privacySettings UserPrivacySettings?
+  accountDeletionRequests AccountDeletionRequests[]
+  userDataExports UserDataExports[]
   
   @@map("users")
 }
@@ -150,6 +166,8 @@ model Address {
   user          User         @relation(fields: [userId], references: [id])
   orders        Order[]
   
+  // Partial unique index to ensure only one default address per user
+  // Enforced at database level via migration: unique_default_address_per_user
   @@map("addresses")
 }
 
@@ -516,4 +534,96 @@ model PasswordHistory {
   user         User      @relation(fields: [userId], references: [id])
   
   @@map("password_history")
+}
+
+// User Notification Preferences Model
+model UserNotificationPreferences {
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  emailNotifications  Boolean  @default(true)
+  smsNotifications    Boolean  @default(false)
+  whatsappNotifications Boolean  @default(false)
+  marketingCommunications Boolean  @default(false)
+  newsletterSubscription  Boolean  @default(false)
+  notificationFrequency  String   @default("immediate")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_notification_preferences")
+}
+
+// User Communication Preferences Model
+model UserCommunicationPreferences {
+  id                        String   @id @default(uuid())
+  userId                    String   @unique
+  preferredLanguage         String   @default("en")
+  preferredTimezone         String   @default("UTC")
+  preferredContactMethod     String   @default("email")
+  marketingConsent          Boolean  @default(false)
+  dataSharingConsent         Boolean  @default(false)
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+  
+  user                      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_communication_preferences")
+}
+
+// User Privacy Settings Model
+model UserPrivacySettings {
+  id                      String            @id @default(uuid())
+  userId                  String            @unique
+  profileVisibility       ProfileVisibility @default(PRIVATE)
+  showEmail               Boolean           @default(false)
+  showPhone               Boolean           @default(false)
+  showAddress             Boolean           @default(false)
+  allowSearchByEmail      Boolean           @default(false)
+  allowSearchByPhone      Boolean           @default(false)
+  twoFactorEnabled        Boolean           @default(false)
+  twoFactorSecret        String?
+  twoFactorMethod         String?
+  dataSharingEnabled       Boolean           @default(true)
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+  
+  user                    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_privacy_settings")
+}
+
+// Account Deletion Requests Model
+model AccountDeletionRequests {
+  id              String            @id @default(uuid())
+  userId          String
+  deletionToken   String            @unique
+  reason          String?
+  status          String            @default("pending")
+  requestedAt     DateTime          @default(now())
+  confirmedAt      DateTime?
+  completedAt      DateTime?
+  expiresAt        DateTime           @default(now())
+  
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("account_deletion_requests")
+}
+
+// User Data Exports Model
+model UserDataExports {
+  id              String            @id @default(uuid())
+  userId          String
+  exportToken     String            @unique
+  dataTypes       Json
+  format          String
+  fileUrl         String?
+  status          String            @default("processing")
+  requestedAt     DateTime          @default(now())
+  readyAt         DateTime?
+  expiresAt        DateTime           @default(now())
+  
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_data_exports")
 }

@@ -1,15 +1,16 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useEffect, useState, ReactNode } from 'react';
-import { User, AuthContextType, LoginData, RegistrationData } from '@/types/auth';
-import { apiClient, getToken, setToken, removeToken, getRememberToken, setRememberToken, removeRememberToken } from '@/lib/api/client';
+import { useSession, signIn as nextAuthSignIn, signOut as nextAuthSignOut } from 'next-auth/react';
+import { User, AuthContextType, LoginErrorPayload, RegistrationData } from '@/types/auth';
+import { apiClient, setToken, removeToken } from '@/lib/api/client';
 import SessionTimeoutWarning from '@/components/auth/SessionTimeoutWarning';
 
 // Action types for auth reducer
 type AuthAction =
   | { type: 'LOGIN_START' }
   | { type: 'LOGIN_SUCCESS'; payload: User }
-  | { type: 'LOGIN_FAILURE'; payload: string }
+  | { type: 'LOGIN_FAILURE'; payload: LoginErrorPayload }
   | { type: 'LOGOUT' }
   | { type: 'REGISTER_START' }
   | { type: 'REGISTER_SUCCESS'; payload: User }
@@ -34,13 +35,14 @@ type AuthAction =
   | { type: 'RESET_PASSWORD_FAILURE'; payload: string }
   | { type: 'CLEAR_ERROR' }
   | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_SESSION_TIMEOUT'; payload: number | null };
+  | { type: 'SET_SESSION_TIMEOUT'; payload: number | null }
+  | { type: 'UPDATE_USER'; payload: User };
 
 // State interface for auth reducer
 interface AuthState {
   user: User | null;
   isLoading: boolean;
-  error: string | null;
+  error: LoginErrorPayload | string | null;
   sessionTimeout: number | null; // Session timeout in seconds
 }
 
@@ -217,6 +219,14 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         sessionTimeout: action.payload,
       };
     
+    case 'UPDATE_USER':
+      return {
+        ...state,
+        user: action.payload,
+        isLoading: false,
+        error: null,
+      };
+    
     default:
       return state;
   }
@@ -232,74 +242,181 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  
+  // NextAuth session hook
+  const { data: session, status: sessionStatus } = useSession();
 
-  // Check for existing session on mount
+  // Track previous session status to prevent premature logout during loading
+  const prevSessionStatusRef = React.useRef<string | null>(null);
+  
+  // Track previous user data to prevent duplicate dispatches
+  const prevUserRef = React.useRef<any>(null);
+
+  // Sync NextAuth session with local state
   useEffect(() => {
-    const checkExistingSession = async () => {
-      try {
-        const userData = await apiClient.get('/auth/me');
+    console.log('[AuthContext] NextAuth session changed:', {
+      status: sessionStatus,
+      previousStatus: prevSessionStatusRef.current,
+      userEmail: session?.user?.email,
+      hasSession: !!session,
+      hasToken: !!session?.backendToken,
+    });
+    
+    // Only logout if we were previously authenticated and now we're not
+    // This prevents logout during initial page load when session is being restored
+    if (sessionStatus === 'unauthenticated' && prevSessionStatusRef.current === 'authenticated') {
+      console.log('[AuthContext] NextAuth session unauthenticated - logging out');
+      dispatch({ type: 'LOGOUT' });
+      dispatch({ type: 'SET_SESSION_TIMEOUT', payload: null });
+      prevUserRef.current = null;
+    }
+    
+    // Update previous status ref
+    prevSessionStatusRef.current = sessionStatus;
+    
+    // Only sync if authenticated and user data is available
+    if (sessionStatus === 'authenticated' && session?.user) {
+      // Convert NextAuth session to User type with type assertions
+      const sessionUser = session.user as any;
+      
+      // Check if user has actually changed to prevent duplicate dispatches
+      // Compare entire user object to prevent unnecessary re-renders
+      const userChanged = !prevUserRef.current ||
+        JSON.stringify(prevUserRef.current) !== JSON.stringify(sessionUser);
+      
+      if (userChanged) {
+        console.log('[AuthContext] User changed, syncing to state');
         
-        if (userData.success && userData.data) {
-          dispatch({ type: 'LOGIN_SUCCESS', payload: userData.data });
+        const user: User = {
+          id: sessionUser.id,
+          email: sessionUser.email,
+          phone: sessionUser.phone,
+          firstName: sessionUser.firstName,
+          lastName: sessionUser.lastName,
+          role: sessionUser.role,
+          isEmailVerified: !!sessionUser.email,
+          isPhoneVerified: !!sessionUser.phone,
+          preferredLanguage: sessionUser.preferredLanguage || 'en',
+          image: sessionUser.image,
+          createdAt: sessionUser.createdAt,
+          updatedAt: sessionUser.updatedAt,
+        };
+        
+        // Store backend JWT token in localStorage for API client
+        if (session.backendToken) {
+          setToken(session.backendToken);
+          console.log('[AuthContext] Backend token stored in localStorage');
         }
-      } catch (error) {
-        console.error('Failed to check existing session:', error);
-        // Don't dispatch error on initial load
+        
+        console.log('[AuthContext] Syncing NextAuth user to state:', user);
+        dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+        
+        // Set session timeout based on remember me
+        const sessionTimeout = session.rememberMe ? 604800 : 86400;
+        dispatch({ type: 'SET_SESSION_TIMEOUT', payload: sessionTimeout });
+      } else {
+        console.log('[AuthContext] User unchanged, skipping sync');
       }
-    };
+      
+      // Update previous user ref
+      prevUserRef.current = sessionUser;
+    }
+  }, [session, sessionStatus]);
 
-    checkExistingSession();
-  }, []);
-
-  // Login function
+  // Login function using NextAuth
   const login = async (emailOrPhone: string, password: string, rememberMe: boolean = false) => {
+    console.log('[AuthContext] Login attempt for:', emailOrPhone);
+    
     dispatch({ type: 'LOGIN_START' });
     
     try {
-      const data = await apiClient.post('/auth/login', {
+      // Use NextAuth signIn with credentials provider
+      const result = await nextAuthSignIn('credentials', {
         identifier: emailOrPhone,
         password,
         rememberMe,
+        redirect: false,
       });
-      
-      if (data.success) {
-        // Store token if provided
-        if (data.data?.token) {
-          setToken(data.data.token);
+
+      console.log('[AuthContext] NextAuth signIn result:', result);
+
+      if (result?.error) {
+        console.error('[AuthContext] NextAuth signIn error:', result.error);
+        
+        // Parse error message
+        let errorMessage = 'Login failed';
+        let errorMessageBn = 'লগইন ব্যর্থ হয়েছে';
+        let requiresVerification = false;
+        let verificationType: 'email' | 'phone' | null = null;
+        let code = null;
+
+        if (typeof result.error === 'string') {
+          if (result.error.includes('CredentialsSignin')) {
+            errorMessage = 'Invalid email or password';
+            errorMessageBn = 'অবৈধ ইমেল বা পাসওয়ার্ড';
+          } else if (result.error.includes('verification')) {
+            requiresVerification = true;
+            verificationType = emailOrPhone.includes('@') ? 'email' : 'phone';
+            errorMessage = verificationType === 'email' 
+              ? 'Please verify your email before logging in'
+              : 'Please verify your phone number before logging in';
+            errorMessageBn = verificationType === 'email'
+              ? 'লগিন করার আগে ইমেল যাচাই করুন'
+              : 'লগিন করার আগে ফোন নম্বর যাচাই করুন';
+          }
         }
-        
-        // Store remember me token if provided
-        if (rememberMe && data.data?.rememberToken) {
-          setRememberToken(data.data.rememberToken);
-        } else if (!rememberMe) {
-          removeRememberToken();
-        }
-        
-        // Set session timeout (24 hours = 86400 seconds, or 7 days = 604800 seconds for remember me)
-        const sessionTimeout = rememberMe ? 604800 : 86400;
-        dispatch({ type: 'SET_SESSION_TIMEOUT', payload: sessionTimeout });
-        
-        dispatch({ type: 'LOGIN_SUCCESS', payload: data.data });
+
+        dispatch({
+          type: 'LOGIN_FAILURE',
+          payload: {
+            message: errorMessage,
+            messageBn: errorMessageBn,
+            requiresVerification,
+            verificationType,
+            code,
+          }
+        });
+      } else if (result?.ok) {
+        console.log('[AuthContext] NextAuth login successful');
+        // User state will be updated by the session sync effect
       } else {
-        dispatch({ type: 'LOGIN_FAILURE', payload: data.message || 'Login failed' });
+        dispatch({
+          type: 'LOGIN_FAILURE',
+          payload: {
+            message: 'Login failed',
+            messageBn: 'লগইন ব্যর্থ হয়েছে',
+            requiresVerification: null,
+            verificationType: null,
+            code: null,
+          }
+        });
       }
     } catch (error: any) {
-      dispatch({ type: 'LOGIN_FAILURE', payload: error.message || 'Login failed' });
+      console.error('[AuthContext] Login error:', error);
+      dispatch({
+        type: 'LOGIN_FAILURE',
+        payload: {
+          message: error.message || 'Login failed',
+          messageBn: 'লগইন ব্যর্থ হয়েছে',
+          requiresVerification: null,
+          verificationType: null,
+          code: null,
+        }
+      });
     }
   };
 
-  // Register function
+  // Register function (still uses backend API directly)
   const register = async (data: RegistrationData) => {
+    console.log('[AuthContext] Registration attempt');
     dispatch({ type: 'REGISTER_START' });
     
     try {
       const result = await apiClient.post('/auth/register', data);
       
       if (result.success) {
-        // Store token if provided
-        if (result.data?.token) {
-          setToken(result.data.token);
-        }
+        // Registration successful but user may need verification
+        // Don't auto-login, let user verify first
         dispatch({ type: 'REGISTER_SUCCESS', payload: result.data });
       } else {
         dispatch({ type: 'REGISTER_FAILURE', payload: result.message || 'Registration failed' });
@@ -309,44 +426,45 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Logout function
+  // Logout function using NextAuth
   const logout = async () => {
+    console.log('[AuthContext] Logout');
+    
     try {
-      await apiClient.post('/auth/logout');
+      // Use NextAuth signOut
+      await nextAuthSignOut({ redirect: false });
+      
+      // Clear token from localStorage
       removeToken();
-      removeRememberToken();
+      
+      // Clear local state
       dispatch({ type: 'LOGOUT' });
       dispatch({ type: 'SET_SESSION_TIMEOUT', payload: null });
     } catch (error) {
-      console.error('Logout error:', error);
-      // Still logout locally even if API fails
-      removeToken();
-      removeRememberToken();
+      console.error('[AuthContext] Logout error:', error);
+      // Still logout locally even if NextAuth fails
       dispatch({ type: 'LOGOUT' });
       dispatch({ type: 'SET_SESSION_TIMEOUT', payload: null });
     }
   };
 
-  // Extend session function
+  // Extend session function (refresh session)
   const extendSession = async () => {
+    console.log('[AuthContext] Extending session');
+    
     try {
-      const data = await apiClient.post('/auth/refresh');
-      
-      if (data.success && data.data?.token) {
-        setToken(data.data.token);
-        // Reset session timeout
-        const rememberToken = getRememberToken();
-        const sessionTimeout = rememberToken ? 604800 : 86400;
-        dispatch({ type: 'SET_SESSION_TIMEOUT', payload: sessionTimeout });
-      }
+      // NextAuth automatically refreshes sessions
+      // We can trigger a session update if needed
+      // For now, this is a placeholder
+      console.log('[AuthContext] Session extension not implemented for NextAuth');
     } catch (error) {
-      console.error('Failed to extend session:', error);
+      console.error('[AuthContext] Failed to extend session:', error);
       // If extension fails, logout user
       await logout();
     }
   };
 
-  // Email verification functions
+  // Email verification functions (still use backend API)
   const verifyEmail = async (email: string, code: string) => {
     dispatch({ type: 'VERIFY_EMAIL_START' });
     
@@ -383,7 +501,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Phone verification functions
+  // Phone verification functions (still use backend API)
   const verifyPhone = async (phone: string, code: string) => {
     dispatch({ type: 'VERIFY_PHONE_START' });
     
@@ -420,7 +538,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Forgot password function
+  // Forgot password function (still use backend API)
   const forgotPassword = async (identifier: string) => {
     dispatch({ type: 'FORGOT_PASSWORD_START' });
     
@@ -437,7 +555,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Reset password function
+  // Reset password function (still use backend API)
   const resetPassword = async (token: string, password: string, confirmPassword: string) => {
     dispatch({ type: 'RESET_PASSWORD_START' });
     
@@ -458,6 +576,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Update user function
+  const updateUser = (user: User) => {
+    dispatch({ type: 'UPDATE_USER', payload: user });
+  };
+
   // Clear error function
   const clearError = () => {
     dispatch({ type: 'CLEAR_ERROR' });
@@ -465,7 +588,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value: AuthContextType = {
     user: state.user,
-    isLoading: state.isLoading,
+    isLoading: state.isLoading || sessionStatus === 'loading',
     error: state.error,
     login,
     register,
@@ -478,6 +601,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     resetPassword,
     clearError,
     extendSession,
+    updateUser,
     sessionTimeout: state.sessionTimeout,
   };
 

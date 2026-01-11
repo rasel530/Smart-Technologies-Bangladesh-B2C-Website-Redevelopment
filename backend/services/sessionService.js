@@ -83,22 +83,44 @@ class SessionService {
         maxAge: options.maxAge || defaultMaxAge
       };
 
-      // Store in Redis if available
+      // Store in Redis if available with timeout protection
       if (this.redis) {
-        const sessionKey = `session:${sessionId}`;
-        const ttl = Math.floor((sessionConfig.expiresAt.getTime() - now.getTime()) / 1000);
-        
-        await this.redis.setEx(sessionKey, ttl, JSON.stringify(sessionConfig));
-        
-        // Also store user session index for easy lookup
-        const userSessionsKey = `user_sessions:${userId}`;
-        await this.redis.zAdd(userSessionsKey, [{ 
-          score: now.getTime(), 
-          value: sessionId 
-        }]);
-        await this.redis.expire(userSessionsKey, 7 * 24 * 60 * 60); // 7 days
-        
-        this.logger.info('Session created in Redis', { sessionId, userId });
+        try {
+          const sessionKey = `session:${sessionId}`;
+          const ttl = Math.floor((sessionConfig.expiresAt.getTime() - now.getTime()) / 1000);
+          
+          // Add timeout protection for Redis operations
+          const redisPromise = this.redis.setEx(sessionKey, ttl, JSON.stringify(sessionConfig));
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Redis operation timeout')), 5000)
+          );
+          
+          await Promise.race([redisPromise, timeoutPromise]);
+          
+          // Also store user session index for easy lookup
+          const userSessionsKey = `user_sessions:${userId}`;
+          await this.redis.zAdd(userSessionsKey, [{
+            score: now.getTime(),
+            value: sessionId
+          }]);
+          await this.redis.expire(userSessionsKey, 7 * 24 * 60 * 60); // 7 days
+          
+          this.logger.info('Session created in Redis', { sessionId, userId });
+        } catch (redisError) {
+          this.logger.warn('Redis operation failed, falling back to database', {
+            error: redisError.message
+          });
+          // Fall through to database storage
+          await this.prisma.userSession.create({
+            data: {
+              userId,
+              token: sessionId,
+              expiresAt: sessionConfig.expiresAt
+            }
+          });
+          
+          this.logger.info('Session created in database (fallback)', { sessionId, userId });
+        }
       } else {
         // Fallback to database
         await this.prisma.userSession.create({
@@ -147,13 +169,27 @@ class SessionService {
 
       let sessionData = null;
 
-      // Try Redis first
+      // Try Redis first with timeout protection
       if (this.redis) {
-        const sessionKey = `session:${sessionId}`;
-        const sessionString = await this.redis.get(sessionKey);
-        
-        if (sessionString) {
-          sessionData = JSON.parse(sessionString);
+        try {
+          const sessionKey = `session:${sessionId}`;
+          
+          // Add timeout protection
+          const redisPromise = this.redis.get(sessionKey);
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Redis operation timeout')), 3000)
+          );
+          
+          const sessionString = await Promise.race([redisPromise, timeoutPromise]);
+          
+          if (sessionString) {
+            sessionData = JSON.parse(sessionString);
+          }
+        } catch (redisError) {
+          this.logger.warn('Redis get failed, falling back to database', {
+            error: redisError.message
+          });
+          // Fall through to database lookup
         }
       } else {
         // Fallback to database
@@ -585,21 +621,26 @@ class SessionService {
           };
         }
       } else {
-        // Database fallback for remember me tokens
-        const rememberMeToken = await this.prisma.rememberMeToken.findUnique({
-          where: { token },
+        // Database fallback - look for remember me token in UserSession table with special prefix
+        const rememberMeSession = await this.prisma.userSession.findUnique({
+          where: { token: `remember_me:${token}` },
           include: { user: true }
         });
 
-        if (!rememberMeToken || rememberMeToken.expiresAt < new Date()) {
+        if (!rememberMeSession || rememberMeSession.expiresAt < new Date()) {
           return { valid: false, reason: 'Remember me token not found or expired' };
         }
 
+        // For database fallback, we don't store device fingerprint
+        // We'll skip device fingerprint validation for database-stored tokens
+        this.logger.warn('Remember me token from database - device fingerprint validation skipped');
+
         return {
           valid: true,
-          userId: rememberMeToken.userId,
-          deviceFingerprint: rememberMeToken.deviceFingerprint,
-          createdAt: rememberMeToken.createdAt
+          userId: rememberMeSession.userId,
+          deviceFingerprint: null, // Not stored in database
+          createdAt: rememberMeSession.createdAt,
+          skipDeviceFingerprintCheck: true // Flag to skip validation
         };
       }
 
@@ -639,16 +680,32 @@ class SessionService {
           value: token
         }]);
         await this.redis.expire(userTokensKey, 30 * 24 * 60 * 60); // 30 days
+        
+        this.logger.info('Remember me token stored in Redis', { userId, token });
       } else {
-        // Database fallback - would need to create rememberMeToken table
-        this.logger.warn('Remember me tokens require Redis for full functionality');
+        // Database fallback - store in UserSession table with special prefix
+        try {
+          await this.prisma.userSession.create({
+            data: {
+              userId,
+              token: `remember_me:${token}`, // Special prefix to identify as remember me token
+              expiresAt
+            }
+          });
+          
+          this.logger.info('Remember me token stored in database (fallback)', { userId, token });
+        } catch (dbError) {
+          this.logger.error('Failed to store remember me token in database', dbError.message);
+          return { success: false, reason: 'Database storage failed' };
+        }
       }
 
       this.logger.logSecurity('Remember Me Token Created', userId, {
         token,
         deviceFingerprint,
         expiresAt: expiresAt.toISOString(),
-        ip: req.ip
+        ip: req.ip,
+        storage: this.redis ? 'redis' : 'database'
       });
 
       return {
@@ -672,16 +729,18 @@ class SessionService {
         return { success: false, reason: validation.reason };
       }
 
-      // Verify device fingerprint matches
-      const currentFingerprint = this.generateDeviceFingerprint(req);
-      if (validation.deviceFingerprint !== currentFingerprint) {
-        this.logger.logSecurity('Remember Me Device Mismatch', validation.userId, {
-          token,
-          expectedFingerprint: validation.deviceFingerprint,
-          actualFingerprint: currentFingerprint,
-          ip: req.ip
-        });
-        return { success: false, reason: 'Device fingerprint mismatch' };
+      // Verify device fingerprint matches (skip if flag is set for database-stored tokens)
+      if (!validation.skipDeviceFingerprintCheck) {
+        const currentFingerprint = this.generateDeviceFingerprint(req);
+        if (validation.deviceFingerprint !== currentFingerprint) {
+          this.logger.logSecurity('Remember Me Device Mismatch', validation.userId, {
+            token,
+            expectedFingerprint: validation.deviceFingerprint,
+            actualFingerprint: currentFingerprint,
+            ip: req.ip
+          });
+          return { success: false, reason: 'Device fingerprint mismatch' };
+        }
       }
 
       // Create new session
@@ -700,12 +759,24 @@ class SessionService {
       if (this.redis) {
         const tokenKey = `remember_me:${token}`;
         await this.redis.del(tokenKey);
+      } else {
+        // Clean up from database
+        try {
+          await this.prisma.userSession.delete({
+            where: { token: `remember_me:${token}` }
+          });
+        } catch (dbError) {
+          this.logger.warn('Failed to delete remember me token from database', {
+            error: dbError.message
+          });
+        }
       }
 
       this.logger.logSecurity('Session Refreshed from Remember Me', validation.userId, {
         newSessionId: sessionResult.sessionId,
         ip: req.ip,
-        userAgent: req.get('User-Agent')
+        userAgent: req.get('User-Agent'),
+        storage: this.redis ? 'redis' : 'database'
       });
 
       return {

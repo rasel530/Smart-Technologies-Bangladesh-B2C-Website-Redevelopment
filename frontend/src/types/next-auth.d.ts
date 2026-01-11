@@ -1,84 +1,89 @@
+import { DefaultSession, DefaultUser } from 'next-auth';
+import { JWT, DefaultJWT } from 'next-auth/jwt';
+
 /**
- * NextAuth.js Type Definitions
- * Extends default NextAuth types for our application
+ * Extend NextAuth types to include custom properties
+ * 
+ * This file extends the default NextAuth types to support:
+ * - Phone number authentication
+ * - Backend JWT token integration
+ * - Session management
+ * - Remember me functionality
+ * - OAuth provider tracking
  */
 
-import { DefaultSession, DefaultUser } from 'next-auth';
-
 /**
- * Extended Session interface
+ * Module augmentation for next-auth
  */
 declare module 'next-auth' {
-  interface Session {
+  /**
+   * Extended User type
+   */
+  interface User extends DefaultUser {
+    id: string;
+    email?: string;
+    phone?: string;
+    firstName: string;
+    lastName: string;
+    role?: string;
+    image?: string | null;
+    backendToken?: string;
+    sessionId?: string;
+    rememberMe?: boolean;
+    rememberToken?: string;
+    oauthProvider?: string;
+    oauthAccessToken?: string;
+  }
+
+  /**
+   * Extended Session type
+   */
+  interface Session extends DefaultSession {
     user: {
       id: string;
-      email: string;
-      role: string;
+      email?: string;
+      phone?: string;
+      firstName: string;
+      lastName: string;
+      name: string;
+      role?: string;
       image?: string | null;
-      firstName?: string;
-      lastName?: string;
-    } & DefaultSession['user'];
-  }
-
-  interface User {
-    id: string;
-    email: string;
-    role: string;
-    image?: string | null;
-    firstName?: string;
-    lastName?: string;
-  }
-}
-
-/**
- * Extended JWT interface
- */
-declare module 'next-auth' {
-  interface JWT {
-    id: string;
-    email: string;
-    role: string;
-    image?: string | null;
-    firstName?: string;
-    lastName?: string;
-    accessToken?: string;
-    refreshToken?: string;
-    provider?: string;
-  }
-}
-
-/**
- * Provider configuration types
- */
-export interface ProviderConfig {
-  id: string;
-  name: string;
-  displayName: string;
-  enabled: boolean;
-  clientId?: string;
-}
-
-/**
- * OAuth profile types
- */
-export interface GoogleProfile {
-  sub: string;
-  email: string;
-  email_verified: boolean;
-  given_name: string;
-  family_name: string;
-  picture: string;
-  locale: string;
-}
-
-export interface FacebookProfile {
-  id: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  picture?: {
-    data?: {
-      url?: string;
+      preferredLanguage: 'en' | 'bn';
+      createdAt: string;
+      updatedAt: string;
     };
-  };
+    backendToken?: string;
+    sessionId?: string;
+    rememberMe?: boolean;
+    rememberToken?: string;
+    oauthProvider?: string;
+  }
 }
+
+/**
+ * Module augmentation for next-auth/jwt
+ */
+declare module 'next-auth/jwt' {
+  /**
+   * Extended JWT type
+   */
+  interface JWT extends DefaultJWT {
+    id: string;
+    email?: string;
+    phone?: string;
+    firstName: string;
+    lastName: string;
+    role?: string;
+    backendToken?: string;
+    sessionId?: string;
+    rememberMe?: boolean;
+    rememberToken?: string;
+    oauthProvider?: string;
+    oauthAccessToken?: string;
+  }
+}
+
+/**
+ * Make sure this file is treated as a module
+ */
+export {};

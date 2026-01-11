@@ -1,0 +1,81 @@
+{
+  "timestamp": "2026-01-10T06:45:59.958Z",
+  "tests": [
+    {
+      "name": "Frontend login page accessible",
+      "passed": true,
+      "details": "Status: 200, Not 404: true",
+      "error": null,
+      "timestamp": "2026-01-10T06:46:01.200Z"
+    },
+    {
+      "name": "NextAuth configured pages accessible",
+      "passed": true,
+      "details": "All configured pages should be accessible",
+      "error": null,
+      "timestamp": "2026-01-10T06:46:02.076Z"
+    },
+    {
+      "name": "NextAuth error route not returning 404",
+      "passed": true,
+      "details": "Status: 200, Not 404: true",
+      "error": null,
+      "timestamp": "2026-01-10T06:46:02.626Z"
+    },
+    {
+      "name": "NextAuth sign-in endpoint accessible",
+      "passed": true,
+      "details": "Status: 302, Not 404: true",
+      "error": null,
+      "timestamp": "2026-01-10T06:46:03.344Z"
+    },
+    {
+      "name": "NextAuth credentials callback not returning 404",
+      "passed": true,
+      "details": "Status: 302, Not 404: true",
+      "error": null,
+      "timestamp": "2026-01-10T06:46:03.822Z"
+    },
+    {
+      "name": "Login with wrong password",
+      "passed": true,
+      "details": "Status: 401, Expected: 401",
+      "error": null,
+      "timestamp": "2026-01-10T06:46:04.112Z"
+    },
+    {
+      "name": "Login with non-existent user",
+      "passed": true,
+      "details": "Status: 401, Expected: 401",
+      "error": null,
+      "timestamp": "2026-01-10T06:46:04.149Z"
+    },
+    {
+      "name": "Login with valid credentials",
+      "passed": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIwNzFjYzFkYy02NzQ2LTQ1Y2MtYTllOS1jM2IzODhmNDE0MDIiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJwaG9uZSI6Iis4ODAxNzAwMDAwMDAwIiwicm9sZSI6IkNVU1RPTUVSIiwic2Vzc2lvbklkIjoiZTUzY2U5ZGY4ZmRiMTdmNGI5OWQ1OWNlMWNjZTIyOWI5NWY1OTA0ZmNhYmZjMTdmZWNiYTMzMjdiYTU4OTI1NiIsImlhdCI6MTc2ODAyNzU2NCwiZXhwIjoxNzY4NjMyMzY0LCJhdWQiOiJzbWFydC1lY29tbWVyY2UtY2xpZW50cyIsImlzcyI6InNtYXJ0LWVjb21tZXJjZS1hcGkifQ.aKzlerzKJqJ5y2jYnMOJKRRli12e-CEm0IHE_KkTO1I",
+      "details": "Status: 200, Has token: true",
+      "error": null,
+      "timestamp": "2026-01-10T06:46:04.606Z"
+    },
+    {
+      "name": "Login with phone number",
+      "passed": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIwNzFjYzFkYy02NzQ2LTQ1Y2MtYTllOS1jM2IzODhmNDE0MDIiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJwaG9uZSI6Iis4ODAxNzAwMDAwMDAwIiwicm9sZSI6IkNVU1RPTUVSIiwic2Vzc2lvbklkIjoiMzU3N2U3ZTU1ZWNmYjc3MWM1NGI5NDEwYTBiMWI3MjgwNjUzNjgyNzhlNDE1NzRmMmViM2JmZGFkMjMyZDk4MSIsImlhdCI6MTc2ODAyNzU2NCwiZXhwIjoxNzY4NjMyMzY0LCJhdWQiOiJzbWFydC1lY29tbWVyY2UtY2xpZW50cyIsImlzcyI6InNtYXJ0LWVjb21tZXJjZS1hcGkifQ.Of4UA9stHHrzuYwM_ASMjlCdcfMl0pOOZd5vLgj-8nM",
+      "details": "Status: 200, Has token: true",
+      "error": null,
+      "timestamp": "2026-01-10T06:46:04.979Z"
+    },
+    {
+      "name": "Logout functionality",
+      "passed": true,
+      "details": "Status: 200, Expected: 200",
+      "error": null,
+      "timestamp": "2026-01-10T06:46:05.030Z"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "errors": []
+  }
+}

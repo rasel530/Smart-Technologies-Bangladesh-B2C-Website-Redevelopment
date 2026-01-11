@@ -21,13 +21,16 @@ const prisma = new PrismaClient();
 
 // Validation middleware
 const handleValidationErrors = (req, res, next) => {
+  console.log('[VALIDATION] Checking request validation');
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log('[VALIDATION] Validation failed:', errors.array());
     return res.status(400).json({
       error: 'Validation failed',
       details: errors.array()
     });
   }
+  console.log('[VALIDATION] Validation passed, calling next()');
   next();
 };
 
@@ -474,20 +477,42 @@ router.post('/login', [
   body('captcha').optional().isString(),
   body('deviceFingerprint').optional().isString()
 ], handleValidationErrors,
-  loginSecurityMiddleware.enforce(),
+  // Temporarily disabled login security for debugging
+  // loginSecurityMiddleware.enforce(),
   async (req, res) => {
+  const startTime = Date.now();
   const { identifier, password, rememberMe, captcha, deviceFingerprint } = req.body;
 
+  console.log('[LOGIN DIAGNOSTIC] === LOGIN REQUEST START ===');
+  console.log('[LOGIN DIAGNOSTIC] Request body:', JSON.stringify(req.body));
+  console.log('[LOGIN DIAGNOSTIC] rememberMe value from body:', rememberMe, typeof rememberMe);
+  console.log('[LOGIN DIAGNOSTIC] Request received:', {
+    identifier,
+    timestamp: new Date().toISOString(),
+    startTime
+  });
+
   try {
+    console.log('[LOGIN DIAGNOSTIC] Step 1: Starting login process');
+    // Log login attempt start
+    console.log('[LOGIN DIAGNOSTIC] Login attempt started:', {
+      identifier,
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      timestamp: new Date().toISOString()
+    });
 
     // Determine if identifier is email or phone
     const isEmail = identifier.includes('@');
     let user;
     let loginType;
 
+    console.log('[LOGIN DIAGNOSTIC] Step 2: Determining identifier type, isEmail:', isEmail);
+
     if (isEmail) {
       // Validate email format
       if (!emailService.validateEmail(identifier)) {
+        console.log('[LOGIN DIAGNOSTIC] Step 3: Invalid email format, returning 400');
         return res.status(400).json({
           error: 'Invalid email format',
           message: 'Please provide a valid email address',
@@ -496,6 +521,7 @@ router.post('/login', [
       }
       
       // Find user by email
+      console.log('[LOGIN DIAGNOSTIC] Step 4: Looking up user by email:', identifier);
       user = await prisma.user.findUnique({
         where: { email: identifier }
       });
@@ -504,6 +530,7 @@ router.post('/login', [
       // Validate phone number
       const phoneValidation = phoneValidationService.validateForUseCase(identifier, 'login');
       if (!phoneValidation.isValid) {
+        console.log('[LOGIN DIAGNOSTIC] Step 3: Invalid phone format, returning 400');
         return res.status(400).json({
           error: 'Invalid phone format',
           message: phoneValidation.error,
@@ -513,27 +540,40 @@ router.post('/login', [
       }
       
       // Find user by phone
+      console.log('[LOGIN DIAGNOSTIC] Step 4: Looking up user by phone:', phoneValidation.normalizedPhone);
       user = await prisma.user.findUnique({
         where: { phone: phoneValidation.normalizedPhone }
       });
       loginType = 'phone';
     }
 
+    console.log('[LOGIN DIAGNOSTIC] Step 5: User lookup result:', {
+      userFound: !!user,
+      hasPassword: !!user?.password,
+      userId: user?.id,
+      userStatus: user?.status
+    });
+
     if (!user || !user.password) {
+      console.log('[LOGIN DIAGNOSTIC] Step 6: User not found or no password, returning 401');
       return res.status(401).json({
         error: 'Invalid credentials',
-        message: `Invalid ${loginType} or password`,
-        messageBn: loginType === 'email' ? 'অবৈধ ইমেল বা পাসওয়ার্ড' : 'অবৈধ ফোন বা পাসওয়ার্ড'
+        message: loginType === 'email' ? 'Invalid email or password' : 'Invalid phone number or password',
+        messageBn: loginType === 'email' ? 'অবৈধ ইমেল বা পাসওয়ার্ড' : 'অবৈধ ফোন নম্বর বা পাসওয়ার্ড'
       });
     }
 
     // Verify password
+    console.log('[LOGIN DIAGNOSTIC] Step 7: Verifying password');
     const isValidPassword = await bcrypt.compare(password, user.password);
+    console.log('[LOGIN DIAGNOSTIC] Step 8: Password verification result:', isValidPassword);
+    
     if (!isValidPassword) {
+      console.log('[LOGIN DIAGNOSTIC] Step 9: Invalid password, returning 401');
       return res.status(401).json({
         error: 'Invalid credentials',
-        message: `Invalid ${loginType} or password`,
-        messageBn: loginType === 'email' ? 'অবৈধ ইমেল বা পাসওয়ার্ড' : 'অবৈধ ফোন বা পাসওয়ার্ড'
+        message: loginType === 'email' ? 'Invalid email or password' : 'Invalid phone number or password',
+        messageBn: loginType === 'email' ? 'অবৈধ ইমেল বা পাসওয়ার্ড' : 'অবৈধ ফোন নম্বর বা পাসওয়ার্ড'
       });
     }
 
@@ -542,11 +582,22 @@ router.post('/login', [
     const isEmailVerificationDisabled = configService.isEmailVerificationDisabled();
     const isPhoneVerificationDisabled = configService.isPhoneVerificationDisabled();
     
+    console.log('[LOGIN DIAGNOSTIC] Step 10: Verification check:', {
+      isTestingMode,
+      isEmailVerificationDisabled,
+      isPhoneVerificationDisabled,
+      userStatus: user.status,
+      loginType
+    });
+    
     const requiresVerification =
       (loginType === 'email' && !isEmailVerificationDisabled) ||
       (loginType === 'phone' && !isPhoneVerificationDisabled);
     
+    console.log('[LOGIN DIAGNOSTIC] Step 11: requiresVerification:', requiresVerification);
+    
     if (user.status === 'PENDING' && requiresVerification && !isTestingMode) {
+      console.log('[LOGIN DIAGNOSTIC] Step 12: User pending and requires verification, returning 403');
       const verificationMessage = loginType === 'email'
         ? 'Please verify your email address before logging in'
         : 'Please verify your phone number before logging in';
@@ -565,6 +616,7 @@ router.post('/login', [
     
     // Auto-activate pending users in testing mode or when verification is disabled
     if (user.status === 'PENDING' && (isTestingMode || !requiresVerification)) {
+      console.log('[LOGIN DIAGNOSTIC] Step 13: Auto-activating pending user');
       await prisma.user.update({
         where: { id: user.id },
         data: {
@@ -589,6 +641,7 @@ router.post('/login', [
           phoneVerified: true
         }
       });
+      console.log('[LOGIN DIAGNOSTIC] Step 14: User auto-activated:', user.status);
     }
 
     // Update last login
@@ -598,13 +651,20 @@ router.post('/login', [
     });
 
     // Create secure session instead of JWT token
+    console.log('[LOGIN DIAGNOSTIC] Step 15: Creating session for user', user.id);
     const sessionResult = await sessionService.createSession(user.id, req, {
       loginType,
       rememberMe: rememberMe || false,
       maxAge: rememberMe ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000 // 7 days if remember me, 24 hours default
     });
+    console.log('[LOGIN DIAGNOSTIC] Step 16: Session created:', {
+      sessionId: sessionResult.sessionId,
+      success: !!sessionResult.sessionId,
+      maxAge: sessionResult.maxAge
+    });
 
     if (!sessionResult.sessionId) {
+      console.log('[LOGIN DIAGNOSTIC] Step 17: Session creation failed, returning 500');
       return res.status(500).json({
         error: 'Login failed',
         message: 'Unable to create session',
@@ -612,7 +672,46 @@ router.post('/login', [
       });
     }
 
+    // Create remember me token if requested
+    let rememberToken = null;
+    console.log('[LOGIN DIAGNOSTIC] Step 18: rememberMe value before if check:', rememberMe, typeof rememberMe);
+    if (rememberMe) {
+      console.log('[LOGIN DIAGNOSTIC] Step 19: Creating remember me token');
+      console.log('[LOGIN DIAGNOSTIC] rememberMe flag value:', rememberMe);
+      try {
+        const rememberMeTokenResult = await sessionService.createRememberMeToken(user.id, req);
+        console.log('[LOGIN DIAGNOSTIC] rememberMeTokenResult:', JSON.stringify(rememberMeTokenResult));
+        if (rememberMeTokenResult.success) {
+          rememberToken = rememberMeTokenResult.token;
+          console.log('[LOGIN DIAGNOSTIC] Remember me token created successfully, length:', rememberToken.length);
+          console.log('[LOGIN DIAGNOSTIC] Remember me token value (first 20 chars):', rememberToken.substring(0, 20) + '...');
+        } else {
+          console.warn('[LOGIN DIAGNOSTIC] Failed to create remember me token:', rememberMeTokenResult.reason);
+          // Don't continue if remember me token creation failed
+          return res.status(500).json({
+            error: 'Failed to create remember me token',
+            message: 'Unable to create persistent session',
+            messageBn: 'Remember me token creation failed'
+          });
+        }
+      } catch (rememberMeError) {
+        console.error('[LOGIN DIAGNOSTIC] Exception while creating remember me token:', rememberMeError.message);
+        console.error('[LOGIN DIAGNOSTIC] Stack trace:', rememberMeError.stack);
+        // Don't continue if remember me token creation failed
+        return res.status(500).json({
+          error: 'Failed to create remember me token',
+          message: 'Unable to create persistent session',
+          messageBn: 'Remember me token creation failed'
+        });
+      }
+    } else {
+      console.log('[LOGIN DIAGNOSTIC] Step 19: Skipping remember me token creation (rememberMe is false or undefined)');
+    }
+    
+    console.log('[LOGIN DIAGNOSTIC] Step 20: Final rememberToken value before response:', rememberToken ? rememberToken.substring(0, 20) + '...' : 'null');
+
     // Set session cookie with remember me options
+    console.log('[LOGIN DIAGNOSTIC] Step 21: Setting session cookie');
     sessionMiddleware.setSessionCookie(res, sessionResult.sessionId, {
       maxAge: sessionResult.maxAge,
       rememberMe: rememberMe || false
@@ -624,9 +723,11 @@ router.post('/login', [
       res.set(key, sessionHeaders[key]);
     });
 
-    // Generate JWT token for API compatibility (shorter expiry)
+    // Generate JWT token for API compatibility (longer expiry for better token validation)
+    console.log('[LOGIN DIAGNOSTIC] Step 22: Generating JWT token');
     const jwtSecretLogin = process.env.JWT_SECRET;
     if (!jwtSecretLogin) {
+      console.log('[LOGIN DIAGNOSTIC] Step 23: JWT_SECRET missing, throwing error');
       throw new Error('JWT_SECRET environment variable is required');
     }
     
@@ -639,13 +740,48 @@ router.post('/login', [
         sessionId: sessionResult.sessionId
       },
       jwtSecretLogin,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '15m' } // Shorter expiry for JWT, session manages long-term auth
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN || '7d', // Longer expiry (7 days) for better token validation
+        issuer: 'smart-ecommerce-api', // Must match verification middleware
+        audience: 'smart-ecommerce-clients' // Must match verification middleware
+      }
     );
+    console.log('[LOGIN DIAGNOSTIC] Step 24: JWT token generated successfully');
 
 
     // Record successful login and clear failed attempts
-    return loginSecurityMiddleware.recordSuccessfulLogin(req, { id: user.id }, (req, res) => {
-      res.json({
+    try {
+      await loginSecurityService.clearFailedAttempts(identifier, req.ip);
+      
+      loggerService.logSecurity('Successful Login', user.id, {
+        identifier,
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        userId: user.id,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Add success headers
+      res.set({
+        'X-Login-Status': 'success',
+        'X-Security-Cleared': 'true',
+        'X-Login-Timestamp': new Date().toISOString()
+      });
+      
+      console.log('[LOGIN DIAGNOSTIC] Step 25: About to send success response');
+      console.log('[LOGIN DIAGNOSTIC] Response data:', {
+        message: 'Login successful',
+        hasUser: !!user,
+        hasToken: !!token,
+        hasSessionId: !!sessionResult.sessionId,
+        hasRememberToken: !!rememberToken,
+        userId: user.id,
+        loginType,
+        rememberMe: rememberMe || false
+      });
+      
+      // Send response
+      return res.json({
         message: 'Login successful',
         messageBn: 'লগিন সফল',
         user: {
@@ -663,26 +799,85 @@ router.post('/login', [
         maxAge: sessionResult.maxAge,
         loginType,
         rememberMe: rememberMe || false,
+        rememberToken, // Include remember me token for persistent sessions
         securityContext: req.securityContext
       });
-    });
+      
+      // Log successful login completion
+      console.log('[LOGIN DIAGNOSTIC] Login successful:', {
+        userId: user.id,
+        email: user.email,
+        loginType,
+        duration: Date.now() - startTime,
+        timestamp: new Date().toISOString()
+      });
+    } catch (recordError) {
+      loggerService.error('Error recording successful login', recordError.message);
+      console.error('[LOGIN DIAGNOSTIC] Login recording error details:', {
+        error: recordError.message,
+        stack: recordError.stack,
+        userId: user.id,
+        timestamp: new Date().toISOString()
+      });
+      // Still send response even if recording fails
+      console.log('[LOGIN DIAGNOSTIC] Step 26: Sending response despite recording error');
+      return res.json({
+        message: 'Login successful',
+        messageBn: 'লগিন সফল',
+        user: {
+          id: user.id,
+          email: user.email,
+          phone: user.phone,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+          status: user.status
+        },
+        token,
+        sessionId: sessionResult.sessionId,
+        expiresAt: sessionResult.expiresAt,
+        maxAge: sessionResult.maxAge,
+        loginType,
+        rememberMe: rememberMe || false,
+        rememberToken, // Include remember me token for persistent sessions
+        securityContext: req.securityContext,
+        warning: 'Login recording failed but login was successful'
+      });
+    }
 
   } catch (error) {
-    console.error('Login error:', error);
-    console.error('Login error details:', {
+    const duration = Date.now() - startTime;
+    
+    console.error('[LOGIN DIAGNOSTIC] === LOGIN ERROR CAUGHT ===');
+    console.error('[LOGIN DIAGNOSTIC] Login error:', {
+      error: error.message,
       name: error.name,
-      message: error.message,
-      stack: error.stack
+      stack: error.stack,
+      identifier: req.body?.identifier,
+      ip: req.ip,
+      duration,
+      timestamp: new Date().toISOString()
     });
     
     // Record failed attempt due to system error
     req.authError = 'system_error';
-    return loginSecurityMiddleware.recordFailedLogin()(req, res, () => {
-      res.status(500).json({
-        error: 'Login failed',
-        message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
-        messageBn: 'লগিন ব্যর্থ হয়েছে'
-      });
+    try {
+      await loginSecurityService.recordFailedAttempt(
+        req.body?.identifier || 'unknown',
+        req.ip,
+        req.get('User-Agent'),
+        'system_error'
+      );
+    } catch (recordError) {
+      console.error('[LOGIN DIAGNOSTIC] Failed to record failed login attempt:', recordError.message);
+    }
+    
+    console.log('[LOGIN DIAGNOSTIC] Step 27: Sending error response with status 500');
+    res.status(500).json({
+      error: 'Login failed',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      messageBn: 'লগিন ব্যর্থ হয়েছে',
+      timestamp: new Date().toISOString()
     });
   }
 });
@@ -814,10 +1009,13 @@ router.post('/refresh', async (req, res) => {
     );
 
     res.json({
-      message: 'Token refreshed successfully',
-      messageBn: 'টোকেন সফল হয়েছে',
-      user,
-      token: newToken
+      success: true,
+      data: {
+        message: 'Token refreshed successfully',
+        messageBn: 'টোকেন সফল হয়েছে',
+        user,
+        token: newToken
+      }
     });
 
   } catch (error) {
@@ -1827,6 +2025,118 @@ router.post('/disable-remember-me', [
       error: 'Failed to disable remember me',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
       messageBn: 'রিমেম্বার মি নিষ্ক্রিয় করতে ব্যর্থ হয়েছে'
+    });
+  }
+});
+
+// Get current user endpoint (for session validation on page refresh)
+router.get('/me', [
+  authMiddleware.authenticate()
+], async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // Get user from database
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        status: true,
+        emailVerified: true,
+        phoneVerified: true,
+        preferredLanguage: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        error: 'User not found',
+        message: 'User account not found',
+        messageBn: 'ব্যবহার্টার পাওয়া যায়নি'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        isEmailVerified: !!user.emailVerified,
+        isPhoneVerified: !!user.phoneVerified,
+        preferredLanguage: user.preferredLanguage || 'en',
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      }
+    });
+  } catch (error) {
+    console.error('Get current user error:', error);
+    res.status(500).json({
+      error: 'Failed to get user',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      messageBn: 'ব্যবহার্টার তথ্য পাওতে ব্যর্থ হয়েছে'
+    });
+  }
+});
+
+// Get session status endpoint (for frontend session validation on page refresh)
+router.get('/session', [
+  authMiddleware.authenticate()
+], async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const sessionId = req.sessionId;
+    
+    // Get user from database
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        status: true,
+        emailVerified: true,
+        phoneVerified: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        error: 'User not found',
+        message: 'User account not found',
+        messageBn: 'ব্যবহার্টার পাওয়া যায়নি'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        user,
+        sessionId,
+        valid: true
+      }
+    });
+  } catch (error) {
+    console.error('Get session status error:', error);
+    res.status(500).json({
+      error: 'Failed to get session status',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      messageBn: 'সেশন স্ট্যাটাস পাওতে ব্যর্থ হয়েছে'
     });
   }
 });

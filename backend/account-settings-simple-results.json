@@ -1,0 +1,72 @@
+[
+  {
+    "test": "Register test user",
+    "passed": true,
+    "details": "Status: 201",
+    "error": null,
+    "timestamp": "2026-01-10T14:13:59.746Z"
+  },
+  {
+    "test": "Login",
+    "passed": true,
+    "details": "Status: 200",
+    "error": null,
+    "timestamp": "2026-01-10T14:14:00.037Z"
+  },
+  {
+    "test": "GET notifications",
+    "passed": true,
+    "details": "Status: 200, Has preferences: true",
+    "error": null,
+    "timestamp": "2026-01-10T14:14:00.135Z"
+  },
+  {
+    "test": "PUT notifications",
+    "passed": true,
+    "details": "Status: 200, Has preferences: true, No extra message: true",
+    "error": null,
+    "timestamp": "2026-01-10T14:14:00.152Z"
+  },
+  {
+    "test": "GET communication",
+    "passed": true,
+    "details": "Status: 200, Has preferences: true",
+    "error": null,
+    "timestamp": "2026-01-10T14:14:00.166Z"
+  },
+  {
+    "test": "PUT communication",
+    "passed": true,
+    "details": "Status: 200, Has preferences: true, No extra message: true",
+    "error": null,
+    "timestamp": "2026-01-10T14:14:00.181Z"
+  },
+  {
+    "test": "GET privacy",
+    "passed": true,
+    "details": "Status: 200, Has settings: true, Uses correct format: true",
+    "error": null,
+    "timestamp": "2026-01-10T14:14:00.233Z"
+  },
+  {
+    "test": "PUT privacy",
+    "passed": true,
+    "details": "Status: 200, Has settings: true, Uses correct format: true",
+    "error": null,
+    "timestamp": "2026-01-10T14:14:00.250Z"
+  },
+  {
+    "test": "Old privacy route returns 404",
+    "passed": true,
+    "details": "Status: 404",
+    "error": null,
+    "timestamp": "2026-01-10T14:14:00.256Z"
+  },
+  {
+    "test": "Authentication required (401/403)",
+    "passed": true,
+    "details": "Status: 401",
+    "error": null,
+    "timestamp": "2026-01-10T14:14:00.260Z"
+  }
+]

@@ -1,0 +1,116 @@
+{
+  "fix1": {
+    "name": "Password Change API Call Signature",
+    "status": "PASSED",
+    "tests": [
+      {
+        "name": "API accepts object parameter (not separate params)",
+        "passed": true
+      },
+      {
+        "name": "Request uses application/json Content-Type",
+        "passed": true
+      },
+      {
+        "name": "No \"invalid JSON\" error in response",
+        "passed": true
+      }
+    ]
+  },
+  "fix2": {
+    "name": "2FA API Paths with /account Segment",
+    "status": "PASSED",
+    "tests": [
+      {
+        "name": "POST /api/v1/profile/account/2fa/enable endpoint exists",
+        "passed": true
+      },
+      {
+        "name": "POST /api/v1/profile/account/2fa/disable endpoint exists",
+        "passed": true
+      },
+      {
+        "name": "Old path /profile/2fa/enable is deprecated (returns 404)",
+        "passed": true
+      }
+    ]
+  },
+  "fix3": {
+    "name": "Data Export Null Checks",
+    "status": "PARTIAL",
+    "tests": [
+      {
+        "name": "Get data exports returns valid structure",
+        "passed": false,
+        "details": "401 Unauthorized (authentication required)"
+      },
+      {
+        "name": "Exports array is properly handled (even when empty)",
+        "passed": false,
+        "details": "401 Unauthorized (authentication required)"
+      },
+      {
+        "name": "No \"exportItem is undefined\" error in response",
+        "passed": true
+      }
+    ]
+  },
+  "fix4": {
+    "name": "Data Export Download Functionality",
+    "status": "FAILED",
+    "tests": [
+      {
+        "name": "Download endpoint returns downloadUrl in response",
+        "passed": false,
+        "details": "401 Unauthorized (no download URL in response)"
+      },
+      {
+        "name": "Download URL has valid format (http/https)",
+        "passed": false,
+        "details": "No download URL available to test"
+      },
+      {
+        "name": "Download URL is accessible for frontend use",
+        "passed": false,
+        "details": "Cannot verify without valid export"
+      }
+    ]
+  },
+  "fix5": {
+    "name": "Data Export CSV Generation",
+    "status": "PARTIAL",
+    "tests": [
+      {
+        "name": "CSV format is accepted by generate endpoint",
+        "passed": true
+      },
+      {
+        "name": "No \"res is not defined\" error in CSV generation",
+        "passed": true
+      },
+      {
+        "name": "CSV export returns proper response structure (exportId, status)",
+        "passed": false,
+        "details": "401 Unauthorized (no response structure)"
+      }
+    ]
+  },
+  "fix6": {
+    "name": "Verification Code Modal Close Button",
+    "status": "PASSED",
+    "tests": [
+      {
+        "name": "TwoFactorSetup component has close button with onClick handler",
+        "passed": true
+      },
+      {
+        "name": "handleClose function calls onClose to close modal",
+        "passed": true
+      },
+      {
+        "name": "Preferences page passes onClose prop to TwoFactorSetup modal",
+        "passed": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Picture Upload Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .container {
+            background: #f5f5f5;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 4px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .success {
+            color: #28a745;
+            background: #d4edda;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .preview {
+            width: 150px;
+            height: 150px;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            margin: 20px auto;
+            display: block;
+            object-fit: cover;
+        }
+        .hidden {
+            display: none;
+        }
+        #currentProfilePicture {
+            background: #e9ecef;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 Profile Picture Upload Test</h1>
+        
+        <!-- Login Section -->
+        <div class="section" id="loginSection">
+            <h2>Step 1: Login</h2>
+            <label for="identifier">Email or Phone:</label>
+            <input type="text" id="identifier" placeholder="Enter email or phone" />
+            
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter password" />
+            
+            <button onclick="login()">Login</button>
+        </div>
+        
+        <!-- Upload Section -->
+        <div class="section hidden" id="uploadSection">
+            <h2>Step 2: Upload Profile Picture</h2>
+            
+            <div id="currentProfilePicture">
+                <p>Current profile picture:</p>
+                <img id="currentImage" class="preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect width='150' height='150' fill='%23ddd'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='%23666'%3ENo Image%3C/text%3E%3C/svg%3E" alt="No image" />
+            </div>
+            
+            <label for="picture">Select Image:</label>
+            <input type="file" id="picture" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" />
+            <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
+                Supported formats: JPEG, PNG, GIF, WebP | Maximum size: 5MB
+            </p>
+            
+            <button onclick="uploadPicture()">Upload Picture</button>
+            <button onclick="deletePicture()" id="deleteBtn" class="hidden">Delete Picture</button>
+        </div>
+        
+        <!-- Results -->
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/v1';
+        let authToken = null;
+        let currentUser = null;
+
+        function showResults(message, isError = false) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `<div class="${isError ? 'error' : 'success'}">${message}</div>`;
+            setTimeout(() => {
+                resultsDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        async function login() {
+            const identifier = document.getElementById('identifier').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!identifier || !password) {
+                showResults('Please enter both identifier and password', true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ identifier, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.token) {
+                    authToken = data.token;
+                    currentUser = data.user;
+                    showResults(`✅ Login successful! Welcome, ${data.user.firstName} ${data.user.lastName}`);
+                    
+                    // Show upload section
+                    document.getElementById('loginSection').classList.add('hidden');
+                    document.getElementById('uploadSection').classList.remove('hidden');
+                    
+                    // Load current profile picture
+                    loadCurrentProfilePicture();
+                } else {
+                    showResults(`❌ Login failed: ${data.message || data.error || 'Unknown error'}`, true);
+                }
+            } catch (error) {
+                showResults(`❌ Login error: ${error.message}`, true);
+                console.error('Login error:', error);
+            }
+        }
+
+        async function loadCurrentProfilePicture() {
+            try {
+                const response = await fetch(`${API_BASE}/profile/me`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.data.user.image) {
+                    const imageUrl = `${API_BASE.replace('/api/v1', '')}${data.data.user.image}`;
+                    document.getElementById('currentImage').src = imageUrl;
+                    document.getElementById('deleteBtn').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Load profile picture error:', error);
+            }
+        }
+
+        async function uploadPicture() {
+            const fileInput = document.getElementById('picture');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                showResults('Please select an image file', true);
+                return;
+            }
+
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                showResults('Invalid file type. Please use JPEG, PNG, GIF, or WebP', true);
+                return;
+            }
+
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showResults('File size exceeds 5MB limit', true);
+                return;
+            }
+
+            // Create FormData
+            const formData = new FormData();
+            formData.append('picture', file);
+
+            try {
+                showResults('⏳ Uploading profile picture...');
+
+                const response = await fetch(`${API_BASE}/profile/me/picture`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                        // Note: Do NOT set Content-Type - let browser set it with boundary
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.data.user.image) {
+                    const imageUrl = `${API_BASE.replace('/api/v1', '')}${data.data.user.image}`;
+                    document.getElementById('currentImage').src = imageUrl;
+                    document.getElementById('deleteBtn').classList.remove('hidden');
+                    showResults(`✅ Profile picture uploaded successfully!`);
+                    console.log('Upload response:', data);
+                } else {
+                    showResults(`❌ Upload failed: ${data.error || 'Unknown error'}`, true);
+                    console.error('Upload error response:', data);
+                }
+            } catch (error) {
+                showResults(`❌ Upload error: ${error.message}`, true);
+                console.error('Upload error:', error);
+            }
+        }
+
+        async function deletePicture() {
+            if (!confirm('Are you sure you want to delete your profile picture?')) {
+                return;
+            }
+
+            try {
+                showResults('⏳ Deleting profile picture...');
+
+                const response = await fetch(`${API_BASE}/profile/me/picture`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('currentImage').src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect width='150' height='150' fill='%23ddd'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='%23666'%3ENo Image%3C/text%3E%3C/svg%3E";
+                    document.getElementById('deleteBtn').classList.add('hidden');
+                    showResults(`✅ Profile picture deleted successfully!`);
+                } else {
+                    showResults(`❌ Delete failed: ${data.error || 'Unknown error'}`, true);
+                }
+            } catch (error) {
+                showResults(`❌ Delete error: ${error.message}`, true);
+                console.error('Delete error:', error);
+            }
+        }
+
+        // Auto-fill demo credentials if available
+        window.onload = function() {
+            // Check if we have demo users in localStorage from previous tests
+            const savedIdentifier = localStorage.getItem('test_identifier');
+            const savedPassword = localStorage.getItem('test_password');
+            
+            if (savedIdentifier && savedPassword) {
+                document.getElementById('identifier').value = savedIdentifier;
+                document.getElementById('password').value = savedPassword;
+            }
+        };
+
+        // Save credentials on successful login
+        function saveCredentials(identifier, password) {
+            localStorage.setItem('test_identifier', identifier);
+            localStorage.setItem('test_password', password);
+        }
+    </script>
+</body>
+</html>

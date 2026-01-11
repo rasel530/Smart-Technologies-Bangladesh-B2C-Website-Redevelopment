@@ -20,6 +20,11 @@ RUN npx prisma generate
 # Copy application code
 COPY . .
 
+# Run database migrations on startup
+COPY scripts/run-migrations.js ./scripts/run-migrations.js
+RUN chmod +x ./scripts/run-migrations.js
+CMD ["sh", "-c", "node scripts/run-migrations.js && npm run dev"]
+
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nodejs -u 1001

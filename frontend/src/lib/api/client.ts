@@ -27,20 +27,29 @@ class ApiError extends Error {
 // Token management
 const getToken = (): string | null => {
     if (typeof window !== 'undefined') {
-        return localStorage.getItem('auth_token');
+        const token = localStorage.getItem('auth_token');
+        console.log('[Token Manager] getToken called:', token ? `Token found (${token.substring(0, 20)}...)` : 'No token found');
+        return token;
     }
+    console.log('[Token Manager] getToken called - window not available');
     return null;
 };
 
 const setToken = (token: string): void => {
     if (typeof window !== 'undefined') {
         localStorage.setItem('auth_token', token);
+        console.log('[Token Manager] Token stored:', token.substring(0, 20) + '...');
+    } else {
+        console.log('[Token Manager] setToken called - window not available');
     }
 };
 
 const removeToken = (): void => {
     if (typeof window !== 'undefined') {
         localStorage.removeItem('auth_token');
+        console.log('[Token Manager] Token removed');
+    } else {
+        console.log('[Token Manager] removeToken called - window not available');
     }
 };
 
@@ -94,20 +103,28 @@ const refreshAccessToken = async (): Promise<string> => {
             throw new Error('No tokens available for refresh');
         }
 
-        const url = `${API_BASE_URL}/auth/refresh`;
+        let url: string;
+        let body: any;
         const headers: Record<string, string> = {
             'Content-Type': 'application/json',
         };
 
         if (rememberToken) {
-            headers['X-Remember-Token'] = rememberToken;
-        } else if (token) {
+            // Use remember me token refresh endpoint
+            url = `${API_BASE_URL}/auth/refresh-from-remember-me`;
+            body = { token: rememberToken };
+            console.log('[Token Manager] Using remember me token for refresh');
+        } else {
+            // Use regular token refresh endpoint
+            url = `${API_BASE_URL}/auth/refresh`;
             headers['Authorization'] = `Bearer ${token}`;
+            console.log('[Token Manager] Using regular token for refresh');
         }
 
         const response = await fetch(url, {
             method: 'POST',
             headers,
+            body: JSON.stringify(body),
         });
 
         if (!response.ok) {
@@ -119,11 +136,25 @@ const refreshAccessToken = async (): Promise<string> => {
 
         const data = await response.json();
         
-        if (data.success && data.data?.token) {
-            setToken(data.data.token);
-            return data.data.token;
+        // Handle different response formats
+        if (rememberToken) {
+            // Remember me refresh returns data directly
+            if (data.token) {
+                setToken(data.token);
+                console.log('[Token Manager] Token refreshed from remember me token');
+                return data.token;
+            } else {
+                throw new ApiError('Invalid remember me refresh response');
+            }
         } else {
-            throw new ApiError('Invalid refresh response');
+            // Regular refresh returns wrapped in ApiResponse format
+            if (data.success && data.data?.token) {
+                setToken(data.data.token);
+                console.log('[Token Manager] Token refreshed successfully');
+                return data.data.token;
+            } else {
+                throw new ApiError('Invalid refresh response');
+            }
         }
     } catch (error) {
         // Clear tokens on refresh failure
@@ -136,12 +167,18 @@ const refreshAccessToken = async (): Promise<string> => {
 // Request interceptor to add auth token
 const addAuthHeader = (headers: Record<string, string> = {}): Record<string, string> => {
     const token = getToken();
+    console.log('[API Client] Token check:', token ? `Token found (${token.substring(0, 20)}...)` : 'No token found');
+    
     if (token) {
-        return {
+        const authHeaders = {
             ...headers,
             Authorization: `Bearer ${token}`,
         };
+        console.log('[API Client] Authorization header added');
+        return authHeaders;
     }
+    
+    console.log('[API Client] No Authorization header added');
     return headers;
 };
 
@@ -161,7 +198,12 @@ const handleResponse = async (
     }
 
     // Handle 401 Unauthorized - attempt token refresh
-    if (response.status === 401 && !originalRequest?.options?.skipAuthRefresh) {
+    // Skip token refresh for login endpoints as 401 on login means invalid credentials, not expired token
+    const isLoginEndpoint = originalRequest?.endpoint?.startsWith('/auth/login');
+    const isRegisterEndpoint = originalRequest?.endpoint?.startsWith('/auth/register');
+    const shouldSkipRefresh = originalRequest?.options?.skipAuthRefresh || isLoginEndpoint || isRegisterEndpoint;
+    
+    if (response.status === 401 && !shouldSkipRefresh) {
         try {
             // If already refreshing, wait for the refresh to complete
             if (isRefreshing) {
@@ -237,22 +279,55 @@ const apiClient = {
         } = options;
 
         const url = `${API_BASE_URL}${endpoint}`;
+        
+        // Log request details
+        console.log(`[API Client] ${method} ${url}`);
+        console.log('[API Client] Request options:', {
+            method,
+            hasBody: !!body,
+            timeout,
+            skipAuthRefresh: options.skipAuthRefresh
+        });
+
+        const authHeaders = addAuthHeader(headers);
+        
+        // Check if body is FormData (for file uploads)
+        const isFormData = body instanceof FormData;
+        
         const config: RequestInit = {
             method,
             headers: {
-                'Content-Type': 'application/json',
-                ...addAuthHeader(headers),
+                ...authHeaders,
             },
         };
 
-        if (body && method !== 'GET') {
-            config.body = JSON.stringify(body);
+        // Only set Content-Type for non-FormData requests
+        // FormData automatically sets the correct Content-Type with boundary
+        if (!isFormData) {
+            (config.headers as Record<string, string>)['Content-Type'] = 'application/json';
         }
+
+        if (body && method !== 'GET') {
+            if (isFormData) {
+                // Pass FormData directly without JSON.stringify
+                config.body = body;
+            } else {
+                // JSON stringify regular objects
+                config.body = JSON.stringify(body);
+            }
+        }
+
+        console.log('[API Client] Final headers:', {
+            'Content-Type': (config.headers as Record<string, string>)['Content-Type'] || 'Not set (FormData)',
+            'Authorization': (config.headers as Record<string, string>)['Authorization'] ? 'Bearer ***' : 'Not set'
+        });
 
         try {
             const response = await withTimeout(fetch(url, config), timeout);
+            console.log(`[API Client] Response status: ${response.status}`);
             return handleResponse(response, { endpoint, options });
         } catch (error) {
+            console.error('[API Client] Request failed:', error);
             if (error instanceof ApiError) {
                 throw error;
             }

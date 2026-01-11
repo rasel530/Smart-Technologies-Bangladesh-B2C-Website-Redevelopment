@@ -715,3 +715,31 @@ export const getDistrictById = (id: string): District | undefined => {
 export const getUpazilaById = (id: string): Upazila | undefined => {
   return upazilas.find(upazila => upazila.id === id);
 };
+
+// Helper functions to get ID by name (for converting backend names to frontend IDs)
+export const getDivisionIdByName = (name: string): string | undefined => {
+  const division = divisions.find(d =>
+    d.name === name ||
+    d.name.toUpperCase() === name.toUpperCase() ||
+    d.name.toLowerCase() === name.toLowerCase()
+  );
+  return division?.id;
+};
+
+export const getDistrictIdByName = (name: string): string | undefined => {
+  const district = districts.find(d =>
+    d.name === name ||
+    d.name.toUpperCase() === name.toUpperCase() ||
+    d.name.toLowerCase() === name.toLowerCase()
+  );
+  return district?.id;
+};
+
+export const getUpazilaIdByName = (name: string): string | undefined => {
+  const upazila = upazilas.find(u =>
+    u.name === name ||
+    u.name.toUpperCase() === name.toUpperCase() ||
+    u.name.toLowerCase() === name.toLowerCase()
+  );
+  return upazila?.id;
+};

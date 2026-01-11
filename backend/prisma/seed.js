@@ -5,29 +5,8 @@ const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Starting database seeding...');
-
+  
   try {
-    // Create divisions (Bangladesh-specific data)
-    const divisions = [
-      { name: 'DHAKA' },
-      { name: 'CHITTAGONG' },
-      { name: 'RAJSHAHI' },
-      { name: 'SYLHET' },
-      { name: 'KHULNA' },
-      { name: 'BARISHAL' },
-      { name: 'RANGPUR' },
-      { name: 'MYMENSINGH' }
-    ];
-
-    console.log('📍 Creating divisions...');
-    for (const division of divisions) {
-      await prisma.division.upsert({
-        where: { name: division.name },
-        update: {},
-        create: division
-      });
-    }
-
     // Create categories
     console.log('📂 Creating categories...');
     const categories = [
@@ -45,7 +24,7 @@ async function main() {
         create: category
       });
     }
-
+    
     // Create brands
     console.log('🏷️ Creating brands...');
     const brands = [

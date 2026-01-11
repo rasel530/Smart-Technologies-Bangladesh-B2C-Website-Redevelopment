@@ -1,0 +1,147 @@
+{
+  "timestamp": "2026-01-10T17:57:28.581Z",
+  "environment": {
+    "backend": "http://localhost:3001",
+    "frontend": "http://localhost:3000"
+  },
+  "summary": {
+    "total": 11,
+    "passed": 8,
+    "failed": 3,
+    "skipped": 0
+  },
+  "tests": [
+    {
+      "testName": "Login - Get JWT Token",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:57:28.756Z",
+      "details": {
+        "statusCode": 200,
+        "hasToken": true,
+        "userId": "071cc1dc-6746-45cc-a9e9-c3b388f41402"
+      },
+      "error": null
+    },
+    {
+      "testName": "Notification Settings - Get Initial",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:57:28.796Z",
+      "details": {
+        "statusCode": 200,
+        "hasData": true,
+        "initialSettings": {
+          "preferences": {
+            "id": "aa72544e-7136-4e17-9223-822a32f812b6",
+            "userId": "071cc1dc-6746-45cc-a9e9-c3b388f41402",
+            "emailNotifications": true,
+            "smsNotifications": false,
+            "whatsappNotifications": true,
+            "marketingCommunications": true,
+            "newsletterSubscription": true,
+            "notificationFrequency": "immediate",
+            "createdAt": "2026-01-10T15:01:11.488Z",
+            "updatedAt": "2026-01-10T15:01:11.488Z"
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "testName": "Notification Settings - Save",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:57:28.816Z",
+      "details": {
+        "statusCode": 200,
+        "success": true,
+        "savedSettings": {
+          "preferences": {
+            "id": "aa72544e-7136-4e17-9223-822a32f812b6",
+            "userId": "071cc1dc-6746-45cc-a9e9-c3b388f41402",
+            "emailNotifications": true,
+            "smsNotifications": false,
+            "whatsappNotifications": true,
+            "marketingCommunications": true,
+            "newsletterSubscription": true,
+            "notificationFrequency": "immediate",
+            "createdAt": "2026-01-10T15:01:11.488Z",
+            "updatedAt": "2026-01-10T15:01:11.488Z"
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "testName": "Notification Settings - Retrieve After Save",
+      "status": "FAILED",
+      "timestamp": "2026-01-10T17:57:58.820Z",
+      "details": null,
+      "error": "socket hang up"
+    },
+    {
+      "testName": "Notification Settings - Persistence Verification",
+      "status": "FAILED",
+      "timestamp": "2026-01-10T17:57:58.820Z",
+      "details": {
+        "reason": "Could not verify persistence due to error"
+      },
+      "error": "socket hang up"
+    },
+    {
+      "testName": "Password Change - Route Exists",
+      "status": "FAILED",
+      "timestamp": "2026-01-10T17:57:58.839Z",
+      "details": {
+        "statusCode": 404,
+        "message": "Route not found (404)"
+      },
+      "error": "Password change route does not exist"
+    },
+    {
+      "testName": "Verification Modal - Close Button Exists",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:57:58.840Z",
+      "details": {
+        "hasCloseButton": true,
+        "hasCloseFunction": true,
+        "hasXIcon": true
+      },
+      "error": null
+    },
+    {
+      "testName": "Verification Modal - Modal Structure",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:57:58.840Z",
+      "details": {
+        "hasModalStructure": true
+      },
+      "error": null
+    },
+    {
+      "testName": "Verification Modal - Component Export",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:57:58.840Z",
+      "details": {
+        "hasExport": true
+      },
+      "error": null
+    },
+    {
+      "testName": "Verification Modal - Error Handling",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:57:58.840Z",
+      "details": {
+        "hasErrorHandling": true
+      },
+      "error": null
+    },
+    {
+      "testName": "Verification Modal - Close Button Event Handling",
+      "status": "PASSED",
+      "timestamp": "2026-01-10T17:57:58.841Z",
+      "details": {
+        "hasStopPropagation": true
+      },
+      "error": null
+    }
+  ]
+}

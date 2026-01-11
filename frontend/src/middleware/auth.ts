@@ -59,7 +59,8 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith(route) && token) {
       try {
         // Verify token and get user role
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/me`, {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+        const response = await fetch(`${apiUrl}/auth/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',

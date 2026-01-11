@@ -223,15 +223,25 @@ export interface User {
   isEmailVerified: boolean;
   isPhoneVerified: boolean;
   preferredLanguage: 'en' | 'bn';
+  image?: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+// Login error payload interface
+export interface LoginErrorPayload {
+  message: string | null;
+  messageBn: string | null;
+  requiresVerification: boolean | null;
+  verificationType: 'email' | 'phone' | null;
+  code: string | null;
 }
 
 // Auth context type
 export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  error: string | null;
+  error: LoginErrorPayload | string | null;
   login: (emailOrPhone: string, password: string, rememberMe?: boolean) => Promise<void>;
   register: (data: RegistrationData) => Promise<void>;
   logout: () => void;
@@ -243,5 +253,6 @@ export interface AuthContextType {
   resetPassword: (token: string, password: string, confirmPassword: string) => Promise<void>;
   clearError: () => void;
   extendSession: () => Promise<void>;
+  updateUser: (user: User) => void;
   sessionTimeout: number | null;
 }

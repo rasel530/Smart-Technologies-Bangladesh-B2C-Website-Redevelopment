@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSession } from 'next-auth/react';
 import { User } from '@/types/auth';
 
 interface WithAuthProps {
@@ -15,20 +16,30 @@ interface AuthWrapperProps {
   isLoading: boolean;
 }
 
-const AuthWrapper: React.FC<AuthWrapperProps & WithAuthProps> = ({
-  children,
-  user,
-  isLoading,
-  requiredRole,
-  fallback,
-  redirectTo
-}) => {
+const AuthWrapper: React.FC<AuthWrapperProps & WithAuthProps> = ({ children, user, isLoading, requiredRole, fallback, redirectTo }) => {
   const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Redirect on mount using useEffect to avoid updating during render
+  useEffect(() => {
+    if (!mounted) return;
+    
+    // CRITICAL FIX: Check NextAuth session status directly
+    // This prevents redirecting during session restoration (loading state)
+    // Only redirect if session is definitely unauthenticated
+    if (sessionStatus === 'unauthenticated') {
+      if (redirectTo) {
+        router.push(redirectTo);
+      } else {
+        router.push('/login');
+      }
+    }
+  }, [sessionStatus, mounted, redirectTo, router]);
 
   // Show loading state
   if (isLoading || !mounted) {
@@ -41,11 +52,6 @@ const AuthWrapper: React.FC<AuthWrapperProps & WithAuthProps> = ({
 
   // Check if user is authenticated
   if (!user) {
-    if (redirectTo) {
-      router.push(redirectTo);
-    } else {
-      router.push('/login');
-    }
     return fallback || null;
   }
 
@@ -106,6 +112,7 @@ export function withAuth<P extends object>(
 // Hook for protected routes
 export function useProtectedRoute(requiredRole?: string | string[]) {
   const { user, isLoading } = useAuth();
+  const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -116,9 +123,14 @@ export function useProtectedRoute(requiredRole?: string | string[]) {
 
   useEffect(() => {
     if (isLoading || !mounted) return;
-
-    if (!user) {
-      router.push('/login');
+    
+    // CRITICAL FIX: Check NextAuth session status directly
+    // Only redirect if session is definitely unauthenticated
+    if (sessionStatus === 'unauthenticated') {
+      // Only redirect if not already on login page to prevent redirect loops
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+        router.push('/login');
+      }
       return;
     }
 

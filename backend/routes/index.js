@@ -9,6 +9,13 @@ const cartRoutes = require('./cart');
 const wishlistRoutes = require('./wishlist');
 const reviewRoutes = require('./reviews');
 const couponRoutes = require('./coupons');
+const notificationPreferencesRoutes = require('./notificationPreferences');
+const privacySettingsRoutes = require('./privacySettings');
+const accountDeletionRoutes = require('./accountDeletion');
+const userPreferencesRoutes = require('./userPreferences');
+const accountManagementRoutes = require('./accountManagement');
+const profileRoutes = require('./profile');
+const dataExportRoutes = require('./dataExport');
 
 const router = express.Router();
 
@@ -29,6 +36,13 @@ router.use('/v1/cart', cartRoutes);
 router.use('/v1/wishlist', wishlistRoutes);
 router.use('/v1/reviews', reviewRoutes);
 router.use('/v1/coupons', couponRoutes);
+// Mount preference routes under /api/v1/profile (REST best practice - use plural resources)
+router.use('/v1/profile', profileRoutes);
+router.use('/v1/profile/preferences', notificationPreferencesRoutes);
+router.use('/v1/profile/preferences', privacySettingsRoutes);
+router.use('/v1/profile/account', accountDeletionRoutes);
+router.use('/v1/profile/account', accountManagementRoutes);
+router.use('/v1/profile', dataExportRoutes);
 
 // API documentation endpoint
 router.get('/', (req, res) => {
@@ -40,6 +54,7 @@ router.get('/', (req, res) => {
       v1: {
         auth: '/api/v1/auth',
         users: '/api/v1/users',
+        profile: '/api/v1/profile',
         products: '/api/v1/products',
         categories: '/api/v1/categories',
         brands: '/api/v1/brands',
@@ -49,7 +64,11 @@ router.get('/', (req, res) => {
         reviews: '/api/v1/reviews',
         coupons: '/api/v1/coupons',
         sessions: '/api/v1/sessions',
-        health: '/api/v1/health'
+        health: '/api/v1/health',
+        notifications: '/api/v1/profile/preferences/notifications',
+        communication: '/api/v1/profile/preferences/communication',
+        privacy: '/api/v1/profile/preferences/privacy',
+        accountManagement: '/api/v1/profile/account'
       }
     },
     documentation: '/api-docs'

@@ -16,7 +16,8 @@
     "db:studio": "prisma studio",
     "db:seed": "node prisma/seed.js",
     "db:reset": "prisma migrate reset",
-    "setup": "node scripts/setup-database.js"
+    "setup": "node scripts/setup-database.js",
+    "migrate": "node scripts/run-migrations.js"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +25,7 @@
   "description": "Smart Technologies Bangladesh B2C Website Backend API",
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "axios": "^1.13.2",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dompurify": "^3.3.1",
@@ -35,6 +37,7 @@
     "jsdom": "^27.4.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.8",
     "pg": "^8.16.3",
     "redis": "^5.10.0",

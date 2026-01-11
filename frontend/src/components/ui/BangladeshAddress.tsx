@@ -62,6 +62,8 @@ const BangladeshAddress: React.FC<BangladeshAddressProps> = ({
   
   // Use refs to track programmatic updates to prevent infinite loops
   const isProgrammaticUpdateRef = useRef(false);
+  // Track initial props to only clear values when they actually change (not during initial render)
+  const initialPropsRef = useRef({ division, district, upazila });
 
   const handleDivisionChange = useCallback((newDivision: string) => {
     isProgrammaticUpdateRef.current = true;
@@ -92,15 +94,23 @@ const BangladeshAddress: React.FC<BangladeshAddressProps> = ({
       const districts = getDistrictsByDivision(division);
       setAvailableDistricts(districts);
       
-      // Reset district and upazila when division changes
-      if (district && !districts.find(d => d.id === district) && !isProgrammaticUpdateRef.current) {
+      // Reset district and upazila when division changes (but not during initial render)
+      // Only clear if this is a programmatic update AND district is not in available districts
+      // AND the initial props had a district that is now invalid
+      if (district && !districts.find(d => d.id === district) && !isProgrammaticUpdateRef.current && initialPropsRef.current.division !== division) {
+        console.log('[BangladeshAddress] Clearing district/upazila - district not found in available districts');
+        console.log('[BangladeshAddress] Initial division:', initialPropsRef.current.division, 'Current division:', division);
         handleDistrictChange('');
         handleUpazilaChange('');
       }
     } else {
       setAvailableDistricts([]);
       setAvailableUpazilas([]);
-      if (!isProgrammaticUpdateRef.current) {
+      // Only clear district/upazila if not initial render
+      // Only clear if this is a programmatic update AND initial props had a division
+      if (!isProgrammaticUpdateRef.current && initialPropsRef.current.division !== division) {
+        console.log('[BangladeshAddress] Clearing district/upazila - division is empty');
+        console.log('[BangladeshAddress] Initial division:', initialPropsRef.current.division, 'Current division:', division);
         handleDistrictChange('');
         handleUpazilaChange('');
       }
@@ -112,21 +122,45 @@ const BangladeshAddress: React.FC<BangladeshAddressProps> = ({
       const upazilas = getUpazilasByDistrict(district);
       setAvailableUpazilas(upazilas);
       
-      // Reset upazila when district changes
-      if (upazila && !upazilas.find(u => u.id === upazila) && !isProgrammaticUpdateRef.current) {
+      // Reset upazila when district changes (but not during initial render)
+      // Only clear if this is a programmatic update AND upazila is not in available upazilas
+      // AND the initial props had an upazila that is now invalid
+      if (upazila && !upazilas.find(u => u.id === upazila) && !isProgrammaticUpdateRef.current && initialPropsRef.current.district !== district) {
+        console.log('[BangladeshAddress] Clearing upazila - upazila not found in available upazilas');
+        console.log('[BangladeshAddress] Initial district:', initialPropsRef.current.district, 'Current district:', district);
         handleUpazilaChange('');
       }
     } else {
       setAvailableUpazilas([]);
-      if (!isProgrammaticUpdateRef.current) {
+      // Only clear upazila if not initial render
+      // Only clear if this is a programmatic update AND initial props had a district
+      if (!isProgrammaticUpdateRef.current && initialPropsRef.current.district !== district) {
+        console.log('[BangladeshAddress] Clearing upazila - district is empty');
+        console.log('[BangladeshAddress] Initial district:', initialPropsRef.current.district, 'Current district:', district);
         handleUpazilaChange('');
       }
     }
   }, [district, upazila]);
 
+  // Update initial props ref when props change
+  useEffect(() => {
+    initialPropsRef.current = { division, district, upazila };
+    console.log('[BangladeshAddress] Initial props updated:', initialPropsRef.current);
+  }, [division, district, upazila]);
+
   const selectedDivision = getDivisionById(division);
   const selectedDistrict = getDistrictById(district);
   const selectedUpazila = getUpazilaById(upazila);
+
+  // Debug logging
+  console.log('[BangladeshAddress] === SELECT VALUE DEBUG ===');
+  console.log('[BangladeshAddress] Division prop:', division, '(Type:', typeof division, ')');
+  console.log('[BangladeshAddress] District prop:', district, '(Type:', typeof district, ')');
+  console.log('[BangladeshAddress] Upazila prop:', upazila, '(Type:', typeof upazila, ')');
+  console.log('[BangladeshAddress] Selected division:', selectedDivision);
+  console.log('[BangladeshAddress] Selected district:', selectedDistrict);
+  console.log('[BangladeshAddress] Selected upazila:', selectedUpazila);
+  console.log('[BangladeshAddress] ======================================');
 
   const displayError = (field: 'division' | 'district' | 'upazila') => {
     if (language === 'bn' && errorsBn?.[field]) {

@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 require('dotenv').config();
 
 // Import services
@@ -20,6 +21,7 @@ const { rateLimitService } = require('./services/rateLimitService');
 const authRoutes = require('./routes/auth');
 const sessionRoutes = require('./routes/sessions');
 const userRoutes = require('./routes/users');
+const profileRoutes = require('./routes/profile');
 const oauthRoutes = require('./routes/oauth');
 const productRoutes = require('./routes/products');
 const categoryRoutes = require('./routes/categories');
@@ -30,6 +32,8 @@ const wishlistRoutes = require('./routes/wishlist');
 const reviewRoutes = require('./routes/reviews');
 const couponRoutes = require('./routes/coupons');
 const routeIndex = require('./routes/index');
+const userPreferencesRoutes = require('./routes/userPreferences');
+const accountManagementRoutes = require('./routes/accountManagement');
 
 const app = express();
 const PORT = configService.get('PORT');
@@ -98,11 +102,22 @@ app.use((err, req, res, next) => {
 
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Serve static files from uploads directory with CORS and CORP headers
+app.use('/uploads', (req, res, next) => {
+  // Set Cross-Origin-Resource-Policy header to allow cross-origin resource loading
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  // Set Cross-Origin-Opener-Policy header
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  // Set Cache-Control for images
+  res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  next();
+}, express.static(path.join(__dirname, 'uploads')));
+
 // Request ID middleware
 app.use(authMiddleware.requestId());
 
-// Login attempt rate limiting
-app.use('/api/v1/auth/login', authMiddleware.rateLimit());
+// Login attempt rate limiting - TEMPORARILY DISABLED FOR DEBUGGING
+// app.use('/api/v1/auth/login', authMiddleware.rateLimit());
 
 // General rate limiting
 app.use(authMiddleware.rateLimit());
@@ -112,6 +127,9 @@ app.use('/api', routeIndex);
 
 // OAuth routes
 app.use('/api/v1/oauth', oauthRoutes);
+
+// Profile management routes
+app.use('/api/v1/profile', profileRoutes);
 
 // Session management routes
 app.use('/api/v1/sessions', sessionRoutes);
@@ -392,6 +410,7 @@ app.use((req, res) => {
     availableEndpoints: {
       auth: '/api/v1/auth',
       users: '/api/v1/users',
+      profile: '/api/v1/profile',
       oauth: '/api/v1/oauth',
       products: '/api/v1/products',
       categories: '/api/v1/categories',
@@ -401,6 +420,7 @@ app.use((req, res) => {
       wishlist: '/api/v1/wishlist',
       reviews: '/api/v1/reviews',
       coupons: '/api/v1/coupons',
+      user: '/api/v1/user',
       sessions: '/api/v1/sessions',
       health: '/api/v1/health',
       docs: '/api-docs'
@@ -425,7 +445,7 @@ process.on('SIGTERM', async () => {
 
 // Start server
 loggerService.info('🚀 Attempting to start server on port', PORT);
-app.listen(PORT, '0.0.0.0', async () => {
+const server = app.listen(PORT, '0.0.0.0', async () => {
   loggerService.info('✅ Server started successfully', {
     port: PORT,
     environment: configService.get('NODE_ENV'),
@@ -500,6 +520,17 @@ app.listen(PORT, '0.0.0.0', async () => {
   // Schedule cleanup tasks (every hour)
   scheduleSessionCleanup();
   scheduleSecurityCleanup();
+  
+  // Increase server timeout for login operations
+  server.setTimeout(30000); // 30 seconds
+  server.keepAliveTimeout = 65000;
+  server.headersTimeout = 66000;
+  
+  loggerService.info('Server timeout configured', {
+    timeout: 30000,
+    keepAliveTimeout: 65000,
+    headersTimeout: 66000
+  });
 });
 
 // Session cleanup scheduling

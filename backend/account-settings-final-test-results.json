@@ -1,0 +1,134 @@
+{
+  "authentication": {
+    "passed": 1,
+    "failed": 0,
+    "tests": [
+      {
+        "test": "Login successful",
+        "passed": true,
+        "details": "User ID: 1b5dc062-f8ca-4889-b79f-da8cc1db3eaa, Token: eyJhbGciOiJIUzI1NiIs..."
+      }
+    ]
+  },
+  "notificationPreferences": {
+    "passed": 2,
+    "failed": 0,
+    "tests": [
+      {
+        "test": "GET notifications endpoint",
+        "passed": true,
+        "details": "Status: 200, Success: true, Has preferences: true"
+      },
+      {
+        "test": "PUT notifications endpoint",
+        "passed": true,
+        "details": "Status: 200, Success: true, Has preferences: true"
+      }
+    ]
+  },
+  "communicationPreferences": {
+    "passed": 2,
+    "failed": 0,
+    "tests": [
+      {
+        "test": "GET communication endpoint",
+        "passed": true,
+        "details": "Status: 200, Success: true, Has preferences: true"
+      },
+      {
+        "test": "PUT communication endpoint",
+        "passed": true,
+        "details": "Status: 200, Success: true, Has preferences: true"
+      }
+    ]
+  },
+  "privacySettings": {
+    "passed": 2,
+    "failed": 0,
+    "tests": [
+      {
+        "test": "GET privacy endpoint",
+        "passed": true,
+        "details": "Status: 200, Success: true, Has settings: true"
+      },
+      {
+        "test": "PUT privacy endpoint",
+        "passed": true,
+        "details": "Status: 200, Success: true, Has settings: true"
+      }
+    ]
+  },
+  "responseFormat": {
+    "passed": 6,
+    "failed": 0,
+    "tests": [
+      {
+        "test": "Notifications GET response format",
+        "passed": true,
+        "details": "Expected: { success: true, data: { preferences: {...} } }"
+      },
+      {
+        "test": "Notifications PUT response format (no extra message)",
+        "passed": true,
+        "details": "Expected: { success: true, data: { preferences: {...} } }"
+      },
+      {
+        "test": "Communication GET response format",
+        "passed": true,
+        "details": "Expected: { success: true, data: { preferences: {...} } }"
+      },
+      {
+        "test": "Communication PUT response format (no extra message)",
+        "passed": true,
+        "details": "Expected: { success: true, data: { preferences: {...} } }"
+      },
+      {
+        "test": "Privacy GET uses correct format (data.settings)",
+        "passed": true,
+        "details": "Response uses data.settings format"
+      },
+      {
+        "test": "Privacy PUT uses correct format (data.settings)",
+        "passed": true,
+        "details": "Response uses data.settings format"
+      }
+    ]
+  },
+  "security": {
+    "passed": 2,
+    "failed": 0,
+    "tests": [
+      {
+        "test": "Authentication required (401/403)",
+        "passed": true,
+        "details": "Status: 401 - correctly requires authentication"
+      },
+      {
+        "test": "Old privacy route removed (404)",
+        "passed": true,
+        "details": "Old /preferences/privacy route correctly returns 404"
+      }
+    ]
+  },
+  "frontendCompatibility": {
+    "passed": 3,
+    "failed": 0,
+    "tests": [
+      {
+        "test": "NotificationSettings can extract preferences",
+        "passed": true,
+        "details": "response.data.preferences exists: true"
+      },
+      {
+        "test": "PrivacySettings can extract settings",
+        "passed": true,
+        "details": "response.data.settings exists: true"
+      },
+      {
+        "test": "CommunicationPreferences can extract preferences",
+        "passed": true,
+        "details": "response.data.preferences exists: true"
+      }
+    ]
+  }
+}

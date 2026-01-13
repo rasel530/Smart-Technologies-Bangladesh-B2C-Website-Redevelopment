@@ -381,4 +381,39 @@ router.get('/2fa/status', authMiddleware.authenticate(), async (req, res) => {
   }
 });
 
+// POST /api/user/password/change
+router.post('/password/change', [
+  body('currentPassword').notEmpty().trim().withMessage('Current password is required'),
+  body('newPassword').isLength({ min: 8, max: 128 }).withMessage('Password must be between 8 and 128 characters'),
+  body('confirmPassword').notEmpty().trim().withMessage('Password confirmation is required')
+], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
+  try {
+    console.log('[Password Change] Request body:', req.body);
+    console.log('[Password Change] User ID:', req.user?.id);
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const userId = req.user.id;
+    
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password and confirm password do not match'
+      });
+    }
+    
+    const { accountPreferencesService } = require('../services/accountPreferences.service');
+    await accountPreferencesService.changePassword(userId, currentPassword, newPassword);
+    
+    res.json({
+      success: true,
+      message: 'Password changed successfully'
+    });
+  } catch (error) {
+    console.error('Password change error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to change password'
+    });
+  }
+});
+
 module.exports = router;

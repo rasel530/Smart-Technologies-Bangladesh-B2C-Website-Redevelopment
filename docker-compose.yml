@@ -2,19 +2,21 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: smarttech_frontend
     restart: unless-stopped
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
-    mem_limit: 2g
-    memswap_limit: 3g
+    mem_limit: 4g
+    memswap_limit: 6g
+    mem_reservation: 2g
     environment:
+      - NODE_OPTIONS=--max-old-space-size=1536 --max-semi-space-size=128
       - NEXT_PUBLIC_API_URL=http://localhost:3001/api/v1
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
       - NEXT_PUBLIC_BACKEND_API_URL=http://localhost:3001/api/v1
       - BACKEND_API_URL=http://backend:3000/api/v1
-      - NODE_ENV=development
+      - NODE_ENV=production
       - IS_DOCKER=true
       - NEXT_PRIVATE_SKIP_SWC=1
       # NextAuth Configuration - CRITICAL for session persistence
@@ -24,10 +26,6 @@ services:
       - NEXTAUTH_SESSION_UPDATE_AGE=86400
       - NEXTAUTH_DEBUG=true
       - NEXTAUTH_SECURE_COOKIES=false
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
     networks:
       - smarttech_network
     depends_on:
@@ -36,16 +34,20 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: smarttech_backend
     restart: unless-stopped
     ports:
       - "3001:3000"
+    mem_limit: 4g
+    memswap_limit: 6g
+    mem_reservation: 2g
     environment:
       # Environment Detection - Critical for Redis configuration
-      - NODE_ENV=development
+      - NODE_ENV=production
       - IS_DOCKER=true
       - DOCKER_ENV=true
+      - NODE_OPTIONS=--max-old-space-size=2048 --max-semi-space-size=256
       
       # Application Configuration
       - PORT=3000
@@ -72,10 +74,10 @@ services:
       - ELASTICSEARCH_NODE=http://elasticsearch:9200
       - OLLAMA_HOST=http://ollama:11434
       
-      # Testing Configuration (Enabled in Development)
-      - DISABLE_EMAIL_VERIFICATION=true
-      - DISABLE_PHONE_VERIFICATION=true
-      - TESTING_MODE=true
+      # Testing Configuration (Disabled in Production)
+      - DISABLE_EMAIL_VERIFICATION=false
+      - DISABLE_PHONE_VERIFICATION=false
+      - TESTING_MODE=false
       
       # Security Configuration
       - BCRYPT_ROUNDS=12
@@ -85,6 +87,7 @@ services:
       - UPLOAD_PATH="./uploads"
     volumes:
       - ./backend:/app
+      - ./backend/exports:/app/exports
       - /app/node_modules
     networks:
       - smarttech_network

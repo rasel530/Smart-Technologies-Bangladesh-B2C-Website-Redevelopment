@@ -8,11 +8,26 @@ const nextConfig = {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1',
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
   },
+  // Optimize file watching for Docker environment
+  webpack: (config, { isServer }) => {
+    // Reduce file system overhead in Docker
+    config.watchOptions = {
+      poll: 3000, // Check for changes every 3 seconds (less aggressive)
+      aggregateTimeout: 600, // Longer delay before rebuilding
+      ignored: [
+        '**/node_modules/**',
+        '**/.git/**',
+        '**/.next/**',
+        '**/dist/**',
+        '**/[provider]/**', // Exclude dynamic route from watching
+      ],
+    };
+    return config;
+  },
   async rewrites() {
-    // In Docker, use the service name 'backend' instead of 'localhost'
-    const backendUrl = process.env.IS_DOCKER === 'true'
-      ? 'http://backend:3000'
-      : 'http://localhost:3001';
+    // Always use Docker network URL since we're running in Docker
+    // The backend service is accessible at http://backend:3000 within the Docker network
+    const backendUrl = 'http://backend:3000';
     
     return [
       // Keep NextAuth routes on frontend - do not proxy to backend
@@ -20,10 +35,19 @@ const nextConfig = {
         source: '/api/auth/:path*',
         destination: '/api/auth/:path*',
       },
-      // Proxy backend API routes - preserve full path including /api/v1/
-      // This excludes /api/auth/* which is handled by NextAuth
+      // Keep profile routes on frontend - do not proxy to backend (handled by custom route)
       {
-        source: '/api/:path((?!auth).)*',
+        source: '/api/v1/profile/:path*',
+        destination: '/api/v1/profile/:path*',
+      },
+      // Proxy other /api/v1 routes to backend (excluding profile)
+      {
+        source: '/api/v1/:path((?!profile).)*',
+        destination: `${backendUrl}/api/v1/:path*`,
+      },
+      // Proxy other backend API routes (excluding /api/auth and /api/v1)
+      {
+        source: '/api/:path((?!auth|v1).)*',
         destination: `${backendUrl}/api/:path*`,
       },
       // Proxy static file uploads to avoid CORS issues

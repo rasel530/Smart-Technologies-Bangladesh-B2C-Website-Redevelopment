@@ -220,6 +220,9 @@ class AuthMiddleware {
           role: user.role
         });
         
+        // Preserve req.body for downstream handlers
+        const originalBody = req.body;
+        
         next();
         
       } catch (error) {

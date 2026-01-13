@@ -124,6 +124,44 @@ router.put('/me', [
 ], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
   try {
     const userId = req.user.id;
+    
+    // Log request details for debugging
+    console.log('[Profile Update] Request received');
+    console.log('[Profile Update] req.body:', req.body);
+    console.log('[Profile Update] req.body type:', typeof req.body);
+    console.log('[Profile Update] req.body keys:', req.body ? Object.keys(req.body) : 'N/A');
+    console.log('[Profile Update] Content-Type header:', req.get('Content-Type'));
+    console.log('[Profile Update] Content-Length header:', req.get('Content-Length'));
+    
+    // Check if req.body exists and is valid
+    if (!req.body || typeof req.body !== 'object') {
+      console.error('[Profile Update] Invalid request body:', req.body);
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid request body',
+        message: 'Request body is missing or invalid'
+      });
+    }
+    
+    // Check if body has at least one field to update
+    const bodyKeys = Object.keys(req.body || {});
+    const hasData = bodyKeys.some(key =>
+      key === 'firstName' ||
+      key === 'lastName' ||
+      key === 'phone' ||
+      key === 'dateOfBirth' ||
+      key === 'gender'
+    );
+    
+    if (!hasData) {
+      console.error('[Profile Update] No update data provided in body:', req.body);
+      return res.status(400).json({
+        success: false,
+        error: 'No update data provided',
+        message: 'At least one field must be provided for update'
+      });
+    }
+    
     const { firstName, lastName, phone, dateOfBirth, gender } = req.body;
 
     // Check if user exists
@@ -602,212 +640,6 @@ router.post('/me/phone/confirm', [
       success: false,
       error: 'Failed to confirm phone change',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
-// Get account settings
-router.get('/me/settings', authMiddleware.authenticate(), async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    // For now, return default settings
-    // In production, this would be stored in a user_settings table
-    const settings = {
-      notifications: {
-        email: {
-          orderUpdates: true,
-          specialOffers: true,
-          newsletter: false
-        },
-        sms: {
-          orderUpdates: true,
-          specialOffers: false
-        }
-      },
-      privacy: {
-        profileVisibility: 'public',
-        showOrders: false,
-        showReviews: false
-      },
-      preferences: {
-        language: 'en',
-        currency: 'BDT'
-      }
-    };
-
-    res.json({
-      success: true,
-      data: { settings }
-    });
-
-  } catch (error) {
-    console.error('Get settings error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch settings',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
-// Update account settings
-router.put('/me/settings', [
-  body('notifications').optional().isObject(),
-  body('privacy').optional().isObject(),
-  body('preferences').optional().isObject()
-], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { notifications, privacy, preferences } = req.body;
-
-    // In production, this would update a user_settings table
-    // For now, just return success
-    const settings = {
-      notifications: notifications || {},
-      privacy: privacy || {},
-      preferences: preferences || {}
-    };
-
-    res.json({
-      success: true,
-      data: {
-        message: 'Settings updated successfully',
-        settings
-      }
-    });
-
-  } catch (error) {
-    console.error('Update settings error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to update settings',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
-// Request account deletion
-router.post('/me/delete', [
-  body('password').notEmpty()
-], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { password } = req.body;
-
-    // Verify password
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        _count: {
-          select: {
-            orders: true
-          }
-        }
-      }
-    });
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: 'User not found'
-      });
-    }
-
-    // Check if user has orders
-    if (user._count.orders > 0) {
-      return res.status(400).json({
-        success: false,
-        error: 'Cannot delete account with existing orders',
-        suggestion: 'Contact support for assistance'
-      });
-    }
-
-    // In production, verify password before deletion
-    // For now, just generate deletion token
-    const deletionToken = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
-    res.json({
-      success: true,
-      data: {
-        message: 'Account deletion requested',
-        requiresConfirmation: true,
-        deletionToken: process.env.NODE_ENV === 'development' ? deletionToken : undefined,
-        expiresAt
-      }
-    });
-
-  } catch (error) {
-    console.error('Request account deletion error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to request account deletion',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
-// Confirm account deletion
-router.post('/me/delete/confirm', [
-  body('token').notEmpty()
-], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { token } = req.body;
-
-    // In production, verify deletion token
-    // For now, proceed with deletion
-    await prisma.user.delete({
-      where: { id: userId }
-    });
-
-    res.json({
-      success: true,
-      data: {
-        message: 'Account deleted successfully'
-      }
-    });
-
-  } catch (error) {
-    console.error('Confirm account deletion error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to delete account',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
-// Change password
-router.post('/me/password/change', [
-  body('currentPassword').notEmpty(),
-  body('newPassword').notEmpty().isLength({ min: 8 }),
-  body('confirmPassword').notEmpty()
-], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
-  try {
-    const { currentPassword, newPassword, confirmPassword } = req.body;
-    const userId = req.user.id;
-    
-    if (newPassword !== confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        message: 'New password and confirm password do not match'
-      });
-    }
-    
-    const { accountPreferencesService } = require('../services/accountPreferences.service');
-    await accountPreferencesService.changePassword(userId, currentPassword, newPassword);
-    
-    res.json({
-      success: true,
-      message: 'Password changed successfully'
-    });
-  } catch (error) {
-    console.error('Password change error:', error);
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to change password'
     });
   }
 });

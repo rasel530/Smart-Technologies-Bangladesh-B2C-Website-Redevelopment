@@ -9,9 +9,9 @@ COPY package*.json ./
 
 # Environment variables are provided by docker-compose
 
-# Install dependencies and OpenSSL for Prisma
+# Install dependencies, OpenSSL, and curl for healthcheck
 RUN npm ci --only=production && \
-  apk add --no-cache openssl
+  apk add --no-cache openssl curl
 
 # Copy Prisma schema and generate Prisma client
 COPY prisma ./prisma/
@@ -32,8 +32,8 @@ USER nodejs
 EXPOSE 3000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node healthcheck.js
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
+  CMD curl -f http://localhost:3000/api/v1/health || exit 1
 
 # Start the application
 CMD ["node", "index.js"]

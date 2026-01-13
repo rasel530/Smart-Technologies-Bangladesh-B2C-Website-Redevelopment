@@ -21,6 +21,8 @@ CREATE TABLE IF NOT EXISTS user_notification_preferences (
   order_updates BOOLEAN DEFAULT true,
   promotional_emails BOOLEAN DEFAULT true,
   security_alerts BOOLEAN DEFAULT true,
+  newsletter_subscription BOOLEAN DEFAULT true,
+  notification_frequency VARCHAR(20) DEFAULT 'immediate',
   
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -109,7 +111,7 @@ CREATE TRIGGER update_user_privacy_settings_updated_at
   EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================
--- 2. CREATE account_deletion_requests TABLE
+-- 5. CREATE account_deletion_requests TABLE
 -- ============================================
 -- Tracks account deletion requests and their status
 CREATE TABLE IF NOT EXISTS account_deletion_requests (
@@ -131,7 +133,7 @@ CREATE TABLE IF NOT EXISTS account_deletion_requests (
 );
 
 -- ============================================
--- 3. CREATE user_data_exports TABLE
+-- 6. CREATE user_data_exports TABLE
 -- ============================================
 -- Tracks user data export requests and their status
 CREATE TABLE IF NOT EXISTS user_data_exports (
@@ -155,7 +157,7 @@ CREATE TABLE IF NOT EXISTS user_data_exports (
 );
 
 -- ============================================
--- 4. UPDATE users TABLE WITH DELETION TRACKING COLUMNS
+-- 7. UPDATE users TABLE WITH DELETION TRACKING COLUMNS
 -- ============================================
 -- Add columns to track account status and deletion
 -- Note: Some columns may already exist from previous migrations
@@ -207,10 +209,16 @@ BEGIN
 END $$;
 
 -- ============================================
--- 5. CREATE INDEXES FOR PERFORMANCE
+-- 8. CREATE INDEXES FOR PERFORMANCE
 -- ============================================
--- Indexes for user_preferences table
-CREATE INDEX IF NOT EXISTS idx_user_preferences_user_id ON user_preferences(user_id);
+-- Indexes for user_notification_preferences table
+CREATE INDEX IF NOT EXISTS idx_user_notification_preferences_user_id ON user_notification_preferences(user_id);
+
+-- Indexes for user_communication_preferences table
+CREATE INDEX IF NOT EXISTS idx_user_communication_preferences_user_id ON user_communication_preferences(user_id);
+
+-- Indexes for user_privacy_settings table
+CREATE INDEX IF NOT EXISTS idx_user_privacy_settings_user_id ON user_privacy_settings(user_id);
 
 -- Indexes for account_deletion_requests table
 CREATE INDEX IF NOT EXISTS idx_account_deletion_user_id ON account_deletion_requests(user_id);
@@ -223,25 +231,6 @@ CREATE INDEX IF NOT EXISTS idx_user_data_exports_user_id ON user_data_exports(us
 CREATE INDEX IF NOT EXISTS idx_user_data_exports_token ON user_data_exports(export_token);
 CREATE INDEX IF NOT EXISTS idx_user_data_exports_status ON user_data_exports(status);
 CREATE INDEX IF NOT EXISTS idx_user_data_exports_expires_at ON user_data_exports(expires_at);
-
--- ============================================
--- 6. CREATE TRIGGER FOR UPDATED_AT TIMESTAMP
--- ============================================
--- Function to update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Trigger for user_preferences table
-DROP TRIGGER IF EXISTS update_user_preferences_updated_at ON user_preferences;
-CREATE TRIGGER update_user_preferences_updated_at
-  BEFORE UPDATE ON user_preferences
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================
 -- MIGRATION COMPLETE

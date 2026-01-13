@@ -10,6 +10,8 @@ const prisma = new PrismaClient();
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log('[VALIDATION ERROR] Request body:', JSON.stringify(req.body, null, 2));
+    console.log('[VALIDATION ERROR] Validation errors:', JSON.stringify(errors.array(), null, 2));
     return res.status(400).json({
       error: 'Validation failed',
       details: errors.array()
@@ -137,7 +139,14 @@ router.put('/:id', [
   param('id').isUUID(),
   body('firstName').optional().notEmpty().trim(),
   body('lastName').optional().notEmpty().trim(),
-  body('phone').optional().isMobilePhone('any'),
+  body('phone').optional().custom((value) => {
+    // Custom validation for Bangladesh phone numbers
+    if (!value) return true; // Optional field
+    // Accept formats: +8801XXXXXXXXX, 01XXXXXXXXX, or landline
+    const bdPhoneRegex = /^(\+880|0)?1[3-9]\d{8}$/;
+    const landlineRegex = /^(\+880|0)?[2-9]\d{8,9}$/;
+    return bdPhoneRegex.test(value) || landlineRegex.test(value);
+  }).withMessage('Please enter a valid Bangladesh phone number'),
   body('dateOfBirth').optional().isISO8601().toDate(),
   body('gender').optional().isIn(['MALE', 'FEMALE', 'OTHER'])
 ], handleValidationErrors, (req, res, next) => {
@@ -279,6 +288,11 @@ router.get('/:id/addresses', [
       orderBy: { isDefault: 'desc' }
     });
 
+    // Add cache control headers to prevent caching
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    
     res.json({ addresses });
 
   } catch (error) {
@@ -293,22 +307,42 @@ router.get('/:id/addresses', [
 // Create new address
 router.post('/:id/addresses', [
   param('id').isUUID(),
+  (req, res, next) => {
+    console.log('[ADDRESS PRE-VALIDATION] Request received');
+    console.log('[ADDRESS PRE-VALIDATION] Content-Type:', req.get('Content-Type'));
+    console.log('[ADDRESS PRE-VALIDATION] req.body:', req.body);
+    console.log('[ADDRESS PRE-VALIDATION] req.body type:', typeof req.body);
+    next();
+  },
   body('type').optional().isIn(['SHIPPING', 'BILLING']),
   body('firstName').notEmpty().trim(),
   body('lastName').notEmpty().trim(),
-  body('phone').optional().isMobilePhone('any'),
+  body('phone').optional().custom((value) => {
+    // Custom validation for Bangladesh phone numbers
+    if (!value) return true; // Optional field
+    // Accept formats: +8801XXXXXXXXX, 01XXXXXXXXX, or landline
+    const bdPhoneRegex = /^(\+880|0)?1[3-9]\d{8}$/;
+    const landlineRegex = /^(\+880|0)?[2-9]\d{8,9}$/;
+    return bdPhoneRegex.test(value) || landlineRegex.test(value);
+  }).withMessage('Please enter a valid Bangladesh phone number'),
   body('address').notEmpty().trim(),
   body('addressLine2').optional().trim(),
   body('city').notEmpty().trim(),
   body('district').notEmpty().trim(),
   body('division').isIn(['DHAKA', 'CHITTAGONG', 'RAJSHAHI', 'SYLHET', 'KHULNA', 'BARISHAL', 'RANGPUR', 'MYMENSINGH']),
-  body('upazila').optional().trim(),
+  body('upazila').optional().notEmpty().trim(),
   body('postalCode').optional().matches(/^\d{4}$/).withMessage('Postal code must be 4 digits'),
   body('isDefault').optional().isBoolean()
 ], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
   try {
     const { id } = req.params;
     const { type, firstName, lastName, phone, address, addressLine2, city, district, division, upazila, postalCode, isDefault } = req.body;
+    
+    console.log('[ADDRESS CREATE] Request params id:', id);
+    console.log('[ADDRESS CREATE] Request body:', JSON.stringify(req.body, null, 2));
+    console.log('[ADDRESS CREATE] Division value:', division, '(Type:', typeof division + ')');
+    console.log('[ADDRESS CREATE] District value:', district, '(Type:', typeof district + ')');
+    console.log('[ADDRESS CREATE] Upazila value:', upazila, '(Type:', typeof upazila + ')');
 
     // Check if user exists
     const user = await prisma.user.findUnique({
@@ -368,19 +402,33 @@ router.put('/:id/addresses/:addressId', [
   body('type').optional().isIn(['SHIPPING', 'BILLING']),
   body('firstName').optional().notEmpty().trim(),
   body('lastName').optional().notEmpty().trim(),
-  body('phone').optional().isMobilePhone('any'),
+  body('phone').optional().custom((value) => {
+    // Custom validation for Bangladesh phone numbers
+    if (!value) return true; // Optional field
+    // Accept formats: +8801XXXXXXXXX, 01XXXXXXXXX, or landline
+    const bdPhoneRegex = /^(\+880|0)?1[3-9]\d{8}$/;
+    const landlineRegex = /^(\+880|0)?[2-9]\d{8,9}$/;
+    return bdPhoneRegex.test(value) || landlineRegex.test(value);
+  }).withMessage('Please enter a valid Bangladesh phone number'),
   body('address').optional().notEmpty().trim(),
   body('addressLine2').optional().trim(),
   body('city').optional().notEmpty().trim(),
   body('district').optional().notEmpty().trim(),
   body('division').optional().isIn(['DHAKA', 'CHITTAGONG', 'RAJSHAHI', 'SYLHET', 'KHULNA', 'BARISHAL', 'RANGPUR', 'MYMENSINGH']),
-  body('upazila').optional().trim(),
+  body('upazila').optional().notEmpty().trim(),
   body('postalCode').optional().matches(/^\d{4}$/).withMessage('Postal code must be 4 digits'),
   body('isDefault').optional().isBoolean()
 ], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
   try {
+    console.log('[ADDRESS UPDATE] ===== UPDATE ADDRESS DEBUG =====');
+    console.log('[ADDRESS UPDATE] Request params:', req.params);
+    console.log('[ADDRESS UPDATE] Request body:', JSON.stringify(req.body, null, 2));
+    console.log('[ADDRESS UPDATE] Request body type:', typeof req.body);
+    
     const { id, addressId } = req.params;
     const { type, firstName, lastName, phone, address, addressLine2, city, district, division, upazila, postalCode, isDefault } = req.body;
+    
+    console.log('[ADDRESS UPDATE] Parsed values:', { id, addressId, type, firstName, lastName, phone, address, addressLine2, city, district, division, upazila, postalCode, isDefault });
 
     // Check if address exists and belongs to user
     const existingAddress = await prisma.address.findUnique({

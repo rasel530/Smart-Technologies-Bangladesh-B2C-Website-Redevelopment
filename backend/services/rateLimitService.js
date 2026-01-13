@@ -37,11 +37,15 @@ class RateLimitService {
 
     return async (req, res, next) => {
       console.log('[RATE LIMIT SERVICE] Middleware called for:', req.originalUrl);
+      console.log('[RATE LIMIT SERVICE] Request method:', req.method);
+      console.log('[RATE LIMIT SERVICE] req.body before processing:', req.body);
+      console.log('[RATE LIMIT SERVICE] req.body type:', typeof req.body);
       try {
         const key = config.keyGenerator(req);
         const now = Date.now();
         const windowStart = now - config.windowMs;
         console.log('[RATE LIMIT SERVICE] Key:', key, 'Window start:', windowStart);
+        console.log('[RATE LIMIT SERVICE] req.body after key generation:', req.body);
 
         // Check if we should skip this request
         if (this.shouldSkipRequest(req, res, config)) {
@@ -176,14 +180,10 @@ class RateLimitService {
   shouldSkipRequest(req, res, config) {
     // Skip successful requests if configured
     if (config.skipSuccessfulRequests) {
-      const originalSend = res.send;
-      res.send = function(data) {
-        res.send = originalSend;
-        if (res.statusCode < 400) {
-          req.skipRateLimit = true;
-        }
-        return originalSend.call(this, data);
-      };
+      // Don't replace res.send - just track skip status
+      if (res.statusCode < 400) {
+        req.skipRateLimit = true;
+      }
     }
 
     // Skip failed requests if configured

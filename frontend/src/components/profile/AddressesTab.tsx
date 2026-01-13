@@ -46,9 +46,29 @@ const AddressesTab: React.FC<AddressesTabProps> = ({ language }) => {
         throw new Error('User not authenticated');
       }
       const userId = user.id;
+      console.log('[AddressesTab] Fetching addresses for userId:', userId);
       const response = await AddressAPI.getAddresses(userId);
+      console.log('[AddressesTab] API Response:', response);
+      console.log('[AddressesTab] Response type:', typeof response);
+      console.log('[AddressesTab] Is array?', Array.isArray(response));
+      
+      // 🔴 DEBUG: Check if response is valid before setting
+      if (!response) {
+        console.error('[AddressesTab] ❌ Response is undefined/null');
+        setAddresses([]);
+        return;
+      }
+      
+      console.log('[AddressesTab] ✅ Response is valid, setting addresses');
       setAddresses(response);
     } catch (err: any) {
+      console.error('[AddressesTab] Error fetching addresses:', err);
+      console.error('[AddressesTab] Error details:', {
+        message: err.message,
+        response: err.response,
+        data: err.response?.data,
+        stack: err.stack
+      });
       const errorMessage = err.response?.data?.error || err.message ||
         (language === 'en' ? 'Failed to load addresses' : 'ঠিকানা লোড করতে ব্যর্থ হয়েছে');
       setError(errorMessage);

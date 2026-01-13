@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 // Additional utility function for conditional class names
 export function cnx(...inputs: (string | boolean | undefined | null)[]) {
-  return clsx(inputs.filter(Boolean)).join(' ');
+  return clsx(inputs.filter(Boolean));
 }
 
 export function formatDate(date: Date, language: 'en' | 'bn' = 'en'): string {

@@ -168,7 +168,11 @@ export function useAccountPreferences() {
     setError(null);
 
     try {
-      await AccountPreferencesAPI.changePassword(currentPassword, newPassword, confirmPassword);
+      await AccountPreferencesAPI.changePassword({
+        currentPassword,
+        newPassword,
+        confirmPassword
+      });
     } catch (err: any) {
       setError(err.message || 'Failed to change password');
       throw err;
@@ -217,13 +221,13 @@ export function useAccountPreferences() {
   }, [privacySettings]);
 
   // Request account deletion
-  const requestAccountDeletion = useCallback(async (reason?: string, confirmation: string) => {
+  const requestAccountDeletion = useCallback(async (confirmation: string, reason?: string) => {
     setIsSaving(true);
     setError(null);
 
     try {
       const result = await AccountPreferencesAPI.requestAccountDeletion({ reason, confirmation });
-      setDeletionStatus(result);
+      setDeletionStatus({ status: 'pending', ...result });
       return result;
     } catch (err: any) {
       setError(err.message || 'Failed to request account deletion');

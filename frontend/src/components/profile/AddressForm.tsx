@@ -184,8 +184,15 @@ const AddressForm: React.FC<AddressFormProps> = ({
         onCancel();
       }, 1500);
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || err.message || 
+      // Handle both ApiError and Axios-style errors
+      const errorMessage = err?.data?.error || err?.response?.data?.error || err.message ||
         (language === 'en' ? 'Failed to save address' : 'ঠিকানা সংরক্ষণ করতে ব্যর্থ হয়েছে');
+      console.error('[AddressForm] Error details:', {
+        message: err.message,
+        data: err.data,
+        response: err.response,
+        status: err.status
+      });
       setErrors({ submit: errorMessage });
       setErrorsBn({ submit: errorMessage });
     } finally {

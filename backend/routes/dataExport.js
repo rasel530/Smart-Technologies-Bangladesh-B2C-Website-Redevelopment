@@ -25,13 +25,13 @@ const rateLimitMap = new Map();
 
 const checkRateLimit = (userId, action, res) => {
   const now = Date.now();
-  const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+  const fiveMinutes = 5 * 60 * 1000; // 5 minutes in milliseconds
 
   const key = `${userId}_${action}`;
   const lastAttempt = rateLimitMap.get(key);
 
-  if (lastAttempt && (now - lastAttempt < oneHour)) {
-    const remainingTime = Math.ceil((oneHour - (now - lastAttempt)) / 1000 / 60); // minutes
+  if (lastAttempt && (now - lastAttempt < fiveMinutes)) {
+    const remainingTime = Math.ceil((fiveMinutes - (now - lastAttempt)) / 1000 / 60); // minutes
     return res.status(429).json({
       error: 'Too many requests',
       message: `Please wait ${remainingTime} minutes before trying again`,
@@ -113,10 +113,14 @@ router.post('/data/export/generate', [
       message: 'Data export request submitted. You will receive an email when the export is ready.',
       messageBn: 'ডাটা এক্সপোর্ট অনুরোধ জমা হয়েছে। এক্সপোর্ট প্রস্ত হলে আপনাকে ইমেল পাঠানো হবে।',
       data: {
-        exportId: result.exportId,
-        exportToken: result.exportToken,
-        status: result.status,
-        expiresAt: result.expiresAt
+        export: {
+          exportId: result.exportId,
+          dataTypes: req.body.dataTypes,
+          format: req.body.format,
+          status: result.status,
+          requestedAt: new Date().toISOString(),
+          expiresAt: result.expiresAt
+        }
       }
     });
   } catch (error) {
@@ -134,11 +138,44 @@ router.post('/data/export/generate', [
  * Download exported data
  */
 router.get('/data/export/:exportId', authMiddleware.authenticate(), async (req, res) => {
+  console.log('[DataExport Route] GET /data/export/:exportId called');
+  console.log('[DataExport Route] exportId:', req.params.exportId);
+  console.log('[DataExport Route] userId:', req.user.id);
+  console.log('[DataExport Route] Request headers:', req.headers);
+  
   try {
     const userId = req.user.id;
     const { exportId } = req.params;
 
+    console.log('[DataExport Route] Calling getExportById...');
     const exportRecord = await dataExportService.getExportById(exportId, userId);
+
+    console.log('[DataExport Route] Export record found:', {
+      id: exportRecord.id,
+      status: exportRecord.status,
+      fileUrl: exportRecord.fileUrl,
+      userId: exportRecord.userId,
+      expiresAt: exportRecord.expiresAt
+    });
+    
+    // Check if file exists
+    const fs = require('fs').promises;
+    const path = require('path');
+    const exportDir = path.join(__dirname, '..', 'exports');
+    const filename = exportRecord.fileUrl ? exportRecord.fileUrl.replace('/exports/', '') : null;
+    
+    if (filename) {
+      const filepath = path.join(exportDir, filename);
+      console.log('[DataExport Route] Checking if file exists:', filepath);
+      try {
+        await fs.access(filepath);
+        console.log('[DataExport Route] File exists and is accessible');
+      } catch (err) {
+        console.log('[DataExport Route] File does NOT exist or is not accessible:', err.message);
+      }
+    } else {
+      console.log('[DataExport Route] No fileUrl in export record');
+    }
 
     // In production, this would serve the file from S3/CloudFront
     // For now, return the download URL
@@ -152,6 +189,7 @@ router.get('/data/export/:exportId', authMiddleware.authenticate(), async (req, 
       }
     });
   } catch (error) {
+    console.error('[DataExport Route] Error:', error);
     loggerService.error('Download export error', error);
     if (error.message.includes('not found') || error.message.includes('expired') || error.message.includes('denied')) {
       res.status(404).json({

@@ -1,7 +1,8 @@
 import { ApiResponse } from '@/types/auth';
 
 // API base configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+// Use relative URLs to leverage Next.js rewrites
+const API_BASE_URL = '/api/v1';
 
 // Request options interface
 interface RequestOptions {
@@ -192,7 +193,15 @@ const handleResponse = async (
 
     let data;
     try {
-        data = isJson ? await response.json() : await response.text();
+        // Handle 304 Not Modified - return empty object or cached data
+        if (response.status === 304) {
+            console.log('[API Client] Received 304 Not Modified - returning empty data');
+            data = {};
+        } else if (isJson) {
+            data = await response.json();
+        } else {
+            data = await response.text();
+        }
     } catch (error) {
         throw new ApiError('Failed to parse response', response.status);
     }
@@ -251,6 +260,9 @@ const handleResponse = async (
         setToken(newToken);
     }
 
+    console.log('[API Client] Returning data:', data);
+    console.log('[API Client] Data type:', typeof data);
+    console.log('[API Client] Data structure:', JSON.stringify(data, null, 2));
     return data;
 };
 
@@ -298,6 +310,9 @@ const apiClient = {
             method,
             headers: {
                 ...authHeaders,
+                // Add cache control headers to prevent caching
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
             },
         };
 

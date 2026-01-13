@@ -31,29 +31,6 @@ export interface ProfileUpdateData {
   gender?: 'MALE' | 'FEMALE' | 'OTHER';
 }
 
-export interface AccountSettings {
-  notifications: {
-    email: {
-      orderUpdates: boolean;
-      specialOffers: boolean;
-      newsletter: boolean;
-    };
-    sms: {
-      orderUpdates: boolean;
-      specialOffers: boolean;
-    };
-  };
-  privacy: {
-    profileVisibility: string;
-    showOrders: boolean;
-    showReviews: boolean;
-  };
-  preferences: {
-    language: string;
-    currency: string;
-  };
-}
-
 export class ProfileAPI {
   private static readonly BASE_PATH = '/profile';
 
@@ -160,28 +137,6 @@ export class ProfileAPI {
   }
 
   /**
-   * Get account settings
-   */
-  static async getSettings(): Promise<{ settings: AccountSettings }> {
-    const response = await apiClient.get<{ settings: AccountSettings }>(`${this.BASE_PATH}/me/settings`);
-    return response.data;
-  }
-
-  /**
-   * Update account settings
-   */
-  static async updateSettings(settings: Partial<AccountSettings>): Promise<{
-    message: string;
-    settings: AccountSettings;
-  }> {
-    const response = await apiClient.put<{
-      message: string;
-      settings: AccountSettings;
-    }>(`${this.BASE_PATH}/me/settings`, settings);
-    return response.data;
-  }
-
-  /**
    * Request account deletion
    */
   static async requestAccountDeletion(password: string): Promise<{
@@ -196,168 +151,6 @@ export class ProfileAPI {
       deletionToken?: string;
       expiresAt: Date;
     }>(`${this.BASE_PATH}/me/delete`, { password });
-    return response.data;
-  }
-
-  /**
-   * Confirm account deletion
-   */
-  static async confirmAccountDeletion(token: string): Promise<{
-    message: string;
-  }> {
-    const response = await apiClient.post<{
-      message: string;
-    }>(`${this.BASE_PATH}/me/delete/confirm`, { token });
-    return response.data;
-  }
-}
-
-export interface NotificationPreferences {
-  id: string;
-  userId: string;
-  emailNotifications: boolean;
-  smsNotifications: boolean;
-  pushNotifications: boolean;
-  orderUpdates: boolean;
-  promotionalEmails: boolean;
-  securityAlerts: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface UpdateNotificationPreferencesData {
-  emailNotifications?: boolean;
-  smsNotifications?: boolean;
-  pushNotifications?: boolean;
-  orderUpdates?: boolean;
-  promotionalEmails?: boolean;
-  securityAlerts?: boolean;
-}
-
-export class NotificationPreferencesAPI {
-  private static readonly BASE_PATH = '/user';
-
-  /**
-   * Get user's notification preferences
-   */
-  static async getPreferences(): Promise<{ preferences: NotificationPreferences }> {
-    const response = await apiClient.get<{ preferences: NotificationPreferences }>(
-      `${this.BASE_PATH}/notification-preferences`
-    );
-    return response.data;
-  }
-
-  /**
-   * Update user's notification preferences
-   */
-  static async updatePreferences(data: UpdateNotificationPreferencesData): Promise<{
-    message: string;
-    preferences: NotificationPreferences;
-  }> {
-    const response = await apiClient.put<{
-      message: string;
-      preferences: NotificationPreferences;
-    }>(`${this.BASE_PATH}/notification-preferences`, data);
-    return response.data;
-  }
-}
-
-export interface CommunicationPreferences {
-  id: string;
-  userId: string;
-  preferredLanguage: string;
-  preferredTimezone: string;
-  preferredContactMethod: 'email' | 'phone' | 'both';
-  marketingConsent: boolean;
-  dataSharingConsent: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface UpdateCommunicationPreferencesData {
-  preferredLanguage?: string;
-  preferredTimezone?: string;
-  preferredContactMethod?: 'email' | 'phone' | 'both';
-  marketingConsent?: boolean;
-  dataSharingConsent?: boolean;
-}
-
-export class CommunicationPreferencesAPI {
-  private static readonly BASE_PATH = '/user';
-
-  /**
-   * Get user's communication preferences
-   */
-  static async getPreferences(): Promise<{ preferences: CommunicationPreferences }> {
-    const response = await apiClient.get<{ preferences: CommunicationPreferences }>(
-      `${this.BASE_PATH}/communication-preferences`
-    );
-    return response.data;
-  }
-
-  /**
-   * Update user's communication preferences
-   */
-  static async updatePreferences(data: UpdateCommunicationPreferencesData): Promise<{
-    message: string;
-    preferences: CommunicationPreferences;
-  }> {
-    const response = await apiClient.put<{
-      message: string;
-      preferences: CommunicationPreferences;
-    }>(`${this.BASE_PATH}/communication-preferences`, data);
-    return response.data;
-  }
-}
-
-export interface PrivacySettings {
-  id: string;
-  userId: string;
-  profileVisibility: 'PUBLIC' | 'PRIVATE';
-  showEmail: boolean;
-  showPhone: boolean;
-  showAddress: boolean;
-  allowSearchByEmail: boolean;
-  allowSearchByPhone: boolean;
-  twoFactorEnabled: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface UpdatePrivacySettingsData {
-  profileVisibility?: 'PUBLIC' | 'PRIVATE';
-  showEmail?: boolean;
-  showPhone?: boolean;
-  showAddress?: boolean;
-  allowSearchByEmail?: boolean;
-  allowSearchByPhone?: boolean;
-  twoFactorEnabled?: boolean;
-}
-
-export class PrivacySettingsAPI {
-  private static readonly BASE_PATH = '/user';
-
-  /**
-   * Get user's privacy settings
-   */
-  static async getPreferences(): Promise<{ preferences: PrivacySettings }> {
-    const response = await apiClient.get<{ preferences: PrivacySettings }>(
-      `${this.BASE_PATH}/privacy-settings`
-    );
-    return response.data;
-  }
-
-  /**
-   * Update user's privacy settings
-   */
-  static async updatePreferences(data: UpdatePrivacySettingsData): Promise<{
-    message: string;
-    preferences: PrivacySettings;
-  }> {
-    const response = await apiClient.put<{
-      message: string;
-      preferences: PrivacySettings;
-    }>(`${this.BASE_PATH}/privacy-settings`, data);
     return response.data;
   }
 }
@@ -403,10 +196,32 @@ export class AddressAPI {
    * Get all addresses for a user
    */
   static async getAddresses(userId: string): Promise<Address[]> {
-    const response = await apiClient.get<{ addresses: Address[] }>(
-      `${this.BASE_PATH}/${userId}/addresses`
-    );
-    return response.addresses;
+    console.log('[AddressAPI] Fetching addresses for userId:', userId);
+    console.log('[AddressAPI] Endpoint:', `${this.BASE_PATH}/${userId}/addresses`);
+
+    try {
+      // apiClient.get() returns raw backend data directly
+      // Backend returns { addresses: [...] } directly, so response.data contains the addresses array
+      const apiResponse = await apiClient.get<{ addresses: Address[] }>(
+        `${this.BASE_PATH}/${userId}/addresses`
+      );
+      console.log('[AddressAPI] Full API response:', apiResponse);
+      console.log('[AddressAPI] API response type:', typeof apiResponse);
+      console.log('[AddressAPI] API response.addresses:', (apiResponse as any)?.addresses);
+
+      // Backend returns { addresses: [...] } directly
+      // apiClient.get() returns data directly, so we access apiResponse.addresses
+      if (!(apiResponse as any)?.addresses) {
+        console.log('[AddressAPI] No addresses data found, returning empty array');
+        return [];
+      }
+
+      return (apiResponse as any).addresses;
+    } catch (error) {
+      console.error('[AddressAPI] Error fetching addresses:', error);
+      // Return empty array on error instead of throwing
+      return [];
+    }
   }
 
   /**
@@ -420,7 +235,7 @@ export class AddressAPI {
       `${this.BASE_PATH}/${userId}/addresses`,
       data
     );
-    return response.address;
+    return (response as { address?: Address })?.address;
   }
 
   /**
@@ -435,7 +250,7 @@ export class AddressAPI {
       `${this.BASE_PATH}/${userId}/addresses/${addressId}`,
       data
     );
-    return response.address;
+    return (response as { address?: Address })?.address;
   }
 
   /**
@@ -460,7 +275,7 @@ export class AddressAPI {
     const response = await apiClient.put<{ address: Address }>(
       `${this.BASE_PATH}/${userId}/addresses/${addressId}/default`
     );
-    return response.address;
+    return (response as { address?: Address })?.address;
   }
 }
 

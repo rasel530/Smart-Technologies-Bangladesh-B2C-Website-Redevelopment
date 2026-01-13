@@ -28,7 +28,7 @@ console.log('[NextAuth Route Handler] - BACKEND_API_URL:', BACKEND_API_URL);
  * - Backend Integration: All credential validation happens via backend API
  * - Backward Compatibility: Works with existing backend auth system
  */
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   // Configure session strategy
   session: {
     strategy: 'jwt',

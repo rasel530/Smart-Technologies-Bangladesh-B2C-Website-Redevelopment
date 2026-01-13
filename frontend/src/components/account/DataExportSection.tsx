@@ -37,8 +37,15 @@ const DataExportSection: React.FC<DataExportSectionProps> = ({ language }) => {
 
     try {
       const data = await AccountPreferencesAPI.getDataExports();
+      console.log('[DataExport] Loaded exports:', data);
+      console.log('[DataExport] First export item:', data[0]);
+      if (data[0]) {
+        console.log('[DataExport] First export exportId:', data[0].exportId);
+        console.log('[DataExport] First export keys:', Object.keys(data[0]));
+      }
       setExports(data);
     } catch (err: any) {
+      console.error('[DataExport] Error loading exports:', err);
       setError(err.message || 'Failed to load exports');
     } finally {
       setIsLoading(false);
@@ -91,22 +98,41 @@ const DataExportSection: React.FC<DataExportSectionProps> = ({ language }) => {
   };
 
   const handleDownload = async (exportId: string) => {
+    console.log('[DataExport] handleDownload called with exportId:', exportId);
+    console.log('[DataExport] exportId type:', typeof exportId);
+    console.log('[DataExport] API URL:', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1');
+    
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/profile/data/export/${exportId}/download`,
-        {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+      // Get download URL from API - use correct endpoint without /download suffix
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/profile/data/export/${exportId}`;
+      console.log('[DataExport] Full API URL:', apiUrl);
+      
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Content-Type': 'application/json'
         }
-      );
+      });
 
+      console.log('[DataExport] Response status:', response.status);
       const data = await response.json();
+      console.log('[DataExport] Response data:', data);
+      
       if (data.success && data.data?.downloadUrl) {
-        window.location.href = data.data.downloadUrl;
+        console.log('[DataExport] Download URL from API:', data.data.downloadUrl);
+        console.log('[DataExport] Current window origin:', window.location.origin);
+        
+        // Construct full download URL with backend port
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+        const backendBaseUrl = backendUrl.replace('/api/v1', '');
+        const fullDownloadUrl = `${backendBaseUrl}${data.data.downloadUrl}`;
+        
+        console.log('[DataExport] Backend base URL:', backendBaseUrl);
+        console.log('[DataExport] Full download URL:', fullDownloadUrl);
+        
+        // Navigate to the download URL
+        window.location.href = fullDownloadUrl;
         setToast({
           type: 'success',
           message: language === 'en'
@@ -118,6 +144,7 @@ const DataExportSection: React.FC<DataExportSectionProps> = ({ language }) => {
         throw new Error(data.message || 'Failed to download export');
       }
     } catch (err: any) {
+      console.error('[DataExport] Download error:', err);
       setError(err.message || 'Failed to download export');
       setToast({
         type: 'error',

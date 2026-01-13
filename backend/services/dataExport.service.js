@@ -83,10 +83,25 @@ class DataExportService {
       // Process export asynchronously
       this.processExport(exportRecord.id, userId, dataTypes, format)
         .catch(error => {
-          this.logger.error('Error processing export', error);
+          this.logger.error('Error processing export', {
+            exportId: exportRecord.id,
+            userId,
+            dataTypes,
+            format,
+            error: error.message,
+            stack: error.stack
+          });
           this.prisma.userDataExports.update({
             where: { id: exportRecord.id },
-            data: { status: 'expired' }
+            data: {
+              status: 'failed',
+              errorMessage: error.message
+            }
+          }).catch(updateError => {
+            this.logger.error('Failed to update export status to failed', {
+              exportId: exportRecord.id,
+              updateError: updateError.message
+            });
           });
         });
 
@@ -100,7 +115,7 @@ class DataExportService {
       });
 
       return {
-        exportId: exportRecord.id,
+        exportId: exportRecord.id,  // Changed from 'id' to 'exportId' to match frontend type
         exportToken,
         status: 'processing',
         expiresAt
@@ -119,19 +134,38 @@ class DataExportService {
    * @param {string} format - Export format
    */
   async processExport(exportId, userId, dataTypes, format) {
+    this.logger.info('Starting export processing', {
+      exportId,
+      userId,
+      dataTypes,
+      format,
+      timestamp: new Date().toISOString()
+    });
+
     try {
       // Gather user data
+      this.logger.info('Gathering user data', { exportId, dataTypes });
       const userData = await this.gatherUserData(userId, dataTypes);
+      this.logger.info('User data gathered successfully', {
+        exportId,
+        dataTypes,
+        dataKeys: Object.keys(userData)
+      });
 
       // Generate file
       let fileUrl;
       if (format === 'json') {
+        this.logger.info('Generating JSON file', { exportId });
         fileUrl = await this.generateJsonFile(exportId, userData);
+        this.logger.info('JSON file generated', { exportId, fileUrl });
       } else if (format === 'csv') {
+        this.logger.info('Generating CSV file', { exportId });
         fileUrl = await this.generateCsvFile(exportId, userData);
+        this.logger.info('CSV file generated', { exportId, fileUrl });
       }
 
       // Update export record with file URL
+      this.logger.info('Updating export record to ready', { exportId, fileUrl });
       await this.prisma.userDataExports.update({
         where: { id: exportId },
         data: {
@@ -140,15 +174,25 @@ class DataExportService {
           readyAt: new Date()
         }
       });
+      this.logger.info('Export record updated successfully', { exportId });
 
-      this.logger.info('Export processed', {
+      this.logger.info('Export processed successfully', {
         exportId,
         userId,
         format,
-        fileUrl
+        fileUrl,
+        timestamp: new Date().toISOString()
       });
     } catch (error) {
-      this.logger.error('Error processing export', error);
+      this.logger.error('Error processing export', {
+        exportId,
+        userId,
+        dataTypes,
+        format,
+        error: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+      });
       throw error;
     }
   }
@@ -348,8 +392,14 @@ class DataExportService {
       const filename = `export_${exportId}_${Date.now()}.json`;
       const filepath = path.join(this.exportDir, filename);
 
+      this.logger.info('Generating JSON export file', { exportId, filename, filepath });
+
       // Write JSON file
       await fs.writeFile(filepath, JSON.stringify(userData, null, 2), 'utf8');
+
+      // Verify file was created
+      await fs.access(filepath);
+      this.logger.info('JSON export file created successfully', { filepath });
 
       // Return file URL (relative path for now, in production would use S3/CloudFront)
       return `/exports/${filename}`;
@@ -373,6 +423,8 @@ class DataExportService {
       // Generate filename
       const filename = `export_${exportId}_${Date.now()}.csv`;
       const filepath = path.join(this.exportDir, filename);
+
+      this.logger.info('Generating CSV export file', { exportId, filename, filepath });
 
       // Build CSV content
       let csvContent = '';
@@ -417,6 +469,10 @@ class DataExportService {
       // Write CSV file
       await fs.writeFile(filepath, csvContent, 'utf8');
 
+      // Verify file was created
+      await fs.access(filepath);
+      this.logger.info('CSV export file created successfully', { filepath });
+
       // Return file URL
       return `/exports/${filename}`;
     } catch (error) {
@@ -453,7 +509,7 @@ class DataExportService {
       });
 
       return exports.map(exp => ({
-        id: exp.id,
+        exportId: exp.id,  // Changed from 'id' to 'exportId' to match frontend type
         dataTypes: exp.dataTypes,
         format: exp.format,
         status: exp.status,

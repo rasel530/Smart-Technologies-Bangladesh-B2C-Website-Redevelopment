@@ -102,7 +102,7 @@ export class AccountPreferencesAPI {
    * Change password
    */
   static async changePassword(data: PasswordChangeData): Promise<void> {
-    await apiClient.post<{ message: string }>('/profile/me/password/change', data);
+    await apiClient.post<{ message: string }>('/profile/account/password/change', data);
   }
 
   // ==================== 2FA ====================
@@ -179,6 +179,12 @@ export class AccountPreferencesAPI {
     const response = await apiClient.get<{ exports: DataExport[] }>(
       '/profile/data/export'
     );
+    console.log('[AccountPreferencesAPI] getDataExports response:', response.data);
+    console.log('[AccountPreferencesAPI] exports array:', response.data.exports);
+    if (response.data.exports && response.data.exports.length > 0) {
+      console.log('[AccountPreferencesAPI] First export:', response.data.exports[0]);
+      console.log('[AccountPreferencesAPI] First export keys:', Object.keys(response.data.exports[0]));
+    }
     return response.data.exports;
   }
 
@@ -192,6 +198,7 @@ export class AccountPreferencesAPI {
       '/profile/data/export/generate',
       data
     );
+    console.log('[AccountPreferencesAPI] generateDataExport response:', response.data);
     return response.data.export;
   }
 

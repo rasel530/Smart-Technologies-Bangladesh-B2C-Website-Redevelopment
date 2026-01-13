@@ -10,7 +10,6 @@ import { ProfileAPI, UserProfile } from '@/lib/api/profile';
 import ProfileEditForm from '@/components/profile/ProfileEditForm';
 import ProfilePictureUpload from '@/components/profile/ProfilePictureUpload';
 import EmailPhoneChange from '@/components/profile/EmailPhoneChange';
-import AccountSettings from '@/components/profile/AccountSettings';
 import AddressesTab from '@/components/profile/AddressesTab';
 import {
   User as UserIcon,
@@ -18,8 +17,6 @@ import {
   Phone,
   Calendar,
   MapPin,
-  Shield,
-  Settings,
   LogOut,
   Package,
   Heart,
@@ -115,21 +112,9 @@ const AccountPage: React.FC<AccountPageProps> = () => {
     },
     {
       id: 'addresses',
-      label: language === 'en' ? 'Addresses' : '�িকানা',
+      label: language === 'en' ? 'Addresses' : 'ঠিকানা',
       labelBn: 'ঠিকানা',
       icon: MapPin,
-    },
-    {
-      id: 'security',
-      label: language === 'en' ? 'Security' : 'নিরাপত্তা',
-      labelBn: 'নিরাপত্তা',
-      icon: Shield,
-    },
-    {
-      id: 'settings',
-      label: language === 'en' ? 'Settings' : 'সেটিংস',
-      labelBn: 'সেটিংস',
-      icon: Settings,
     },
   ];
 
@@ -152,10 +137,6 @@ const AccountPage: React.FC<AccountPageProps> = () => {
         return <PaymentTab language={language} />;
       case 'addresses':
         return <AddressesTab language={language} />;
-      case 'security':
-        return <SecurityTab language={language} />;
-      case 'settings':
-        return <AccountSettings language={language} />;
       default:
         return <ProfileTab user={profileData || user} language={language} onEdit={() => setIsEditing(true)} onUpdate={handleProfileUpdate} />;
     }
@@ -322,7 +303,7 @@ const ProfileTab: React.FC<{ user: UserType | UserProfile | null; language: 'en'
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {language === 'en' ? 'Email' : 'ইমেল'}
+              {language === 'en' ? 'Email' : 'ইমেইল'}
             </label>
             <div className="p-3 bg-gray-50 rounded-md flex items-center">
               <Mail className="h-4 w-4 mr-2 text-gray-400" />
@@ -428,50 +409,5 @@ const PaymentTab: React.FC<{ language: 'en' | 'bn' }> = ({ language }) => (
     </p>
   </div>
 );
-
-const SecurityTab: React.FC<{ language: 'en' | 'bn' }> = ({ language }) => (
-  <div className="space-y-6">
-    <h2 className="text-xl font-bold text-gray-900 mb-6">
-      {language === 'en' ? 'Security Settings' : 'নিরাপত্তা সেটিংস'}
-    </h2>
-    
-    <div className="space-y-4">
-      <button className="w-full text-left p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-medium text-gray-900">
-              {language === 'en' ? 'Change Password' : 'পাসওয়ার্ড পরিবর্তন'}
-            </h3>
-            <p className="text-sm text-gray-600">
-              {language === 'en' 
-                ? 'Update your password to keep your account secure'
-                : 'আপনার অ্যাকাউন্ট নিরাপদ রাখতে পাসওয়ার্ড আপডেট করুন'
-              }
-            </p>
-          </div>
-          <ChevronRight className="h-5 w-5 text-gray-400" />
-        </div>
-      </button>
-
-      <button className="w-full text-left p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-medium text-gray-900">
-              {language === 'en' ? 'Two-Factor Authentication' : 'দ্বি-ফ্যাক্টর অথেন্টিকেশন'}
-            </h3>
-            <p className="text-sm text-gray-600">
-              {language === 'en' 
-                ? 'Add an extra layer of security to your account'
-                : 'আপনার অ্যাকাউন্টে অতিরিক্তা আরও একটি স্তর যোগ করুন'
-              }
-            </p>
-          </div>
-          <ChevronRight className="h-5 w-5 text-gray-400" />
-        </div>
-      </button>
-    </div>
-  </div>
-);
-
 
 export default withAuth(AccountPage);

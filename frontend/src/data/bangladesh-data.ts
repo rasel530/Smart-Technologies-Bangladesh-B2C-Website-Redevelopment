@@ -19,14 +19,14 @@ export interface Upazila {
 }
 
 export const divisions: Division[] = [
-  { id: '1', name: 'Barishal', nameBn: 'বরিশাল' },
-  { id: '2', name: 'Chattogram', nameBn: 'চট্টগ্রাম' },
-  { id: '3', name: 'Dhaka', nameBn: 'ঢাকা' },
-  { id: '4', name: 'Khulna', nameBn: 'খুলনা' },
-  { id: '5', name: 'Mymensingh', nameBn: 'ময়মনসিংহ' },
-  { id: '6', name: 'Rajshahi', nameBn: 'রাজশাহী' },
-  { id: '7', name: 'Rangpur', nameBn: 'রংপুর' },
-  { id: '8', name: 'Sylhet', nameBn: 'সিলেট' }
+  { id: '1', name: 'BARISHAL', nameBn: 'বরিশাল' },
+  { id: '2', name: 'CHITTAGONG', nameBn: 'চট্টগ্রাম' },
+  { id: '3', name: 'DHAKA', nameBn: 'ঢাকা' },
+  { id: '4', name: 'KHULNA', nameBn: 'খুলনা' },
+  { id: '5', name: 'MYMENSINGH', nameBn: 'ময়মনসিংহ' },
+  { id: '6', name: 'RAJSHAHI', nameBn: 'রাজশাহী' },
+  { id: '7', name: 'RANGPUR', nameBn: 'রংপুর' },
+  { id: '8', name: 'SYLHET', nameBn: 'সিলেট' }
 ];
 
 export const districts: District[] = [

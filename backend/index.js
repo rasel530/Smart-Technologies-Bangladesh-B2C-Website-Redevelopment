@@ -38,9 +38,6 @@ const accountManagementRoutes = require('./routes/accountManagement');
 const app = express();
 const PORT = configService.get('PORT');
 
-// Middleware
-app.use(helmet());
-
 // Enhanced CORS configuration with strict origin validation
 const corsConfig = configService.getCORSConfig();
 const allowedOrigins = process.env.NODE_ENV === 'production'
@@ -61,33 +58,30 @@ const allowedOrigins = process.env.NODE_ENV === 'production'
       'http://127.0.0.1:3001'
     ];
 
+// Simple CORS configuration that works with all browsers - MUST be before helmet
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: corsConfig.credentials,
-  methods: corsConfig.methods,
-  allowedHeaders: corsConfig.allowedHeaders,
-  exposedHeaders: corsConfig.exposedHeaders,
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'Pragma'],
+  exposedHeaders: ['x-new-token'],
   optionsSuccessStatus: 200
+}));
+
+// Middleware
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginOpenerPolicy: { policy: "same-origin" }
 }));
 
 app.use(morgan('combined', { stream: loggerService.stream() }));
 
-// Enhanced JSON parsing with error handling
+// Enhanced JSON parsing with error handling - MUST be before routes
 app.use(express.json({
   limit: '10mb',
-  strict: true
+  strict: false
 }));
 
-// Handle JSON parsing errors
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
     return res.status(400).json({
@@ -112,6 +106,46 @@ app.use('/uploads', (req, res, next) => {
   res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   next();
 }, express.static(path.join(__dirname, 'uploads')));
+
+// Serve static files from exports directory for data export downloads
+const exportsDir = path.join(__dirname, 'exports');
+console.log('[Backend] Exports directory path:', exportsDir);
+
+// Ensure exports directory exists
+const fs = require('fs').promises;
+async function ensureExportsDirectory() {
+  try {
+    await fs.access(exportsDir);
+    console.log('[Backend] Exports directory exists');
+    const files = await fs.readdir(exportsDir);
+    console.log('[Backend] Files in exports directory:', files);
+  } catch (err) {
+    console.log('[Backend] Exports directory does not exist, creating it...');
+    try {
+      await fs.mkdir(exportsDir, { recursive: true });
+      console.log('[Backend] Created exports directory successfully');
+    } catch (mkdirErr) {
+      console.error('[Backend] Failed to create exports directory:', mkdirErr.message);
+    }
+  }
+}
+
+// Ensure directory exists on startup
+ensureExportsDirectory();
+
+app.use('/exports', (req, res, next) => {
+  console.log('[Backend] /exports route accessed:', req.url);
+  console.log('[Backend] Request method:', req.method);
+  console.log('[Backend] Request origin:', req.get('origin'));
+  console.log('[Backend] Request referer:', req.get('referer'));
+  // Set Cross-Origin-Resource-Policy header to allow cross-origin resource loading
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  // Set Cross-Origin-Opener-Policy header
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  // Set appropriate Content-Type and Cache-Control for export files
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  next();
+}, express.static(exportsDir));
 
 // Request ID middleware
 app.use(authMiddleware.requestId());

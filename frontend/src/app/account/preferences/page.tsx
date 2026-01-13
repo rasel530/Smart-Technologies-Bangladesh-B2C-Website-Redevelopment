@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { Bell, Shield, Lock, FileText, AlertTriangle, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import NotificationSettings from '@/components/account/NotificationSettings';
@@ -23,9 +25,18 @@ const TABS: { id: TabType; label: { en: string; bn: string } }[] = [
 ];
 
 export default function AccountPreferencesPage() {
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const [activeTab, setActiveTab] = useState<TabType>('notifications');
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login');
+    }
+  }, [status, router]);
   const {
     preferences,
     privacySettings,

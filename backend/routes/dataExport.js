@@ -138,10 +138,17 @@ router.post('/data/export/generate', [
  * Download exported data
  */
 router.get('/data/export/:exportId', authMiddleware.authenticate(), async (req, res) => {
+  // Set CORS headers explicitly
+  res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cache-Control, Pragma');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  
   console.log('[DataExport Route] GET /data/export/:exportId called');
   console.log('[DataExport Route] exportId:', req.params.exportId);
   console.log('[DataExport Route] userId:', req.user.id);
   console.log('[DataExport Route] Request headers:', req.headers);
+  console.log('[DataExport Route] Origin:', req.headers.origin);
   
   try {
     const userId = req.user.id;
@@ -157,6 +164,15 @@ router.get('/data/export/:exportId', authMiddleware.authenticate(), async (req, 
       userId: exportRecord.userId,
       expiresAt: exportRecord.expiresAt
     });
+
+    // Check if export is ready
+    if (exportRecord.status !== 'ready') {
+      return res.status(400).json({
+        error: 'Export not ready',
+        message: 'Export is still being processed',
+        messageBn: 'এক্সপোর্ট এখনো প্রক্রিয়া হচ্ছে'
+      });
+    }
     
     // Check if file exists
     const fs = require('fs').promises;
@@ -164,45 +180,79 @@ router.get('/data/export/:exportId', authMiddleware.authenticate(), async (req, 
     const exportDir = path.join(__dirname, '..', 'exports');
     const filename = exportRecord.fileUrl ? exportRecord.fileUrl.replace('/exports/', '') : null;
     
-    if (filename) {
-      const filepath = path.join(exportDir, filename);
-      console.log('[DataExport Route] Checking if file exists:', filepath);
-      try {
-        await fs.access(filepath);
-        console.log('[DataExport Route] File exists and is accessible');
-      } catch (err) {
-        console.log('[DataExport Route] File does NOT exist or is not accessible:', err.message);
-      }
-    } else {
+    if (!filename) {
       console.log('[DataExport Route] No fileUrl in export record');
+      return res.status(404).json({
+        error: 'File not found',
+        message: 'Export file not available',
+        messageBn: 'এক্সপোর্ট ফাইল উপলব্ধ নেই'
+      });
     }
 
-    // In production, this would serve the file from S3/CloudFront
-    // For now, return the download URL
-    res.json({
-      success: true,
-      message: 'Export ready for download',
-      messageBn: 'এক্সপোর্ট ডাউনলোডের জন্য প্রস্ত',
-      data: {
-        downloadUrl: exportRecord.fileUrl,
-        expiresAt: exportRecord.expiresAt
+    const filepath = path.join(exportDir, filename);
+    console.log('[DataExport Route] Checking if file exists:', filepath);
+    
+    try {
+      await fs.access(filepath);
+      console.log('[DataExport Route] File exists and is accessible');
+    } catch (err) {
+      console.log('[DataExport Route] File does NOT exist or is not accessible:', err.message);
+      return res.status(404).json({
+        error: 'File not found',
+        message: 'Export file not found on server',
+        messageBn: 'এক্সপোর্ট ফাইল সার্ভারে পাওয়া যায়নি'
+      });
+    }
+
+    // Set appropriate headers for file download
+    const extension = path.extname(filename).toLowerCase();
+    let contentType = 'application/octet-stream';
+    
+    if (extension === '.json') {
+      contentType = 'application/json';
+    } else if (extension === '.csv') {
+      contentType = 'text/csv';
+    }
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+
+    // Stream the file to the client
+    const fileStream = require('fs').createReadStream(filepath);
+    fileStream.pipe(res);
+
+    fileStream.on('error', (err) => {
+      console.error('[DataExport Route] Error streaming file:', err);
+      if (!res.headersSent) {
+        res.status(500).json({
+          error: 'Failed to download export',
+          message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error',
+          messageBn: 'এক্সপোর্ট ডাউনলোড ব্যর্থ হয়েছে'
+        });
       }
     });
+
+    console.log('[DataExport Route] File download initiated successfully');
   } catch (error) {
     console.error('[DataExport Route] Error:', error);
     loggerService.error('Download export error', error);
-    if (error.message.includes('not found') || error.message.includes('expired') || error.message.includes('denied')) {
-      res.status(404).json({
-        error: error.message,
-        message: process.env.NODE_ENV === 'development' ? error.message : 'Export not found or expired',
-        messageBn: 'এক্সপোর্ট পাওয়া যায় বা মেয়াদীপূর্ণ হয়েছে'
-      });
-    } else {
-      res.status(500).json({
-        error: 'Failed to download export',
-        message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
-        messageBn: 'এক্সপোর্ট ডাউনলোড ব্যর্থ হয়েছে'
-      });
+    if (!res.headersSent) {
+      if (error.message.includes('not found') || error.message.includes('expired') || error.message.includes('denied')) {
+        res.status(404).json({
+          error: error.message,
+          message: process.env.NODE_ENV === 'development' ? error.message : 'Export not found or expired',
+          messageBn: 'এক্সপোর্ট পাওয়া যায় বা মেয়াদীপূর্ণ হয়েছে'
+        });
+      } else {
+        res.status(500).json({
+          error: 'Failed to download export',
+          message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+          messageBn: 'এক্সপোর্ট ডাউনলোড ব্যর্থ হয়েছে'
+        });
+      }
     }
   }
 });

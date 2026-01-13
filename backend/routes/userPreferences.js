@@ -212,7 +212,9 @@ router.get('/preferences/privacy', authMiddleware.authenticate(), async (req, re
 
     res.json({
       success: true,
-      data: settings
+      data: {
+        settings: settings
+      }
     });
   } catch (error) {
     loggerService.error('Get privacy settings error', error);
@@ -229,39 +231,45 @@ router.get('/preferences/privacy', authMiddleware.authenticate(), async (req, re
  * Update privacy settings
  */
 router.put('/preferences/privacy', [
-  body('twoFactorEnabled').optional().isBoolean(),
-  body('dataSharingEnabled').optional().isBoolean(),
-  body('profileVisibility').optional().isIn(VALID_PROFILE_VISIBILITY).withMessage('Invalid profile visibility'),
-  body('showEmail').optional().isBoolean(),
-  body('showPhone').optional().isBoolean(),
-  body('showAddress').optional().isBoolean(),
-  body('allowSearchByEmail').optional().isBoolean(),
-  body('allowSearchByPhone').optional().isBoolean(),
-  body('twoFactorMethod').optional().isIn(VALID_2FA_METHODS).withMessage('Invalid 2FA method'),
-  body('twoFactorSecret').optional()
+body('twoFactorEnabled').optional().isBoolean(),
+body('dataSharingEnabled').optional().isBoolean(),
+body('profileVisibility').optional().isIn(VALID_PROFILE_VISIBILITY).withMessage('Invalid profile visibility'),
+body('showEmail').optional().isBoolean(),
+body('showPhone').optional().isBoolean(),
+body('showAddress').optional().isBoolean(),
+body('allowSearchByEmail').optional().isBoolean(),
+body('allowSearchByPhone').optional().isBoolean(),
+body('twoFactorMethod').optional().isIn(VALID_2FA_METHODS).withMessage('Invalid 2FA method'),
+body('twoFactorSecret').optional()
 ], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const updates = req.body;
+try {
+  const userId = req.user.id;
+  const updates = req.body;
 
-    const settings = await accountPreferencesService.updatePrivacySettings(userId, updates);
+  const settings = await accountPreferencesService.updatePrivacySettings(userId, updates);
 
-    await logAuditEvent(userId, 'UPDATE_PRIVACY_SETTINGS', updates);
+  await logAuditEvent(userId, 'UPDATE_PRIVACY_SETTINGS', updates);
 
-    res.json({
-      success: true,
-      message: 'Privacy settings updated successfully',
-      messageBn: 'গোপনীয়তা সেটিং ব্যর্থ',
-      data: settings
-    });
-  } catch (error) {
-    loggerService.error('Update privacy settings error', error);
-    res.status(500).json({
-      error: 'Failed to update privacy settings',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
-      messageBn: 'গোপনীয়তা সেটিং ব্যর্থ'
-    });
-  }
+  // Convert profileVisibility to lowercase for frontend
+  const settingsForFrontend = {
+    ...settings,
+    profileVisibility: settings.profileVisibility?.toLowerCase() || 'private'
+  };
+
+  res.json({
+    success: true,
+    data: {
+      settings: settingsForFrontend
+    }
+  });
+} catch (error) {
+  loggerService.error('Update privacy settings error', error);
+  res.status(500).json({
+    error: 'Failed to update privacy settings',
+    message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+    messageBn: 'গোপনীয়তা সেটিং ব্যর্থ'
+  });
+}
 });
 
 // ==================== PASSWORD MANAGEMENT ====================

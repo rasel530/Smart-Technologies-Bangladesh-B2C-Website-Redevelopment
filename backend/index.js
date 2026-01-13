@@ -40,7 +40,9 @@ const PORT = configService.get('PORT');
 
 // Enhanced CORS configuration with strict origin validation
 const corsConfig = configService.getCORSConfig();
-const allowedOrigins = process.env.NODE_ENV === 'production'
+
+// Base origins based on environment
+const baseOrigins = process.env.NODE_ENV === 'production'
   ? [
     'https://smarttechnologies-bd.com',
     'https://www.smarttechnologies-bd.com',
@@ -58,6 +60,19 @@ const allowedOrigins = process.env.NODE_ENV === 'production'
       'http://127.0.0.1:3001'
     ];
 
+// Always include localhost origins for development flexibility
+const localhostOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3001',
+  'http://localhost:3000',
+  'http://localhost:3001'
+];
+
+// Combine origins - always include localhost for development support
+const allowedOrigins = [...new Set([...baseOrigins, ...localhostOrigins])];
+
 // Simple CORS configuration that works with all browsers - MUST be before helmet
 app.use(cors({
   origin: allowedOrigins,
@@ -67,6 +82,28 @@ app.use(cors({
   exposedHeaders: ['x-new-token'],
   optionsSuccessStatus: 200
 }));
+
+// Add CORS diagnostic logging middleware
+app.use((req, res, next) => {
+  const origin = req.get('origin');
+  const referer = req.get('referer');
+  const method = req.method;
+  const path = req.path;
+  
+  console.log('[CORS DIAGNOSTIC]', {
+    timestamp: new Date().toISOString(),
+    method,
+    path,
+    origin,
+    referer,
+    'allowed-origins': allowedOrigins,
+    'origin-allowed': origin ? allowedOrigins.includes(origin) : 'no-origin-header',
+    'credentials': req.get('cookie') ? 'cookies-present' : 'no-cookies',
+    'user-agent': req.get('user-agent')
+  });
+  
+  next();
+});
 
 // Middleware
 app.use(helmet({

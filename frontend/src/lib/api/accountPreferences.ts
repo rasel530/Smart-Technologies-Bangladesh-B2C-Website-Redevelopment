@@ -206,18 +206,24 @@ export class AccountPreferencesAPI {
    * Download data export
    */
   static async downloadDataExport(exportId: string): Promise<Blob> {
+    const API_BASE_URL = 'http://localhost:3001/api/v1';
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/profile/data/export/${exportId}`,
+      `${API_BASE_URL}/profile/data/export/${exportId}`,
       {
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       }
     );
 
     if (!response.ok) {
-      throw new Error('Failed to download export');
+      const errorText = await response.text();
+      console.error('[AccountPreferencesAPI] Download failed:', response.status, errorText);
+      throw new Error(`Failed to download export: ${response.status}`);
     }
 
     return response.blob();

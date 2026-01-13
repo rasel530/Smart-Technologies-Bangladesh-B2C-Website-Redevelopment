@@ -100,49 +100,33 @@ const DataExportSection: React.FC<DataExportSectionProps> = ({ language }) => {
   const handleDownload = async (exportId: string) => {
     console.log('[DataExport] handleDownload called with exportId:', exportId);
     console.log('[DataExport] exportId type:', typeof exportId);
-    console.log('[DataExport] API URL:', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1');
     
     try {
-      // Get download URL from API - use correct endpoint without /download suffix
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/profile/data/export/${exportId}`;
-      console.log('[DataExport] Full API URL:', apiUrl);
+      // Use API client to download the file
+      console.log('[DataExport] Calling API client downloadDataExport...');
+      const blob = await AccountPreferencesAPI.downloadDataExport(exportId);
       
-      const response = await fetch(apiUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-          'Content-Type': 'application/json'
-        }
+      // Get the filename from the export ID
+      const filename = `export_${exportId}.json`;
+      console.log('[DataExport] Downloading file:', filename);
+      
+      // Create a download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      setToast({
+        type: 'success',
+        message: language === 'en'
+          ? 'Export downloaded successfully!'
+          : 'রপ্তানি সফলভাবে ডাউনলোড হয়েছে!',
       });
-
-      console.log('[DataExport] Response status:', response.status);
-      const data = await response.json();
-      console.log('[DataExport] Response data:', data);
-      
-      if (data.success && data.data?.downloadUrl) {
-        console.log('[DataExport] Download URL from API:', data.data.downloadUrl);
-        console.log('[DataExport] Current window origin:', window.location.origin);
-        
-        // Construct full download URL with backend port
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
-        const backendBaseUrl = backendUrl.replace('/api/v1', '');
-        const fullDownloadUrl = `${backendBaseUrl}${data.data.downloadUrl}`;
-        
-        console.log('[DataExport] Backend base URL:', backendBaseUrl);
-        console.log('[DataExport] Full download URL:', fullDownloadUrl);
-        
-        // Navigate to the download URL
-        window.location.href = fullDownloadUrl;
-        setToast({
-          type: 'success',
-          message: language === 'en'
-            ? 'Export downloaded successfully!'
-            : 'রপ্তানি সফলভাবে ডাউনলোড হয়েছে!',
-        });
-        setTimeout(() => setToast(null), 3000);
-      } else {
-        throw new Error(data.message || 'Failed to download export');
-      }
+      setTimeout(() => setToast(null), 3000);
     } catch (err: any) {
       console.error('[DataExport] Download error:', err);
       setError(err.message || 'Failed to download export');
@@ -385,9 +369,13 @@ const DataExportSection: React.FC<DataExportSectionProps> = ({ language }) => {
                       {formatDate(exportItem.expiresAt)}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      {exportItem.status === 'ready' && exportItem.downloadUrl ? (
+                      {exportItem.status === 'ready' ? (
                         <button
-                          onClick={() => handleDownload(exportItem.exportId)}
+                          onClick={() => {
+                            console.log('[DataExport] Download button clicked for exportId:', exportItem.exportId);
+                            console.log('[DataExport] Export item:', exportItem);
+                            handleDownload(exportItem.exportId);
+                          }}
                           className="flex items-center space-x-1 text-primary-600 hover:text-primary-700 font-medium focus:outline-none"
                         >
                           <Download className="h-4 w-4" />
@@ -395,7 +383,11 @@ const DataExportSection: React.FC<DataExportSectionProps> = ({ language }) => {
                         </button>
                       ) : (
                         <span className="text-gray-400">
-                          {language === 'en' ? 'Not available' : 'উপলব্ধ নেই'}
+                          {exportItem.status === 'processing' ? (
+                            <span className="text-xs">{language === 'en' ? 'Processing...' : 'প্রক্রিয়া হচ্ছে...'}</span>
+                          ) : (
+                            <span>{language === 'en' ? 'Not available' : 'উপলব্ধ নেই'}</span>
+                          )}
                         </span>
                       )}
                     </td>

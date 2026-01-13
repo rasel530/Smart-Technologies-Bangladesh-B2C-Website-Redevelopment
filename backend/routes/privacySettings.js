@@ -1,13 +1,13 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const { PrismaClient } = require('@prisma/client');
+const { databaseService } = require('../services/database');
 const { authMiddleware } = require('../middleware/auth');
 
 const router = express.Router();
-const prisma = new PrismaClient();
+const prisma = databaseService.getClient();
 
 // Valid profile visibility values
-const VALID_PROFILE_VISIBILITY = ['PUBLIC', 'PRIVATE'];
+const VALID_PROFILE_VISIBILITY = ['PUBLIC', 'PRIVATE', 'FRIENDS_ONLY'];
 
 // Validation middleware
 const handleValidationErrors = (req, res, next) => {
@@ -47,9 +47,15 @@ router.get('/privacy', authMiddleware.authenticate(), async (req, res) => {
       });
     }
 
+    // Convert profileVisibility to lowercase for frontend
+    const settingsForFrontend = {
+      ...privacySettings,
+      profileVisibility: privacySettings.profileVisibility?.toLowerCase() || 'private'
+    };
+
     res.json({
       success: true,
-      data: { settings: privacySettings }
+      data: { settings: settingsForFrontend }
     });
 
   } catch (error) {
@@ -64,13 +70,25 @@ router.get('/privacy', authMiddleware.authenticate(), async (req, res) => {
 
 // Update user's privacy settings
 router.put('/privacy', [
-  body('profileVisibility').optional().isIn(VALID_PROFILE_VISIBILITY).withMessage('Invalid profile visibility value'),
+  body('profileVisibility').optional().custom((value) => {
+    // Accept lowercase values and validate them
+    if (!value) return true;
+    const upperValue = value.toUpperCase();
+    const validValues = ['PUBLIC', 'PRIVATE', 'FRIENDS_ONLY'];
+    if (!validValues.includes(upperValue)) {
+      throw new Error('Invalid profile visibility value');
+    }
+    return true;
+  }),
   body('showEmail').optional().isBoolean(),
   body('showPhone').optional().isBoolean(),
   body('showAddress').optional().isBoolean(),
   body('allowSearchByEmail').optional().isBoolean(),
   body('allowSearchByPhone').optional().isBoolean(),
-  body('twoFactorEnabled').optional().isBoolean()
+  body('twoFactorEnabled').optional().isBoolean(),
+  body('dataSharingEnabled').optional().isBoolean(),
+  body('twoFactorMethod').optional(),
+  body('twoFactorSecret').optional()
 ], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
   try {
     const userId = req.user.id;
@@ -81,7 +99,10 @@ router.put('/privacy', [
       showAddress,
       allowSearchByEmail,
       allowSearchByPhone,
-      twoFactorEnabled
+      twoFactorEnabled,
+      dataSharingEnabled,
+      twoFactorMethod,
+      twoFactorSecret
     } = req.body;
 
     // Check if user exists
@@ -103,13 +124,19 @@ router.put('/privacy', [
 
     // Build update data object with only provided fields
     const updateData = {};
-    if (profileVisibility !== undefined) updateData.profileVisibility = profileVisibility;
+    if (profileVisibility !== undefined) {
+      // Convert to uppercase for database storage
+      updateData.profileVisibility = profileVisibility.toUpperCase();
+    }
     if (showEmail !== undefined) updateData.showEmail = showEmail;
     if (showPhone !== undefined) updateData.showPhone = showPhone;
     if (showAddress !== undefined) updateData.showAddress = showAddress;
     if (allowSearchByEmail !== undefined) updateData.allowSearchByEmail = allowSearchByEmail;
     if (allowSearchByPhone !== undefined) updateData.allowSearchByPhone = allowSearchByPhone;
     if (twoFactorEnabled !== undefined) updateData.twoFactorEnabled = twoFactorEnabled;
+    if (dataSharingEnabled !== undefined) updateData.dataSharingEnabled = dataSharingEnabled;
+    if (twoFactorMethod !== undefined) updateData.twoFactorMethod = twoFactorMethod;
+    if (twoFactorSecret !== undefined) updateData.twoFactorSecret = twoFactorSecret;
 
     let privacySettings;
 
@@ -135,10 +162,16 @@ router.put('/privacy', [
       });
     }
 
+    // Convert profileVisibility to lowercase for frontend
+    const settingsForFrontend = {
+      ...privacySettings,
+      profileVisibility: privacySettings.profileVisibility?.toLowerCase() || 'private'
+    };
+
     res.json({
       success: true,
       data: {
-        settings: privacySettings
+        settings: settingsForFrontend
       }
     });
 

@@ -1,8 +1,8 @@
 import { ApiResponse } from '@/types/auth';
 
 // API base configuration
-// Use relative URLs to leverage Next.js rewrites
-const API_BASE_URL = '/api/v1';
+// Use full backend URL to avoid cross-origin issues
+const API_BASE_URL = 'http://localhost:3001/api/v1';
 
 // Request options interface
 interface RequestOptions {
@@ -292,13 +292,19 @@ const apiClient = {
 
         const url = `${API_BASE_URL}${endpoint}`;
         
-        // Log request details
+        // Log request details with CORS diagnostics
         console.log(`[API Client] ${method} ${url}`);
         console.log('[API Client] Request options:', {
             method,
             hasBody: !!body,
             timeout,
-            skipAuthRefresh: options.skipAuthRefresh
+            skipAuthRefresh: options.skipAuthRefresh,
+            'request-url': url,
+            'api-base-url': API_BASE_URL,
+            'window-origin': typeof window !== 'undefined' ? window.location.origin : 'server-side',
+            'is-localhost': url.includes('localhost'),
+            'uses-nextjs-rewrite': false, // Direct fetch, not using Next.js rewrites
+            'credentials': 'not-set' // Will be set in config below
         });
 
         const authHeaders = addAuthHeader(headers);
@@ -340,9 +346,22 @@ const apiClient = {
         try {
             const response = await withTimeout(fetch(url, config), timeout);
             console.log(`[API Client] Response status: ${response.status}`);
+            console.log('[API Client] Response headers:', {
+                'content-type': response.headers.get('content-type'),
+                'access-control-allow-origin': response.headers.get('access-control-allow-origin'),
+                'access-control-allow-credentials': response.headers.get('access-control-allow-credentials'),
+                'access-control-expose-headers': response.headers.get('access-control-expose-headers')
+            });
             return handleResponse(response, { endpoint, options });
         } catch (error) {
             console.error('[API Client] Request failed:', error);
+            console.error('[API Client] CORS error details:', {
+                'error-type': error.name,
+                'error-message': error.message,
+                'is-cors-error': error.message.includes('CORS') || error.message.includes('fetch'),
+                'request-url': url,
+                'request-method': method
+            });
             if (error instanceof ApiError) {
                 throw error;
             }

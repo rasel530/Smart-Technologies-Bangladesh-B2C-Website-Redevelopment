@@ -236,12 +236,14 @@ class AccountPreferencesService {
       if (updates.twoFactorEnabled !== undefined) updateData.twoFactorEnabled = updates.twoFactorEnabled;
       if (updates.dataSharingEnabled !== undefined) updateData.dataSharingEnabled = updates.dataSharingEnabled;
       if (updates.profileVisibility !== undefined) {
+        // Convert to uppercase for database storage
+        const visibilityUpper = updates.profileVisibility.toUpperCase();
         // Validate visibility
-        const validVisibilities = ['PUBLIC', 'PRIVATE'];
-        if (!validVisibilities.includes(updates.profileVisibility)) {
+        const validVisibilities = ['PUBLIC', 'PRIVATE', 'FRIENDS_ONLY'];
+        if (!validVisibilities.includes(visibilityUpper)) {
           throw new Error('Invalid profile visibility');
         }
-        updateData.profileVisibility = updates.profileVisibility;
+        updateData.profileVisibility = visibilityUpper;
       }
       if (updates.showEmail !== undefined) updateData.showEmail = updates.showEmail;
       if (updates.showPhone !== undefined) updateData.showPhone = updates.showPhone;
@@ -306,11 +308,14 @@ class AccountPreferencesService {
     try {
       const preferences = await this.getUserPreferences(userId);
       
+      // Convert profileVisibility to lowercase for frontend
+      const profileVisibilityLower = preferences.privacyPrefs.profileVisibility?.toLowerCase() || 'private';
+      
       return {
         twoFactorEnabled: preferences.privacyPrefs.twoFactorEnabled,
         twoFactorMethod: preferences.privacyPrefs.twoFactorMethod,
         dataSharingEnabled: preferences.privacyPrefs.dataSharingEnabled,
-        profileVisibility: preferences.privacyPrefs.profileVisibility
+        profileVisibility: profileVisibilityLower
       };
     } catch (error) {
       this.logger.error('Error getting privacy settings', error);

@@ -35,6 +35,14 @@ const routeIndex = require('./routes/index');
 const userPreferencesRoutes = require('./routes/userPreferences');
 const accountManagementRoutes = require('./routes/accountManagement');
 
+// Import RBAC routes
+const rbacRolesRoutes = require('./routes/rbacRoles');
+const rbacPermissionsRoutes = require('./routes/rbacPermissions');
+const rbacRolePermissionsRoutes = require('./routes/rbacRolePermissions');
+const rbacUserRolesRoutes = require('./routes/rbacUserRoles');
+const rbacEscalationRoutes = require('./routes/rbacEscalation');
+const rbacAuthCheckRoutes = require('./routes/rbacAuthCheck');
+
 const app = express();
 const PORT = configService.get('PORT');
 
@@ -204,6 +212,14 @@ app.use('/api/v1/profile', profileRoutes);
 
 // Session management routes
 app.use('/api/v1/sessions', sessionRoutes);
+
+// RBAC routes
+app.use('/api/v1/rbac/roles', rbacRolesRoutes);
+app.use('/api/v1/rbac/permissions', rbacPermissionsRoutes);
+app.use('/api/v1/rbac/roles', rbacRolePermissionsRoutes);
+app.use('/api/v1/rbac/users', rbacUserRolesRoutes);
+app.use('/api/v1/rbac/role-escalation-requests', rbacEscalationRoutes);
+app.use('/api/v1/rbac/auth', rbacAuthCheckRoutes);
 
 // Basic route
 app.get('/', (req, res) => {
@@ -493,6 +509,14 @@ app.use((req, res) => {
       coupons: '/api/v1/coupons',
       user: '/api/v1/user',
       sessions: '/api/v1/sessions',
+      rbac: {
+        roles: '/api/v1/rbac/roles',
+        permissions: '/api/v1/rbac/permissions',
+        rolePermissions: '/api/v1/rbac/roles/:roleId/permissions',
+        userRoles: '/api/v1/rbac/users/:userId/roles',
+        escalation: '/api/v1/rbac/role-escalation-requests',
+        auth: '/api/v1/rbac/auth'
+      },
       health: '/api/v1/health',
       docs: '/api-docs'
     }

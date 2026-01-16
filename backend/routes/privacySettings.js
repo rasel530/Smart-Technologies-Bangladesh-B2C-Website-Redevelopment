@@ -71,12 +71,11 @@ router.get('/privacy', authMiddleware.authenticate(), async (req, res) => {
 // Update user's privacy settings
 router.put('/privacy', [
   body('profileVisibility').optional().custom((value) => {
-    // Accept lowercase values and validate them
+    // Accept lowercase values and validate them (must match Prisma enum)
     if (!value) return true;
-    const upperValue = value.toUpperCase();
-    const validValues = ['PUBLIC', 'PRIVATE', 'FRIENDS_ONLY'];
-    if (!validValues.includes(upperValue)) {
-      throw new Error('Invalid profile visibility value');
+    const validValues = ['public', 'private', 'friends_only'];
+    if (!validValues.includes(value)) {
+      throw new Error('Invalid profile visibility value. Must be: public, private, or friends_only');
     }
     return true;
   }),
@@ -125,8 +124,8 @@ router.put('/privacy', [
     // Build update data object with only provided fields
     const updateData = {};
     if (profileVisibility !== undefined) {
-      // Convert to uppercase for database storage
-      updateData.profileVisibility = profileVisibility.toUpperCase();
+      // Store as lowercase to match Prisma enum definition
+      updateData.profileVisibility = profileVisibility.toLowerCase();
     }
     if (showEmail !== undefined) updateData.showEmail = showEmail;
     if (showPhone !== undefined) updateData.showPhone = showPhone;
@@ -151,7 +150,7 @@ router.put('/privacy', [
       privacySettings = await prisma.userPrivacySettings.create({
         data: {
           userId,
-          profileVisibility: profileVisibility !== undefined ? profileVisibility : 'PRIVATE',
+          profileVisibility: profileVisibility !== undefined ? profileVisibility : 'private',
           showEmail: showEmail !== undefined ? showEmail : false,
           showPhone: showPhone !== undefined ? showPhone : false,
           showAddress: showAddress !== undefined ? showAddress : false,

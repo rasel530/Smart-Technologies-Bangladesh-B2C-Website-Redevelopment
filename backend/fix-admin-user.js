@@ -23,7 +23,7 @@ async function fixAdminUser() {
       data: {
         password: hashedPassword,
         emailVerified: new Date(),
-        status: 'ACTIVE'
+        status: 'active'
       }
     });
 

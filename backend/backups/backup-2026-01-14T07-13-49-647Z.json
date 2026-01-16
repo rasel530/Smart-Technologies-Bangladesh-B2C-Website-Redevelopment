@@ -1,0 +1,920 @@
+{
+  "account_deletion_requests": [],
+  "addresses": [
+    {
+      "id": "199b1dc1-ac25-43da-8e1c-9cc4183c37a7",
+      "userId": "dcbf1800-7695-43cb-b158-b45fc8a4939b",
+      "type": "SHIPPING",
+      "firstName": "Rasel",
+      "lastName": "Bepari",
+      "phone": "01914287530",
+      "address": "Jahir Smart Tower",
+      "addressLine2": "205/1 & 205/1/A, West Kafrul, Begum Rokeya Sharani, Taltola",
+      "city": "Dahaka",
+      "district": "301",
+      "division": "DHAKA",
+      "upazila": "30106",
+      "postalCode": "1207",
+      "isDefault": false
+    },
+    {
+      "id": "5a0057b9-72f9-41f0-b20e-f63b6bbcd38a",
+      "userId": "dcbf1800-7695-43cb-b158-b45fc8a4939b",
+      "type": "SHIPPING",
+      "firstName": "Mohammad",
+      "lastName": "Sharif",
+      "phone": "01914287532",
+      "address": "Jahir Smart Tower",
+      "addressLine2": "205/1 & 205/1/A, West Kafrul, Begum Rokeya Sharani, Taltola",
+      "city": "Khulna",
+      "district": "401",
+      "division": "KHULNA",
+      "upazila": "40101",
+      "postalCode": "1207",
+      "isDefault": false
+    },
+    {
+      "id": "deee00fa-fe5c-494d-81f7-def66fb3b4c6",
+      "userId": "dcbf1800-7695-43cb-b158-b45fc8a4939b",
+      "type": "BILLING",
+      "firstName": "Mohammad1",
+      "lastName": "Rasel",
+      "phone": "01914287531",
+      "address": "Jahir Smart Tower",
+      "addressLine2": "205/1 & 205/1/A, West Kafrul, Begum Rokeya Sharani, Taltola",
+      "city": "Dahaka",
+      "district": "101",
+      "division": "BARISHAL",
+      "upazila": "10101",
+      "postalCode": "1207",
+      "isDefault": false
+    },
+    {
+      "id": "73ae862f-a2c9-4bd3-b33b-951505cdcce3",
+      "userId": "dcbf1800-7695-43cb-b158-b45fc8a4939b",
+      "type": "BILLING",
+      "firstName": "Mohammad",
+      "lastName": "Baki",
+      "phone": "01914287530",
+      "address": "Jahir Smart Tower",
+      "addressLine2": "205/1 & 205/1/A, West Kafrul, Begum Rokeya Sharani, Taltola",
+      "city": "Dahaka",
+      "district": "202",
+      "division": "CHITTAGONG",
+      "upazila": "20201",
+      "postalCode": "1207",
+      "isDefault": true
+    }
+  ],
+  "brands": [
+    {
+      "id": "06eda49e-e223-43a1-988d-f37b171d86e1",
+      "name": "Samsung",
+      "slug": "samsung",
+      "description": null,
+      "website": "https://www.samsung.com",
+      "isActive": true
+    },
+    {
+      "id": "719debab-555d-440d-8162-dca4ec28b18b",
+      "name": "Apple",
+      "slug": "apple",
+      "description": null,
+      "website": "https://www.apple.com",
+      "isActive": true
+    },
+    {
+      "id": "da7c44e2-3135-466b-aa9d-c76613eb03e6",
+      "name": "Xiaomi",
+      "slug": "xiaomi",
+      "description": null,
+      "website": "https://www.mi.com",
+      "isActive": true
+    },
+    {
+      "id": "fc0fa4c0-2ebc-40b4-8d44-eeb25769edfe",
+      "name": "Walton",
+      "slug": "walton",
+      "description": null,
+      "website": "https://www.waltonbd.com",
+      "isActive": true
+    },
+    {
+      "id": "d8746d21-4efe-4740-b89f-e7332d132524",
+      "name": "Vision",
+      "slug": "vision",
+      "description": null,
+      "website": "https://www.vision.com.bd",
+      "isActive": true
+    }
+  ],
+  "cart_items": [],
+  "carts": [],
+  "categories": [
+    {
+      "id": "254b1e28-3c54-4090-9ca5-ed18805b0f15",
+      "name": "Electronics",
+      "slug": "electronics",
+      "description": "Electronic devices and gadgets",
+      "isActive": true,
+      "parentId": null,
+      "bannerImage": null,
+      "icon": null,
+      "sortOrder": 0
+    },
+    {
+      "id": "f1179245-9abd-4cf8-b001-e1f5941bc193",
+      "name": "Clothing",
+      "slug": "clothing",
+      "description": "Fashion and apparel",
+      "isActive": true,
+      "parentId": null,
+      "bannerImage": null,
+      "icon": null,
+      "sortOrder": 0
+    },
+    {
+      "id": "24448f54-9824-49b9-82e1-901ad7fd0c31",
+      "name": "Home & Kitchen",
+      "slug": "home-kitchen",
+      "description": "Home appliances and kitchen items",
+      "isActive": true,
+      "parentId": null,
+      "bannerImage": null,
+      "icon": null,
+      "sortOrder": 0
+    },
+    {
+      "id": "a0f8b4a1-f419-42d3-b8cb-400d42f51422",
+      "name": "Books",
+      "slug": "books",
+      "description": "Books and educational materials",
+      "isActive": true,
+      "parentId": null,
+      "bannerImage": null,
+      "icon": null,
+      "sortOrder": 0
+    },
+    {
+      "id": "0b67ac72-ea6b-41ef-9d9b-11062973985b",
+      "name": "Sports",
+      "slug": "sports",
+      "description": "Sports equipment and accessories",
+      "isActive": true,
+      "parentId": null,
+      "bannerImage": null,
+      "icon": null,
+      "sortOrder": 0
+    }
+  ],
+  "coupons": [
+    {
+      "id": "55abedfe-fb35-47e5-86c6-a6ad9758fc3a",
+      "code": "WELCOME10",
+      "type": "PERCENTAGE",
+      "value": "10",
+      "minAmount": "1000",
+      "maxDiscount": "500",
+      "usageLimit": 100,
+      "usedCount": 0,
+      "isActive": true,
+      "expiresAt": "2026-02-10T12:25:53.069Z",
+      "createdAt": "2026-01-11T12:25:53.072Z",
+      "updatedAt": "2026-01-11T12:25:53.072Z"
+    },
+    {
+      "id": "6fb8416e-8b9d-49ba-8e3d-625b2a63937d",
+      "code": "FLAT500",
+      "type": "FIXED_AMOUNT",
+      "value": "500",
+      "minAmount": "5000",
+      "maxDiscount": "500",
+      "usageLimit": 50,
+      "usedCount": 0,
+      "isActive": true,
+      "expiresAt": "2026-01-26T12:25:53.069Z",
+      "createdAt": "2026-01-11T12:25:53.094Z",
+      "updatedAt": "2026-01-11T12:25:53.094Z"
+    }
+  ],
+  "email_verification_tokens": [],
+  "order_items": [],
+  "orders": [],
+  "password_history": [
+    {
+      "id": "8bb05ae6-688d-4370-bc11-496d7ed787d7",
+      "userId": "dcbf1800-7695-43cb-b158-b45fc8a4939b",
+      "passwordHash": "$2a$12$Hf6fIWajEw47W5oYgrH53e7inV4k2xv7w7khWsZF2zVoQ/kjMrm22",
+      "createdAt": "2026-01-11T12:30:21.619Z"
+    },
+    {
+      "id": "e3bafc27-efeb-4bc8-9156-41de0f85ab5d",
+      "userId": "dcbf1800-7695-43cb-b158-b45fc8a4939b",
+      "passwordHash": "$2a$12$g2al771aHkPdmpmXRB0g/.MoF/HhFWV7mOVMcvTV5MOasLXUVfdhS",
+      "createdAt": "2026-01-11T12:39:14.338Z"
+    },
+    {
+      "id": "897bbe37-c9fb-4320-8025-c3afda5bcd61",
+      "userId": "dcbf1800-7695-43cb-b158-b45fc8a4939b",
+      "passwordHash": "$2a$12$oah8NEdBGDY5CqzaPrnjy.hZ7XmqkWJ4.qkNebpKC7PKdpN3IyDJW",
+      "createdAt": "2026-01-13T07:14:56.278Z"
+    }
+  ],
+  "permission": [
+    {
+      "id": "perm_001",
+      "name": "user:read",
+      "description": "View user information",
+      "category": "users",
+      "resource": "user",
+      "action": "read",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_002",
+      "name": "user:create",
+      "description": "Create new users",
+      "category": "users",
+      "resource": "user",
+      "action": "create",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_003",
+      "name": "user:update",
+      "description": "Update user information",
+      "category": "users",
+      "resource": "user",
+      "action": "update",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_004",
+      "name": "user:delete",
+      "description": "Delete users",
+      "category": "users",
+      "resource": "user",
+      "action": "delete",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_005",
+      "name": "user:assign_role",
+      "description": "Assign roles to users",
+      "category": "users",
+      "resource": "user",
+      "action": "assign_role",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_006",
+      "name": "product:read",
+      "description": "View products",
+      "category": "products",
+      "resource": "product",
+      "action": "read",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_007",
+      "name": "product:create",
+      "description": "Create new products",
+      "category": "products",
+      "resource": "product",
+      "action": "create",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_008",
+      "name": "product:update",
+      "description": "Update product information",
+      "category": "products",
+      "resource": "product",
+      "action": "update",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_009",
+      "name": "product:delete",
+      "description": "Delete products",
+      "category": "products",
+      "resource": "product",
+      "action": "delete",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_010",
+      "name": "order:read",
+      "description": "View orders",
+      "category": "orders",
+      "resource": "order",
+      "action": "read",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_011",
+      "name": "order:create",
+      "description": "Create orders",
+      "category": "orders",
+      "resource": "order",
+      "action": "create",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_012",
+      "name": "order:update",
+      "description": "Update order information",
+      "category": "orders",
+      "resource": "order",
+      "action": "update",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_013",
+      "name": "order:delete",
+      "description": "Delete orders",
+      "category": "orders",
+      "resource": "order",
+      "action": "delete",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_014",
+      "name": "order:manage_status",
+      "description": "Manage order status",
+      "category": "orders",
+      "resource": "order",
+      "action": "manage_status",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_015",
+      "name": "category:read",
+      "description": "View categories",
+      "category": "categories",
+      "resource": "category",
+      "action": "read",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_016",
+      "name": "category:create",
+      "description": "Create new categories",
+      "category": "categories",
+      "resource": "category",
+      "action": "create",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_017",
+      "name": "category:update",
+      "description": "Update category information",
+      "category": "categories",
+      "resource": "category",
+      "action": "update",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_018",
+      "name": "category:delete",
+      "description": "Delete categories",
+      "category": "categories",
+      "resource": "category",
+      "action": "delete",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_019",
+      "name": "brand:read",
+      "description": "View brands",
+      "category": "brands",
+      "resource": "brand",
+      "action": "read",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_020",
+      "name": "brand:create",
+      "description": "Create new brands",
+      "category": "brands",
+      "resource": "brand",
+      "action": "create",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_021",
+      "name": "brand:update",
+      "description": "Update brand information",
+      "category": "brands",
+      "resource": "brand",
+      "action": "update",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_022",
+      "name": "brand:delete",
+      "description": "Delete brands",
+      "category": "brands",
+      "resource": "brand",
+      "action": "delete",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_023",
+      "name": "review:read",
+      "description": "View reviews",
+      "category": "reviews",
+      "resource": "review",
+      "action": "read",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_024",
+      "name": "review:create",
+      "description": "Create reviews",
+      "category": "reviews",
+      "resource": "review",
+      "action": "create",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_025",
+      "name": "review:manage",
+      "description": "Manage reviews (approve/delete)",
+      "category": "reviews",
+      "resource": "review",
+      "action": "manage",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_026",
+      "name": "analytics:view",
+      "description": "View analytics dashboard",
+      "category": "analytics",
+      "resource": "analytics",
+      "action": "view",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_027",
+      "name": "analytics:export",
+      "description": "Export analytics data",
+      "category": "analytics",
+      "resource": "analytics",
+      "action": "export",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_028",
+      "name": "support:read",
+      "description": "View support tickets",
+      "category": "support",
+      "resource": "support",
+      "action": "read",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_029",
+      "name": "support:respond",
+      "description": "Respond to support tickets",
+      "category": "support",
+      "resource": "support",
+      "action": "respond",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_030",
+      "name": "support:manage",
+      "description": "Manage support tickets",
+      "category": "support",
+      "resource": "support",
+      "action": "manage",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_031",
+      "name": "corporate:read",
+      "description": "View corporate accounts",
+      "category": "corporate",
+      "resource": "corporate",
+      "action": "read",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_032",
+      "name": "corporate:create",
+      "description": "Create corporate accounts",
+      "category": "corporate",
+      "resource": "corporate",
+      "action": "create",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_033",
+      "name": "corporate:update",
+      "description": "Update corporate accounts",
+      "category": "corporate",
+      "resource": "corporate",
+      "action": "update",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_034",
+      "name": "corporate:manage_users",
+      "description": "Manage corporate users",
+      "category": "corporate",
+      "resource": "corporate",
+      "action": "manage_users",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_035",
+      "name": "system:config",
+      "description": "Configure system settings",
+      "category": "system",
+      "resource": "system",
+      "action": "config",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_036",
+      "name": "system:logs",
+      "description": "View system logs",
+      "category": "system",
+      "resource": "system",
+      "action": "logs",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    },
+    {
+      "id": "perm_037",
+      "name": "system:backup",
+      "description": "Create system backups",
+      "category": "system",
+      "resource": "system",
+      "action": "backup",
+      "createdAt": "2026-01-13T13:05:51.784Z",
+      "updatedAt": "2026-01-13T13:05:51.784Z"
+    }
+  ],
+  "phone_otps": [],
+  "product_images": [
+    {
+      "id": "865ad36d-fe76-49df-a789-b7f679c85047",
+      "productId": "ea0bb488-1679-4b7b-9404-ff87f0b48690",
+      "url": "/images/products/samsung-galaxy-s23-1.jpg",
+      "alt": "Samsung Galaxy S23 - Front view",
+      "sortOrder": 0
+    },
+    {
+      "id": "172e54af-0ba3-4fb6-ba47-a162fc8e7a49",
+      "productId": "ea0bb488-1679-4b7b-9404-ff87f0b48690",
+      "url": "/images/products/samsung-galaxy-s23-2.jpg",
+      "alt": "Samsung Galaxy S23 - Back view",
+      "sortOrder": 1
+    },
+    {
+      "id": "765d4e50-3b42-4305-935d-5c4bec7afdaa",
+      "productId": "3dc8ef58-9827-41be-8c1c-21f06015f0db",
+      "url": "/images/products/samsung-galaxy-a54-1.jpg",
+      "alt": "Samsung Galaxy A54 - Front view",
+      "sortOrder": 0
+    },
+    {
+      "id": "6a1debb2-7054-435f-ac7b-27e25d9a50f7",
+      "productId": "3dc8ef58-9827-41be-8c1c-21f06015f0db",
+      "url": "/images/products/samsung-galaxy-a54-2.jpg",
+      "alt": "Samsung Galaxy A54 - Back view",
+      "sortOrder": 1
+    }
+  ],
+  "product_specifications": [
+    {
+      "id": "19725305-dfa6-41ce-bb03-e9dbdcd94426",
+      "productId": "ea0bb488-1679-4b7b-9404-ff87f0b48690",
+      "name": "Display",
+      "value": "6.1\" Dynamic AMOLED 2X",
+      "sortOrder": 0
+    },
+    {
+      "id": "c9888ccd-e65e-43d8-bb49-31eab67748cc",
+      "productId": "ea0bb488-1679-4b7b-9404-ff87f0b48690",
+      "name": "Processor",
+      "value": "Snapdragon 8 Gen 2",
+      "sortOrder": 1
+    },
+    {
+      "id": "07c1cdd1-114a-4c60-bbcf-3e3b1e3cad4e",
+      "productId": "ea0bb488-1679-4b7b-9404-ff87f0b48690",
+      "name": "RAM",
+      "value": "8GB",
+      "sortOrder": 2
+    },
+    {
+      "id": "4d2fa206-264b-4f7a-95c7-5c2da908297d",
+      "productId": "ea0bb488-1679-4b7b-9404-ff87f0b48690",
+      "name": "Storage",
+      "value": "256GB",
+      "sortOrder": 3
+    },
+    {
+      "id": "1e2f7230-9bed-489b-99f7-ae5ed820d0f8",
+      "productId": "ea0bb488-1679-4b7b-9404-ff87f0b48690",
+      "name": "Camera",
+      "value": "50MP + 10MP + 12MP",
+      "sortOrder": 4
+    },
+    {
+      "id": "897725f2-c42a-4d8d-868b-ace226eb88b2",
+      "productId": "ea0bb488-1679-4b7b-9404-ff87f0b48690",
+      "name": "Battery",
+      "value": "3900mAh",
+      "sortOrder": 5
+    },
+    {
+      "id": "1ee17f9c-4622-4631-b0db-e68c1dee8154",
+      "productId": "3dc8ef58-9827-41be-8c1c-21f06015f0db",
+      "name": "Display",
+      "value": "6.4\" Super AMOLED",
+      "sortOrder": 0
+    },
+    {
+      "id": "ae3968ab-dd3e-484a-ac76-b24a1c53e156",
+      "productId": "3dc8ef58-9827-41be-8c1c-21f06015f0db",
+      "name": "Processor",
+      "value": "Exynos 1380",
+      "sortOrder": 1
+    },
+    {
+      "id": "d64f6fb2-1ca4-4274-99f7-e1b13d43ca83",
+      "productId": "3dc8ef58-9827-41be-8c1c-21f06015f0db",
+      "name": "RAM",
+      "value": "6GB",
+      "sortOrder": 2
+    },
+    {
+      "id": "eeae910d-5482-4f14-ba07-bf255d11e8b5",
+      "productId": "3dc8ef58-9827-41be-8c1c-21f06015f0db",
+      "name": "Storage",
+      "value": "128GB",
+      "sortOrder": 3
+    },
+    {
+      "id": "57a31b96-add3-4e64-a18d-aecf57725e6b",
+      "productId": "3dc8ef58-9827-41be-8c1c-21f06015f0db",
+      "name": "Camera",
+      "value": "50MP + 12MP + 5MP",
+      "sortOrder": 4
+    },
+    {
+      "id": "13ad441d-9a0c-4f11-956b-ecc94d85574a",
+      "productId": "3dc8ef58-9827-41be-8c1c-21f06015f0db",
+      "name": "Battery",
+      "value": "5000mAh",
+      "sortOrder": 5
+    }
+  ],
+  "product_variants": [],
+  "products": [
+    {
+      "id": "ea0bb488-1679-4b7b-9404-ff87f0b48690",
+      "sku": "SAMSUNG-GALAXY-S23-001",
+      "name": "Samsung Galaxy S23",
+      "nameEn": "Samsung Galaxy S23",
+      "nameBn": "স্যামসাং গ্যালাক্সি S23",
+      "slug": "samsung-galaxy-s23",
+      "shortDescription": "Latest Samsung flagship smartphone",
+      "description": "Powerful smartphone with advanced camera and display",
+      "categoryId": "254b1e28-3c54-4090-9ca5-ed18805b0f15",
+      "brandId": "06eda49e-e223-43a1-988d-f37b171d86e1",
+      "regularPrice": "89999",
+      "salePrice": "79999",
+      "costPrice": "65000",
+      "taxRate": "0",
+      "stockQuantity": 50,
+      "lowStockThreshold": 10,
+      "status": "ACTIVE",
+      "metaTitle": null,
+      "metaDescription": null,
+      "metaKeywords": null,
+      "isFeatured": true,
+      "isNewArrival": true,
+      "isBestSeller": false,
+      "warrantyPeriod": 12,
+      "warrantyType": "Official Warranty",
+      "createdAt": "2026-01-11T12:25:52.939Z",
+      "updatedAt": "2026-01-11T12:25:52.939Z",
+      "publishedAt": null
+    },
+    {
+      "id": "3dc8ef58-9827-41be-8c1c-21f06015f0db",
+      "sku": "SAMSUNG-GALAXY-A54-001",
+      "name": "Samsung Galaxy A54",
+      "nameEn": "Samsung Galaxy A54",
+      "nameBn": "স্যামসাং গ্যালাক্সি A54",
+      "slug": "samsung-galaxy-a54",
+      "shortDescription": "Mid-range Samsung smartphone",
+      "description": "Great value smartphone with solid features",
+      "categoryId": "254b1e28-3c54-4090-9ca5-ed18805b0f15",
+      "brandId": "06eda49e-e223-43a1-988d-f37b171d86e1",
+      "regularPrice": "44999",
+      "salePrice": "39999",
+      "costPrice": "32000",
+      "taxRate": "0",
+      "stockQuantity": 100,
+      "lowStockThreshold": 15,
+      "status": "ACTIVE",
+      "metaTitle": null,
+      "metaDescription": null,
+      "metaKeywords": null,
+      "isFeatured": false,
+      "isNewArrival": false,
+      "isBestSeller": false,
+      "warrantyPeriod": 12,
+      "warrantyType": "Official Warranty",
+      "createdAt": "2026-01-11T12:25:52.981Z",
+      "updatedAt": "2026-01-11T12:25:52.981Z",
+      "publishedAt": null
+    }
+  ],
+  "reviews": [],
+  "role_hierarchy": [],
+  "role_permission": [],
+  "transactions": [],
+  "user_communication_preferences": [],
+  "user_data_exports": [
+    {
+      "id": "dc33ac56-67bf-4443-aea1-42ca227321ec",
+      "userId": "dcbf1800-7695-43cb-b158-b45fc8a4939b",
+      "exportToken": "43d598a3-3d2e-4d87-aff4-4ac222027aa9",
+      "dataTypes": [
+        "profile"
+      ],
+      "format": "json",
+      "fileUrl": "/exports/export_dc33ac56-67bf-4443-aea1-42ca227321ec_1768189776718.json",
+      "status": "ready",
+      "requestedAt": "2026-01-12T03:49:36.692Z",
+      "readyAt": "2026-01-12T03:49:36.730Z",
+      "expiresAt": "2026-01-19T03:49:36.692Z"
+    },
+    {
+      "id": "8d0fe77d-61ab-4f05-9f5e-ec959f60a87b",
+      "userId": "dcbf1800-7695-43cb-b158-b45fc8a4939b",
+      "exportToken": "7455c749-57b1-4dd8-af07-89b0ac5ba6cd",
+      "dataTypes": [
+        "orders"
+      ],
+      "format": "json",
+      "fileUrl": null,
+      "status": "processing",
+      "requestedAt": "2026-01-12T04:45:43.003Z",
+      "readyAt": null,
+      "expiresAt": "2026-01-19T04:45:43.003Z"
+    }
+  ],
+  "user_notification_preferences": [
+    {
+      "id": "f85349d4-542a-484e-981d-3e1c39d91bdd",
+      "userId": "dcbf1800-7695-43cb-b158-b45fc8a4939b",
+      "emailNotifications": true,
+      "smsNotifications": false,
+      "whatsappNotifications": true,
+      "marketingCommunications": true,
+      "newsletterSubscription": true,
+      "notificationFrequency": "immediate",
+      "createdAt": "2026-01-11T12:31:27.092Z",
+      "updatedAt": "2026-01-13T11:36:44.923Z",
+      "pushnotifications": true,
+      "orderupdates": true,
+      "securityalerts": true
+    }
+  ],
+  "user_privacy_settings": [
+    {
+      "id": "2deb7f99-88f2-448c-9438-4489e677ca49",
+      "userId": "dcbf1800-7695-43cb-b158-b45fc8a4939b",
+      "showEmail": false,
+      "showPhone": false,
+      "showAddress": false,
+      "allowSearchByEmail": false,
+      "allowSearchByPhone": false,
+      "twoFactorEnabled": true,
+      "twoFactorSecret": null,
+      "twoFactorMethod": null,
+      "dataSharingEnabled": true,
+      "createdAt": "2026-01-11T12:31:27.090Z",
+      "updatedAt": "2026-01-13T12:02:31.932Z",
+      "profileVisibility": "FRIENDS_ONLY"
+    }
+  ],
+  "user_sessions": [],
+  "user_social_accounts": [],
+  "users": [
+    {
+      "id": "aded24b7-1eb9-4601-9a6a-211f797152ec",
+      "email": "customer@example.com",
+      "emailVerified": null,
+      "phone": "+8801700000001",
+      "phoneVerified": null,
+      "password": "$2a$12$fN2Rklp.72C00T7MJymvze.6P6Vebe8ecTgpGoFeSBoWhYg4B5mC2",
+      "firstName": "Test",
+      "lastName": "Customer",
+      "dateOfBirth": null,
+      "gender": null,
+      "role": "CUSTOMER",
+      "status": "ACTIVE",
+      "image": null,
+      "createdAt": "2026-01-11T12:25:52.889Z",
+      "updatedAt": "2026-01-11T12:25:52.889Z",
+      "lastLoginAt": null,
+      "preferredLanguage": "en",
+      "accountStatus": "active",
+      "deletionRequestedAt": null,
+      "deletionReason": null,
+      "deletedAt": null
+    },
+    {
+      "id": "dcbf1800-7695-43cb-b158-b45fc8a4939b",
+      "email": "raselbepari88@gmail.com",
+      "emailVerified": "2026-01-11T12:30:21.623Z",
+      "phone": "+8801914287530",
+      "phoneVerified": null,
+      "password": "$2a$12$oah8NEdBGDY5CqzaPrnjy.hZ7XmqkWJ4.qkNebpKC7PKdpN3IyDJW",
+      "firstName": "Rasel",
+      "lastName": "Bepari",
+      "dateOfBirth": "1988-01-15T00:00:00.000Z",
+      "gender": "MALE",
+      "role": "CUSTOMER",
+      "status": "ACTIVE",
+      "image": "/uploads/profile-pictures/profile-dcbf1800-7695-43cb-b158-b45fc8a4939b-1768207187399-798080117.jpg",
+      "createdAt": "2026-01-11T12:30:21.485Z",
+      "updatedAt": "2026-01-14T05:18:14.853Z",
+      "lastLoginAt": "2026-01-14T05:18:14.852Z",
+      "preferredLanguage": "en",
+      "accountStatus": "active",
+      "deletionRequestedAt": null,
+      "deletionReason": null,
+      "deletedAt": null
+    },
+    {
+      "id": "a2dd1322-6361-426c-8dd0-74ae1a64b65d",
+      "email": "admin@smarttech.com",
+      "emailVerified": "2026-01-14T06:42:31.054Z",
+      "phone": null,
+      "phoneVerified": "2026-01-14T06:42:31.054Z",
+      "password": "$2a$12$dv/SZeWgDUnzNuK807tMDuvr.ff4FMVa1f/m6CCfiLKOkeV4W8AKK",
+      "firstName": "System",
+      "lastName": "Admin",
+      "dateOfBirth": null,
+      "gender": null,
+      "role": "ADMIN",
+      "status": "ACTIVE",
+      "image": null,
+      "createdAt": "2026-01-11T12:25:52.587Z",
+      "updatedAt": "2026-01-14T06:42:31.057Z",
+      "lastLoginAt": "2026-01-14T06:17:01.506Z",
+      "preferredLanguage": "en",
+      "accountStatus": "active",
+      "deletionRequestedAt": null,
+      "deletionReason": null,
+      "deletedAt": null
+    }
+  ],
+  "wishlist_items": [],
+  "wishlists": []
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
@@ -9,14 +9,17 @@ import { loginSchema } from '@/lib/validation';
 import { FormInput } from '@/components/ui/FormInput';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
 import { useShowToast } from '@/components/ui/Toast';
+import { useSession } from 'next-auth/react';
 
-export default function LoginPage() {
+function LoginPageContent() {
   const { login, error, clearError } = useAuth();
+  const { data: session, status } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
@@ -29,6 +32,50 @@ export default function LoginPage() {
       setLanguage(savedLanguage as 'en' | 'bn');
     }
   }, []);
+
+  // Handle role-based redirect after session is loaded
+  useEffect(() => {
+    console.log('[LoginPage] Session status:', status);
+    console.log('[LoginPage] Session data:', session);
+    console.log('[LoginPage] Session user:', session?.user);
+    console.log('[LoginPage] Session user role:', session?.user?.role);
+    
+    // Only redirect if authenticated and session is loaded
+    if (status === 'authenticated' && session?.user?.role) {
+      const role = session.user.role;
+      console.log('[LoginPage] User role:', role);
+      
+      // Check for redirect query parameter
+      const redirectTarget = searchParams.get('redirect');
+      console.log('[LoginPage] Redirect query parameter:', redirectTarget);
+      
+      // Validate redirect target to prevent loops
+      const safeRedirects = ['/admin', '/account', '/dashboard'];
+      const isSafeRedirect = redirectTarget && 
+        redirectTarget !== '/' && 
+        redirectTarget !== '/login' &&
+        redirectTarget !== '/register' &&
+        safeRedirects.some(safe => redirectTarget === safe || redirectTarget.startsWith(safe + '/'));
+      
+      // Prevent redirect loop: if redirect is '/' (root path) or unsafe, ignore it and redirect based on role
+      if (isSafeRedirect) {
+        console.log('[LoginPage] Redirecting to safe target:', redirectTarget);
+        router.replace(redirectTarget);
+      } else {
+        // Redirect based on user role
+        console.log('[LoginPage] Will redirect to:', role === 'admin' || role === 'super_admin' ? '/admin' : '/account');
+        if (role === 'admin' || role === 'super_admin') {
+          console.log('[LoginPage] Redirecting admin user to /admin');
+          router.replace('/admin');
+        } else {
+          console.log('[LoginPage] Redirecting regular user to /account');
+          router.replace('/account');
+        }
+      }
+    } else if (status === 'authenticated') {
+      console.log('[LoginPage] Authenticated but role not available yet');
+    }
+  }, [status, session, router, searchParams]);
 
   const handleLanguageChange = (newLanguage: 'en' | 'bn') => {
     setLanguage(newLanguage);
@@ -80,7 +127,7 @@ export default function LoginPage() {
     try {
       console.log('[LoginPage DIAGNOSTIC] Step 1: Calling login function...');
       await login(data.emailOrPhone, data.password, data.rememberMe);
-      console.log('[LoginPage DIAGNOSTIC] Step 2: Login function returned successfully, redirecting to /account');
+      console.log('[LoginPage DIAGNOSTIC] Step 2: Login function returned successfully');
       
       // Show success toast
       const successTitle = language === 'bn' ? 'লগইন সফল' : 'Login Successful';
@@ -90,9 +137,8 @@ export default function LoginPage() {
       console.log('[LoginPage DIAGNOSTIC] Showing success toast');
       toast.success(successMessage, successTitle);
       
-      // Redirect to account page after successful login
-      console.log('[LoginPage DIAGNOSTIC] Step 3: Redirecting to /account');
-      router.push('/account');
+      // Client-side useEffect will handle redirect after session is loaded
+      console.log('[LoginPage DIAGNOSTIC] Step 3: Waiting for session to load, useEffect will handle redirect');
       console.log('[LoginPage DIAGNOSTIC] === FORM SUBMIT SUCCESS ===');
     } catch (error: any) {
       console.error('[LoginPage DIAGNOSTIC] === FORM SUBMIT ERROR ===');
@@ -271,7 +317,7 @@ export default function LoginPage() {
                     language={language}
                     className="w-full pr-10"
                   />
-                  
+                   
                   {/* Password Visibility Toggle */}
                   <button
                     type="button"
@@ -373,5 +419,13 @@ export default function LoginPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginPageContent />
+    </Suspense>
   );
 }

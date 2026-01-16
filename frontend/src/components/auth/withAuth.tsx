@@ -9,6 +9,7 @@ interface WithAuthProps {
   requiredRole?: string | string[];
   fallback?: React.ReactNode;
   redirectTo?: string;
+  unauthorizedRedirectTo?: string;
 }
 
 interface AuthWrapperProps {
@@ -16,7 +17,7 @@ interface AuthWrapperProps {
   isLoading: boolean;
 }
 
-const AuthWrapper: React.FC<AuthWrapperProps & WithAuthProps> = ({ children, user, isLoading, requiredRole, fallback, redirectTo }) => {
+const AuthWrapper: React.FC<AuthWrapperProps & WithAuthProps> = ({ children, user, isLoading, requiredRole, fallback, redirectTo, unauthorizedRedirectTo }) => {
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
   const [mounted, setMounted] = useState(false);
@@ -61,6 +62,11 @@ const AuthWrapper: React.FC<AuthWrapperProps & WithAuthProps> = ({ children, use
     const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
     
     if (!allowedRoles.includes(userRole)) {
+      // Redirect to unauthorized page if specified, otherwise show fallback
+      if (unauthorizedRedirectTo) {
+        router.push(unauthorizedRedirectTo);
+        return fallback || null;
+      }
       return fallback || (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center p-8 bg-white rounded-lg shadow-md max-w-md mx-4">
@@ -90,6 +96,7 @@ export function withAuth<P extends object>(
     requiredRole?: string | string[];
     fallback?: React.ReactNode;
     redirectTo?: string;
+    unauthorizedRedirectTo?: string;
   } = {}
 ) {
   return function AuthenticatedComponent(props: P) {
@@ -102,6 +109,7 @@ export function withAuth<P extends object>(
         requiredRole={options.requiredRole}
         fallback={options.fallback}
         redirectTo={options.redirectTo}
+        unauthorizedRedirectTo={options.unauthorizedRedirectTo}
       >
         <Component {...props} />
       </AuthWrapper>

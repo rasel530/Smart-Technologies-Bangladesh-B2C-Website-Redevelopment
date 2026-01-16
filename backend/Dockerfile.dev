@@ -20,9 +20,11 @@ RUN npx prisma generate
 # Copy application code
 COPY . .
 
-# Run database migrations on startup
-COPY scripts/run-migrations.js ./scripts/run-migrations.js
-RUN chmod +x ./scripts/run-migrations.js
+# Copy migration scripts
+COPY scripts/comprehensive-migration-solution.js ./scripts/comprehensive-migration-solution.js
+COPY scripts/validate-migrations.js ./scripts/validate-migrations.js
+COPY scripts/docker-startup.sh ./scripts/docker-startup.sh
+RUN chmod +x ./scripts/docker-startup.sh
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs
@@ -40,4 +42,4 @@ ENV NODE_ENV=development
 ENV PORT=3000
 
 # Start the application with nodemon for hot-reloading and run migrations first
-CMD ["sh", "-c", "node scripts/run-migrations.js && npm run dev"]
+CMD ["sh", "-c", "./scripts/docker-startup.sh"]

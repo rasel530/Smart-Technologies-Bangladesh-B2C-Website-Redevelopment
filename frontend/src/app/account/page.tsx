@@ -71,7 +71,10 @@ const AccountPage: React.FC<AccountPageProps> = () => {
     setIsLoading(true);
     try {
       await logout();
-      router.push('/');
+      // Only redirect to home if user was logged in
+      if (user) {
+        router.push('/');
+      }
       // Reset profile loaded ref on logout
       profileLoadedRef.current = false;
     } catch (error) {

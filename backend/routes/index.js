@@ -16,6 +16,13 @@ const userPreferencesRoutes = require('./userPreferences');
 const accountManagementRoutes = require('./accountManagement');
 const profileRoutes = require('./profile');
 const dataExportRoutes = require('./dataExport');
+const roleRoutes = require('./roles');
+const rbacRolesRoutes = require('./rbacRoles');
+const rbacPermissionsRoutes = require('./rbacPermissions');
+const rbacRolePermissionsRoutes = require('./rbacRolePermissions');
+const rbacUserRolesRoutes = require('./rbacUserRoles');
+const rbacEscalationRoutes = require('./rbacEscalation');
+const rbacAuthCheckRoutes = require('./rbacAuthCheck');
 
 const router = express.Router();
 
@@ -43,6 +50,15 @@ router.use('/v1/profile/preferences', privacySettingsRoutes);
 router.use('/v1/profile/account', accountDeletionRoutes);
 router.use('/v1/profile/account', accountManagementRoutes);
 router.use('/v1/profile', dataExportRoutes);
+router.use('/v1/roles', roleRoutes);
+
+// RBAC routes - prefixed with /api/rbac
+router.use('/rbac/roles', rbacRolesRoutes);
+router.use('/rbac/permissions', rbacPermissionsRoutes);
+router.use('/rbac/role-permissions', rbacRolePermissionsRoutes);
+router.use('/rbac/user-roles', rbacUserRolesRoutes);
+router.use('/rbac/role-escalation-requests', rbacEscalationRoutes);
+router.use('/rbac/auth', rbacAuthCheckRoutes);
 
 // API documentation endpoint
 router.get('/', (req, res) => {
@@ -68,7 +84,16 @@ router.get('/', (req, res) => {
         notifications: '/api/v1/profile/preferences/notifications',
         communication: '/api/v1/profile/preferences/communication',
         privacy: '/api/v1/profile/preferences/privacy',
-        accountManagement: '/api/v1/profile/account'
+        accountManagement: '/api/v1/profile/account',
+        roles: '/api/v1/roles'
+      },
+      rbac: {
+        roles: '/api/rbac/roles',
+        permissions: '/api/rbac/permissions',
+        rolePermissions: '/api/rbac/role-permissions',
+        userRoles: '/api/rbac/user-roles',
+        escalationRequests: '/api/rbac/role-escalation-requests',
+        auth: '/api/rbac/auth'
       }
     },
     documentation: '/api-docs'

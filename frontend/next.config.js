@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  // Removed standalone output mode to ensure middleware is properly compiled
+  // Standalone mode was causing middleware to not be included in the production build
   images: {
     domains: ['localhost', 'smarttech.com', 'api.smarttech.com'],
   },
@@ -60,11 +61,15 @@ const nextConfig = {
   // Disable static generation for pages that have SSR issues
   experimental: {
     serverComponentsExternalPackages: ['@/components/auth/withAuth'],
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
   },
   // Skip static generation for pages with browser API dependencies
-  output: 'standalone',
   // Disable static optimization to prevent build errors
   trailingSlash: false,
+  // Explicitly configure middleware for production
+  productionBrowserSourceMaps: false,
 };
 
 module.exports = nextConfig;

@@ -13,7 +13,7 @@ async function checkAdminUsers() {
   try {
     // Check for users with ADMIN role
     const adminUsers = await prisma.user.findMany({
-      where: { role: 'ADMIN' },
+      where: { role: 'admin' },
       select: {
         id: true,
         email: true,
@@ -42,8 +42,8 @@ async function checkAdminUsers() {
           firstName: 'System',
           lastName: 'Admin',
           password: hashedPassword,
-          role: 'ADMIN',
-          status: 'ACTIVE',
+          role: 'admin',
+          status: 'active',
           emailVerified: new Date(),
           phoneVerified: new Date()
         }

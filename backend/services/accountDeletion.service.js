@@ -1,9 +1,7 @@
-const { PrismaClient } = require('@prisma/client');
+const { prisma } = require('../utils/prisma');
 const { loggerService } = require('./logger');
 const { emailService } = require('./emailService');
 const crypto = require('crypto');
-
-const prisma = new PrismaClient();
 
 /**
  * Account Deletion Service
@@ -43,7 +41,7 @@ class AccountDeletionService {
           orders: {
             where: {
               status: {
-                notIn: ['DELIVERED', 'CANCELLED', 'REFUNDED']
+                notIn: ['delivered', 'cancelled', 'refunded']
               }
             }
           }
@@ -280,7 +278,9 @@ class AccountDeletionService {
    * @returns {Promise<Object>} Deletion status
    */
   async getDeletionStatus(userId) {
+    console.log('[DEBUG] getDeletionStatus - Entry point with userId:', userId);
     try {
+      console.log('[DEBUG] getDeletionStatus - Executing Prisma query to find user');
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
         select: {
@@ -295,7 +295,7 @@ class AccountDeletionService {
           orders: {
             where: {
               status: {
-                notIn: ['DELIVERED', 'CANCELLED', 'REFUNDED']
+                notIn: ['delivered', 'cancelled', 'refunded']
               }
             },
             select: {
@@ -323,14 +323,25 @@ class AccountDeletionService {
           }
         }
       });
+      console.log('[DEBUG] getDeletionStatus - Prisma query completed. User found:', !!user);
 
       if (!user) {
+        console.log('[DEBUG] getDeletionStatus - User not found, throwing error');
         throw new Error('User not found');
       }
 
-      const pendingRequest = user.accountDeletionRequests[0];
+      console.log('[DEBUG] getDeletionStatus - User data:', JSON.stringify({
+        id: user.id,
+        email: user.email,
+        accountStatus: user.accountStatus,
+        ordersCount: user.orders?.length || 0,
+        deletionRequestsCount: user.accountDeletionRequests?.length || 0
+      }, null, 2));
 
-      return {
+      const pendingRequest = user.accountDeletionRequests[0];
+      console.log('[DEBUG] getDeletionStatus - Pending deletion request:', !!pendingRequest);
+
+      const result = {
         accountStatus: user.accountStatus,
         deletionRequestedAt: user.deletionRequestedAt,
         deletedAt: user.deletedAt,
@@ -346,7 +357,14 @@ class AccountDeletionService {
         activeOrdersCount: user.orders.length,
         activeOrders: user.orders
       };
+      console.log('[DEBUG] getDeletionStatus - Returning result:', JSON.stringify(result, null, 2));
+      return result;
     } catch (error) {
+      console.error('[DEBUG] getDeletionStatus - ERROR caught:', error);
+      console.error('[DEBUG] getDeletionStatus - Error name:', error.name);
+      console.error('[DEBUG] getDeletionStatus - Error message:', error.message);
+      console.error('[DEBUG] getDeletionStatus - Error stack:', error.stack);
+      
       this.logger.error('Error getting deletion status', error);
       throw error;
     }

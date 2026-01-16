@@ -16,8 +16,6 @@ RUN npm ci --only=production && \
 # Copy Prisma schema and generate Prisma client
 COPY prisma ./prisma/
 RUN npx prisma generate
-# Regenerate Prisma client on every build to ensure schema synchronization
-RUN npx prisma generate
 
 # Copy application code
 COPY . .

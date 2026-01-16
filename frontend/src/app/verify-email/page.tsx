@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import { FormInput } from '@/components/ui/FormInput';
 import { VerificationData, VerificationResponse } from '@/types/auth';
 import { cn } from '@/lib/utils';
 
-export default function EmailVerificationPage() {
+function EmailVerificationPageContent() {
   const [code, setCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -280,5 +280,13 @@ export default function EmailVerificationPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function EmailVerificationPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EmailVerificationPageContent />
+    </Suspense>
   );
 }

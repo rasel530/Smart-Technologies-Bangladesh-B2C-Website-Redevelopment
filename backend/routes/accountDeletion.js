@@ -1,11 +1,10 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const { PrismaClient } = require('@prisma/client');
+const { prisma } = require('../utils/prisma');
 const { authMiddleware } = require('../middleware/auth');
 const bcrypt = require('bcryptjs');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 // Rate limiting map (in production, use Redis or a proper rate limiting library)
 const deletionAttempts = new Map();

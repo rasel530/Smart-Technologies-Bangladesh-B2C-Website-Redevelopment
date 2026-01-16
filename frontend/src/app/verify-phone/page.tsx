@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Phone, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import { FormInput } from '@/components/ui/FormInput';
@@ -8,7 +8,7 @@ import { PhoneInput } from '@/components/ui/PhoneInput';
 import { VerificationData, VerificationResponse } from '@/types/auth';
 import { cn } from '@/lib/utils';
 
-export default function PhoneVerificationPage() {
+function PhoneVerificationPageContent() {
   const [code, setCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -291,5 +291,13 @@ export default function PhoneVerificationPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function PhoneVerificationPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PhoneVerificationPageContent />
+    </Suspense>
   );
 }

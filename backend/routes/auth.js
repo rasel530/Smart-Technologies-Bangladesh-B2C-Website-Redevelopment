@@ -179,8 +179,8 @@ router.post('/register', [
         phone: phoneValidation?.normalizedPhone || phone,
         dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
         gender,
-        role: 'CUSTOMER',
-        status: 'PENDING'
+        role: 'customer',
+        status: 'pending'
       },
       select: {
         id: true,
@@ -220,8 +220,61 @@ router.post('/register', [
       }
     }
 
+    console.log('[DEBUG] About to save password to history for user:', user.id);
+
     // Save password to history
-    await passwordService.savePasswordToHistory(user.id, hashedPassword);
+    try {
+      await passwordService.savePasswordToHistory(user.id, hashedPassword);
+      console.log('[DEBUG] Password history saved successfully');
+    } catch (passwordHistoryError) {
+      console.error('[DEBUG] Failed to save password to history:', passwordHistoryError);
+      // Don't fail registration if password history save fails
+    }
+
+    console.log('[DEBUG] About to assign RBAC role...');
+
+    // Assign CUSTOMER role in RBAC system
+    try {
+      console.log('[RBAC] Starting RBAC role assignment...');
+
+      // Get CUSTOMER role ID
+      const customerRoleResult = await prisma.$queryRaw`
+        SELECT id FROM roles WHERE name = 'CUSTOMER' LIMIT 1
+      `;
+
+      console.log('[RBAC] Customer role query result:', JSON.stringify(customerRoleResult));
+
+      if (customerRoleResult && customerRoleResult.length > 0) {
+        const customerRoleId = customerRoleResult[0].id;
+        console.log('[RBAC] Customer role ID:', customerRoleId);
+        console.log('[RBAC] User ID:', user.id);
+
+        // Insert into user_roles table
+        const insertResult = await prisma.$queryRaw`
+          INSERT INTO user_roles (user_id, role_id, assigned_at, is_active)
+          VALUES (${user.id}, ${customerRoleId}::uuid, NOW(), true)
+          RETURNING id
+        `;
+
+        console.log('[RBAC] Insert result:', JSON.stringify(insertResult));
+
+        if (insertResult && insertResult.length > 0) {
+          console.log(`[RBAC] ✓ Assigned CUSTOMER role to user ${user.id}, user_roles ID: ${insertResult[0].id}`);
+        } else {
+          console.error('[RBAC] ✗ Insert failed or returned empty result');
+        }
+      } else {
+        console.warn('[RBAC] CUSTOMER role not found in roles table');
+      }
+    } catch (rbacError) {
+      console.error('[RBAC] Failed to assign CUSTOMER role:', rbacError);
+      console.error('[RBAC] Error details:', {
+        message: rbacError.message,
+        code: rbacError.code,
+        meta: rbacError.meta
+      });
+      // Don't fail registration if RBAC assignment fails
+    }
 
     // Check if testing mode is enabled
     const isTestingMode = configService.isTestingMode();
@@ -406,7 +459,7 @@ router.post('/register', [
       const updatedUser = await prisma.user.update({
         where: { id: user.id },
         data: {
-          status: 'ACTIVE',
+          status: 'active',
           emailVerified: email ? new Date() : null,
           phoneVerified: phoneValidation?.isValid ? new Date() : null
         },
@@ -620,7 +673,7 @@ router.post('/login', [
       await prisma.user.update({
         where: { id: user.id },
         data: {
-          status: 'ACTIVE',
+          status: 'active',
           emailVerified: loginType === 'email' ? new Date() : user.emailVerified,
           phoneVerified: loginType === 'phone' ? new Date() : user.phoneVerified
         }
@@ -1086,7 +1139,7 @@ router.post('/verify-email', [
     const updatedUser = await prisma.user.update({
       where: { id: verificationToken.userId },
       data: {
-        status: 'ACTIVE',
+        status: 'active',
         emailVerified: new Date()
       },
       select: {
@@ -1721,10 +1774,10 @@ router.post('/reset-password', [
     });
 
     // Update user status to active if pending
-    if (resetToken.user.status === 'PENDING') {
+    if (resetToken.user.status === 'pending') {
       await prisma.user.update({
         where: { id: resetToken.userId },
-        data: { status: 'ACTIVE' }
+        data: { status: 'active' }
       });
     }
 

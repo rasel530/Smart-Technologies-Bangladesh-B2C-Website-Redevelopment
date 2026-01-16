@@ -1,0 +1,85 @@
+{
+  "timestamp": "2026-01-16T07:03:04.823Z",
+  "summary": {
+    "totalTests": 6,
+    "passedTests": 4,
+    "failedTests": 2,
+    "successRate": "66.67%"
+  },
+  "tests": [
+    {
+      "endpoint": "GET /api/v1/rbac/roles",
+      "path": "/api/v1/rbac/roles",
+      "method": "GET",
+      "statusCode": 200,
+      "success": true,
+      "message": "Roles retrieved successfully",
+      "dataCount": 5,
+      "formatValid": true,
+      "formatErrors": [],
+      "passed": true
+    },
+    {
+      "endpoint": "GET /api/v1/rbac/permissions",
+      "path": "/api/v1/rbac/permissions",
+      "method": "GET",
+      "statusCode": 200,
+      "success": true,
+      "message": "Permissions retrieved successfully",
+      "dataCount": 38,
+      "formatValid": true,
+      "formatErrors": [],
+      "passed": true
+    },
+    {
+      "endpoint": "GET /api/v1/rbac/permissions/resources",
+      "path": "/api/v1/rbac/permissions/resources",
+      "method": "GET",
+      "statusCode": 200,
+      "success": true,
+      "message": "Resource categories retrieved successfully",
+      "dataCount": 11,
+      "formatValid": true,
+      "formatErrors": [],
+      "passed": true
+    },
+    {
+      "endpoint": "GET /api/v1/rbac/role-escalation-requests",
+      "path": "/api/v1/rbac/role-escalation-requests",
+      "method": "GET",
+      "statusCode": 500,
+      "success": false,
+      "message": "Internal server error",
+      "dataCount": "N/A",
+      "formatValid": true,
+      "formatErrors": [],
+      "passed": false
+    },
+    {
+      "endpoint": "GET /api/v1/rbac/permissions/check",
+      "path": "/api/v1/rbac/permissions/check?resource=user&action=read",
+      "method": "GET",
+      "statusCode": 400,
+      "dataCount": "N/A",
+      "formatValid": false,
+      "formatErrors": [
+        "Missing or invalid \"success\" property (should be boolean)",
+        "Missing or invalid \"message\" property (should be string)",
+        "Missing \"data\" property"
+      ],
+      "passed": false
+    },
+    {
+      "endpoint": "GET /api/v1/rbac/roles/hierarchy",
+      "path": "/api/v1/rbac/roles/hierarchy",
+      "method": "GET",
+      "statusCode": 200,
+      "success": true,
+      "message": "Role hierarchy retrieved successfully",
+      "dataCount": 5,
+      "formatValid": true,
+      "formatErrors": [],
+      "passed": true
+    }
+  ]
+}

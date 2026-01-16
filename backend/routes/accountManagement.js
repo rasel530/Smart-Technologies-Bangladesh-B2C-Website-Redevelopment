@@ -165,15 +165,36 @@ router.post('/account/deletion/cancel', authMiddleware.authenticate(), async (re
  */
 router.get('/deletion/status', authMiddleware.authenticate(), async (req, res) => {
   try {
+    console.log('[DEBUG] GET /deletion/status - Entry point');
+
+    // Validate user ID exists
+    if (!req.user || !req.user.id) {
+      console.error('[DEBUG] GET /deletion/status - No user found in request');
+      return res.status(401).json({
+        error: 'Unauthorized',
+        message: 'User not authenticated',
+        messageBn: 'ব্যবহারকারী প্রমাণীকরণ করা হয়নি'
+      });
+    }
+
     const userId = req.user.id;
+    console.log('[DEBUG] GET /deletion/status - userId:', userId);
 
+    console.log('[DEBUG] GET /deletion/status - Calling accountDeletionService.getDeletionStatus');
     const status = await accountDeletionService.getDeletionStatus(userId);
+    console.log('[DEBUG] GET /deletion/status - Status retrieved successfully:', JSON.stringify(status, null, 2));
 
+    console.log('[DEBUG] GET /deletion/status - Sending success response');
     res.json({
       success: true,
       data: status
     });
   } catch (error) {
+    console.error('[DEBUG] GET /deletion/status - ERROR caught:', error);
+    console.error('[DEBUG] GET /deletion/status - Error name:', error.name);
+    console.error('[DEBUG] GET /deletion/status - Error message:', error.message);
+    console.error('[DEBUG] GET /deletion/status - Error stack:', error.stack);
+
     loggerService.error('Get deletion status error', error);
     res.status(500).json({
       error: 'Failed to get deletion status',

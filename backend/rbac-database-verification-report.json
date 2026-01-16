@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-01-16T06:04:00.600Z",
+  "allTablesExist": true,
+  "tables": [
+    {
+      "table": "roles",
+      "exists": true,
+      "rowCount": 5,
+      "columnCount": 6,
+      "indexCount": 3
+    },
+    {
+      "table": "permissions",
+      "exists": true,
+      "rowCount": 38,
+      "columnCount": 6,
+      "indexCount": 5
+    },
+    {
+      "table": "role_permissions",
+      "exists": true,
+      "rowCount": 100,
+      "columnCount": 5,
+      "indexCount": 5
+    },
+    {
+      "table": "user_roles",
+      "exists": true,
+      "rowCount": 8,
+      "columnCount": 7,
+      "indexCount": 7
+    },
+    {
+      "table": "role_escalation_requests",
+      "exists": true,
+      "rowCount": 0,
+      "columnCount": 11,
+      "indexCount": 6
+    }
+  ],
+  "functions": [
+    "user_has_permission",
+    "get_user_permissions",
+    "get_user_roles",
+    "user_has_minimum_role_level",
+    "update_updated_at_column"
+  ]
+}

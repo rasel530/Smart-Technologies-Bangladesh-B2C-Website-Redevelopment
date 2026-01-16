@@ -92,7 +92,7 @@ const authOptions: NextAuthOptions = {
   // Configure pages
   pages: {
     signIn: '/login',
-    signOut: '/login',
+    signOut: '/',  // Redirect to home page after logout
     newUser: '/register',
   },
 
@@ -261,7 +261,8 @@ const authOptions: NextAuthOptions = {
         // Token already exists, preserve it
         console.log('[NextAuth] JWT callback - preserving existing token');
       } else {
-        console.log('[NextAuth] JWT callback - no token or user');
+        // CRITICAL FIX: Only log error when no user or token - don't modify token
+        console.log('[NextAuth] JWT callback - no token or user, skipping token population');
       }
 
       // Handle session updates
@@ -289,7 +290,7 @@ const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       console.log('[NextAuth] Session callback');
       console.log('[NextAuth] Token in session callback:', !!token);
-      
+
       if (token) {
         session.user = {
           id: token.id as string,
@@ -301,19 +302,20 @@ const authOptions: NextAuthOptions = {
           role: token.role as string,
           image: token.picture as string | null,
           preferredLanguage: 'en', // Default, can be updated from backend
-          createdAt: new Date().toISOString(),
+          // Use createdAt from token if available, otherwise use current time
+          createdAt: token.createdAt ? (token.createdAt as Date).toISOString() : new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
         session.backendToken = token.backendToken as string;
         session.sessionId = token.sessionId as string;
-        session.rememberMe = token.rememberMe as boolean;
-        session.rememberToken = token.rememberToken as string;
+        session.rememberMe = token.rememberMe;
+        session.rememberToken = token.rememberToken;
         session.oauthProvider = token.oauthProvider as string | undefined;
         console.log('[NextAuth] Session created successfully');
       } else {
         console.log('[NextAuth] No token in session callback');
       }
-      
+
       // Always return session if token exists
       // Don't return null as this can cause unexpected logout behavior
       return token ? session : null;
@@ -322,12 +324,15 @@ const authOptions: NextAuthOptions = {
     /**
      * Sign In Callback
      * Called when user signs in
+     * Returns true to allow sign-in, false to deny
+     *
+     * Note: Redirect logic is handled on client-side after session is loaded
      */
     async signIn({ user, account, profile }) {
-      console.log('[NextAuth] Sign in callback:', { user: user?.email, provider: account?.provider });
-      
-      // Always return true to allow sign-in to proceed
-      // The credentials provider has already validated the user with backend API
+      console.log('[NextAuth] Sign in callback:', { user: user?.email, provider: account?.provider, role: user?.role });
+
+      // Allow sign-in for all authenticated users
+      // Client-side will handle role-based redirects after session loads
       return true;
     },
 
@@ -335,67 +340,15 @@ const authOptions: NextAuthOptions = {
      * Redirect Callback
      * Called after sign in/sign out
      *
-     * CRITICAL FIX: Prevent redirect loop and session loss
-     * - Don't redirect to login if user is already authenticated
-     * - Allow session restoration without interference
+     * CRITICAL: Always return baseUrl to prevent redirect loops
+     * Client-side login page will handle role-based redirects
      */
     async redirect({ url, baseUrl }) {
       console.log('[NextAuth] Redirect callback:', { url, baseUrl });
-      
-      // Handle absolute URLs directly
-      if (url.startsWith('http://') || url.startsWith('https://')) {
-        try {
-          const parsedUrl = new URL(url);
-          
-          // Only redirect if not already on the target page
-          if (typeof window !== 'undefined') {
-            const currentPath = window.location.pathname;
-            console.log('[NextAuth] Redirect comparison:', { currentPath, targetPath: parsedUrl.pathname, url });
-            
-            // If redirecting to same page, don't redirect
-            if (currentPath === parsedUrl.pathname) {
-              console.log('[NextAuth] Skipping redirect - already on target page');
-              return null; // Don't redirect
-            }
-          }
-          
-          // Only allow redirects to same origin
-          if (parsedUrl.origin === baseUrl) {
-            console.log('[NextAuth] Allowing same-origin redirect:', url);
-            return url;
-          } else {
-            console.log('[NextAuth] Blocking cross-origin redirect:', url);
-            return baseUrl;
-          }
-        } catch (e) {
-          console.log('[NextAuth] Could not parse absolute URL, using baseUrl:', url);
-          return baseUrl;
-        }
-      }
-      
-      // Handle relative URLs
-      if (url.startsWith('/')) {
-        const fullUrl = `${baseUrl}${url}`;
-        
-        // Only redirect if not already on the target page
-        if (typeof window !== 'undefined') {
-          const currentPath = window.location.pathname;
-          console.log('[NextAuth] Redirect comparison:', { currentPath, targetPath: url, fullUrl });
-          
-          // If redirecting to same page, don't redirect
-          if (currentPath === url) {
-            console.log('[NextAuth] Skipping redirect - already on target page');
-            return null; // Don't redirect
-          }
-        }
-        
-        return fullUrl;
-      }
-      
-      // CRITICAL FIX: Return null for all other cases to prevent unwanted redirects
-      // This prevents NextAuth from redirecting during session restoration
-      console.log('[NextAuth] Returning null to prevent redirect:', url);
-      return null;
+      console.log('[NextAuth] Returning baseUrl to prevent redirect loop:', baseUrl);
+
+      // Always return baseUrl - let client-side handle redirects
+      return baseUrl;
     },
   },
 
@@ -403,14 +356,14 @@ const authOptions: NextAuthOptions = {
   events: {
     async signIn({ user, account, profile, isNewUser }) {
       console.log('[NextAuth] Event - signIn:', { user: user?.email, provider: account?.provider, isNewUser });
-      
+
       // TODO: Track sign-in events in backend
       // This could be used for analytics, security logging, etc.
     },
-    
+
     async signOut({ token, session }) {
       console.log('[NextAuth] Event - signOut');
-      
+
       // Call backend logout API to invalidate session
       if (token?.sessionId || token?.backendToken) {
         try {
@@ -427,23 +380,23 @@ const authOptions: NextAuthOptions = {
         }
       }
     },
-    
+
     async createUser({ user }) {
       console.log('[NextAuth] Event - createUser:', user?.email);
-      
+
       // TODO: Create user in backend for OAuth sign-ins
       // This would involve calling backend registration API with OAuth data
     },
-    
+
     async updateUser({ user }) {
       console.log('[NextAuth] Event - updateUser:', user?.email);
-      
+
       // TODO: Sync user updates with backend
     },
-    
+
     async session({ session, token }) {
       console.log('[NextAuth] Event - session');
-      
+
       // TODO: Track session events
     },
   },

@@ -201,8 +201,18 @@ class AuthMiddleware {
             message: 'User not found'
           });
         }
-        
-        if (user.status !== 'ACTIVE') {
+
+        // DIAGNOSTIC: Log the actual status value from database
+        this.logger.info('User status check', {
+          userId: decoded.userId,
+          email: user.email,
+          status: user.status,
+          statusType: typeof user.status,
+          comparingWith: 'active',
+          comparisonResult: user.status !== 'active'
+        });
+
+        if (user.status !== 'active') {
           this.logger.warn('Account deactivated', { userId: decoded.userId, status: user.status });
           return res.status(401).json({
             error: 'Authentication failed',
@@ -214,18 +224,63 @@ class AuthMiddleware {
         req.user = user;
         req.token = token;
         
+        // Fetch RBAC roles from user_roles table
+        const { rbacUtils } = require('../utils/rbacUtils');
+        try {
+          const rbacRoles = await rbacUtils.getUserRoles(user.id);
+          req.user.rbacRoles = rbacRoles;
+          
+          // Set highest level role as primary RBAC role
+          if (rbacRoles.length > 0) {
+            const maxLevelRole = rbacRoles.reduce((max, role) => 
+              role.hierarchy_level > max.hierarchy_level ? role : max
+            , rbacRoles[0]);
+            req.user.rbacRole = maxLevelRole.role_name;
+            req.user.rbacRoleLevel = maxLevelRole.hierarchy_level;
+          }
+          
+          this.logger.info('RBAC roles fetched', {
+            userId: user.id,
+            rbacRoles: rbacRoles.map(r => r.role_name),
+            primaryRole: req.user.rbacRole,
+            roleLevel: req.user.rbacRoleLevel
+          });
+        } catch (error) {
+          this.logger.warn('Failed to fetch RBAC roles', {
+            userId: user.id,
+            error: error.message
+          });
+          req.user.rbacRoles = [];
+          req.user.rbacRole = null;
+          req.user.rbacRoleLevel = 0;
+        }
+        
         this.logger.info('Authentication successful', {
           userId: user.id,
           email: user.email,
-          role: user.role
+          legacyRole: user.role,
+          rbacRole: req.user.rbacRole
         });
         
         // Preserve req.body for downstream handlers
         const originalBody = req.body;
-        
+
+        // After authentication is successful, before calling next()
+        console.log('[AUTH DEBUG] User authenticated successfully:', {
+          userId: req.user?.id,
+          email: req.user?.email,
+          role: req.user?.role,
+          timestamp: new Date().toISOString()
+        });
+
         next();
         
       } catch (error) {
+        console.error('[AUTH ERROR] Authentication failed:', {
+          error: error.message,
+          stack: error.stack
+        });
+
         this.logger.error('Authentication error', {
           message: error.message,
           stack: error.stack,
@@ -268,7 +323,19 @@ class AuthMiddleware {
             }
           });
           
-          if (user && user.status === 'ACTIVE') {
+          // DIAGNOSTIC: Log the actual status value from database
+          if (user) {
+            this.logger.info('Optional auth - User status check', {
+              userId: decoded.userId,
+              email: user.email,
+              status: user.status,
+              statusType: typeof user.status,
+              comparingWith: 'active',
+              comparisonResult: user.status === 'active'
+            });
+          }
+
+          if (user && user.status === 'active') {
             req.user = user;
             req.token = token;
           }
@@ -491,8 +558,18 @@ class AuthMiddleware {
             message: 'The provided API key has been deactivated'
           });
         }
-        
-        if (keyRecord.user.status !== 'ACTIVE') {
+
+        // DIAGNOSTIC: Log the actual status value from database
+        this.logger.info('API key auth - User status check', {
+          userId: keyRecord.user.id,
+          email: keyRecord.user.email,
+          status: keyRecord.user.status,
+          statusType: typeof keyRecord.user.status,
+          comparingWith: 'active',
+          comparisonResult: keyRecord.user.status !== 'active'
+        });
+
+        if (keyRecord.user.status !== 'active') {
           return res.status(401).json({
             error: 'Account deactivated',
             message: 'The associated account has been deactivated'

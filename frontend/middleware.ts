@@ -1,127 +1,169 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
+
+const isDev = process.env.NODE_ENV === 'development';
 
 /**
- * NextAuth Middleware
+ * Middleware Function
  * 
- * This middleware is essential for NextAuth to properly handle session cookies
- * in Next.js App Router. Without this, sessions may not persist across
- * page refreshes.
+ * Handles authentication and authorization for all routes.
  * 
- * Key Functions:
- * - Protects routes that require authentication
- * - Handles session cookie validation
- * - Manages session persistence across page loads
+ * Fixes implemented:
+ * 1. Added try-catch around entire middleware function for error handling
+ * 2. Added robust token validation with try-catch and error logging
+ * 3. Removed redundant /api check - relies on matcher configuration
+ * 4. Improved role comparison with case-insensitive handling
+ * 5. Improved public routes path matching
+ * 6. Added production error logging
  */
+export async function middleware(req: NextRequest) {
+  try {
+    const { pathname } = req.nextUrl;
 
-export function middleware(req: NextRequest) {
-    // Allow access to auth pages (login, register, etc.)
-    const isAuthPage = req.nextUrl.pathname.startsWith('/login') ||
-                     req.nextUrl.pathname.startsWith('/register') ||
-                     req.nextUrl.pathname.startsWith('/forgot-password') ||
-                     req.nextUrl.pathname.startsWith('/reset-password');
+    if (isDev) {
+      console.log('[Middleware] Processing request:', pathname);
+    }
 
-    // Allow access to public pages
-    const isPublicPage = req.nextUrl.pathname === '/' ||
-                        req.nextUrl.pathname.startsWith('/products') ||
-                        req.nextUrl.pathname.startsWith('/categories') ||
-                        req.nextUrl.pathname.startsWith('/api');
+    // Define public routes that don't require authentication
+    // Using exact path matching for better precision
+    const publicRoutes = [
+      '/',              // Home page
+      '/login',         // Login page
+      '/register',      // Registration page
+      '/forgot-password', // Forgot password page
+      '/verify-email',  // Email verification page
+      '/verify-phone',  // Phone verification page
+      '/reset-password', // Reset password page
+    ];
 
-    // Allow access to static assets
-    const isStaticAsset = req.nextUrl.pathname.startsWith('/_next') ||
-                         req.nextUrl.pathname.startsWith('/favicon') ||
-                         req.nextUrl.pathname.startsWith('/uploads');
+    // Check if path is a public route (exact match or starts with route + '/')
+    // Improved path matching to avoid false positives
+    const isPublicRoute = publicRoutes.some(route => {
+      // Exact match for the route itself
+      if (pathname === route) return true;
+      // Allow sub-paths (e.g., /reset-password/token)
+      if (pathname.startsWith(route + '/')) return true;
+      return false;
+    });
 
-    // CRITICAL DIAGNOSTIC: Log all request details
-    console.log('[MIDDLEWARE DIAGNOSTIC] === REQUEST START ===');
-    console.log('[MIDDLEWARE DIAGNOSTIC] Pathname:', req.nextUrl.pathname);
-    console.log('[MIDDLEWARE DIAGNOSTIC] Method:', req.method);
-    console.log('[MIDDLEWARE DIAGNOSTIC] Headers:', Object.fromEntries(req.headers.entries()));
-    console.log('[MIDDLEWARE DIAGNOSTIC] Cookies:', Object.fromEntries(req.cookies.getAll().map(c => [c.name, c.value])));
-    
-    // If accessing public pages or static assets, allow through
-    if (isPublicPage || isStaticAsset) {
-      console.log('[MIDDLEWARE DIAGNOSTIC] Public page or static asset - ALLOWING');
+    if (isPublicRoute) {
+      if (isDev) {
+        console.log('[Middleware] Allowing public route:', pathname);
+      }
       return NextResponse.next();
     }
 
-    // Check for session cookie (both standard and secure names)
-    const sessionToken = req.cookies.get('next-auth.session-token');
-    const secureSessionToken = req.cookies.get('__Secure-next-auth.session-token');
-    const hasSession = !!sessionToken || !!secureSessionToken;
+    // Note: /api routes are excluded by the matcher configuration
+    // No need to explicitly check for them here
 
-    // DIAGNOSTIC: Log session cookie detection
-    console.log('[MIDDLEWARE DIAGNOSTIC] Session token found:', !!sessionToken);
-    console.log('[MIDDLEWARE DIAGNOSTIC] Secure session token found:', !!secureSessionToken);
-    console.log('[MIDDLEWARE DIAGNOSTIC] Has session:', hasSession);
-    console.log('[MIDDLEWARE DIAGNOSTIC] Session token value:', sessionToken?.value?.substring(0, 50) + '...');
-
-    // If user has session and tries to access auth pages, redirect to home
-    if (hasSession && isAuthPage) {
-      console.log('[Middleware] User has session, redirecting from auth page to home');
-      return NextResponse.redirect(new URL('/', req.url));
-    }
-
-    // CRITICAL FIX: Check if this is a session restoration request
-    // Session restoration happens when the browser loads a page and NextAuth needs to
-    // restore the session from the cookie. We should NOT redirect during this process.
-    const secFetchDest = req.headers.get('sec-fetch-dest');
-    const isSessionRestoration = secFetchDest === 'document' &&
-                               req.method === 'GET' &&
-                               !isAuthPage;
-
-    // Protected routes
-    const isProtectedRoute = req.nextUrl.pathname.startsWith('/account') ||
-                          req.nextUrl.pathname.startsWith('/checkout') ||
-                          req.nextUrl.pathname.startsWith('/orders');
-
-    console.log('[MIDDLEWARE DIAGNOSTIC] Is auth page:', isAuthPage);
-    console.log('[MIDDLEWARE DIAGNOSTIC] Is protected route:', isProtectedRoute);
-    console.log('[MIDDLEWARE DIAGNOSTIC] sec-fetch-dest header:', secFetchDest);
-    console.log('[MIDDLEWARE DIAGNOSTIC] Is session restoration:', isSessionRestoration);
-
-    // CRITICAL FIX: Allow initial page loads to proceed without redirecting
-    // This prevents the race condition where middleware redirects to login before
-    // NextAuth can restore the session from the cookie.
-    // The session restoration check (sec-fetch-dest: document) is unreliable,
-    // so we use a more permissive approach: allow all GET requests to proceed
-    // and let NextAuth handle session validation on the client side.
-    // Only redirect if:
-    // 1. User is NOT authenticated (no session cookie)
-    // 2. User is accessing a protected route
-    // 3. We're not on an auth page (to avoid redirect loops)
-    // 4. This is NOT a GET request (GET requests are for page loads, let them through)
-    // 5. This is NOT a session restoration request (additional safety check)
-    if (!hasSession && isProtectedRoute && !isAuthPage && req.method !== 'GET') {
-      console.log('[MIDDLEWARE DIAGNOSTIC] === REDIRECTING TO LOGIN ===');
-      console.log('[MIDDLEWARE DIAGNOSTIC] Redirect reason: No session cookie on non-GET request');
-      const loginUrl = new URL('/login', req.url);
-      loginUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
-      console.log('[MIDDLEWARE DIAGNOSTIC] Redirect URL:', loginUrl.toString());
+    // Robust token validation with try-catch and proper error logging
+    let token;
+    try {
+      token = await getToken({
+        req,
+        secret: process.env.NEXTAUTH_SECRET,
+      });
+    } catch (error) {
+      // Log token validation errors
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      if (isDev) {
+        console.error('[Middleware] Token validation error:', errorMessage, error);
+      } else {
+        // In production, log error without exposing sensitive details
+        console.error('[Middleware] Token validation failed:', errorMessage);
+      }
+      
+      // Redirect to login on token validation error
+      const loginUrl = new URL("/login", req.url);
+      loginUrl.searchParams.set("redirect", pathname);
+      loginUrl.searchParams.set("error", "token_validation");
       return NextResponse.redirect(loginUrl);
     }
 
-    console.log('[MIDDLEWARE DIAGNOSTIC] === ALLOWING REQUEST TO PROCEED ===');
-    console.log('[MIDDLEWARE DIAGNOSTIC] === REQUEST END ===');
+    if (isDev) {
+      console.log('[Middleware] Token check:', { hasToken: !!token, tokenRole: token?.role });
+    }
+
+    // Not authenticated - redirect to login
+    // Robust validation: check token exists and has required fields
+    if (!token || !token.id || typeof token.id !== 'string') {
+      if (isDev) {
+        console.log('[Middleware] No valid token found, redirecting to login');
+      }
+      const loginUrl = new URL("/login", req.url);
+      loginUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Admin protection - check for admin role
+    // Case-insensitive role comparison for consistency
+    if (pathname.startsWith("/admin")) {
+      // Normalize both user role and allowed roles to lowercase for comparison
+      const userRole = (token.role as string)?.toLowerCase().trim();
+      const allowedRoles = ["admin", "super_admin"];
+      
+      // Additional validation: ensure role is a string
+      if (!userRole || typeof userRole !== 'string') {
+        if (isDev) {
+          console.log('[Middleware] Invalid user role format, redirecting to 403');
+        }
+        return NextResponse.redirect(new URL("/403", req.url));
+      }
+      
+      if (isDev) {
+        console.log('[Middleware] Admin access check:', { userRole, allowedRoles });
+      }
+      
+      if (!allowedRoles.includes(userRole)) {
+        if (isDev) {
+          console.log('[Middleware] User does not have admin role, redirecting to 403');
+        }
+        return NextResponse.redirect(new URL("/403", req.url));
+      }
+    }
+
+    if (isDev) {
+      console.log('[Middleware] Request allowed');
+    }
     return NextResponse.next();
+
+  } catch (error) {
+    // Global error handling for the entire middleware function
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    
+    if (isDev) {
+      console.error('[Middleware] Unexpected error:', errorMessage, error);
+    } else {
+      // In production, log error without exposing sensitive details
+      console.error('[Middleware] Unexpected error processing request:', errorMessage);
+    }
+
+    // On unexpected error, redirect to login to prevent access bypass
+    const loginUrl = new URL("/login", req.url);
+    loginUrl.searchParams.set("error", "middleware_error");
+    return NextResponse.redirect(loginUrl);
+  }
 }
 
 /**
  * Middleware Configuration
  *
  * Specifies which paths middleware should run on.
- * CRITICAL: Must NOT run on NextAuth routes to allow proper session management
+ * 
+ * Excludes:
+ * - NextAuth API routes (api/auth/*)
+ * - Static files (_next/static, _next/image)
+ * - Public assets (favicon.ico, uploads)
+ * - All /api routes (handled by backend)
  */
 export const config = {
-  // The matcher defines which paths middleware should run on
-  // CRITICAL FIX: Exclude NextAuth routes to allow session restoration
-  // NextAuth needs to handle its own routes without middleware interference
   matcher: [
     // Match all paths EXCEPT:
     // - NextAuth API routes (api/auth/*)
-    // - NextAuth callback routes (api/callback/*)
     // - Static files (_next/static, _next/image)
     // - Public assets (favicon.ico, uploads)
-    '/((?!api/(auth|callback)|_next/static|_next/image|favicon.ico|uploads).*)',
+    // - All /api routes (excluded to avoid redundancy)
+    '/((?!api/auth|api/|_next/static|_next/image|favicon.ico|uploads).*)',
   ],
 };

@@ -118,7 +118,11 @@ router.get('/me', authMiddleware.authenticate(), async (req, res) => {
 router.put('/me', [
   body('firstName').optional().notEmpty().trim().isLength({ min: 2, max: 50 }),
   body('lastName').optional().notEmpty().trim().isLength({ min: 2, max: 50 }),
-  body('phone').optional().matches(/^(\+880|01)(1[3-9]\d{8}|\d{9})$/),
+  body('phone').optional().custom((value) => {
+    if (!value) return true;
+    const bdPhoneRegex = /^(\+880|01)(1[3-9]\d{8}|\d{9})$/;
+    return bdPhoneRegex.test(value.replace(/\s/g, ''));
+  }).withMessage('Please enter a valid Bangladesh phone number'),
   body('dateOfBirth').optional().isISO8601().toDate(),
   body('gender').optional().isIn(['MALE', 'FEMALE', 'OTHER'])
 ], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
@@ -524,7 +528,10 @@ router.post('/me/email/confirm', [
 
 // Request phone change
 router.post('/me/phone/change', [
-  body('newPhone').matches(/^(\+880|01)(1[3-9]\d{8}|\d{9})$/)
+  body('newPhone').custom((value) => {
+    const bdPhoneRegex = /^(\+880|01)(1[3-9]\d{8}|\d{9})$/;
+    return bdPhoneRegex.test(value.replace(/\s/g, ''));
+  }).withMessage('Please enter a valid Bangladesh phone number')
 ], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
   try {
     const userId = req.user.id;
@@ -579,7 +586,10 @@ router.post('/me/phone/change', [
 
 // Confirm phone change
 router.post('/me/phone/confirm', [
-  body('newPhone').matches(/^(\+880|01)(1[3-9]\d{8}|\d{9})$/),
+  body('newPhone').custom((value) => {
+    const bdPhoneRegex = /^(\+880|01)(1[3-9]\d{8}|\d{9})$/;
+    return bdPhoneRegex.test(value.replace(/\s/g, ''));
+  }).withMessage('Please enter a valid Bangladesh phone number'),
   body('otp').isLength({ min: 6, max: 6 })
 ], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
   try {

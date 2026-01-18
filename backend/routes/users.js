@@ -145,7 +145,7 @@ router.put('/:id', [
     // Accept formats: +8801XXXXXXXXX, 01XXXXXXXXX, or landline
     const bdPhoneRegex = /^(\+880|0)?1[3-9]\d{8}$/;
     const landlineRegex = /^(\+880|0)?[2-9]\d{8,9}$/;
-    return bdPhoneRegex.test(value) || landlineRegex.test(value);
+    return bdPhoneRegex.test(value.replace(/\s/g, '')) || landlineRegex.test(value.replace(/\s/g, ''));
   }).withMessage('Please enter a valid Bangladesh phone number'),
   body('dateOfBirth').optional().isISO8601().toDate(),
   body('gender').optional().isIn(['MALE', 'FEMALE', 'OTHER'])
@@ -323,7 +323,7 @@ router.post('/:id/addresses', [
     // Accept formats: +8801XXXXXXXXX, 01XXXXXXXXX, or landline
     const bdPhoneRegex = /^(\+880|0)?1[3-9]\d{8}$/;
     const landlineRegex = /^(\+880|0)?[2-9]\d{8,9}$/;
-    return bdPhoneRegex.test(value) || landlineRegex.test(value);
+    return bdPhoneRegex.test(value.replace(/\s/g, '')) || landlineRegex.test(value.replace(/\s/g, ''));
   }).withMessage('Please enter a valid Bangladesh phone number'),
   body('address').notEmpty().trim(),
   body('addressLine2').optional().trim(),
@@ -408,7 +408,7 @@ router.put('/:id/addresses/:addressId', [
     // Accept formats: +8801XXXXXXXXX, 01XXXXXXXXX, or landline
     const bdPhoneRegex = /^(\+880|0)?1[3-9]\d{8}$/;
     const landlineRegex = /^(\+880|0)?[2-9]\d{8,9}$/;
-    return bdPhoneRegex.test(value) || landlineRegex.test(value);
+    return bdPhoneRegex.test(value.replace(/\s/g, '')) || landlineRegex.test(value.replace(/\s/g, ''));
   }).withMessage('Please enter a valid Bangladesh phone number'),
   body('address').optional().notEmpty().trim(),
   body('addressLine2').optional().trim(),

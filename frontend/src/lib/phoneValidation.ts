@@ -690,56 +690,85 @@ export const createPhoneValidator = (debounceMs = 300) => {
  * Phone number formatting for input fields
  */
 export const formatPhoneInput = (value: string): string => {
+  console.log('=== FORMAT PHONE INPUT DEBUG ===');
+  console.log('Input value:', value);
+  console.log('Input value with quotes:', JSON.stringify(value));
+  
   // Remove all non-digit characters except +
   let cleaned = value.replace(/[^\d+]/g, '');
+  console.log('After removing non-digits:', cleaned);
+  console.log('Cleaned value with quotes:', JSON.stringify(cleaned));
 
   // Limit to 15 characters (max Bangladesh phone length)
   if (cleaned.length > 15) {
     cleaned = cleaned.substring(0, 15);
+    console.log('Trimmed to 15 chars:', cleaned);
   }
 
   // Auto-format as user types
+  let formatted = cleaned;
+  
   if (cleaned.startsWith('+880') && cleaned.length === 4) {
     // User just typed +880, wait for more
-    return cleaned;
+    formatted = cleaned;
+    console.log('Case: +880 prefix, length 4');
   } else if (cleaned.startsWith('+880') && cleaned.length > 4) {
     // Format as +880 XXX XXXX
     const rest = cleaned.substring(4);
     if (rest.length <= 3) {
-      return `+880 ${rest}`;
+      formatted = `+880 ${rest}`;
+      console.log('Case: +880 prefix, rest length <= 3');
     } else if (rest.length <= 6) {
-      return `+880 ${rest.slice(0, 3)} ${rest.slice(3)}`;
+      formatted = `+880 ${rest.slice(0, 3)} ${rest.slice(3)}`;
+      console.log('Case: +880 prefix, rest length <= 6');
     } else {
-      return `+880 ${rest.slice(0, 3)} ${rest.slice(3, 6)} ${rest.slice(6, 10)}`;
+      formatted = `+880 ${rest.slice(0, 3)} ${rest.slice(3, 6)} ${rest.slice(6, 10)}`;
+      console.log('Case: +880 prefix, rest length > 6');
     }
   } else if (cleaned.startsWith('01') && cleaned.length <= 11) {
     // Format as 01XX XXX XXXX
     if (cleaned.length <= 4) {
-      return cleaned;
+      formatted = cleaned;
+      console.log('Case: 01 prefix, length <= 4');
     } else if (cleaned.length <= 7) {
-      return `${cleaned.slice(0, 4)} ${cleaned.slice(4)}`;
+      formatted = `${cleaned.slice(0, 4)} ${cleaned.slice(4)}`;
+      console.log('Case: 01 prefix, length <= 7');
     } else {
-      return `${cleaned.slice(0, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7, 11)}`;
+      formatted = `${cleaned.slice(0, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7, 11)}`;
+      console.log('Case: 01 prefix, length > 7');
     }
   } else if (cleaned.startsWith('02') && cleaned.length <= 10) {
     // Format as 02X XXX XXXX (Dhaka landline)
     if (cleaned.length <= 3) {
-      return cleaned;
+      formatted = cleaned;
+      console.log('Case: 02 prefix, length <= 3');
     } else if (cleaned.length <= 6) {
-      return `${cleaned.slice(0, 3)} ${cleaned.slice(3)}`;
+      formatted = `${cleaned.slice(0, 3)} ${cleaned.slice(3)}`;
+      console.log('Case: 02 prefix, length <= 6');
     } else {
-      return `${cleaned.slice(0, 3)} ${cleaned.slice(3, 6)} ${cleaned.slice(6, 10)}`;
+      formatted = `${cleaned.slice(0, 3)} ${cleaned.slice(3, 6)} ${cleaned.slice(6, 10)}`;
+      console.log('Case: 02 prefix, length > 6');
     }
   } else if (cleaned.match(/^\d{3}/) && cleaned.length <= 10) {
     // Format as XXX XXX XXXX (3-digit area code landline)
     if (cleaned.length <= 4) {
-      return cleaned;
+      formatted = cleaned;
+      console.log('Case: 3-digit prefix, length <= 4');
     } else if (cleaned.length <= 7) {
-      return `${cleaned.slice(0, 4)} ${cleaned.slice(4)}`;
+      formatted = `${cleaned.slice(0, 4)} ${cleaned.slice(4)}`;
+      console.log('Case: 3-digit prefix, length <= 7');
     } else {
-      return `${cleaned.slice(0, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7, 10)}`;
+      formatted = `${cleaned.slice(0, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7, 10)}`;
+      console.log('Case: 3-digit prefix, length > 7');
     }
+  } else {
+    console.log('Case: No matching pattern, returning cleaned');
   }
 
-  return cleaned;
+  console.log('Formatted value:', formatted);
+  console.log('Formatted value with quotes:', JSON.stringify(formatted));
+  console.log('Formatted value length:', formatted.length);
+  console.log('=== END FORMAT PHONE INPUT DEBUG ===');
+  
+  return formatted;
 };

@@ -50,11 +50,10 @@ function LoginPageContent() {
       console.log('[LoginPage] Redirect query parameter:', redirectTarget);
       
       // Validate redirect target to prevent loops
-      const safeRedirects = ['/admin', '/account', '/dashboard'];
+      const safeRedirects = ['/admin', '/account', '/dashboard', '/register'];
       const isSafeRedirect = redirectTarget && 
         redirectTarget !== '/' && 
         redirectTarget !== '/login' &&
-        redirectTarget !== '/register' &&
         safeRedirects.some(safe => redirectTarget === safe || redirectTarget.startsWith(safe + '/'));
       
       // Prevent redirect loop: if redirect is '/' (root path) or unsafe, ignore it and redirect based on role

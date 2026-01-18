@@ -1,405 +1,500 @@
-[CORS DIAGNOSTIC] {
-  timestamp: '2026-01-15T17:19:40.100Z',
-  method: 'GET',
-  path: '/api/v1/health',
-  origin: undefined,
-  referer: undefined,
-  'allowed-origins': [
-    'https://smarttechnologies-bd.com',
-    'https://www.smarttechnologies-bd.com',
-    'https://admin.smarttechnologies-bd.com',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001'
-  ],
-  'origin-allowed': 'no-origin-header',
-  credentials: 'no-cookies',
-  'user-agent': 'curl/8.14.1'
-}
-[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
-[RATE LIMIT SERVICE] Request method: GET
-[RATE LIMIT SERVICE] req.body before processing: undefined
-[RATE LIMIT SERVICE] req.body type: undefined
-[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768496680100
-[RATE LIMIT SERVICE] req.body after key generation: undefined
-🔍 Query: {
-  query: 'SELECT 1',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:19:40.113Z
-}
-🔍 Query: {
-  query: 'SELECT 1 as status, NOW() as server_time',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:19:40.113Z
-}
-[CORS DIAGNOSTIC] {
-  timestamp: '2026-01-15T17:20:00.006Z',
-  method: 'POST',
-  path: '/api/v1/auth/register',
-  origin: undefined,
-  referer: undefined,
-  'allowed-origins': [
-    'https://smarttechnologies-bd.com',
-    'https://www.smarttechnologies-bd.com',
-    'https://admin.smarttechnologies-bd.com',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001'
-  ],
-  'origin-allowed': 'no-origin-header',
-  credentials: 'no-cookies',
-  'user-agent': 'axios/1.13.2'
-}
-[RATE LIMIT SERVICE] Middleware called for: /api/v1/auth/register
-[RATE LIMIT SERVICE] Request method: POST
-[RATE LIMIT SERVICE] req.body before processing: {
-  email: 'rbac-test-1768497599956@smarttech.com',
-  password: 'SecureP@ssw0rd!',
-  confirmPassword: 'SecureP@ssw0rd!',
-  firstName: 'RBAC',
-  lastName: 'Test',
-  phone: '01712345656'
-}
-[RATE LIMIT SERVICE] req.body type: object
-[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1768496700007
-[RATE LIMIT SERVICE] req.body after key generation: {
-  email: 'rbac-test-1768497599956@smarttech.com',
-  password: 'SecureP@ssw0rd!',
-  confirmPassword: 'SecureP@ssw0rd!',
-  firstName: 'RBAC',
-  lastName: 'Test',
-  phone: '01712345656'
-}
-[VALIDATION] Checking request validation
-[VALIDATION] Validation passed, calling next()
-[CORS DIAGNOSTIC] {
-  timestamp: '2026-01-15T17:20:10.226Z',
-  method: 'GET',
-  path: '/api/v1/health',
-  origin: undefined,
-  referer: undefined,
-  'allowed-origins': [
-    'https://smarttechnologies-bd.com',
-    'https://www.smarttechnologies-bd.com',
-    'https://admin.smarttechnologies-bd.com',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001'
-  ],
-  'origin-allowed': 'no-origin-header',
-  credentials: 'no-cookies',
-  'user-agent': 'curl/8.14.1'
-}
-[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
-[RATE LIMIT SERVICE] Request method: GET
-[RATE LIMIT SERVICE] req.body before processing: undefined
-[RATE LIMIT SERVICE] req.body type: undefined
-[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768496710227
-[RATE LIMIT SERVICE] req.body after key generation: undefined
-🔍 Query: {
-  query: 'SELECT 1',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:20:10.239Z
-}
-🔍 Query: {
-  query: 'SELECT 1 as status, NOW() as server_time',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:20:10.240Z
-}
-[CORS DIAGNOSTIC] {
-  timestamp: '2026-01-15T17:20:40.306Z',
-  method: 'GET',
-  path: '/api/v1/health',
-  origin: undefined,
-  referer: undefined,
-  'allowed-origins': [
-    'https://smarttechnologies-bd.com',
-    'https://www.smarttechnologies-bd.com',
-    'https://admin.smarttechnologies-bd.com',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001'
-  ],
-  'origin-allowed': 'no-origin-header',
-  credentials: 'no-cookies',
-  'user-agent': 'curl/8.14.1'
-}
-[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
-[RATE LIMIT SERVICE] Request method: GET
-[RATE LIMIT SERVICE] req.body before processing: undefined
-[RATE LIMIT SERVICE] req.body type: undefined
-[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768496740307
-[RATE LIMIT SERVICE] req.body after key generation: undefined
-🔍 Query: {
-  query: 'SELECT 1',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:20:40.309Z
-}
-🔍 Query: {
-  query: 'SELECT 1 as status, NOW() as server_time',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:20:40.310Z
-}
-[CORS DIAGNOSTIC] {
-  timestamp: '2026-01-15T17:21:10.418Z',
-  method: 'GET',
-  path: '/api/v1/health',
-  origin: undefined,
-  referer: undefined,
-  'allowed-origins': [
-    'https://smarttechnologies-bd.com',
-    'https://www.smarttechnologies-bd.com',
-    'https://admin.smarttechnologies-bd.com',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001'
-  ],
-  'origin-allowed': 'no-origin-header',
-  credentials: 'no-cookies',
-  'user-agent': 'curl/8.14.1'
-}
-[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
-[RATE LIMIT SERVICE] Request method: GET
-[RATE LIMIT SERVICE] req.body before processing: undefined
-[RATE LIMIT SERVICE] req.body type: undefined
-[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768496770419
-[RATE LIMIT SERVICE] req.body after key generation: undefined
-🔍 Query: {
-  query: 'SELECT 1',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:21:10.421Z
-}
-🔍 Query: {
-  query: 'SELECT 1 as status, NOW() as server_time',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:21:10.421Z
-}
-[CORS DIAGNOSTIC] {
-  timestamp: '2026-01-15T17:21:40.518Z',
-  method: 'GET',
-  path: '/api/v1/health',
-  origin: undefined,
-  referer: undefined,
-  'allowed-origins': [
-    'https://smarttechnologies-bd.com',
-    'https://www.smarttechnologies-bd.com',
-    'https://admin.smarttechnologies-bd.com',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001'
-  ],
-  'origin-allowed': 'no-origin-header',
-  credentials: 'no-cookies',
-  'user-agent': 'curl/8.14.1'
-}
-[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
-[RATE LIMIT SERVICE] Request method: GET
-[RATE LIMIT SERVICE] req.body before processing: undefined
-[RATE LIMIT SERVICE] req.body type: undefined
-[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768496800518
-[RATE LIMIT SERVICE] req.body after key generation: undefined
-🔍 Query: {
-  query: 'SELECT 1',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:21:40.532Z
-}
-🔍 Query: {
-  query: 'SELECT 1 as status, NOW() as server_time',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:21:40.532Z
-}
-[CORS DIAGNOSTIC] {
-  timestamp: '2026-01-15T17:22:10.633Z',
-  method: 'GET',
-  path: '/api/v1/health',
-  origin: undefined,
-  referer: undefined,
-  'allowed-origins': [
-    'https://smarttechnologies-bd.com',
-    'https://www.smarttechnologies-bd.com',
-    'https://admin.smarttechnologies-bd.com',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001'
-  ],
-  'origin-allowed': 'no-origin-header',
-  credentials: 'no-cookies',
-  'user-agent': 'curl/8.14.1'
-}
-[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
-[RATE LIMIT SERVICE] Request method: GET
-[RATE LIMIT SERVICE] req.body before processing: undefined
-[RATE LIMIT SERVICE] req.body type: undefined
-[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768496830633
-[RATE LIMIT SERVICE] req.body after key generation: undefined
-🔍 Query: {
-  query: 'SELECT 1 as status, NOW() as server_time',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:22:10.657Z
-}
-[CORS DIAGNOSTIC] {
-  timestamp: '2026-01-15T17:22:40.709Z',
-  method: 'GET',
-  path: '/api/v1/health',
-  origin: undefined,
-  referer: undefined,
-  'allowed-origins': [
-    'https://smarttechnologies-bd.com',
-    'https://www.smarttechnologies-bd.com',
-    'https://admin.smarttechnologies-bd.com',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001'
-  ],
-  'origin-allowed': 'no-origin-header',
-  credentials: 'no-cookies',
-  'user-agent': 'curl/8.14.1'
-}
-[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
-[RATE LIMIT SERVICE] Request method: GET
-[RATE LIMIT SERVICE] req.body before processing: undefined
-[RATE LIMIT SERVICE] req.body type: undefined
-[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768496860710
-[RATE LIMIT SERVICE] req.body after key generation: undefined
-🔍 Query: {
-  query: 'SELECT 1',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:22:40.712Z
-}
-🔍 Query: {
-  query: 'SELECT 1 as status, NOW() as server_time',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:22:40.713Z
-}
-[CORS DIAGNOSTIC] {
-  timestamp: '2026-01-15T17:23:10.769Z',
-  method: 'GET',
-  path: '/api/v1/health',
-  origin: undefined,
-  referer: undefined,
-  'allowed-origins': [
-    'https://smarttechnologies-bd.com',
-    'https://www.smarttechnologies-bd.com',
-    'https://admin.smarttechnologies-bd.com',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001'
-  ],
-  'origin-allowed': 'no-origin-header',
-  credentials: 'no-cookies',
-  'user-agent': 'curl/8.14.1'
-}
-[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
-[RATE LIMIT SERVICE] Request method: GET
-[RATE LIMIT SERVICE] req.body before processing: undefined
-[RATE LIMIT SERVICE] req.body type: undefined
-[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768496890769
-[RATE LIMIT SERVICE] req.body after key generation: undefined
-🔍 Query: {
-  query: 'SELECT 1',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:23:10.773Z
-}
-🔍 Query: {
-  query: 'SELECT 1 as status, NOW() as server_time',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:23:10.774Z
-}
-[CORS DIAGNOSTIC] {
-  timestamp: '2026-01-15T17:23:40.833Z',
-  method: 'GET',
-  path: '/api/v1/health',
-  origin: undefined,
-  referer: undefined,
-  'allowed-origins': [
-    'https://smarttechnologies-bd.com',
-    'https://www.smarttechnologies-bd.com',
-    'https://admin.smarttechnologies-bd.com',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001'
-  ],
-  'origin-allowed': 'no-origin-header',
-  credentials: 'no-cookies',
-  'user-agent': 'curl/8.14.1'
-}
-[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
-[RATE LIMIT SERVICE] Request method: GET
-[RATE LIMIT SERVICE] req.body before processing: undefined
-[RATE LIMIT SERVICE] req.body type: undefined
-[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768496920834
-[RATE LIMIT SERVICE] req.body after key generation: undefined
-🔍 Query: {
-  query: 'SELECT 1',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:23:40.846Z
-}
-🔍 Query: {
-  query: 'SELECT 1 as status, NOW() as server_time',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:23:40.847Z
-}
-[CORS DIAGNOSTIC] {
-  timestamp: '2026-01-15T17:24:10.924Z',
-  method: 'GET',
-  path: '/api/v1/health',
-  origin: undefined,
-  referer: undefined,
-  'allowed-origins': [
-    'https://smarttechnologies-bd.com',
-    'https://www.smarttechnologies-bd.com',
-    'https://admin.smarttechnologies-bd.com',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001'
-  ],
-  'origin-allowed': 'no-origin-header',
-  credentials: 'no-cookies',
-  'user-agent': 'curl/8.14.1'
-}
-[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
-[RATE LIMIT SERVICE] Request method: GET
-[RATE LIMIT SERVICE] req.body before processing: undefined
-[RATE LIMIT SERVICE] req.body type: undefined
-[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768496950925
-[RATE LIMIT SERVICE] req.body after key generation: undefined
-🔍 Query: {
-  query: 'SELECT 1',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:24:10.942Z
-}
-🔍 Query: {
-  query: 'SELECT 1 as status, NOW() as server_time',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-01-15T17:24:10.942Z
-}
+smarttech_backend  |   timestamp: 2026-01-18T04:37:32.720Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:37:32.721Z
+smarttech_backend  | }
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-01-18T04:38:02.787Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'https://smarttechnologies-bd.com',
+smarttech_backend  |     'https://www.smarttechnologies-bd.com',
+smarttech_backend  |     'https://admin.smarttechnologies-bd.com',
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.14.1'
+smarttech_backend  | }
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768710182788
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:38:02.792Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:38:02.792Z
+smarttech_backend  | }
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-01-18T04:38:04.480Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'https://smarttechnologies-bd.com',
+smarttech_backend  |     'https://www.smarttechnologies-bd.com',
+smarttech_backend  |     'https://admin.smarttechnologies-bd.com',
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.13.0'
+smarttech_backend  | }
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1768710184481
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:38:04.484Z
+smarttech_backend  | }
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-01-18T04:38:23.728Z',
+smarttech_backend  |   method: 'POST',
+smarttech_backend  |   path: '/api/v1/corporate/register',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'https://smarttechnologies-bd.com',
+smarttech_backend  |     'https://www.smarttechnologies-bd.com',
+smarttech_backend  |     'https://admin.smarttechnologies-bd.com',
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.13.0'
+smarttech_backend  | }
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-01-18T04:38:32.846Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'https://smarttechnologies-bd.com',
+smarttech_backend  |     'https://www.smarttechnologies-bd.com',
+smarttech_backend  |     'https://admin.smarttechnologies-bd.com',
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.14.1'
+smarttech_backend  | }
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768710212847
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:38:32.849Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:38:32.849Z
+smarttech_backend  | }
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-01-18T04:39:02.911Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'https://smarttechnologies-bd.com',
+smarttech_backend  |     'https://www.smarttechnologies-bd.com',
+smarttech_backend  |     'https://admin.smarttechnologies-bd.com',
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.14.1'
+smarttech_backend  | }
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768710242911
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:39:02.913Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:39:02.914Z
+smarttech_backend  | }
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-01-18T04:39:32.973Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'https://smarttechnologies-bd.com',
+smarttech_backend  |     'https://www.smarttechnologies-bd.com',
+smarttech_backend  |     'https://admin.smarttechnologies-bd.com',
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.14.1'
+smarttech_backend  | }
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768710272974
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:39:32.978Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:39:32.979Z
+smarttech_backend  | }
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-01-18T04:40:03.066Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'https://smarttechnologies-bd.com',
+smarttech_backend  |     'https://www.smarttechnologies-bd.com',
+smarttech_backend  |     'https://admin.smarttechnologies-bd.com',
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.14.1'
+smarttech_backend  | }
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768710303067
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:40:03.071Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:40:03.071Z
+smarttech_backend  | }
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-01-18T04:40:33.146Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'https://smarttechnologies-bd.com',
+smarttech_backend  |     'https://www.smarttechnologies-bd.com',
+smarttech_backend  |     'https://admin.smarttechnologies-bd.com',
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.14.1'
+smarttech_backend  | }
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768710333147
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:40:33.150Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:40:33.150Z
+smarttech_backend  | }
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-01-18T04:40:44.739Z',
+smarttech_backend  |   method: 'POST',
+smarttech_backend  |   path: '/api/v1/corporate/register',
+smarttech_backend  |   origin: 'http://localhost:3000',
+smarttech_backend  |   referer: 'http://localhost:3000/',
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'https://smarttechnologies-bd.com',
+smarttech_backend  |     'https://www.smarttechnologies-bd.com',
+smarttech_backend  |     'https://admin.smarttechnologies-bd.com',
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': true,
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0'
+smarttech_backend  | }
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/corporate/register
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: POST
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1768710344744
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | [Backend] Corporate docs directory exists
+smarttech_backend  | [Backend] Corporate docs directory exists
+smarttech_backend  | [Backend] Corporate docs directory exists
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-01-18T04:41:03.255Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'https://smarttechnologies-bd.com',
+smarttech_backend  |     'https://www.smarttechnologies-bd.com',
+smarttech_backend  |     'https://admin.smarttechnologies-bd.com',
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.14.1'
+smarttech_backend  | }
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768710363257
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:41:03.271Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:41:03.272Z
+smarttech_backend  | }
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-01-18T04:41:28.060Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'https://smarttechnologies-bd.com',
+smarttech_backend  |     'https://www.smarttechnologies-bd.com',
+smarttech_backend  |     'https://admin.smarttechnologies-bd.com',
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'cookies-present',
+smarttech_backend  |   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0'
+smarttech_backend  | }
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1768710388062
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-01-18T04:41:28.154Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/favicon.ico',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'https://smarttechnologies-bd.com',
+smarttech_backend  |     'https://www.smarttechnologies-bd.com',
+smarttech_backend  |     'https://admin.smarttechnologies-bd.com',
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'cookies-present',
+smarttech_backend  |   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0'
+smarttech_backend  | }
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /favicon.ico
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1768710388155
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-01-18T04:41:33.337Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'https://smarttechnologies-bd.com',
+smarttech_backend  |     'https://www.smarttechnologies-bd.com',
+smarttech_backend  |     'https://admin.smarttechnologies-bd.com',
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.14.1'
+smarttech_backend  | }
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768710393338
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:41:33.340Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:41:33.340Z
+smarttech_backend  | }
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-01-18T04:42:03.405Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'https://smarttechnologies-bd.com',
+smarttech_backend  |     'https://www.smarttechnologies-bd.com',
+smarttech_backend  |     'https://admin.smarttechnologies-bd.com',
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.14.1'
+smarttech_backend  | }
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768710423405
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:42:03.425Z
+smarttech_backend  | }
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-01-18T04:42:33.522Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'https://smarttechnologies-bd.com',
+smarttech_backend  |     'https://www.smarttechnologies-bd.com',
+smarttech_backend  |     'https://admin.smarttechnologies-bd.com',
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.14.1'
+smarttech_backend  | }
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768710453524
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:42:33.527Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-01-18T04:42:33.527Z
+smarttech_backend  | }

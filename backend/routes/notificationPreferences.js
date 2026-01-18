@@ -1,10 +1,10 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const { PrismaClient } = require('@prisma/client');
+const { databaseService } = require('../services/database');
 const { authMiddleware } = require('../middleware/auth');
 
 const router = express.Router();
-const prisma = new PrismaClient();
+const prisma = databaseService.getClient();
 
 // Valid language codes
 const VALID_LANGUAGES = ['en', 'bn'];
@@ -57,7 +57,10 @@ router.get('/notifications', authMiddleware.authenticate(), async (req, res) => 
           whatsappNotifications: true,
           promotionalEmails: true,
           newsletterSubscription: true,
-          notificationFrequency: 'immediate'
+          notificationFrequency: 'immediate',
+          pushNotifications: true,
+          orderUpdates: true,
+          securityAlerts: true
         }
       });
     }
@@ -141,7 +144,10 @@ router.put('/notifications', [
           whatsappNotifications: whatsappNotifications !== undefined ? whatsappNotifications : true,
           promotionalEmails: promotionalEmails !== undefined ? promotionalEmails : true,
           newsletterSubscription: newsletterSubscription !== undefined ? newsletterSubscription : true,
-          notificationFrequency: notificationFrequency !== undefined ? notificationFrequency : 'immediate'
+          notificationFrequency: notificationFrequency !== undefined ? notificationFrequency : 'immediate',
+          pushNotifications: true,
+          orderUpdates: true,
+          securityAlerts: true
         }
       });
     }

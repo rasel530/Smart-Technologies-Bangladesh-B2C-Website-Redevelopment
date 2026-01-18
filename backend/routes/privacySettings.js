@@ -7,7 +7,7 @@ const router = express.Router();
 const prisma = databaseService.getClient();
 
 // Valid profile visibility values
-const VALID_PROFILE_VISIBILITY = ['PUBLIC', 'PRIVATE', 'FRIENDS_ONLY'];
+const VALID_PROFILE_VISIBILITY = ['public', 'private', 'friends_only'];
 
 // Validation middleware
 const handleValidationErrors = (req, res, next) => {
@@ -36,7 +36,7 @@ router.get('/privacy', authMiddleware.authenticate(), async (req, res) => {
       privacySettings = await prisma.userPrivacySettings.create({
         data: {
           userId,
-          profileVisibility: 'PRIVATE',
+          profileVisibility: 'private',
           showEmail: false,
           showPhone: false,
           showAddress: false,

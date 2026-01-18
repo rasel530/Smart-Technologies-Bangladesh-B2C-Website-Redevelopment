@@ -23,14 +23,9 @@ const rbacRolePermissionsRoutes = require('./rbacRolePermissions');
 const rbacUserRolesRoutes = require('./rbacUserRoles');
 const rbacEscalationRoutes = require('./rbacEscalation');
 const rbacAuthCheckRoutes = require('./rbacAuthCheck');
+const corporateRoutes = require('./corporate');
 
 const router = express.Router();
-
-// API versioning - Removed to fix route mounting issue
-// router.use('/v1', (req, res, next) => {
-//   req.apiVersion = 'v1';
-//   next();
-// });
 
 // Route modules - prefixed with /v1
 router.use('/v1/auth', authRoutes);
@@ -60,6 +55,9 @@ router.use('/rbac/user-roles', rbacUserRolesRoutes);
 router.use('/rbac/role-escalation-requests', rbacEscalationRoutes);
 router.use('/rbac/auth', rbacAuthCheckRoutes);
 
+// Corporate account management routes
+router.use('/v1/corporate', corporateRoutes);
+
 // API documentation endpoint
 router.get('/', (req, res) => {
   res.json({
@@ -85,7 +83,8 @@ router.get('/', (req, res) => {
         communication: '/api/v1/profile/preferences/communication',
         privacy: '/api/v1/profile/preferences/privacy',
         accountManagement: '/api/v1/profile/account',
-        roles: '/api/v1/roles'
+        roles: '/api/v1/roles',
+        corporate: '/api/v1/corporate'
       },
       rbac: {
         roles: '/api/rbac/roles',

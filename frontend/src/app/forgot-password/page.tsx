@@ -82,7 +82,7 @@ export default function ForgotPasswordPage() {
   const isPhone = (value: string): boolean => {
     // Simple check for Bangladesh phone numbers (starts with +880 or 01, and has 10-11 digits)
     const phoneRegex = /^(\+880|01)?[1-9]\d{8,9}$/;
-    return phoneRegex.test(value);
+    return phoneRegex.test(value.replace(/\s/g, ''));
   };
 
   return (

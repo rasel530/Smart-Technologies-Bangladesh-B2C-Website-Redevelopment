@@ -66,7 +66,14 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
   }, [value]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = formatPhoneInput(e.target.value);
+    const rawInput = e.target.value;
+    const newValue = formatPhoneInput(rawInput);
+    console.log('=== PHONE INPUT DEBUG ===');
+    console.log('Raw input value:', rawInput);
+    console.log('Formatted value:', newValue);
+    console.log('Formatted value with quotes:', JSON.stringify(newValue));
+    console.log('Formatted value length:', newValue.length);
+    console.log('=== END PHONE INPUT DEBUG ===');
     setDebouncedValue(newValue);
     onChange(newValue);
   };
@@ -116,11 +123,11 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
 
   const getOperatorLogo = (operator?: string) => {
     const logos: Record<string, string> = {
-      'Grameenphone': '/assets/operators/grameenphone.png',
-      'Robi': '/assets/operators/robi.png',
-      'Banglalink': '/assets/operators/banglalink.png',
-      'Airtel': '/assets/operators/airtel.png',
-      'Teletalk': '/assets/operators/teletalk.png'
+      'Grameenphone': '/assets/operators/grameenphone.svg',
+      'Robi': '/assets/operators/robi.svg',
+      'Banglalink': '/assets/operators/banglalink.svg',
+      'Airtel': '/assets/operators/airtel.svg',
+      'Teletalk': '/assets/operators/teletalk.svg'
     };
     
     return operator ? logos[operator] : null;

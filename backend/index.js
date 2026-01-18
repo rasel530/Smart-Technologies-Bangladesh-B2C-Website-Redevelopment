@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
+const multer = require('multer');
 require('dotenv').config();
 
 // Import services
@@ -16,6 +17,65 @@ const { redisConnectionPool } = require('./services/redisConnectionPool');
 const { redisFallbackService } = require('./services/redisFallbackService');
 const { redisStartupValidator } = require('./services/redisStartupValidator');
 const { rateLimitService } = require('./services/rateLimitService');
+
+// Configure multer for file uploads
+const corporateDocsDir = path.join(__dirname, 'uploads', 'corporate-docs');
+
+// Ensure corporate-docs directory exists
+async function ensureCorporateDocsDirectory() {
+  try {
+    await fs.access(corporateDocsDir);
+    console.log('[Backend] Corporate docs directory exists');
+  } catch (err) {
+    console.log('[Backend] Corporate docs directory does not exist, creating it...');
+    try {
+      await fs.mkdir(corporateDocsDir, { recursive: true });
+      console.log('[Backend] Created corporate docs directory successfully');
+    } catch (mkdirErr) {
+      console.error('[Backend] Failed to create corporate docs directory:', mkdirErr.message);
+    }
+  }
+}
+
+// Configure multer storage
+const corporateDocsStorage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    await ensureCorporateDocsDirectory();
+    cb(null, corporateDocsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  }
+});
+
+// Configure multer upload middleware
+const corporateDocsUpload = multer({
+  storage: corporateDocsStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Accept common document file types
+    const allowedMimes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'image/jpeg',
+      'image/png',
+      'image/jpg'
+    ];
+    
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only PDF, DOC, DOCX, JPG, and PNG files are allowed.'), false);
+    }
+  }
+});
+
+// Export multer middleware for use in routes
+module.exports.corporateDocsUpload = corporateDocsUpload;
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -517,6 +577,7 @@ app.use((req, res) => {
         escalation: '/api/v1/rbac/role-escalation-requests',
         auth: '/api/v1/rbac/auth'
       },
+      corporate: '/api/v1/corporate',
       health: '/api/v1/health',
       docs: '/api-docs'
     }

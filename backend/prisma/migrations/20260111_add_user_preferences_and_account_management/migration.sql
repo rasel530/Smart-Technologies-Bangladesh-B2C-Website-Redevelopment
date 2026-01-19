@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "ProfileVisibility" AS ENUM ('PUBLIC', 'PRIVATE');
+CREATE TYPE "ProfileVisibility" AS ENUM ('public', 'private');
 
 -- CreateTable
 CREATE TABLE "user_notification_preferences" (
@@ -36,7 +36,7 @@ CREATE TABLE "user_communication_preferences" (
 CREATE TABLE "user_privacy_settings" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "profileVisibility" "ProfileVisibility" NOT NULL DEFAULT 'PRIVATE',
+    "profileVisibility" "ProfileVisibility" NOT NULL DEFAULT 'private',
     "showEmail" BOOLEAN NOT NULL DEFAULT false,
     "showPhone" BOOLEAN NOT NULL DEFAULT false,
     "showAddress" BOOLEAN NOT NULL DEFAULT false,

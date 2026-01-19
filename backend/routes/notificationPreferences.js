@@ -54,13 +54,10 @@ router.get('/notifications', authMiddleware.authenticate(), async (req, res) => 
           userId,
           emailNotifications: true,
           smsNotifications: false,
-          whatsappNotifications: true,
-          promotionalEmails: true,
-          newsletterSubscription: true,
-          notificationFrequency: 'immediate',
-          pushNotifications: true,
-          orderUpdates: true,
-          securityAlerts: true
+          whatsappNotifications: false,
+          marketingCommunications: false,
+          newsletterSubscription: false,
+          notificationFrequency: 'immediate'
         }
       });
     }
@@ -85,7 +82,7 @@ router.put('/notifications', [
   body('emailNotifications').optional().isBoolean(),
   body('smsNotifications').optional().isBoolean(),
   body('whatsappNotifications').optional().isBoolean(),
-  body('promotionalEmails').optional().isBoolean(),
+  body('marketingCommunications').optional().isBoolean(),
   body('newsletterSubscription').optional().isBoolean(),
   body('notificationFrequency').optional().isString()
 ], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
@@ -95,7 +92,7 @@ router.put('/notifications', [
       emailNotifications,
       smsNotifications,
       whatsappNotifications,
-      promotionalEmails,
+      marketingCommunications,
       newsletterSubscription,
       notificationFrequency
     } = req.body;
@@ -122,7 +119,7 @@ router.put('/notifications', [
     if (emailNotifications !== undefined) updateData.emailNotifications = emailNotifications;
     if (smsNotifications !== undefined) updateData.smsNotifications = smsNotifications;
     if (whatsappNotifications !== undefined) updateData.whatsappNotifications = whatsappNotifications;
-    if (promotionalEmails !== undefined) updateData.promotionalEmails = promotionalEmails;
+    if (marketingCommunications !== undefined) updateData.marketingCommunications = marketingCommunications;
     if (newsletterSubscription !== undefined) updateData.newsletterSubscription = newsletterSubscription;
     if (notificationFrequency !== undefined) updateData.notificationFrequency = notificationFrequency;
 
@@ -141,13 +138,10 @@ router.put('/notifications', [
           userId,
           emailNotifications: emailNotifications !== undefined ? emailNotifications : true,
           smsNotifications: smsNotifications !== undefined ? smsNotifications : false,
-          whatsappNotifications: whatsappNotifications !== undefined ? whatsappNotifications : true,
-          promotionalEmails: promotionalEmails !== undefined ? promotionalEmails : true,
-          newsletterSubscription: newsletterSubscription !== undefined ? newsletterSubscription : true,
-          notificationFrequency: notificationFrequency !== undefined ? notificationFrequency : 'immediate',
-          pushNotifications: true,
-          orderUpdates: true,
-          securityAlerts: true
+          whatsappNotifications: whatsappNotifications !== undefined ? whatsappNotifications : false,
+          marketingCommunications: marketingCommunications !== undefined ? marketingCommunications : false,
+          newsletterSubscription: newsletterSubscription !== undefined ? newsletterSubscription : false,
+          notificationFrequency: notificationFrequency !== undefined ? notificationFrequency : 'immediate'
         }
       });
     }

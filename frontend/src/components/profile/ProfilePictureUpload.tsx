@@ -61,6 +61,15 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({ user, langu
       return;
     }
 
+    // Check if token exists before attempting upload
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      setError(language === 'en'
+        ? 'Authentication token not found. Please refresh the page and try again.'
+        : 'প্রমাণীকরণ টোকেন পাওয়া যায়নি। অনুগ্রহ করে পৃষ্ঠাটি রিফ্রেশ করুন এবং আবার চেষ্টা করুন।');
+      return;
+    }
+
     setIsUploading(true);
     setError(null);
 

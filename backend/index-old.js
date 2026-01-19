@@ -53,7 +53,7 @@ const corporateDocsStorage = multer.diskStorage({
 const corporateDocsUpload = multer({
   storage: corporateDocsStorage,
   limits: {
-    fileSize:5 * 1024 * 1024 // 5MB limit
+    fileSize: 5 * 1024 * 1024 // 5MB limit
   },
   fileFilter: (req, file, cb) => {
     // Accept common document file types
@@ -63,14 +63,13 @@ const corporateDocsUpload = multer({
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'image/jpeg',
       'image/png',
-      'image/jpg',
-      'text/plain' // Allow text files for testing
+      'image/jpg'
     ];
     
     if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only PDF, DOC, DOCX, JPG, PNG, and TXT files are allowed.'), false);
+      cb(new Error('Invalid file type. Only PDF, DOC, DOCX, JPG, and PNG files are allowed.'), false);
     }
   }
 });
@@ -104,8 +103,6 @@ const rbacUserRolesRoutes = require('./routes/rbacUserRoles');
 const rbacEscalationRoutes = require('./routes/rbacEscalation');
 const rbacAuthCheckRoutes = require('./routes/rbacAuthCheck');
 
-const corporateRoutes = require('./routes/corporate');
-
 const app = express();
 const PORT = configService.get('PORT');
 
@@ -115,10 +112,10 @@ const corsConfig = configService.getCORSConfig();
 // Base origins based on environment
 const baseOrigins = process.env.NODE_ENV === 'production'
   ? [
-      'https://smarttechnologies-bd.com',
-      'https://www.smarttechnologies-bd.com',
-      'https://admin.smarttechnologies-bd.com'
-    ]
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com'
+  ]
   : process.env.NODE_ENV === 'staging'
     ? [
       'https://staging.smarttechnologies-bd.com',
@@ -173,17 +170,6 @@ app.use((req, res, next) => {
     'user-agent': req.get('user-agent')
   });
   
-  next();
-});
-
-// Add request logging middleware at the very beginning
-app.use((req, res, next) => {
-  console.log('[SERVER] Request received:', {
-    method: req.method,
-    path: req.path,
-    url: req.originalUrl,
-    timestamp: new Date().toISOString()
-  });
   next();
 });
 
@@ -295,9 +281,6 @@ app.use('/api/v1/rbac/users', rbacUserRolesRoutes);
 app.use('/api/v1/rbac/role-escalation-requests', rbacEscalationRoutes);
 app.use('/api/v1/rbac/auth', rbacAuthCheckRoutes);
 
-// Corporate account management routes
-app.use('/api/v1/corporate', corporateRoutes);
-
 // Basic route
 app.get('/', (req, res) => {
   res.json({
@@ -328,7 +311,7 @@ app.get('/health', async (req, res) => {
     } catch (error) {
       loggerService.warn('Redis status check failed', error.message);
     }
-    
+
     res.status(200).json({
       status: 'OK',
       timestamp: new Date().toISOString(),
@@ -371,10 +354,10 @@ app.get('/api/v1/health', async (req, res) => {
     } catch (error) {
       loggerService.warn('Redis status check failed', error.message);
     }
-    
+
     // Check configuration validation
     const configValidation = configService.validateConfig();
-    
+
     res.status(200).json({
       status: 'OK',
       timestamp: new Date().toISOString(),
@@ -693,12 +676,12 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
   // Schedule cleanup tasks (every hour)
   scheduleSessionCleanup();
   scheduleSecurityCleanup();
-
+  
   // Increase server timeout for login operations
   server.setTimeout(30000); // 30 seconds
   server.keepAliveTimeout = 65000;
   server.headersTimeout = 66000;
-
+  
   loggerService.info('Server timeout configured', {
     timeout: 30000,
     keepAliveTimeout: 65000,
@@ -719,17 +702,17 @@ function scheduleSessionCleanup() {
       loggerService.error('Scheduled session cleanup failed', error.message);
     }
   }, 60 * 60 * 1000); // 1 hour
-}
 
-// Run initial cleanup after 5 minutes
-setTimeout(async () => {
-  try {
-    await sessionService.cleanupExpiredSessions();
-    loggerService.info('Initial session cleanup completed');
-  } catch (error) {
-    loggerService.error('Initial session cleanup failed', error.message);
-  }
-}, 5 * 60 * 1000); // 5 minutes
+  // Run initial cleanup after 5 minutes
+  setTimeout(async () => {
+    try {
+      await sessionService.cleanupExpiredSessions();
+      loggerService.info('Initial session cleanup completed');
+    } catch (error) {
+      loggerService.error('Initial session cleanup failed', error.message);
+    }
+  }, 5 * 60 * 1000); // 5 minutes
+}
 
 // Security cleanup scheduling
 function scheduleSecurityCleanup() {
@@ -742,16 +725,16 @@ function scheduleSecurityCleanup() {
       loggerService.error('Scheduled security cleanup failed', error.message);
     }
   }, 60 * 60 * 1000); // 1 hour
-}
 
-// Run initial security cleanup after 10 minutes
-setTimeout(async () => {
-  try {
-    await loginSecurityService.cleanupExpiredData();
-    loggerService.info('Initial security cleanup completed');
-  } catch (error) {
-    loggerService.error('Initial security cleanup failed', error.message);
-  }
-}, 10 * 60 * 1000); // 10 minutes
+  // Run initial security cleanup after 10 minutes
+  setTimeout(async () => {
+    try {
+      await loginSecurityService.cleanupExpiredData();
+      loggerService.info('Initial security cleanup completed');
+    } catch (error) {
+      loggerService.error('Initial security cleanup failed', error.message);
+    }
+  }, 10 * 60 * 1000); // 10 minutes
+}
 
 module.exports = { app };

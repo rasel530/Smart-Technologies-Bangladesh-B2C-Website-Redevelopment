@@ -65,10 +65,8 @@ class AccountPreferencesService {
           emailNotifications: true,
           smsNotifications: false,
           whatsappNotifications: false,
-          pushNotifications: true,
-          orderUpdates: true,
-          promotionalEmails: true,
-          securityAlerts: true
+          marketingCommunications: true,
+          newsletterSubscription: true
         }
       });
 
@@ -170,15 +168,6 @@ class AccountPreferencesService {
       if (preferences.notificationFrequency !== undefined || preferences.frequency !== undefined) {
         updateData.notificationFrequency = preferences.notificationFrequency ?? preferences.frequency;
       }
-      if (preferences.orderUpdates !== undefined) {
-        updateData.orderUpdates = preferences.orderUpdates;
-      }
-      if (preferences.securityAlerts !== undefined) {
-        updateData.securityAlerts = preferences.securityAlerts;
-      }
-      if (preferences.pushNotifications !== undefined || preferences.push !== undefined) {
-        updateData.pushNotifications = preferences.pushNotifications ?? preferences.push;
-      }
 
       let result;
       if (existingPrefs) {
@@ -195,11 +184,8 @@ class AccountPreferencesService {
             emailNotifications: preferences.emailNotifications ?? preferences.email ?? true,
             smsNotifications: preferences.smsNotifications ?? preferences.sms ?? false,
             whatsappNotifications: preferences.whatsappNotifications ?? preferences.whatsapp ?? false,
-            pushNotifications: preferences.pushNotifications ?? preferences.push ?? true,
-            orderUpdates: preferences.orderUpdates ?? true,
             marketingCommunications: preferences.marketingCommunications ?? preferences.marketing ?? true,
-            newsletterSubscription: preferences.newsletterSubscription ?? preferences.newsletter ?? true,
-            securityAlerts: preferences.securityAlerts ?? true
+            newsletterSubscription: preferences.newsletterSubscription ?? preferences.newsletter ?? true
           }
         });
       }
@@ -336,11 +322,8 @@ class AccountPreferencesService {
         email: preferences.notificationPrefs.emailNotifications,
         sms: preferences.notificationPrefs.smsNotifications,
         whatsapp: preferences.notificationPrefs.whatsappNotifications,
-        marketing: preferences.notificationPrefs.promotionalEmails,
-        newsletter: preferences.notificationPrefs.newsletter,
-        push: preferences.notificationPrefs.pushNotifications,
-        orderUpdates: preferences.notificationPrefs.orderUpdates,
-        securityAlerts: preferences.notificationPrefs.securityAlerts
+        marketing: preferences.notificationPrefs.marketingCommunications,
+        newsletter: preferences.notificationPrefs.newsletterSubscription
       };
     } catch (error) {
       this.logger.error('Error getting notification preferences', error);

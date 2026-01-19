@@ -33,11 +33,15 @@ const checkRateLimit = (userId, action) => {
 
   if (lastAttempt && (now - lastAttempt < oneHour)) {
     const remainingTime = Math.ceil((oneHour - (now - lastAttempt)) / 1000 / 60); // minutes
-    return res.status(429).json({
-      error: 'Too many requests',
-      message: `Please wait ${remainingTime} minutes before trying again`,
-      messageBn: `অনুরোধ করার জন্য ${remainingTime} মিনিট অপেক্ষা করুন`
-    });
+    return {
+      allowed: false,
+      error: {
+        status: 429,
+        error: 'Too many requests',
+        message: `Please wait ${remainingTime} minutes before trying again`,
+        messageBn: `অনুরোধ করার জন্য ${remainingTime} মিনিট অপেক্ষা করুন`
+      }
+    };
   }
 
   rateLimitMap.set(key, now);
@@ -64,7 +68,7 @@ const logAuditEvent = async (userId, action, details) => {
  * POST /api/user/account/deletion/request
  * Request account deletion
  */
-router.post('/account/deletion/request', [
+router.post('/deletion/request', [
   body('reason').optional().trim(),
   body('confirmation').notEmpty().trim().equals('DELETE').withMessage('You must type DELETE to confirm')
 ], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
@@ -75,7 +79,7 @@ router.post('/account/deletion/request', [
     // Check rate limit
     const rateLimitCheck = checkRateLimit(userId, 'deletion_request');
     if (!rateLimitCheck.allowed) {
-      return;
+      return res.status(rateLimitCheck.error.status).json(rateLimitCheck.error);
     }
 
     const result = await accountDeletionService.requestAccountDeletion(userId, reason);
@@ -106,7 +110,7 @@ router.post('/account/deletion/request', [
  * POST /api/user/account/deletion/confirm
  * Confirm deletion with token
  */
-router.post('/account/deletion/confirm', [
+router.post('/deletion/confirm', [
   body('deletionToken').notEmpty().trim().withMessage('Deletion token is required')
 ], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
   try {
@@ -136,7 +140,7 @@ router.post('/account/deletion/confirm', [
  * POST /api/user/account/deletion/cancel
  * Cancel pending deletion request
  */
-router.post('/account/deletion/cancel', authMiddleware.authenticate(), async (req, res) => {
+router.post('/deletion/cancel', authMiddleware.authenticate(), async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -248,7 +252,7 @@ router.post('/data/export/generate', [
     // Check rate limit
     const rateLimitCheck = checkRateLimit(userId, 'data_export');
     if (!rateLimitCheck.allowed) {
-      return;
+      return res.status(rateLimitCheck.error.status).json(rateLimitCheck.error);
     }
 
     const result = await dataExportService.requestDataExport(userId, dataTypes, format);

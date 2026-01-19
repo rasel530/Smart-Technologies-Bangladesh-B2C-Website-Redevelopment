@@ -274,15 +274,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Update previous status ref
     prevSessionStatusRef.current = sessionStatus;
     
-    // Only sync if authenticated and user data is available
+    // Always store token when authenticated (regardless of user change)
+    if (sessionStatus === 'authenticated' && session?.backendToken) {
+      setToken(session.backendToken);
+      console.log('[AuthContext] Backend token stored in localStorage');
+    }
+    
+    // Only sync user state if user has actually changed
     if (sessionStatus === 'authenticated' && session?.user) {
       // Convert NextAuth session to User type with type assertions
       const sessionUser = session.user as any;
       
       // Check if user has actually changed to prevent duplicate dispatches
-      // Compare entire user object to prevent unnecessary re-renders
+      // Use field-by-field comparison for more reliable change detection
       const userChanged = !prevUserRef.current ||
-        JSON.stringify(prevUserRef.current) !== JSON.stringify(sessionUser);
+        prevUserRef.current.id !== sessionUser.id ||
+        prevUserRef.current.email !== sessionUser.email ||
+        prevUserRef.current.firstName !== sessionUser.firstName ||
+        prevUserRef.current.lastName !== sessionUser.lastName ||
+        prevUserRef.current.role !== sessionUser.role;
       
       if (userChanged) {
         console.log('[AuthContext] User changed, syncing to state');
@@ -301,12 +311,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           createdAt: sessionUser.createdAt,
           updatedAt: sessionUser.updatedAt,
         };
-        
-        // Store backend JWT token in localStorage for API client
-        if (session.backendToken) {
-          setToken(session.backendToken);
-          console.log('[AuthContext] Backend token stored in localStorage');
-        }
         
         console.log('[AuthContext] Syncing NextAuth user to state:', user);
         dispatch({ type: 'LOGIN_SUCCESS', payload: user });

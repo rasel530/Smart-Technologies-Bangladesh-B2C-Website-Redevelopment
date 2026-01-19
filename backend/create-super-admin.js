@@ -4,19 +4,15 @@
  * If no password is provided, a random password will be generated
  */
 
-const { Pool } = require('pg');
+const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
+const { v4: uuidv4 } = require('uuid');
 
-// Database configuration (same as backend)
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://smart_dev:smart_dev_password_2024@localhost:5432/smart_ecommerce_dev';
+// Load environment variables
+require('dotenv').config();
 
 async function createSuperAdmin(password = null) {
-  const pool = new Pool({
-    connectionString: DATABASE_URL,
-  });
-
-  const client = await pool.connect();
+  const prisma = new PrismaClient();
 
   try {
     console.log('🔐 Connecting to database...');
@@ -27,94 +23,132 @@ async function createSuperAdmin(password = null) {
       console.log(`📝 Generated password: ${password}`);
     }
 
-    // Hash password
+    // Hash the password
     console.log('🔒 Hashing password...');
     const passwordHash = await bcrypt.hash(password, 10);
     console.log('✅ Password hashed successfully');
 
-    // Generate UUID for user
-    const userId = crypto.randomUUID();
+    // Check if SUPER_ADMIN role exists in RBAC roles table
+    console.log('🔍 Checking RBAC SUPER_ADMIN role...');
+    const superAdminRole = await prisma.roles.findUnique({
+      where: { name: 'SUPER_ADMIN' }
+    });
 
-    // Insert SUPER_ADMIN user
-    console.log('👤 Creating SUPER_ADMIN user...');
-    const insertQuery = `
-      INSERT INTO users (
-        id,
-        email,
-        password,
-        role,
-        "firstName",
-        "lastName",
-        "emailVerified",
-        "phoneVerified",
-        "createdAt",
-        "updatedAt"
-      ) VALUES (
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        NOW(),
-        NOW()
-      )
-      ON CONFLICT (email) DO NOTHING
-      RETURNING id, email, role;
-    `;
+    if (!superAdminRole) {
+      console.log('❌ RBAC SUPER_ADMIN role not found in roles table');
+      console.log('Please ensure RBAC roles are properly set up in the database');
+      throw new Error('RBAC SUPER_ADMIN role not found');
+    }
 
-    const result = await client.query(insertQuery, [
-      userId,
-      'test.superadmin@smarttech.com',
-      passwordHash,
-      'super_admin',
-      'Super',
-      'Admin',
-      new Date(),
-      null,
-    ]);
+    console.log(`✅ Found RBAC SUPER_ADMIN role (ID: ${superAdminRole.id})`);
 
-    if (result.rows.length > 0) {
-      console.log('✅ SUPER_ADMIN user created successfully!');
-      console.log('📧 User Details:');
-      console.log(`   ID: ${result.rows[0].id}`);
-      console.log(`   Email: ${result.rows[0].email}`);
-      console.log(`   Role: ${result.rows[0].role}`);
-      console.log(`   Password: ${password}`);
+    // Check if user already exists
+    console.log('👤 Checking if SUPER_ADMIN user already exists...');
+    const existingUser = await prisma.user.findUnique({
+      where: { email: 'test.superadmin@smarttech.com' }
+    });
+
+    if (existingUser) {
+      console.log('⚠️  User already exists with this email');
+      console.log('📧 Existing User Details:');
+      console.log(`   ID: ${existingUser.id}`);
+      console.log(`   Email: ${existingUser.email}`);
+      console.log(`   Role: ${existingUser.role}`);
+      console.log(`   Status: ${existingUser.status}`);
+      
+      // Check if user has RBAC SUPER_ADMIN role
+      const existingUserRole = await prisma.user_roles.findFirst({
+        where: {
+          user_id: existingUser.id,
+          role_id: superAdminRole.id,
+          is_active: true
+        },
+        include: {
+          roles: true
+        }
+      });
+
+      if (existingUserRole) {
+        console.log('✅ User already has RBAC SUPER_ADMIN role assigned');
+      } else {
+        console.log('⚠️  User does not have RBAC SUPER_ADMIN role');
+        console.log('Assigning RBAC SUPER_ADMIN role...');
+        
+        await prisma.user_roles.create({
+          data: {
+            user_id: existingUser.id,
+            role_id: superAdminRole.id,
+            assigned_by: existingUser.id, // Self-assignment for initial setup
+            is_active: true
+          }
+        });
+        
+        console.log('✅ RBAC SUPER_ADMIN role assigned successfully');
+      }
+
       console.log('');
-      console.log('🔑 You can now login with:');
+      console.log('🔑 You can login with:');
       console.log(`   Email: test.superadmin@smarttech.com`);
-      console.log(`   Password: ${password}`);
+      console.log(`   Password: (use your existing password)`);
       console.log('');
       console.log('🌐 Access the application at: http://localhost:3000');
-    } else {
-      console.log('⚠️  User already exists with this email');
-      // Query existing user details
-      const existingUser = await client.query(
-        'SELECT id, email, role FROM users WHERE email = $1',
-        ['test.superadmin@smarttech.com']
-      );
-      if (existingUser.rows.length > 0) {
-        console.log('📧 Existing User Details:');
-        console.log(`   ID: ${existingUser.rows[0].id}`);
-        console.log(`   Email: ${existingUser.rows[0].email}`);
-        console.log(`   Role: ${existingUser.rows[0].role}`);
-        console.log('');
-        console.log('🔑 Login with:');
-        console.log(`   Email: test.superadmin@smarttech.com`);
-        console.log(`   Password: (use your existing password or reset it)`);
-      }
+      return;
     }
+
+    // Create SUPER_ADMIN user
+    console.log('👤 Creating SUPER_ADMIN user...');
+    const user = await prisma.user.create({
+      data: {
+        id: uuidv4(),
+        email: 'test.superadmin@smarttech.com',
+        password: passwordHash,
+        firstName: 'Super',
+        lastName: 'Admin',
+        role: 'super_admin',
+        status: 'active',
+        emailVerified: new Date(),
+        phoneVerified: null
+      }
+    });
+
+    console.log('✅ SUPER_ADMIN user created successfully!');
+    console.log('📧 User Details:');
+    console.log(`   ID: ${user.id}`);
+    console.log(`   Email: ${user.email}`);
+    console.log(`   Role: ${user.role}`);
+    console.log(`   Status: ${user.status}`);
+    console.log(`   Email Verified: ${user.emailVerified}`);
+
+    // Assign RBAC SUPER_ADMIN role
+    console.log('🔐 Assigning RBAC SUPER_ADMIN role...');
+    const userRole = await prisma.user_roles.create({
+      data: {
+        user_id: user.id,
+        role_id: superAdminRole.id,
+        assigned_by: user.id, // Self-assignment for initial setup
+        is_active: true
+      }
+    });
+
+    console.log('✅ RBAC SUPER_ADMIN role assigned successfully!');
+    console.log(`   User Role ID: ${userRole.id}`);
+    console.log(`   Role ID: ${userRole.role_id}`);
+    console.log(`   Assigned By: ${userRole.assigned_by}`);
+    console.log(`   Is Active: ${userRole.is_active}`);
+
+    console.log('');
+    console.log('🔑 You can now login with:');
+    console.log(`   Email: test.superadmin@smarttech.com`);
+    console.log(`   Password: ${password}`);
+    console.log('');
+    console.log('🌐 Access the application at: http://localhost:3000');
 
   } catch (error) {
     console.error('❌ Error creating SUPER_ADMIN user:', error.message);
     console.error(error);
     process.exit(1);
   } finally {
-    await client.release();
-    await pool.end();
+    await prisma.$disconnect();
   }
 }
 

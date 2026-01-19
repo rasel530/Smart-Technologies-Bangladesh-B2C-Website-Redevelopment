@@ -121,7 +121,7 @@ router.get('/my-account', authMiddleware.authenticate(), async (req, res) => {
 
     // Find corporate account for this user
     const corporateAccount = await prisma.corporateAccount.findUnique({
-      where: { userId },
+      where: { user_id: userId },
       include: {
         user: {
           select: {
@@ -250,6 +250,9 @@ router.post('/register',
         termsAccepted
       } = req.body;
 
+      console.log('[CORPORATE REGISTRATION DEBUG] Request body:', req.body);
+      console.log('[CORPORATE REGISTRATION DEBUG] Parsed data:', { userId, companyName, companyRegistrationNumber });
+
       // Check if userId is provided
       if (!userId) {
         return res.status(400).json({
@@ -259,9 +262,11 @@ router.post('/register',
       }
 
       // Check if user exists
+      console.log('[CORPORATE REGISTRATION DEBUG] Checking if user exists:', userId);
       const user = await prisma.user.findUnique({
         where: { id: userId }
       });
+      console.log('[CORPORATE REGISTRATION DEBUG] User found:', !!user);
 
       if (!user) {
         return res.status(404).json({
@@ -271,11 +276,13 @@ router.post('/register',
       }
 
       // Check if company registration number already exists
+      console.log('[CORPORATE REGISTRATION DEBUG] Checking if company registration number exists:', companyRegistrationNumber);
       const existingCompany = await prisma.corporateAccount.findFirst({
         where: {
-          companyRegistrationNumber
+          company_registration_number: companyRegistrationNumber
         }
       });
+      console.log('[CORPORATE REGISTRATION DEBUG] Existing company:', !!existingCompany);
 
       if (existingCompany) {
         return res.status(409).json({
@@ -285,9 +292,11 @@ router.post('/register',
       }
 
       // Check if user already has a corporate account
+      console.log('[CORPORATE REGISTRATION DEBUG] Checking if user has corporate account:', userId);
       const existingUserAccount = await prisma.corporateAccount.findUnique({
-        where: { userId }
+        where: { user_id: userId }
       });
+      console.log('[CORPORATE REGISTRATION DEBUG] Existing user account:', !!existingUserAccount);
 
       if (existingUserAccount) {
         return res.status(409).json({
@@ -332,21 +341,21 @@ router.post('/register',
       // Create corporate account with mapped field names
       const corporateAccount = await prisma.corporateAccount.create({
         data: {
-          userId,
-          companyName,
-          companyRegistrationNumber,
-          tinNumber,
-          businessAddress,
-          businessDivision: division, // Map frontend field to backend schema
-          businessDistrict: district, // Map frontend field to backend schema
-          businessUpazila: upazila, // Map frontend field to backend schema
-          businessPostalCode: postalCode, // Map frontend field to backend schema
-          authorizedPersonName,
-          authorizedPersonEmail,
-          authorizedPersonPhone,
-          companyEmail,
-          accountStatus: 'pending_verification',
-          verificationStatus: 'pending'
+          user_id: userId,
+          company_name: companyName,
+          company_registration_number: companyRegistrationNumber,
+          tin_number: tinNumber,
+          business_address: businessAddress,
+          business_division: division, // Map frontend field to backend schema
+          business_district: district, // Map frontend field to backend schema
+          business_upazila: upazila, // Map frontend field to backend schema
+          business_postal_code: postalCode, // Map frontend field to backend schema
+          authorized_person_name: authorizedPersonName,
+          authorized_person_email: authorizedPersonEmail,
+          authorized_person_phone: authorizedPersonPhone,
+          company_email: companyEmail,
+          account_status: 'pending_verification',
+          verification_status: 'pending'
         }
       });
 
@@ -399,6 +408,12 @@ router.post('/register',
       });
 
     } catch (error) {
+      console.log('[CORPORATE REGISTRATION ERROR] Error details:', {
+        name: error.name,
+        message: error.message,
+        code: error.code,
+        meta: error.meta
+      });
       loggerService.error('Corporate registration error', error);
       res.status(500).json({
         error: 'Failed to register corporate account',

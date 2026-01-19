@@ -9,47 +9,47 @@ datasource db {
 }
 
 model User {
-  id                       String                        @id @default(uuid())
-  email                    String                        @unique
-  emailVerified            DateTime?
-  phone                    String?                       @unique
-  phoneVerified            DateTime?
-  password                 String?
-  firstName                String
-  lastName                 String
-  dateOfBirth              DateTime?
-  gender                   String?
-  image                    String?
-  createdAt                DateTime                      @default(now())
-  updatedAt                DateTime                      @updatedAt
-  lastLoginAt              DateTime?
-  preferredLanguage        String?                       @default("en")
-  accountStatus            String?                       @default("active")
-  deletionRequestedAt      DateTime?
-  deletionReason           String?
-  deletedAt                DateTime?
-  role                     UserRole                      @default(customer)
-  status                   UserStatus                    @default(active)
-  accountDeletionRequests  AccountDeletionRequests[]
-  addresses                Address[]
-  cart                     Cart?
-  emailVerificationTokens  EmailVerificationToken[]
-  orders                   Order[]
-  passwordHistory          PasswordHistory[]
-  phoneOTPs                PhoneOTP[]
-  reviews                  Review[]
-  role_escalation_requests role_escalation_requests[]
-  communicationPreferences UserCommunicationPreferences?
-  userDataExports          UserDataExports[]
-  notificationPreferences  UserNotificationPreferences?
-  privacySettings          UserPrivacySettings?
-  user_roles               user_roles[]
-  userSessions             UserSession[]
-  socialAccounts           UserSocialAccount[]
-  wishlist                 Wishlist?
-  corporateAccount         CorporateAccount?             @relation
-  managedCorporateAccounts CorporateAccount[]             @relation("CorporateAccountManager")
-  corporateUserRoles       CorporateUser[]
+  id                                                              String                        @id @default(uuid())
+  email                                                           String                        @unique
+  emailVerified                                                   DateTime?
+  phone                                                           String?                       @unique
+  phoneVerified                                                   DateTime?
+  password                                                        String?
+  firstName                                                       String
+  lastName                                                        String
+  dateOfBirth                                                     DateTime?
+  gender                                                          String?
+  role                                                            UserRole                      @default(customer)
+  status                                                          UserStatus                    @default(pending)
+  image                                                           String?
+  createdAt                                                       DateTime                      @default(now())
+  updatedAt                                                       DateTime                      @updatedAt
+  lastLoginAt                                                     DateTime?
+  preferredLanguage                                               String?                       @default("en")
+  accountStatus                                                   String?                       @default("active")
+  deletionRequestedAt                                             DateTime?
+  deletionReason                                                  String?
+  deletedAt                                                       DateTime?
+  accountDeletionRequests                                         AccountDeletionRequests[]
+  addresses                                                       Address[]
+  cart                                                            Cart?
+  corporate_accounts_corporate_accounts_account_manager_idTousers CorporateAccount[]            @relation("corporate_accounts_account_manager_idTousers")
+  corporate_accounts_corporate_accounts_user_idTousers            CorporateAccount?             @relation("corporate_accounts_user_idTousers")
+  corporate_users                                                 CorporateUser[]
+  emailVerificationTokens                                         EmailVerificationToken[]
+  orders                                                          Order[]
+  passwordHistory                                                 PasswordHistory[]
+  phoneOTPs                                                       PhoneOTP[]
+  reviews                                                         Review[]
+  role_escalation_requests                                        role_escalation_requests[]
+  communicationPreferences                                        UserCommunicationPreferences?
+  userDataExports                                                 UserDataExports[]
+  notificationPreferences                                         UserNotificationPreferences?
+  privacySettings                                                 UserPrivacySettings?
+  user_roles                                                      user_roles[]
+  userSessions                                                    UserSession[]
+  socialAccounts                                                  UserSocialAccount[]
+  wishlist                                                        Wishlist?
 
   @@map("users")
 }
@@ -57,6 +57,7 @@ model User {
 model Address {
   id           String      @id @default(uuid())
   userId       String
+  type         AddressType @default(shipping)
   firstName    String
   lastName     String
   phone        String?
@@ -64,11 +65,10 @@ model Address {
   addressLine2 String?
   city         String
   district     String
+  division     Division
   upazila      String?
   postalCode   String?
   isDefault    Boolean     @default(false)
-  type         AddressType @default(shipping)
-  division     Division    @default(dhaka)
   user         User        @relation(fields: [userId], references: [id])
   orders       Order[]
 
@@ -89,10 +89,10 @@ model UserSession {
 model UserSocialAccount {
   id         String         @id @default(uuid())
   userId     String
+  provider   SocialProvider
   providerId String
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
-  provider   SocialProvider @default(google)
   user       User           @relation(fields: [userId], references: [id])
 
   @@map("user_social_accounts")
@@ -144,6 +144,7 @@ model Product {
   taxRate           Decimal                @default(0) @db.Decimal(5, 2)
   stockQuantity     Int                    @default(0)
   lowStockThreshold Int                    @default(10)
+  status            ProductStatus          @default(active)
   metaTitle         String?
   metaDescription   String?
   metaKeywords      String?
@@ -155,8 +156,8 @@ model Product {
   createdAt         DateTime               @default(now())
   updatedAt         DateTime               @updatedAt
   publishedAt       DateTime?
-  status            ProductStatus          @default(active)
   cartItems         CartItem[]
+  corporate_pricing CorporatePricing[]
   orderItems        OrderItem[]
   images            ProductImage[]
   specifications    ProductSpecification[]
@@ -165,7 +166,6 @@ model Product {
   category          Category               @relation(fields: [categoryId], references: [id])
   reviews           Review[]
   wishlistItems     WishlistItem[]
-  corporatePricing  CorporatePricing[]
 
   @@map("products")
 }
@@ -263,32 +263,32 @@ model WishlistItem {
 }
 
 model Order {
-  id                String        @id @default(uuid())
-  orderNumber       String        @unique
-  userId            String
-  addressId         String
-  corporateAccountId String?
-  subtotal          Decimal       @db.Decimal(12, 2)
-  tax               Decimal       @default(0) @db.Decimal(12, 2)
-  shippingCost      Decimal       @default(0) @db.Decimal(12, 2)
-  discount          Decimal       @default(0) @db.Decimal(12, 2)
-  total             Decimal       @db.Decimal(12, 2)
-  paidAt            DateTime?
-  notes             String?
-  internalNotes     String?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  confirmedAt       DateTime?
-  shippedAt         DateTime?
-  deliveredAt       DateTime?
-  status            OrderStatus   @default(pending)
-  paymentMethod     PaymentMethod @default(cash_on_delivery)
-  paymentStatus     PaymentStatus @default(pending)
-  items             OrderItem[]
-  address           Address       @relation(fields: [addressId], references: [id])
-  user              User          @relation(fields: [userId], references: [id])
-  transactions      Transaction[]
-  corporateAccount  CorporateAccount? @relation(fields: [corporateAccountId], references: [id])
+  id                   String            @id @default(uuid())
+  orderNumber          String            @unique
+  userId               String
+  addressId            String
+  subtotal             Decimal           @db.Decimal(12, 2)
+  tax                  Decimal           @default(0) @db.Decimal(12, 2)
+  shippingCost         Decimal           @default(0) @db.Decimal(12, 2)
+  discount             Decimal           @default(0) @db.Decimal(12, 2)
+  total                Decimal           @db.Decimal(12, 2)
+  paymentMethod        PaymentMethod
+  paymentStatus        PaymentStatus     @default(pending)
+  paidAt               DateTime?
+  status               OrderStatus       @default(pending)
+  notes                String?
+  internalNotes        String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  confirmedAt          DateTime?
+  shippedAt            DateTime?
+  deliveredAt          DateTime?
+  corporate_account_id String?           @db.Uuid
+  items                OrderItem[]
+  corporate_accounts   CorporateAccount? @relation(fields: [corporate_account_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_orders_corporate_account")
+  address              Address           @relation(fields: [addressId], references: [id])
+  user                 User              @relation(fields: [userId], references: [id])
+  transactions         Transaction[]
 
   @@map("orders")
 }
@@ -311,13 +311,14 @@ model OrderItem {
 model Transaction {
   id              String        @id @default(uuid())
   orderId         String
+  paymentMethod   PaymentMethod
   amount          Decimal       @db.Decimal(12, 2)
   currency        String        @default("BDT")
+  status          PaymentStatus @default(pending)
   transactionId   String?
   gatewayResponse Json?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
-  status          PaymentStatus @default(pending)
   order           Order         @relation(fields: [orderId], references: [id])
 
   @@map("transactions")
@@ -343,6 +344,7 @@ model Review {
 model Coupon {
   id          String     @id @default(uuid())
   code        String     @unique
+  type        CouponType
   value       Decimal    @db.Decimal(12, 2)
   minAmount   Decimal    @db.Decimal(12, 2)
   maxDiscount Decimal    @db.Decimal(5, 2)
@@ -352,7 +354,6 @@ model Coupon {
   expiresAt   DateTime?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  type        CouponType @default(percentage)
 
   @@map("coupons")
 }
@@ -392,20 +393,17 @@ model PasswordHistory {
 }
 
 model UserNotificationPreferences {
-  id                    String   @id @default(uuid())
-  userId                String   @unique
-  emailNotifications    Boolean  @default(true)
-  smsNotifications      Boolean  @default(false)
-  whatsappNotifications Boolean  @default(false)
-  promotionalEmails     Boolean  @default(false)
-  newsletterSubscription Boolean  @default(false)
-  notificationFrequency  String   @default("immediate")
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  pushNotifications     Boolean? @default(true)
-  orderUpdates          Boolean? @default(true)
-  securityAlerts        Boolean? @default(true)
-  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                      String   @id @default(uuid())
+  userId                  String   @unique
+  emailNotifications      Boolean  @default(true)
+  smsNotifications        Boolean  @default(false)
+  whatsappNotifications   Boolean  @default(false)
+  marketingCommunications Boolean  @default(false)
+  newsletterSubscription  Boolean  @default(false)
+  notificationFrequency   String   @default("immediate")
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_notification_preferences")
 }
@@ -426,21 +424,22 @@ model UserCommunicationPreferences {
 }
 
 model UserPrivacySettings {
-  id                 String            @id @default(uuid())
-  userId             String            @unique
-  showEmail          Boolean           @default(false)
-  showPhone          Boolean           @default(false)
-  showAddress        Boolean           @default(false)
-  allowSearchByEmail Boolean           @default(false)
-  allowSearchByPhone Boolean           @default(false)
-  twoFactorEnabled   Boolean           @default(false)
+  id                 String             @id @default(uuid())
+  userId             String             @unique
+  profileVisibility  ProfileVisibility  @default(private)
+  showEmail          Boolean            @default(false)
+  showPhone          Boolean            @default(false)
+  showAddress        Boolean            @default(false)
+  allowSearchByEmail Boolean            @default(false)
+  allowSearchByPhone Boolean            @default(false)
+  twoFactorEnabled   Boolean            @default(false)
   twoFactorSecret    String?
   twoFactorMethod    String?
-  dataSharingEnabled Boolean           @default(true)
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
-  profileVisibility  ProfileVisibility @default(public)
-  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dataSharingEnabled Boolean            @default(true)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  profile_visibility ProfileVisibility? @default(public)
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_privacy_settings")
 }
@@ -457,8 +456,6 @@ model AccountDeletionRequests {
   expiresAt     DateTime  @default(now())
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([expiresAt], map: "idx_account_deletion_requests_expiresat")
-  @@index([status], map: "idx_account_deletion_requests_status")
   @@map("account_deletion_requests")
 }
 
@@ -475,8 +472,6 @@ model UserDataExports {
   expiresAt   DateTime  @default(now())
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([expiresAt], map: "idx_user_data_exports_expiresat")
-  @@index([status], map: "idx_user_data_exports_status")
   @@map("user_data_exports")
 }
 
@@ -494,19 +489,25 @@ model Permission {
 }
 
 model RolePermission {
-  role_id       String
-  permission_id String
-  granted_at    DateTime @default(now())
-  granted_by    String?
+  roleId       String
+  permissionId String
+  grantedAt    DateTime @default(now())
+  grantedBy    String?
 
-  @@id([role_id, permission_id])
+  @@id([roleId, permissionId], map: "RolePermission_pkey")
+  @@index([grantedBy], map: "RolePermission_grantedBy_idx")
+  @@index([permissionId], map: "RolePermission_permissionId_idx")
   @@map("role_permission")
 }
 
 model RoleHierarchy {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  createdAt DateTime @default(now())
+  id         String   @id(map: "RoleHierarchy_pkey")
+  parentRole String
+  childRole  String
+  createdAt  DateTime @default(now())
 
+  @@index([childRole], map: "RoleHierarchy_childRole_idx")
+  @@index([parentRole], map: "RoleHierarchy_parentRole_idx")
   @@map("role_hierarchy")
 }
 
@@ -532,15 +533,15 @@ model role_escalation_requests {
   current_role_id                                         String?   @db.Uuid
   requested_role_id                                       String    @db.Uuid
   requested_by                                            String?
-  status                                                  String    @default("pending") @db.VarChar(20)
+  status                                                  String?   @default("pending") @db.VarChar(20)
   reason                                                  String?
   reviewed_by                                             String?
   reviewed_at                                             DateTime? @db.Timestamptz(6)
   review_notes                                            String?
   created_at                                              DateTime? @default(now()) @db.Timestamptz(6)
-  roles_role_escalation_requests_current_role_idToroles   roles?    @relation("role_escalation_requests_current_role_idToroles", fields: [current_role_id], references: [id], onUpdate: NoAction)
-  roles_role_escalation_requests_requested_role_idToroles roles     @relation("role_escalation_requests_requested_role_idToroles", fields: [requested_role_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  users                                                   User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  roles_role_escalation_requests_current_role_idToroles   roles?    @relation("role_escalation_requests_current_role_idToroles", fields: [current_role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_role_escalation_current_role")
+  roles_role_escalation_requests_requested_role_idToroles roles     @relation("role_escalation_requests_requested_role_idToroles", fields: [requested_role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_role_escalation_requested_role")
+  users                                                   User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_role_escalation_user")
 
   @@index([created_at], map: "idx_role_escalation_created_at")
   @@index([current_role_id], map: "idx_role_escalation_current_role_id")
@@ -555,8 +556,8 @@ model role_permissions {
   permission_id String      @db.Uuid
   granted_at    DateTime?   @default(now()) @db.Timestamptz(6)
   granted_by    String?
-  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  roles         roles       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_role_permissions_permission")
+  roles         roles       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_role_permissions_role")
 
   @@unique([role_id, permission_id], map: "unique_role_permission")
   @@index([granted_at], map: "idx_role_permissions_granted_at")
@@ -569,7 +570,7 @@ model roles {
   id                                                                         String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name                                                                       String                     @unique @db.VarChar(50)
   description                                                                String?
-  hierarchy_level                                                            Int                        @default(0)
+  hierarchy_level                                                            Int?                       @default(0)
   created_at                                                                 DateTime?                  @default(now()) @db.Timestamptz(6)
   updated_at                                                                 DateTime?                  @default(now()) @db.Timestamptz(6)
   role_escalation_requests_role_escalation_requests_current_role_idToroles   role_escalation_requests[] @relation("role_escalation_requests_current_role_idToroles")
@@ -589,8 +590,8 @@ model user_roles {
   assigned_at DateTime? @default(now()) @db.Timestamptz(6)
   expires_at  DateTime? @db.Timestamptz(6)
   is_active   Boolean?  @default(true)
-  roles       roles     @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  users       User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  roles       roles     @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user_roles_role")
+  users       User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user_roles_user")
 
   @@unique([user_id, role_id], map: "unique_user_role_active")
   @@index([assigned_at], map: "idx_user_roles_assigned_at")
@@ -601,104 +602,99 @@ model user_roles {
 }
 
 model CorporateAccount {
-  id                        String   @id @default(uuid())
-  userId                    String   @unique
-  companyName               String
-  companyRegistrationNumber String   @unique
-  tinNumber                 String?
-  businessAddress           String
-  businessDivision          String
-  businessDistrict          String
-  businessUpazila           String?
-  businessPostalCode        String?
-  authorizedPersonName      String
-  authorizedPersonEmail     String
-  authorizedPersonPhone     String
-  companyEmail              String
-  creditLimit               Decimal? @db.Decimal(12, 2)
-  creditUsed                Decimal  @default(0) @db.Decimal(12, 2)
-  accountStatus             String   @default("pending_verification")
-  verificationStatus        String   @default("pending")
-  accountManagerId          String?
-  createdAt                 DateTime @default(now())
-  updatedAt                 DateTime @updatedAt
-  verifiedAt                DateTime?
-  approvedBy                String?
-  approvedAt                DateTime?
-
-  user                User               @relation(fields: [userId], references: [id])
-  accountManager      User?              @relation("CorporateAccountManager", fields: [accountManagerId], references: [id])
-  corporateUsers      CorporateUser[]
-  corporateDocuments  CorporateDocument[]
-  corporateOrders     Order[]
-  corporateApprovals  CorporateApproval[]
-  corporatePricing    CorporatePricing[]
+  id                                                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                                            String              @unique
+  company_name                                       String
+  company_registration_number                        String              @unique
+  tin_number                                         String?
+  business_address                                   String
+  business_division                                  String
+  business_district                                  String
+  business_upazila                                   String?
+  business_postal_code                               String?
+  authorized_person_name                             String
+  authorized_person_email                            String
+  authorized_person_phone                            String
+  company_email                                      String
+  credit_limit                                       Decimal?            @db.Decimal(12, 2)
+  credit_used                                        Decimal?            @default(0) @db.Decimal(12, 2)
+  account_status                                     String?             @default("pending_verification") @db.VarChar(50)
+  verification_status                                String?             @default("pending") @db.VarChar(50)
+  account_manager_id                                 String?
+  created_at                                         DateTime?           @default(now())
+  updated_at                                         DateTime?           @default(now())
+  verified_at                                        DateTime?
+  approved_by                                        String?
+  approved_at                                        DateTime?
+  users_corporate_accounts_account_manager_idTousers User?               @relation("corporate_accounts_account_manager_idTousers", fields: [account_manager_id], references: [id], onUpdate: NoAction, map: "fk_corporate_accounts_manager")
+  users_corporate_accounts_user_idTousers            User                @relation("corporate_accounts_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_corporate_accounts_user")
+  corporate_approvals                                CorporateApproval[]
+  corporate_documents                                CorporateDocument[]
+  corporate_pricing                                  CorporatePricing[]
+  corporate_users                                    CorporateUser[]
+  orders                                             Order[]
 
   @@map("corporate_accounts")
 }
 
 model CorporateUser {
-  id                 String   @id @default(uuid())
-  corporateAccountId String
-  userId             String
-  role               String
-  isActive           Boolean  @default(true)
-  assignedAt         DateTime @default(now())
-  expiresAt          DateTime?
+  id                   String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  corporate_account_id String           @db.Uuid
+  user_id              String
+  role                 String           @db.VarChar(50)
+  is_active            Boolean?         @default(true)
+  assigned_at          DateTime?        @default(now())
+  expires_at           DateTime?
+  corporate_accounts   CorporateAccount @relation(fields: [corporate_account_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_corporate_users_account")
+  users                User             @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_corporate_users_user")
 
-  corporateAccount   CorporateAccount @relation(fields: [corporateAccountId], references: [id])
-  user               User             @relation(fields: [userId], references: [id])
-
-  @@unique([corporateAccountId, userId])
+  @@unique([corporate_account_id, user_id], map: "unique_corporate_user")
   @@map("corporate_users")
 }
 
 model CorporateDocument {
-  id                 String   @id @default(uuid())
-  corporateAccountId String
-  documentType       String
-  documentName       String
-  documentUrl        String
-  uploadedAt         DateTime @default(now())
-  verifiedAt         DateTime?
-  verifiedBy         String?
-  status             String   @default("pending")
-
-  corporateAccount   CorporateAccount @relation(fields: [corporateAccountId], references: [id])
+  id                   String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  corporate_account_id String           @db.Uuid
+  document_type        String           @db.VarChar(50)
+  document_name        String
+  document_url         String
+  uploaded_at          DateTime?        @default(now())
+  verified_at          DateTime?
+  verified_by          String?
+  status               String?          @default("pending") @db.VarChar(50)
+  corporate_accounts   CorporateAccount @relation(fields: [corporate_account_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_corporate_documents_account")
 
   @@map("corporate_documents")
 }
 
 model CorporateApproval {
-  id                 String   @id @default(uuid())
-  corporateAccountId String
-  requestType        String
-  requestedBy        String
-  requestedAmount    Decimal? @db.Decimal(12, 2)
-  requestedAt        DateTime @default(now())
-  approvedBy         String?
-  approvedAt         DateTime?
-  status             String   @default("pending")
-  notes              String?
-
-  corporateAccount   CorporateAccount @relation(fields: [corporateAccountId], references: [id])
+  id                   String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  corporate_account_id String           @db.Uuid
+  request_type         String           @db.VarChar(50)
+  requested_by         String
+  requested_amount     Decimal?         @db.Decimal(12, 2)
+  requested_at         DateTime?        @default(now())
+  approved_by          String?
+  approved_at          DateTime?
+  status               String?          @default("pending") @db.VarChar(50)
+  notes                String?
+  corporate_accounts   CorporateAccount @relation(fields: [corporate_account_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_corporate_approvals_account")
 
   @@map("corporate_approvals")
 }
 
 model CorporatePricing {
-  id                 String   @id @default(uuid())
-  corporateAccountId String
-  productId          String
-  discountPercent    Decimal  @default(0) @db.Decimal(5, 2)
-  specialPrice       Decimal? @db.Decimal(12, 2)
-  validFrom          DateTime @default(now())
-  validTo            DateTime?
+  id                   String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  corporate_account_id String           @db.Uuid
+  product_id           String
+  discount_percent     Decimal?         @default(0) @db.Decimal(5, 2)
+  special_price        Decimal?         @db.Decimal(12, 2)
+  valid_from           DateTime?        @default(now())
+  valid_to             DateTime?
+  corporate_accounts   CorporateAccount @relation(fields: [corporate_account_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_corporate_pricing_account")
+  products             Product          @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_corporate_pricing_product")
 
-  corporateAccount   CorporateAccount @relation(fields: [corporateAccountId], references: [id])
-  product            Product          @relation(fields: [productId], references: [id])
-
-  @@unique([corporateAccountId, productId])
+  @@unique([corporate_account_id, product_id], map: "unique_corporate_product_pricing")
   @@map("corporate_pricing")
 }
 
@@ -783,87 +779,4 @@ enum ProfileVisibility {
   public
   private
   friends_only
-}
-
-enum AddressType_old {
-  shipping
-  billing
-}
-
-enum CouponType_old {
-  percentage
-  fixed_amount
-}
-
-enum Division_old {
-  dhaka
-  chittagong
-  rajshahi
-  sylhet
-  khulna
-  barishal
-  rangpur
-  mymensingh
-}
-
-enum OrderStatus_old {
-  pending
-  confirmed
-  processing
-  shipped
-  delivered
-  cancelled
-  refunded
-}
-
-enum PaymentMethod_old {
-  credit_card
-  bank_transfer
-  cash_on_delivery
-  bkash
-  nagad
-  rocket
-}
-
-enum PaymentStatus_old {
-  pending
-  processing
-  completed
-  failed
-  cancelled
-  refunded
-}
-
-enum ProductStatus_old {
-  active
-  inactive
-  out_of_stock
-  discontinued
-}
-
-enum ProfileVisibility_old {
-  public
-  private
-  friends_only
-}
-
-enum SocialProvider_old {
-  google
-  facebook
-}
-
-enum UserRole_old {
-  customer
-  admin
-  manager
-  super_admin
-  support
-  corporate
-}
-
-enum UserStatus_old {
-  active
-  inactive
-  suspended
-  pending
 }

@@ -6,7 +6,7 @@
 ALTER TABLE "users" ALTER COLUMN "role" DROP DEFAULT;
 
 -- Step 2: Create temporary enum with new roles
-CREATE TYPE "UserRole_new" AS ENUM ('CUSTOMER', 'ADMIN', 'MANAGER', 'SUPER_ADMIN', 'SUPPORT', 'CORPORATE');
+CREATE TYPE "UserRole_new" AS ENUM ('customer', 'admin', 'manager', 'super_admin', 'support', 'corporate');
 
 -- Step 3: Alter the column to use the new type
 ALTER TABLE "users" 
@@ -20,7 +20,7 @@ DROP TYPE "UserRole";
 ALTER TYPE "UserRole_new" RENAME TO "UserRole";
 
 -- Step 6: Re-create default value constraint
-ALTER TABLE "users" ALTER COLUMN "role" SET DEFAULT 'CUSTOMER';
+ALTER TABLE "users" ALTER COLUMN "role" SET DEFAULT 'customer';
 
 -- Step 7: Create Permission table
 CREATE TABLE "Permission" (
@@ -123,43 +123,43 @@ INSERT INTO "Permission" ("id", "name", "description", "category", "resource", "
 
 -- Step 12: Insert role hierarchy
 INSERT INTO "RoleHierarchy" ("id", "parentRole", "childRole") VALUES
-('hier_001', 'SUPER_ADMIN', 'ADMIN'),
-('hier_002', 'ADMIN', 'MANAGER'),
-('hier_003', 'ADMIN', 'SUPPORT'),
-('hier_004', 'ADMIN', 'CORPORATE'),
-('hier_005', 'MANAGER', 'CUSTOMER'),
-('hier_006', 'SUPPORT', 'CUSTOMER'),
-('hier_007', 'CORPORATE', 'CUSTOMER');
+('hier_001', 'super_admin', 'admin'),
+('hier_002', 'admin', 'manager'),
+('hier_003', 'admin', 'support'),
+('hier_004', 'admin', 'corporate'),
+('hier_005', 'manager', 'customer'),
+('hier_006', 'support', 'customer'),
+('hier_007', 'corporate', 'customer');
 
 -- Step 13: Assign default permissions to roles
 
 -- SUPER_ADMIN gets all permissions
-INSERT INTO "RolePermission" ("roleId", "permissionId") 
-SELECT 'SUPER_ADMIN', id FROM "Permission";
+INSERT INTO "RolePermission" ("roleId", "permissionId")
+SELECT 'super_admin', id FROM "Permission";
 
 -- ADMIN gets most permissions (except system config, logs, backup)
-INSERT INTO "RolePermission" ("roleId", "permissionId") 
-SELECT 'ADMIN', id FROM "Permission" 
+INSERT INTO "RolePermission" ("roleId", "permissionId")
+SELECT 'admin', id FROM "Permission"
 WHERE category != 'system';
 
 -- MANAGER gets product, category, brand, order, and analytics permissions
-INSERT INTO "RolePermission" ("roleId", "permissionId") 
-SELECT 'MANAGER', id FROM "Permission" 
+INSERT INTO "RolePermission" ("roleId", "permissionId")
+SELECT 'manager', id FROM "Permission"
 WHERE category IN ('products', 'categories', 'brands', 'orders', 'analytics');
 
 -- SUPPORT gets support permissions and basic read permissions
-INSERT INTO "RolePermission" ("roleId", "permissionId") 
-SELECT 'SUPPORT', id FROM "Permission" 
+INSERT INTO "RolePermission" ("roleId", "permissionId")
+SELECT 'support', id FROM "Permission"
 WHERE category IN ('support', 'users', 'orders') AND action IN ('read', 'respond', 'manage');
 
 -- CORPORATE gets corporate permissions and basic read permissions
-INSERT INTO "RolePermission" ("roleId", "permissionId") 
-SELECT 'CORPORATE', id FROM "Permission" 
-WHERE category IN ('corporate', 'users', 'orders') 
+INSERT INTO "RolePermission" ("roleId", "permissionId")
+SELECT 'corporate', id FROM "Permission"
+WHERE category IN ('corporate', 'users', 'orders')
    OR (category IN ('products', 'categories', 'brands', 'reviews') AND action = 'read');
 
 -- CUSTOMER gets basic read and create permissions
-INSERT INTO "RolePermission" ("roleId", "permissionId") 
-SELECT 'CUSTOMER', id FROM "Permission" 
+INSERT INTO "RolePermission" ("roleId", "permissionId")
+SELECT 'customer', id FROM "Permission"
 WHERE (category IN ('products', 'categories', 'brands', 'reviews') AND action IN ('read', 'create'))
    OR (category = 'orders' AND action IN ('read', 'create'));

@@ -1,32 +1,32 @@
 -- CreateEnum
-CREATE TYPE "UserRole" AS ENUM ('ADMIN', 'MANAGER', 'CUSTOMER');
+CREATE TYPE "UserRole" AS ENUM ('admin', 'manager', 'customer');
 
 -- CreateEnum
-CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'INACTIVE', 'SUSPENDED', 'PENDING');
+CREATE TYPE "UserStatus" AS ENUM ('active', 'inactive', 'suspended', 'pending');
 
 -- CreateEnum
-CREATE TYPE "Division" AS ENUM ('DHAKA', 'CHITTAGONG', 'RAJSHAHI', 'SYLHET', 'KHULNA', 'BARISHAL', 'RANGPUR', 'MYMENSINGH');
+CREATE TYPE "Division" AS ENUM ('dhaka', 'chittagong', 'rajshahi', 'sylhet', 'khulna', 'barishal', 'rangpur', 'mymensingh');
 
 -- CreateEnum
-CREATE TYPE "AddressType" AS ENUM ('SHIPPING', 'BILLING');
+CREATE TYPE "AddressType" AS ENUM ('shipping', 'billing');
 
 -- CreateEnum
-CREATE TYPE "ProductStatus" AS ENUM ('ACTIVE', 'INACTIVE', 'OUT_OF_STOCK', 'DISCONTINUED');
+CREATE TYPE "ProductStatus" AS ENUM ('active', 'inactive', 'out_of_stock', 'discontinued');
 
 -- CreateEnum
-CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED');
+CREATE TYPE "OrderStatus" AS ENUM ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded');
 
 -- CreateEnum
-CREATE TYPE "PaymentMethod" AS ENUM ('CREDIT_CARD', 'BANK_TRANSFER', 'CASH_ON_DELIVERY', 'BKASH', 'NAGAD', 'ROCKET');
+CREATE TYPE "PaymentMethod" AS ENUM ('credit_card', 'bank_transfer', 'cash_on_delivery', 'bkash', 'nagad', 'rocket');
 
 -- CreateEnum
-CREATE TYPE "PaymentStatus" AS ENUM ('PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED', 'REFUNDED');
+CREATE TYPE "PaymentStatus" AS ENUM ('pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded');
 
 -- CreateEnum
-CREATE TYPE "SocialProvider" AS ENUM ('GOOGLE', 'FACEBOOK');
+CREATE TYPE "SocialProvider" AS ENUM ('google', 'facebook');
 
 -- CreateEnum
-CREATE TYPE "CouponType" AS ENUM ('PERCENTAGE', 'FIXED_AMOUNT');
+CREATE TYPE "CouponType" AS ENUM ('percentage', 'fixed_amount');
 
 -- CreateTable
 CREATE TABLE "users" (
@@ -40,8 +40,8 @@ CREATE TABLE "users" (
     "lastName" TEXT NOT NULL,
     "dateOfBirth" TIMESTAMP(3),
     "gender" TEXT,
-    "role" "UserRole" NOT NULL DEFAULT 'CUSTOMER',
-    "status" "UserStatus" NOT NULL DEFAULT 'PENDING',
+    "role" "UserRole" NOT NULL DEFAULT 'customer',
+    "status" "UserStatus" NOT NULL DEFAULT 'pending',
     "image" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE "users" (
 CREATE TABLE "addresses" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "type" "AddressType" NOT NULL DEFAULT 'SHIPPING',
+    "type" "AddressType" NOT NULL DEFAULT 'shipping',
     "firstName" TEXT NOT NULL,
     "lastName" TEXT NOT NULL,
     "phone" TEXT,
@@ -138,7 +138,7 @@ CREATE TABLE "products" (
     "taxRate" DECIMAL(5,2) NOT NULL DEFAULT 0,
     "stockQuantity" INTEGER NOT NULL DEFAULT 0,
     "lowStockThreshold" INTEGER NOT NULL DEFAULT 10,
-    "status" "ProductStatus" NOT NULL DEFAULT 'ACTIVE',
+    "status" "ProductStatus" NOT NULL DEFAULT 'active',
     "metaTitle" TEXT,
     "metaDescription" TEXT,
     "metaKeywords" TEXT,
@@ -251,9 +251,9 @@ CREATE TABLE "orders" (
     "discount" DECIMAL(12,2) NOT NULL DEFAULT 0,
     "total" DECIMAL(12,2) NOT NULL,
     "paymentMethod" "PaymentMethod" NOT NULL,
-    "paymentStatus" "PaymentStatus" NOT NULL DEFAULT 'PENDING',
+    "paymentStatus" "PaymentStatus" NOT NULL DEFAULT 'pending',
     "paidAt" TIMESTAMP(3),
-    "status" "OrderStatus" NOT NULL DEFAULT 'PENDING',
+    "status" "OrderStatus" NOT NULL DEFAULT 'pending',
     "notes" TEXT,
     "internalNotes" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -285,7 +285,7 @@ CREATE TABLE "transactions" (
     "paymentMethod" "PaymentMethod" NOT NULL,
     "amount" DECIMAL(12,2) NOT NULL,
     "currency" TEXT NOT NULL DEFAULT 'BDT',
-    "status" "PaymentStatus" NOT NULL DEFAULT 'PENDING',
+    "status" "PaymentStatus" NOT NULL DEFAULT 'pending',
     "transactionId" TEXT,
     "gatewayResponse" JSONB,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

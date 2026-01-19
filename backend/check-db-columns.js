@@ -1,44 +1,35 @@
 const { PrismaClient } = require('@prisma/client');
+
 const prisma = new PrismaClient();
 
-(async () => {
+async function checkDatabaseColumns() {
+  console.log('=== CHECKING DATABASE TABLE STRUCTURE ===\n');
+
   try {
-    // Check users table columns
+    // Check user_notification_preferences table structure
     const result = await prisma.$queryRaw`
-      SELECT column_name
+      SELECT column_name, data_type, is_nullable
       FROM information_schema.columns
-      WHERE table_name = 'users'
-      AND column_name IN ('accountStatus', 'deletionRequestedAt', 'deletedAt', 'deletionReason')
+      WHERE table_name = 'user_notification_preferences'
+      ORDER BY ordinal_position
     `;
-    console.log('Users table columns:', JSON.stringify(result, null, 2));
 
-    // Check if account preferences tables exist
-    const tables = await prisma.$queryRaw`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_name IN (
-        'user_notification_preferences',
-        'user_communication_preferences',
-        'user_privacy_settings',
-        'account_deletion_requests',
-        'user_data_exports'
-      )
-      ORDER BY table_name
-    `;
-    console.log('\nAccount preferences tables:', JSON.stringify(tables, null, 2));
+    console.log('user_notification_preferences table columns:');
+    console.log('Column Name'.padEnd(30), 'Type'.padEnd(20), 'Nullable');
+    console.log('-'.repeat(70));
+    result.forEach(col => {
+      console.log(
+        col.column_name.padEnd(30),
+        col.data_type.padEnd(20),
+        col.is_nullable
+      );
+    });
 
-    // Check triggers
-    const triggers = await prisma.$queryRaw`
-      SELECT trigger_name 
-      FROM information_schema.triggers 
-      WHERE trigger_name LIKE 'update_%_updated_at'
-      ORDER BY trigger_name
-    `;
-    console.log('\nTriggers:', JSON.stringify(triggers, null, 2));
-
-  } catch (e) {
-    console.error('Error:', e.message);
+  } catch (error) {
+    console.error('ERROR:', error.message);
   } finally {
     await prisma.$disconnect();
   }
-})();
+}
+
+checkDatabaseColumns();

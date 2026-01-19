@@ -42,7 +42,6 @@ router.use('/v1/coupons', couponRoutes);
 router.use('/v1/profile', profileRoutes);
 router.use('/v1/profile/preferences', notificationPreferencesRoutes);
 router.use('/v1/profile/preferences', privacySettingsRoutes);
-router.use('/v1/profile/account', accountDeletionRoutes);
 router.use('/v1/profile/account', accountManagementRoutes);
 router.use('/v1/profile', dataExportRoutes);
 router.use('/v1/roles', roleRoutes);

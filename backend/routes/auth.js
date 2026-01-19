@@ -649,7 +649,7 @@ router.post('/login', [
     
     console.log('[LOGIN DIAGNOSTIC] Step 11: requiresVerification:', requiresVerification);
     
-    if (user.status === 'PENDING' && requiresVerification && !isTestingMode) {
+    if (user.status === 'pending' && requiresVerification && !isTestingMode) {
       console.log('[LOGIN DIAGNOSTIC] Step 12: User pending and requires verification, returning 403');
       const verificationMessage = loginType === 'email'
         ? 'Please verify your email address before logging in'
@@ -668,7 +668,7 @@ router.post('/login', [
     }
     
     // Auto-activate pending users in testing mode or when verification is disabled
-    if (user.status === 'PENDING' && (isTestingMode || !requiresVerification)) {
+    if (user.status === 'pending' && (isTestingMode || !requiresVerification)) {
       console.log('[LOGIN DIAGNOSTIC] Step 13: Auto-activating pending user');
       await prisma.user.update({
         where: { id: user.id },

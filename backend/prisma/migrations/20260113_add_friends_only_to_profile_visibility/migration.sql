@@ -6,7 +6,7 @@
 ALTER TABLE "user_privacy_settings" ALTER COLUMN "profileVisibility" DROP DEFAULT;
 
 -- Create a temporary type with the new enum value
-CREATE TYPE "ProfileVisibility_temp" AS ENUM ('PUBLIC', 'PRIVATE', 'FRIENDS_ONLY');
+CREATE TYPE "ProfileVisibility_temp" AS ENUM ('public', 'private', 'friends_only');
 
 -- Alter the column to use the new type
 ALTER TABLE "user_privacy_settings" 
@@ -20,5 +20,5 @@ DROP TYPE "ProfileVisibility";
 ALTER TYPE "ProfileVisibility_temp" RENAME TO "ProfileVisibility";
 
 -- Re-create default value constraint
-ALTER TABLE "user_privacy_settings" 
-  ALTER COLUMN "profileVisibility" SET DEFAULT 'PRIVATE';
+ALTER TABLE "user_privacy_settings"
+  ALTER COLUMN "profileVisibility" SET DEFAULT 'private';

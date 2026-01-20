@@ -88,10 +88,8 @@ services:
       # File Upload Configuration
       - MAX_FILE_SIZE=5242880
       - UPLOAD_PATH="./uploads"
-    volumes:
-      # - ./backend:/app  # Commented out to allow container to use build-time Prisma client
-      - ./backend/exports:/app/exports
-      # - /app/node_modules  # Removed to allow container to use build-time Prisma client
+    # No volume mounts - container uses code built into the image
+    # This ensures updated code (including Multer error handler) is used
     networks:
       - smarttech_network
     depends_on:
@@ -154,7 +152,7 @@ services:
   postgres:
     image: postgres:15-alpine
     container_name: smarttech_postgres
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_DB: smart_ecommerce_dev
       POSTGRES_USER: smart_dev
@@ -218,7 +216,7 @@ services:
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: smarttech_pgadmin
-    restart: always
+    restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@smarttech.com
       PGADMIN_DEFAULT_PASSWORD: admin123

@@ -1,0 +1,300 @@
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-20T11:46:10.436Z
+}
+{"environment":"production","instanceId":"default","level":"error","message":"Initial session cleanup failed","service":"smart-ecommerce-api","timestamp":"2026-01-20T11:46:37.058Z","version":"1.0.0"}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-20T11:46:40.492Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.14.1'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-01-20T11:46:40.492Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768908700493
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-20T11:46:40.507Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-20T11:47:10.554Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.14.1'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-01-20T11:47:10.554Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768908730555
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-20T11:47:10.558Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-20T11:47:10.558Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-20T11:47:40.612Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.14.1'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-01-20T11:47:40.612Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768908760612
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-20T11:47:40.615Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-20T11:47:40.615Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-20T11:48:10.707Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.14.1'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-01-20T11:48:10.708Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768908790709
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-20T11:48:10.713Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-20T11:48:10.713Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-20T11:48:40.819Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.14.1'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-01-20T11:48:40.820Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768908820820
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-20T11:48:40.823Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-20T11:48:40.823Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-20T11:49:10.937Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.14.1'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-01-20T11:49:10.937Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768908850938
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-20T11:49:10.941Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-20T11:49:10.942Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-20T11:49:41.040Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.14.1'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-01-20T11:49:41.040Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1768908881041
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-20T11:49:41.043Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-20T11:49:41.044Z
+}

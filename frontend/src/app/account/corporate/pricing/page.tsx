@@ -311,10 +311,10 @@ const CorporatePricingPage = () => {
                   <div className="flex items-center space-x-2">
                     <div>
                       <p className="text-2xl font-bold text-gray-900">
-                        ৳{(product.corporatePricing?.specialPrice || product.salePrice)?.toLocaleString('en-BD')}
+                        ৳{(product.corporatePricing?.specialPrice !== null && product.corporatePricing?.specialPrice !== undefined ? product.corporatePricing.specialPrice : product.salePrice) !== null && (product.corporatePricing?.specialPrice !== null && product.corporatePricing?.specialPrice !== undefined ? product.corporatePricing.specialPrice : product.salePrice) !== undefined ? (product.corporatePricing?.specialPrice !== null && product.corporatePricing?.specialPrice !== undefined ? product.corporatePricing.specialPrice : product.salePrice).toLocaleString('en-BD') : '0'}
                       </p>
                       <p className="text-sm text-gray-500 line-through">
-                        ৳{product.regularPrice.toLocaleString('en-BD')}
+                        ৳{product.regularPrice !== null && product.regularPrice !== undefined ? product.regularPrice.toLocaleString('en-BD') : '0'}
                       </p>
                     </div>
                     <div className="text-right">

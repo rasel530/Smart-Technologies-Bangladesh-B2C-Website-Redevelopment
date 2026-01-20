@@ -700,15 +700,9 @@ class AuthMiddleware {
         timestamp: new Date().toISOString()
       });
       
-      // Don't expose error details in production
-      if (process.env.NODE_ENV === 'production') {
-        res.status(500).json({
-          error: 'Internal server error',
-          errorId
-        });
-      } else {
-        next(err);
-      }
+      // Always call next(err) to pass errors to global error handler
+      // This ensures errors are logged and handled consistently
+      next(err);
     };
   }
 

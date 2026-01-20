@@ -39,9 +39,19 @@ async function ensureCorporateDocsDirectory() {
 
 // Configure multer storage
 const corporateDocsStorage = multer.diskStorage({
-  destination: async (req, file, cb) => {
-    await ensureCorporateDocsDirectory();
-    cb(null, corporateDocsDir);
+  destination: (req, file, cb) => {
+    // Ensure directory exists synchronously
+    try {
+      const fs = require('fs');
+      if (!fs.existsSync(corporateDocsDir)) {
+        fs.mkdirSync(corporateDocsDir, { recursive: true });
+        console.log('[MULTER STORAGE] Created directory:', corporateDocsDir);
+      }
+      cb(null, corporateDocsDir);
+    } catch (error) {
+      console.error('[MULTER STORAGE ERROR] Failed to create directory:', error);
+      cb(error, corporateDocsDir);
+    }
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -53,9 +63,17 @@ const corporateDocsStorage = multer.diskStorage({
 const corporateDocsUpload = multer({
   storage: corporateDocsStorage,
   limits: {
-    fileSize:5 * 1024 * 1024 // 5MB limit
+    fileSize: 10 * 1024 * 1024 // 10MB limit (increased from 5MB)
   },
   fileFilter: (req, file, cb) => {
+    console.log('[MULTER DEBUG] File received:', {
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size,
+      fieldName: file.fieldname,
+      timestamp: new Date().toISOString()
+    });
+
     // Accept common document file types
     const allowedMimes = [
       'application/pdf',
@@ -66,11 +84,28 @@ const corporateDocsUpload = multer({
       'image/jpg',
       'text/plain' // Allow text files for testing
     ];
-    
+
     if (allowedMimes.includes(file.mimetype)) {
+      console.log('[MULTER DEBUG] File type ACCEPTED:', {
+        originalname: file.originalname,
+        mimetype: file.mimetype,
+        fieldName: file.fieldname
+      });
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only PDF, DOC, DOCX, JPG, PNG, and TXT files are allowed.'), false);
+      console.log('[MULTER DEBUG] File type REJECTED:', {
+        originalname: file.originalname,
+        mimetype: file.mimetype,
+        allowedMimes: allowedMimes,
+        fieldName: file.fieldname
+      });
+      // Create a MulterError to ensure it's caught by Multer error handler
+      const error = new multer.MulterError('Invalid file type. Only PDF, DOC, DOCX, JPG, PNG, and TXT files are allowed.');
+      error.code = 'INVALID_FILE_TYPE';
+      error.fieldName = file.fieldname;
+      error.originalName = file.originalname;
+      error.mimetype = file.mimetype;
+      cb(error, false);
     }
   }
 });
@@ -274,6 +309,62 @@ app.use(authMiddleware.requestId());
 
 // General rate limiting
 app.use(authMiddleware.rateLimit());
+
+// Multer error handler middleware - MUST be before routes that use file uploads
+app.use((err, req, res, next) => {
+  // Check if this is a Multer-related error
+  const isMulterError = err.name === 'MulterError' || 
+                        err.code === 'LIMIT_FILE_SIZE' || 
+                        err.code === 'LIMIT_UNEXPECTED_FILE' || 
+                        err.code === 'LIMIT_FILE_COUNT' ||
+                        err.code === 'INVALID_FILE_TYPE' ||
+                        (err.message && err.message.includes('Invalid file type'));
+
+  if (isMulterError) {
+    console.error('[MULTER ERROR HANDLER] Multer error caught:', {
+      name: err.name,
+      code: err.code,
+      message: err.message,
+      field: err.fieldName || err.field,
+      url: req.originalUrl,
+      method: req.method,
+      timestamp: new Date().toISOString()
+    });
+
+    let statusCode = 400;
+    let errorMessage = 'File upload error';
+
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      statusCode = 413; // Payload Too Large
+      errorMessage = 'File size exceeds 10MB limit';
+    } else if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      statusCode = 400;
+      errorMessage = 'Unexpected file field';
+    } else if (err.code === 'LIMIT_FILE_COUNT') {
+      statusCode = 400;
+      errorMessage = 'Too many files uploaded';
+    } else if (err.code === 'INVALID_FILE_TYPE') {
+      statusCode = 400;
+      errorMessage = err.message || 'Invalid file type. Only PDF, DOC, DOCX, JPG, PNG, and TXT files are allowed.';
+    } else if (err.message && err.message.includes('Invalid file type')) {
+      statusCode = 400;
+      errorMessage = err.message || 'Invalid file type. Only PDF, DOC, DOCX, JPG, PNG, and TXT files are allowed.';
+    }
+
+    return res.status(statusCode).json({
+      error: errorMessage,
+      code: err.code,
+      field: err.fieldName || err.field,
+      details: process.env.NODE_ENV === 'development' ? {
+        originalName: err.originalName,
+        mimetype: err.mimetype,
+        message: err.message
+      } : undefined
+    });
+  }
+
+  next(err); // Pass to next error handler if not a Multer error
+});
 
 // API routes - Mount with /api prefix
 app.use('/api', routeIndex);
@@ -488,7 +579,22 @@ app.use(authMiddleware.errorLogger());
 
 // Global error handler for consistent JSON responses
 app.use((err, req, res, next) => {
-  // Log error details
+  // Log error details with full context
+  console.error('[GLOBAL ERROR HANDLER] Error caught:', {
+    name: err.name,
+    message: err.message,
+    code: err.code,
+    stack: err.stack,
+    url: req.originalUrl,
+    method: req.method,
+    path: req.path,
+    ip: req.ip,
+    userAgent: req.get('User-Agent'),
+    contentType: req.get('Content-Type'),
+    hasBody: !!req.body,
+    hasFiles: !!req.files
+  });
+
   loggerService.error('Unhandled error', {
     error: err.message,
     stack: err.stack,
@@ -508,7 +614,33 @@ app.use((err, req, res, next) => {
   };
 
   // Handle specific error types
-  if (err.name === 'ValidationError') {
+  if (err.name === 'MulterError') {
+    statusCode = 400;
+    let errorMessage = 'File upload error';
+    let errorMessageBn = 'ফাইল আপলোড ত্রুটি';
+
+    // Handle specific Multer error codes
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      statusCode = 413; // Payload Too Large
+      errorMessage = 'File size exceeds the 10MB limit';
+      errorMessageBn = 'ফাইলের আকার 10MB সীমা অতিক্রম করেছে';
+    } else if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      errorMessage = 'Unexpected file field';
+      errorMessageBn = 'অপ্রত্যাশিত ফাইল ফিল্ড';
+    } else if (err.code === 'LIMIT_FILE_COUNT') {
+      errorMessage = 'Too many files uploaded';
+      errorMessageBn = 'অনেক বেশি ফাইল আপলোড করা হয়েছে';
+    }
+
+    errorResponse = {
+      error: 'File upload error',
+      errorType: err.name,
+      code: err.code,
+      message: errorMessage,
+      messageBn: errorMessageBn,
+      timestamp: new Date().toISOString()
+    };
+  } else if (err.name === 'ValidationError') {
     statusCode = 400;
     errorResponse = {
       error: 'Validation error',
@@ -632,6 +764,23 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
     loggerService.info('Database connection established successfully');
   } catch (error) {
     loggerService.error('Database connection failed on startup', error);
+  }
+
+  // Execute Prisma migrations on startup
+  loggerService.info('🔄 Running Prisma migrations...');
+  try {
+    const { execSync } = require('child_process');
+    execSync('npx prisma migrate deploy', {
+      stdio: 'inherit',
+      cwd: __dirname
+    });
+    loggerService.info('✅ Prisma migrations executed successfully');
+  } catch (migrationError) {
+    loggerService.error('❌ Prisma migration execution failed', {
+      error: migrationError.message,
+      stack: migrationError.stack
+    });
+    // Continue startup even if migration fails to allow manual intervention
   }
 
   // Redis startup validation

@@ -1,0 +1,178 @@
+{
+  "timestamp": "2026-01-20T17:30:08.408Z",
+  "testEnvironment": {
+    "apiBaseUrl": "http://localhost:3001",
+    "apiVersion": "/api/v1",
+    "userId": "95c63e45-4e91-4a90-93c3-5d9f1f0c0892",
+    "userEmail": "raselbepari88@gmail.com",
+    "corporateAccountId": "83fbff07-2859-425b-bbe2-26478d548fe0",
+    "corporateAccountName": "Test Company Ltd"
+  },
+  "summary": {
+    "total": 6,
+    "passed": 4,
+    "failed": 2,
+    "successRate": "66.67%"
+  },
+  "fixVerification": {
+    "test404Working": false,
+    "test200Working": true,
+    "testDashboardWorking": true,
+    "test403Working": false,
+    "testAuthWorking": true,
+    "fixWorking": false
+  },
+  "tests": [
+    {
+      "name": "Test 1 - Non-existent Corporate Account",
+      "passed": false,
+      "message": "Expected 404 but got 403",
+      "status": 403,
+      "response": {
+        "error": "Access denied",
+        "message": "You do not have access to this corporate account"
+      },
+      "errorDetails": null,
+      "timestamp": "2026-01-20T17:30:08.339Z"
+    },
+    {
+      "name": "Test 2 - User's Own Corporate Account",
+      "passed": true,
+      "message": "Correctly returned 200 with corporate account data",
+      "status": 200,
+      "response": {
+        "success": true,
+        "data": {
+          "id": "83fbff07-2859-425b-bbe2-26478d548fe0",
+          "companyName": "Test Company Ltd",
+          "companyRegistrationNumber": "REG-PDF-1768924828546",
+          "tinNumber": "123456789012",
+          "businessAddress": "123 Test Street, Test Area",
+          "businessDivision": "Dhaka",
+          "businessDistrict": "Dhaka",
+          "businessUpazila": "Savar",
+          "businessPostalCode": "1340",
+          "authorizedPersonName": "John Doe",
+          "authorizedPersonEmail": "john@testcompany.com",
+          "authorizedPersonPhone": "+8801712345678",
+          "companyEmail": "info@testcompany.com",
+          "creditLimit": null,
+          "creditUsed": "0",
+          "availableCredit": null,
+          "accountStatus": "active",
+          "verificationStatus": "verified",
+          "verifiedAt": null,
+          "approvedBy": null,
+          "approvedAt": "2026-01-20T17:13:11.615Z",
+          "createdAt": "2026-01-20T16:00:28.735Z",
+          "updatedAt": "2026-01-20T17:13:11.615Z",
+          "user": {
+            "id": "95c63e45-4e91-4a90-93c3-5d9f1f0c0892",
+            "email": "raselbepari88@gmail.com",
+            "firstName": "Rasel",
+            "lastName": "Bepari",
+            "phone": "+8801914287530"
+          },
+          "accountManager": null,
+          "corporateUsers": [
+            {
+              "id": "65c04eb0-812e-41e3-b757-8974d89bd810",
+              "corporateAccountId": "83fbff07-2859-425b-bbe2-26478d548fe0",
+              "userId": "95c63e45-4e91-4a90-93c3-5d9f1f0c0892",
+              "role": "admin",
+              "isActive": true,
+              "assignedAt": "2026-01-20T16:00:28.767Z",
+              "expiresAt": null,
+              "users": {
+                "id": "95c63e45-4e91-4a90-93c3-5d9f1f0c0892",
+                "email": "raselbepari88@gmail.com",
+                "firstName": "Rasel",
+                "lastName": "Bepari"
+              }
+            }
+          ]
+        },
+        "message": "Corporate account details retrieved successfully"
+      },
+      "errorDetails": null,
+      "timestamp": "2026-01-20T17:30:08.355Z"
+    },
+    {
+      "name": "Test 3 - User's Corporate Account Dashboard",
+      "passed": true,
+      "message": "Correctly returned 200 with dashboard data",
+      "status": 200,
+      "response": {
+        "success": true,
+        "data": {
+          "credit": {
+            "available": null,
+            "limit": null,
+            "used": "0"
+          },
+          "pendingApprovals": 0,
+          "recentOrders": [],
+          "pendingInvoices": [],
+          "stats": {
+            "totalOrders": 0
+          }
+        },
+        "message": "Dashboard statistics retrieved successfully"
+      },
+      "errorDetails": null,
+      "timestamp": "2026-01-20T17:30:08.388Z"
+    },
+    {
+      "name": "Test 4 - Access Denied Scenario",
+      "passed": false,
+      "message": "Expected 403 or 404 but got 400",
+      "status": 400,
+      "response": {
+        "error": "Validation failed",
+        "details": [
+          {
+            "type": "field",
+            "value": "00000000-0000-0000-0000-000000000001",
+            "msg": "Invalid value",
+            "path": "accountId",
+            "location": "params"
+          }
+        ]
+      },
+      "errorDetails": null,
+      "timestamp": "2026-01-20T17:30:08.396Z"
+    },
+    {
+      "name": "Test 5 - Invalid UUID Format",
+      "passed": true,
+      "message": "Correctly rejected invalid UUID format",
+      "status": 400,
+      "response": {
+        "error": "Validation failed",
+        "details": [
+          {
+            "type": "field",
+            "value": "invalid-uuid",
+            "msg": "Invalid value",
+            "path": "accountId",
+            "location": "params"
+          }
+        ]
+      },
+      "errorDetails": null,
+      "timestamp": "2026-01-20T17:30:08.403Z"
+    },
+    {
+      "name": "Test 6 - Access Without Authentication",
+      "passed": true,
+      "message": "Correctly returned 401 for unauthenticated access",
+      "status": 401,
+      "response": {
+        "error": "Authentication required",
+        "message": "No token provided"
+      },
+      "errorDetails": null,
+      "timestamp": "2026-01-20T17:30:08.407Z"
+    }
+  ]
+}

@@ -43,13 +43,38 @@ export const useCorporateAccount = (): UseCorporateAccountReturn => {
       console.log('[useCorporateAccount] Cached accountId from localStorage:', cachedAccountId);
 
       if (cachedAccountId !== null) {
-        console.log('[useCorporateAccount] Using cached accountId');
-        setAccountId(cachedAccountId);
-        setIsLoading(false);
-        return;
+        console.log('[useCorporateAccount] Validating cached accountId:', cachedAccountId);
+        
+        try {
+          // Validate the cached ID by fetching the account details
+          const accountDetails = await CorporateAPI.getAccount(cachedAccountId);
+          console.log('[useCorporateAccount] Cached ID validated successfully');
+          
+          setAccountId(cachedAccountId);
+          setAccount(accountDetails);
+          setIsLoading(false);
+          return;
+        } catch (validationError: any) {
+          console.error('[useCorporateAccount] Cached ID validation failed:', validationError);
+          
+          // Check if it's a 404 error (account doesn't exist)
+          if (validationError.response?.status === 404 || validationError.message?.includes('404')) {
+            console.log('[useCorporateAccount] Cached ID is invalid (404), clearing cache and fetching fresh data');
+            
+            // Clear the invalid cache
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem(CORPORATE_ACCOUNT_ID_KEY);
+            }
+            
+            // Continue to fetch fresh data from API
+          } else {
+            // For other errors, still try to fetch fresh data
+            console.log('[useCorporateAccount] Validation error (not 404), fetching fresh data');
+          }
+        }
       }
 
-      // If not in cache, fetch from API
+      // If not in cache or cache was invalid, fetch from API
       console.log('[useCorporateAccount] Fetching from API');
       const response = await CorporateAPI.getMyAccount();
       

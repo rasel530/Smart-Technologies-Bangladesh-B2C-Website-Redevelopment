@@ -1,0 +1,216 @@
+[36mCOMPREHENSIVE DATABASE RECOVERY VALIDATION TEST[0m
+[36m===============================================[0m
+[34mStarted at: 2026-01-20T10:14:57.950Z[0m
+[34mAPI Base URL: http://localhost:3001/api/v1[0m
+
+================================================================================
+[36mTASK 1: DATA RECOVERY ASSESSMENT[0m
+================================================================================
+[0m
+1.1 Checking for backup files...[0m
+[33mNo backup directory found[0m
+[0m
+1.2 Analyzing current database state...[0m
+prisma:query SELECT COUNT(*) FROM (SELECT "public"."users"."id" FROM "public"."users" WHERE 1=1 OFFSET $1) AS "sub"
+prisma:query SELECT COUNT(*) FROM (SELECT "public"."products"."id" FROM "public"."products" WHERE 1=1 OFFSET $1) AS "sub"
+prisma:query SELECT COUNT(*) FROM (SELECT "public"."orders"."id" FROM "public"."orders" WHERE 1=1 OFFSET $1) AS "sub"
+[34mCurrent database:[0m
+[34m  - Users: 4[0m
+[34m  - Products: 0[0m
+[34m  - Orders: 0[0m
+[33m
+✗ No historical data to recover[0m
+
+================================================================================
+[36mTASK 2: DATABASE OPERATIONS VALIDATION[0m
+================================================================================
+[0m
+2.1 Testing CRUD operations on Users table...[0m
+prisma:query INSERT INTO "public"."users" ("id","email","password","firstName","lastName","role","status","createdAt","updatedAt","preferredLanguage","accountStatus") VALUES ($1,$2,$3,$4,$5,CAST($6::text AS "public"."UserRole"),CAST($7::text AS "public"."UserStatus"),$8,$9,$10,$11) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."emailVerified", "public"."users"."phone", "public"."users"."phoneVerified", "public"."users"."password", "public"."users"."firstName", "public"."users"."lastName", "public"."users"."dateOfBirth", "public"."users"."gender", "public"."users"."role"::text, "public"."users"."status"::text, "public"."users"."image", "public"."users"."createdAt", "public"."users"."updatedAt", "public"."users"."lastLoginAt", "public"."users"."preferredLanguage", "public"."users"."accountStatus", "public"."users"."deletionRequestedAt", "public"."users"."deletionReason", "public"."users"."deletedAt"
+[32m✓ PASS: User CREATE[0m
+[33m  Created user with ID: 444b40d9-e49c-497c-9117-3f4298956516[0m
+prisma:query SELECT "public"."users"."id", "public"."users"."email", "public"."users"."emailVerified", "public"."users"."phone", "public"."users"."phoneVerified", "public"."users"."password", "public"."users"."firstName", "public"."users"."lastName", "public"."users"."dateOfBirth", "public"."users"."gender", "public"."users"."role"::text, "public"."users"."status"::text, "public"."users"."image", "public"."users"."createdAt", "public"."users"."updatedAt", "public"."users"."lastLoginAt", "public"."users"."preferredLanguage", "public"."users"."accountStatus", "public"."users"."deletionRequestedAt", "public"."users"."deletionReason", "public"."users"."deletedAt" FROM "public"."users" WHERE ("public"."users"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+[32m✓ PASS: User READ[0m
+[33m  Found user: test-1768904097983@example.com[0m
+prisma:query UPDATE "public"."users" SET "firstName" = $1, "updatedAt" = $2 WHERE ("public"."users"."id" = $3 AND 1=1) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."emailVerified", "public"."users"."phone", "public"."users"."phoneVerified", "public"."users"."password", "public"."users"."firstName", "public"."users"."lastName", "public"."users"."dateOfBirth", "public"."users"."gender", "public"."users"."role"::text, "public"."users"."status"::text, "public"."users"."image", "public"."users"."createdAt", "public"."users"."updatedAt", "public"."users"."lastLoginAt", "public"."users"."preferredLanguage", "public"."users"."accountStatus", "public"."users"."deletionRequestedAt", "public"."users"."deletionReason", "public"."users"."deletedAt"
+[32m✓ PASS: User UPDATE[0m
+[33m  Updated first name successfully[0m
+prisma:query DELETE FROM "public"."users" WHERE ("public"."users"."id" = $1 AND 1=1) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."emailVerified", "public"."users"."phone", "public"."users"."phoneVerified", "public"."users"."password", "public"."users"."firstName", "public"."users"."lastName", "public"."users"."dateOfBirth", "public"."users"."gender", "public"."users"."role"::text, "public"."users"."status"::text, "public"."users"."image", "public"."users"."createdAt", "public"."users"."updatedAt", "public"."users"."lastLoginAt", "public"."users"."preferredLanguage", "public"."users"."accountStatus", "public"."users"."deletionRequestedAt", "public"."users"."deletionReason", "public"."users"."deletedAt"
+[32m✓ PASS: User DELETE[0m
+[33m  Deleted test user successfully[0m
+[0m
+2.2 Testing CRUD operations on Products table...[0m
+prisma:query SELECT "public"."categories"."id", "public"."categories"."name", "public"."categories"."slug", "public"."categories"."description", "public"."categories"."isActive", "public"."categories"."parentId", "public"."categories"."bannerImage", "public"."categories"."icon", "public"."categories"."sortOrder" FROM "public"."categories" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."brands"."id", "public"."brands"."name", "public"."brands"."slug", "public"."brands"."description", "public"."brands"."website", "public"."brands"."isActive" FROM "public"."brands" WHERE 1=1 LIMIT $1 OFFSET $2
+[33mSkipping product tests - no category or brand found[0m
+[0m
+2.3 Testing foreign key relationships...[0m
+prisma:query SELECT "public"."users"."id", "public"."users"."email", "public"."users"."emailVerified", "public"."users"."phone", "public"."users"."phoneVerified", "public"."users"."password", "public"."users"."firstName", "public"."users"."lastName", "public"."users"."dateOfBirth", "public"."users"."gender", "public"."users"."role"::text, "public"."users"."status"::text, "public"."users"."image", "public"."users"."createdAt", "public"."users"."updatedAt", "public"."users"."lastLoginAt", "public"."users"."preferredLanguage", "public"."users"."accountStatus", "public"."users"."deletionRequestedAt", "public"."users"."deletionReason", "public"."users"."deletedAt" FROM "public"."users" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query INSERT INTO "public"."addresses" ("id","userId","type","firstName","lastName","phone","address","city","district","division","upazila","postalCode","isDefault") VALUES ($1,$2,CAST($3::text AS "public"."AddressType"),$4,$5,$6,$7,$8,$9,CAST($10::text AS "public"."Division"),$11,$12,$13) RETURNING "public"."addresses"."id", "public"."addresses"."userId", "public"."addresses"."type"::text, "public"."addresses"."firstName", "public"."addresses"."lastName", "public"."addresses"."phone", "public"."addresses"."address", "public"."addresses"."addressLine2", "public"."addresses"."city", "public"."addresses"."district", "public"."addresses"."division"::text, "public"."addresses"."upazila", "public"."addresses"."postalCode", "public"."addresses"."isDefault"
+[32m✓ PASS: User-Address FK[0m
+[33m  Created address with valid user reference[0m
+prisma:query DELETE FROM "public"."addresses" WHERE ("public"."addresses"."id" = $1 AND 1=1) RETURNING "public"."addresses"."id", "public"."addresses"."userId", "public"."addresses"."type"::text, "public"."addresses"."firstName", "public"."addresses"."lastName", "public"."addresses"."phone", "public"."addresses"."address", "public"."addresses"."addressLine2", "public"."addresses"."city", "public"."addresses"."district", "public"."addresses"."division"::text, "public"."addresses"."upazila", "public"."addresses"."postalCode", "public"."addresses"."isDefault"
+[0m
+2.4 Testing enum constraints...[0m
+prisma:query INSERT INTO "public"."users" ("id","email","password","firstName","lastName","role","status","createdAt","updatedAt","preferredLanguage","accountStatus") VALUES ($1,$2,$3,$4,$5,CAST($6::text AS "public"."UserRole"),CAST($7::text AS "public"."UserStatus"),$8,$9,$10,$11) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."emailVerified", "public"."users"."phone", "public"."users"."phoneVerified", "public"."users"."password", "public"."users"."firstName", "public"."users"."lastName", "public"."users"."dateOfBirth", "public"."users"."gender", "public"."users"."role"::text, "public"."users"."status"::text, "public"."users"."image", "public"."users"."createdAt", "public"."users"."updatedAt", "public"."users"."lastLoginAt", "public"."users"."preferredLanguage", "public"."users"."accountStatus", "public"."users"."deletionRequestedAt", "public"."users"."deletionReason", "public"."users"."deletedAt"
+[32m✓ PASS: UserRole enum (lowercase)[0m
+[33m  Created user with lowercase role: customer[0m
+prisma:query DELETE FROM "public"."users" WHERE ("public"."users"."id" = $1 AND 1=1) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."emailVerified", "public"."users"."phone", "public"."users"."phoneVerified", "public"."users"."password", "public"."users"."firstName", "public"."users"."lastName", "public"."users"."dateOfBirth", "public"."users"."gender", "public"."users"."role"::text, "public"."users"."status"::text, "public"."users"."image", "public"."users"."createdAt", "public"."users"."updatedAt", "public"."users"."lastLoginAt", "public"."users"."preferredLanguage", "public"."users"."accountStatus", "public"."users"."deletionRequestedAt", "public"."users"."deletionReason", "public"."users"."deletedAt"
+[0m
+2.5 Testing index performance...[0m
+prisma:query SELECT "public"."products"."id", "public"."products"."sku", "public"."products"."name", "public"."products"."nameEn", "public"."products"."nameBn", "public"."products"."slug", "public"."products"."shortDescription", "public"."products"."description", "public"."products"."categoryId", "public"."products"."brandId", "public"."products"."regularPrice", "public"."products"."salePrice", "public"."products"."costPrice", "public"."products"."taxRate", "public"."products"."stockQuantity", "public"."products"."lowStockThreshold", "public"."products"."status"::text, "public"."products"."metaTitle", "public"."products"."metaDescription", "public"."products"."metaKeywords", "public"."products"."isFeatured", "public"."products"."isNewArrival", "public"."products"."isBestSeller", "public"."products"."warrantyPeriod", "public"."products"."warrantyType", "public"."products"."createdAt", "public"."products"."updatedAt", "public"."products"."publishedAt" FROM "public"."products" WHERE "public"."products"."status" = CAST($1::text AS "public"."ProductStatus") ORDER BY "public"."products"."id" ASC LIMIT $2 OFFSET $3
+[32m✓ PASS: Product index query[0m
+[33m  Query completed in 3ms[0m
+[0m
+2.6 Testing transaction rollback...[0m
+prisma:query BEGIN
+prisma:query INSERT INTO "public"."users" ("id","email","password","firstName","lastName","role","status","createdAt","updatedAt","preferredLanguage","accountStatus") VALUES ($1,$2,$3,$4,$5,CAST($6::text AS "public"."UserRole"),CAST($7::text AS "public"."UserStatus"),$8,$9,$10,$11) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."emailVerified", "public"."users"."phone", "public"."users"."phoneVerified", "public"."users"."password", "public"."users"."firstName", "public"."users"."lastName", "public"."users"."dateOfBirth", "public"."users"."gender", "public"."users"."role"::text, "public"."users"."status"::text, "public"."users"."image", "public"."users"."createdAt", "public"."users"."updatedAt", "public"."users"."lastLoginAt", "public"."users"."preferredLanguage", "public"."users"."accountStatus", "public"."users"."deletionRequestedAt", "public"."users"."deletionReason", "public"."users"."deletedAt"
+prisma:query ROLLBACK
+[32m✓ PASS: Transaction rollback[0m
+[33m  Transaction rolled back successfully[0m
+
+================================================================================
+[36mTASK 3: BACKEND API TESTING[0m
+================================================================================
+[0m
+3.1 Testing health endpoint...[0m
+[32m✓ PASS: Health endpoint[0m
+[33m  Status: 200[0m
+[0m
+3.2 Testing user registration...[0m
+[31m✗ FAIL: User registration[0m
+[33m  Request failed with status code 400[0m
+[0m
+3.3 Testing user login...[0m
+[33mSkipping auth-required tests - login failed[0m
+[0m
+3.7 Testing admin login...[0m
+[31m✗ FAIL: Admin login[0m
+[33m  Request failed with status code 400[0m
+
+================================================================================
+[36mTASK 4: DATA PERSISTENCE VERIFICATION[0m
+================================================================================
+[0m
+4.1 Creating test data...[0m
+prisma:query INSERT INTO "public"."users" ("id","email","password","firstName","lastName","role","status","createdAt","updatedAt","preferredLanguage","accountStatus") VALUES ($1,$2,$3,$4,$5,CAST($6::text AS "public"."UserRole"),CAST($7::text AS "public"."UserStatus"),$8,$9,$10,$11) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."emailVerified", "public"."users"."phone", "public"."users"."phoneVerified", "public"."users"."password", "public"."users"."firstName", "public"."users"."lastName", "public"."users"."dateOfBirth", "public"."users"."gender", "public"."users"."role"::text, "public"."users"."status"::text, "public"."users"."image", "public"."users"."createdAt", "public"."users"."updatedAt", "public"."users"."lastLoginAt", "public"."users"."preferredLanguage", "public"."users"."accountStatus", "public"."users"."deletionRequestedAt", "public"."users"."deletionReason", "public"."users"."deletedAt"
+[34mCreated test user with ID: 8d93051d-cba4-4f71-90ee-5c7da62fcc9a[0m
+[0m
+4.2 Data persistence verification requires manual steps:[0m
+[33m  1. Restart Docker containers:[0m
+[0m     docker-compose restart[0m
+[0m  2. Wait for containers to be healthy[0m
+[0m  3. Run this script again to verify data persists[0m
+[0m  4. Check backend logs for automatic migration[0m
+[0m
+4.3 Current database state before restart:[0m
+prisma:query SELECT COUNT(*) FROM (SELECT "public"."users"."id" FROM "public"."users" WHERE 1=1 OFFSET $1) AS "sub"
+[34m  Total users in database: 5[0m
+
+================================================================================
+[36mTASK 5: TABLE COUNT VERIFICATION[0m
+================================================================================
+[0m
+5.1 Counting actual tables in database...[0m
+prisma:query 
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public' 
+      AND table_type = 'BASE TABLE'
+      ORDER BY table_name
+    
+[34mFound 38 tables in database[0m
+[34mExpected 37 tables based on schema.prisma[0m
+[31m✗ FAIL: Table count verification[0m
+[33m  ✗ Table count mismatch. Expected: 37, Actual: 38[0m
+[34m
+5.2 Complete table list:[0m
+[34m  1. _prisma_migrations[0m
+[34m  2. account_deletion_requests[0m
+[34m  3. addresses[0m
+[34m  4. brands[0m
+[34m  5. cart_items[0m
+[34m  6. carts[0m
+[34m  7. categories[0m
+[34m  8. corporate_accounts[0m
+[34m  9. corporate_approvals[0m
+[34m  10. corporate_documents[0m
+[34m  11. corporate_pricing[0m
+[34m  12. corporate_users[0m
+[34m  13. coupons[0m
+[34m  14. email_verification_tokens[0m
+[34m  15. order_items[0m
+[34m  16. orders[0m
+[34m  17. password_history[0m
+[34m  18. permissions[0m
+[34m  19. phone_otps[0m
+[34m  20. product_images[0m
+[34m  21. product_specifications[0m
+[34m  22. product_variants[0m
+[34m  23. products[0m
+[34m  24. reviews[0m
+[34m  25. role_escalation_requests[0m
+[34m  26. role_permissions[0m
+[34m  27. roles[0m
+[34m  28. transactions[0m
+[34m  29. user_communication_preferences[0m
+[34m  30. user_data_exports[0m
+[34m  31. user_notification_preferences[0m
+[34m  32. user_privacy_settings[0m
+[34m  33. user_roles[0m
+[34m  34. user_sessions[0m
+[34m  35. user_social_accounts[0m
+[34m  36. users[0m
+[34m  37. wishlist_items[0m
+[34m  38. wishlists[0m
+
+================================================================================
+[36mFINAL VALIDATION REPORT[0m
+================================================================================
+[36m
+1. DATA RECOVERY ASSESSMENT:[0m
+[0m   Backup files found: ✗[0m
+[0m   Backup data exists: ✗[0m
+[0m   Summary: No historical data found in backups. Database was likely never populated before migration issue.[0m
+[36m
+2. DATABASE OPERATIONS VALIDATION:[0m
+[0m   CRUD Tests: 4/4 passed[0m
+[0m   Foreign Key Tests: 1/1 passed[0m
+[0m   Enum Tests: 1/1 passed[0m
+[0m   Index Tests: 1/1 passed[0m
+[0m   Transaction Tests: 1/1 passed[0m
+[36m
+3. BACKEND API TESTING:[0m
+[0m   Endpoints tested: 3[0m
+[0m   Passed: 1[0m
+[0m   Failed: 2[0m
+[31m
+   Failed endpoints:[0m
+[31m     - /auth/register: Request failed with status code 400[0m
+[31m     - /auth/login (admin): Request failed with status code 400[0m
+[36m
+4. DATA PERSISTENCE VERIFICATION:[0m
+[0m   Test data created: ✓[0m
+[0m   Note: Full persistence test requires container restart[0m
+[36m
+5. TABLE COUNT VERIFICATION:[0m
+[0m   Expected tables: 37[0m
+[0m   Actual tables: 38[0m
+[0m   Discrepancies: 0[0m
+[0m   Summary: ✗ Table count mismatch. Expected: 37, Actual: 38[0m
+[36m
+================================================================================[0m
+[36mOVERALL SYSTEM HEALTH ASSESSMENT[0m
+[36m================================================================================[0m
+[0m
+Total Tests: 11[0m
+[0mPassed: 9[0m
+[0mFailed: 2[0m
+[0mSuccess Rate: 81.82%[0m
+[33m
+⚠ SYSTEM STATUS: MOSTLY HEALTHY[0m
+[33mSome issues detected but core functionality is working.[0m
+[34m
+Detailed results saved to: e:\Drive_D_Backup\Smart_Tech_B2C_Website_Redevelopment\backend\validation-results-1768904098142.json[0m
+[34m
+Completed at: 2026-01-20T10:14:58.143Z[0m

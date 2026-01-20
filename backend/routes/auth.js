@@ -169,7 +169,7 @@ router.post('/register', [
     // Hash password using password service
     const hashedPassword = await passwordService.hashPassword(password);
 
-    // Create user with PENDING status
+    // Create user with ACTIVE status
     const user = await prisma.user.create({
       data: {
         email,
@@ -180,7 +180,7 @@ router.post('/register', [
         dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
         gender,
         role: 'customer',
-        status: 'pending'
+        status: 'active'
       },
       select: {
         id: true,

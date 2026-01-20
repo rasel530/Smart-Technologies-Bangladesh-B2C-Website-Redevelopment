@@ -1,0 +1,237 @@
+{
+  "summary": {
+    "totalTests": 6,
+    "passedTests": 6,
+    "failedTests": 0,
+    "successRate": "100.00%"
+  },
+  "tests": [
+    {
+      "testName": "Corporate account owner can access corporate account endpoint",
+      "passed": true,
+      "details": {
+        "expectedStatusCode": 200,
+        "actualStatusCode": 200,
+        "responseBody": {
+          "success": true,
+          "data": {
+            "id": "5a5eaca8-37a7-4115-9e8d-c9577c6c9333",
+            "companyName": "Rasel Enterprise",
+            "companyRegistrationNumber": "1234567890",
+            "tinNumber": "276123896345",
+            "businessAddress": "150/1 Mirpur",
+            "businessDivision": "3",
+            "businessDistrict": "301",
+            "businessUpazila": "30101",
+            "businessPostalCode": "1207",
+            "authorizedPersonName": "Rasel Bepari",
+            "authorizedPersonEmail": "rasel@gmail.com",
+            "authorizedPersonPhone": "0191 428 7530",
+            "companyEmail": "rasel@smartbd.com",
+            "creditLimit": null,
+            "creditUsed": "0",
+            "availableCredit": null,
+            "accountStatus": "pending_verification",
+            "verificationStatus": "pending",
+            "verifiedAt": null,
+            "approvedBy": null,
+            "approvedAt": null,
+            "createdAt": "2026-01-19T19:32:26.640Z",
+            "updatedAt": "2026-01-19T19:32:26.640Z",
+            "user": {
+              "id": "252a92b9-25be-4f07-9c32-db217727c16f",
+              "email": "raselbepari88@gmail.com",
+              "firstName": "Mohammad",
+              "lastName": "Rasel",
+              "phone": "+8801914287530"
+            },
+            "accountManager": null,
+            "corporateUsers": []
+          },
+          "message": "Corporate account details retrieved successfully"
+        },
+        "headers": {
+          "vary": "Origin",
+          "access-control-allow-credentials": "true",
+          "access-control-expose-headers": "x-new-token",
+          "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+          "cross-origin-opener-policy": "same-origin",
+          "cross-origin-resource-policy": "cross-origin",
+          "origin-agent-cluster": "?1",
+          "referrer-policy": "no-referrer",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "x-content-type-options": "nosniff",
+          "x-dns-prefetch-control": "off",
+          "x-download-options": "noopen",
+          "x-frame-options": "SAMEORIGIN",
+          "x-permitted-cross-domain-policies": "none",
+          "x-xss-protection": "0",
+          "x-request-id": "req_1768884514850_76tq83u4g",
+          "x-ratelimit-limit": "100",
+          "x-ratelimit-remaining": "100",
+          "x-ratelimit-reset": "2026-01-20T05:03:34.850Z",
+          "x-ratelimit-window-end": "2026-01-20T05:03:34.850Z",
+          "content-type": "application/json; charset=utf-8",
+          "content-length": "978",
+          "etag": "W/\"3d2-kkhoNIrZbob6PfE+biChuwpwVnQ\"",
+          "date": "Tue, 20 Jan 2026 04:48:34 GMT",
+          "connection": "keep-alive",
+          "keep-alive": "timeout=65"
+        }
+      },
+      "timestamp": "2026-01-20T04:48:34.971Z"
+    },
+    {
+      "testName": "Corporate account owner can access dashboard endpoint",
+      "passed": true,
+      "details": {
+        "expectedStatusCode": 200,
+        "actualStatusCode": 200,
+        "responseBody": {
+          "success": true,
+          "data": {
+            "credit": {
+              "available": null,
+              "limit": null,
+              "used": "0"
+            },
+            "pendingApprovals": 0,
+            "recentOrders": [],
+            "pendingInvoices": [],
+            "stats": {
+              "totalOrders": 0
+            }
+          },
+          "message": "Dashboard statistics retrieved successfully"
+        },
+        "headers": {
+          "vary": "Origin",
+          "access-control-allow-credentials": "true",
+          "access-control-expose-headers": "x-new-token",
+          "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+          "cross-origin-opener-policy": "same-origin",
+          "cross-origin-resource-policy": "cross-origin",
+          "origin-agent-cluster": "?1",
+          "referrer-policy": "no-referrer",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "x-content-type-options": "nosniff",
+          "x-dns-prefetch-control": "off",
+          "x-download-options": "noopen",
+          "x-frame-options": "SAMEORIGIN",
+          "x-permitted-cross-domain-policies": "none",
+          "x-xss-protection": "0",
+          "x-request-id": "req_1768884514975_fntmcivde",
+          "x-ratelimit-limit": "100",
+          "x-ratelimit-remaining": "100",
+          "x-ratelimit-reset": "2026-01-20T05:03:34.975Z",
+          "x-ratelimit-window-end": "2026-01-20T05:03:34.975Z",
+          "content-type": "application/json; charset=utf-8",
+          "content-length": "219",
+          "etag": "W/\"db-ZZ7ucfy3k+KCVMTQhUksaEaHUp4\"",
+          "date": "Tue, 20 Jan 2026 04:48:35 GMT",
+          "connection": "keep-alive",
+          "keep-alive": "timeout=65"
+        }
+      },
+      "timestamp": "2026-01-20T04:48:35.004Z"
+    },
+    {
+      "testName": "Unauthorized user receives 401/403",
+      "passed": true,
+      "details": {
+        "expectedStatusCode": "401 or 403",
+        "actualStatusCode": 401,
+        "responseBody": {
+          "error": "Authentication failed",
+          "message": "Invalid token"
+        }
+      },
+      "timestamp": "2026-01-20T04:48:35.014Z"
+    },
+    {
+      "testName": "Request without token receives 401",
+      "passed": true,
+      "details": {
+        "expectedStatusCode": 401,
+        "actualStatusCode": 401,
+        "responseBody": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      },
+      "timestamp": "2026-01-20T04:48:35.020Z"
+    },
+    {
+      "testName": "Response contains valid corporate account data",
+      "passed": true,
+      "details": {
+        "hasData": true,
+        "hasCorporateId": true,
+        "responseBody": {
+          "success": true,
+          "data": {
+            "id": "5a5eaca8-37a7-4115-9e8d-c9577c6c9333",
+            "companyName": "Rasel Enterprise",
+            "companyRegistrationNumber": "1234567890",
+            "tinNumber": "276123896345",
+            "businessAddress": "150/1 Mirpur",
+            "businessDivision": "3",
+            "businessDistrict": "301",
+            "businessUpazila": "30101",
+            "businessPostalCode": "1207",
+            "authorizedPersonName": "Rasel Bepari",
+            "authorizedPersonEmail": "rasel@gmail.com",
+            "authorizedPersonPhone": "0191 428 7530",
+            "companyEmail": "rasel@smartbd.com",
+            "creditLimit": null,
+            "creditUsed": "0",
+            "availableCredit": null,
+            "accountStatus": "pending_verification",
+            "verificationStatus": "pending",
+            "verifiedAt": null,
+            "approvedBy": null,
+            "approvedAt": null,
+            "createdAt": "2026-01-19T19:32:26.640Z",
+            "updatedAt": "2026-01-19T19:32:26.640Z",
+            "user": {
+              "id": "252a92b9-25be-4f07-9c32-db217727c16f",
+              "email": "raselbepari88@gmail.com",
+              "firstName": "Mohammad",
+              "lastName": "Rasel",
+              "phone": "+8801914287530"
+            },
+            "accountManager": null,
+            "corporateUsers": []
+          },
+          "message": "Corporate account details retrieved successfully"
+        }
+      },
+      "timestamp": "2026-01-20T04:48:35.040Z"
+    },
+    {
+      "testName": "Dashboard response contains expected data structure",
+      "passed": true,
+      "details": {
+        "hasData": true,
+        "responseBody": {
+          "success": true,
+          "data": {
+            "credit": {
+              "available": null,
+              "limit": null,
+              "used": "0"
+            },
+            "pendingApprovals": 0,
+            "recentOrders": [],
+            "pendingInvoices": [],
+            "stats": {
+              "totalOrders": 0
+            }
+          },
+          "message": "Dashboard statistics retrieved successfully"
+        }
+      },
+      "timestamp": "2026-01-20T04:48:35.068Z"
+    }
+  ]
+}

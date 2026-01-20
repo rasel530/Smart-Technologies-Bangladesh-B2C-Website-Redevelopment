@@ -139,9 +139,9 @@ const CorporateInvoicesPage = () => {
     return matchesSearch && matchesStatus && matchesDateFrom && matchesDateTo;
   });
 
-  const totalAmount = filteredInvoices.reduce((sum, invoice) => sum + invoice.amount, 0);
-  const paidAmount = filteredInvoices.filter(i => i.status === 'PAID').reduce((sum, invoice) => sum + invoice.amount, 0);
-  const unpaidAmount = filteredInvoices.filter(i => i.status === 'PENDING' || i.status === 'OVERDUE').reduce((sum, invoice) => sum + invoice.amount, 0);
+  const totalAmount = filteredInvoices.reduce((sum, invoice) => sum + (invoice.amount !== null && invoice.amount !== undefined ? invoice.amount : 0), 0);
+  const paidAmount = filteredInvoices.filter(i => i.status === 'PAID').reduce((sum, invoice) => sum + (invoice.amount !== null && invoice.amount !== undefined ? invoice.amount : 0), 0);
+  const unpaidAmount = filteredInvoices.filter(i => i.status === 'PENDING' || i.status === 'OVERDUE').reduce((sum, invoice) => sum + (invoice.amount !== null && invoice.amount !== undefined ? invoice.amount : 0), 0);
 
   if (!user || accountLoading) {
     return (
@@ -230,7 +230,7 @@ const CorporateInvoicesPage = () => {
               </h3>
               <CheckCircle className="w-5 h-5 text-green-600" />
             </div>
-            <p className="text-3xl font-bold text-gray-900">৳{totalAmount.toLocaleString('en-BD')}</p>
+            <p className="text-3xl font-bold text-gray-900">৳{totalAmount !== null && totalAmount !== undefined ? totalAmount.toLocaleString('en-BD') : '0'}</p>
             <p className="text-xs text-gray-500">{language === 'en' ? 'BDT' : 'টাকা'}</p>
           </div>
 
@@ -241,7 +241,7 @@ const CorporateInvoicesPage = () => {
               </h3>
               <AlertCircle className="w-5 h-5 text-red-600" />
             </div>
-            <p className="text-3xl font-bold text-red-600">৳{unpaidAmount.toLocaleString('en-BD')}</p>
+            <p className="text-3xl font-bold text-red-600">৳{unpaidAmount !== null && unpaidAmount !== undefined ? unpaidAmount.toLocaleString('en-BD') : '0'}</p>
             <p className="text-xs text-gray-500">{language === 'en' ? 'BDT' : 'টাকা'}</p>
           </div>
         </div>
@@ -384,7 +384,7 @@ const CorporateInvoicesPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          ৳{invoice.amount.toLocaleString('en-BD')}
+                          ৳{invoice.amount !== null && invoice.amount !== undefined ? invoice.amount.toLocaleString('en-BD') : '0'}
                         </div>
                         <div className="text-xs text-gray-500">{language === 'en' ? 'BDT' : 'টাকা'}</div>
                       </td>
@@ -481,7 +481,7 @@ const CorporateInvoicesPage = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">{language === 'en' ? 'Amount' : 'পরিমাণ'}</p>
-                    <p className="text-lg font-semibold text-gray-900">৳{selectedInvoice.amount.toLocaleString('en-BD')}</p>
+                    <p className="text-lg font-semibold text-gray-900">৳{selectedInvoice.amount !== null && selectedInvoice.amount !== undefined ? selectedInvoice.amount.toLocaleString('en-BD') : '0'}</p>
                     <p className="text-xs text-gray-500">{language === 'en' ? 'BDT' : 'টাকা'}</p>
                   </div>
                 </div>
@@ -490,15 +490,15 @@ const CorporateInvoicesPage = () => {
                 <div className="bg-gray-50 rounded-lg p-4 mb-6">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-gray-600">{language === 'en' ? 'Subtotal' : 'সাবটোটাল'}</span>
-                    <span className="font-semibold text-gray-900">৳{selectedInvoice.subtotal.toLocaleString('en-BD')}</span>
+                    <span className="font-semibold text-gray-900">৳{selectedInvoice.subtotal !== null && selectedInvoice.subtotal !== undefined ? selectedInvoice.subtotal.toLocaleString('en-BD') : '0'}</span>
                   </div>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-gray-600">{language === 'en' ? 'VAT' : 'ভ্যাট'}</span>
-                    <span className="font-semibold text-gray-900">৳{selectedInvoice.vatAmount.toLocaleString('en-BD')}</span>
+                    <span className="font-semibold text-gray-900">৳{selectedInvoice.vatAmount !== null && selectedInvoice.vatAmount !== undefined ? selectedInvoice.vatAmount.toLocaleString('en-BD') : '0'}</span>
                   </div>
                   <div className="flex justify-between items-center text-lg font-bold border-t border-gray-300 pt-2">
                     <span className="text-gray-900">{language === 'en' ? 'Total' : 'মোট'}</span>
-                    <span className="text-primary-600">৳{selectedInvoice.amount.toLocaleString('en-BD')}</span>
+                    <span className="text-primary-600">৳{selectedInvoice.amount !== null && selectedInvoice.amount !== undefined ? selectedInvoice.amount.toLocaleString('en-BD') : '0'}</span>
                   </div>
                 </div>
 

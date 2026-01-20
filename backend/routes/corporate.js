@@ -12,13 +12,17 @@ const prisma = new PrismaClient();
 
 // Validation middleware
 const handleValidationErrors = (req, res, next) => {
+  console.log('[VALIDATION MIDDLEWARE] Checking validation errors');
   const errors = validationResult(req);
+  console.log('[VALIDATION MIDDLEWARE] Validation errors:', errors.isEmpty() ? 'None' : errors.array());
   if (!errors.isEmpty()) {
+    console.log('[VALIDATION MIDDLEWARE] Returning 400 validation error');
     return res.status(400).json({
       error: 'Validation failed',
       details: errors.array()
     });
   }
+  console.log('[VALIDATION MIDDLEWARE] Validation passed, calling next()');
   next();
 };
 
@@ -27,6 +31,20 @@ const checkCorporateAccess = async (req, res, next) => {
   try {
     const { accountId } = req.params;
     const userId = req.user.id;
+
+    // First, check if the corporate account exists
+    const corporateAccount = await prisma.corporateAccount.findUnique({
+      where: { id: accountId },
+      select: { userId: true }
+    });
+
+    if (!corporateAccount) {
+      // Corporate account does not exist
+      return res.status(404).json({
+        error: 'Corporate account not found',
+        message: 'Corporate account not found'
+      });
+    }
 
     // Check if user is admin or super admin
     const isAdmin = await prisma.user.findFirst({
@@ -37,6 +55,12 @@ const checkCorporateAccess = async (req, res, next) => {
     });
 
     if (isAdmin) {
+      return next();
+    }
+
+    // Check if user is the corporate account owner
+    if (corporateAccount.userId === userId) {
+      // User is the account owner, allow access
       return next();
     }
 
@@ -120,10 +144,11 @@ router.get('/my-account', authMiddleware.authenticate(), async (req, res) => {
     const userId = req.user.id;
 
     // Find corporate account for this user
+    console.log('[CORPORATE REGISTRATION] About to query for corporate account with userId:', userId);
     const corporateAccount = await prisma.corporateAccount.findUnique({
-      where: { user_id: userId },
+      where: { userId: userId },
       include: {
-        user: {
+        users_corporate_accounts_user_idTousers: {
           select: {
             id: true,
             email: true,
@@ -132,7 +157,7 @@ router.get('/my-account', authMiddleware.authenticate(), async (req, res) => {
             phone: true
           }
         },
-        accountManager: {
+        users_corporate_accounts_account_manager_idTousers: {
           select: {
             id: true,
             email: true,
@@ -183,8 +208,8 @@ router.get('/my-account', authMiddleware.authenticate(), async (req, res) => {
           approvedAt: corporateAccount.approvedAt,
           createdAt: corporateAccount.createdAt,
           updatedAt: corporateAccount.updatedAt,
-          user: corporateAccount.user,
-          accountManager: corporateAccount.accountManager
+          user: corporateAccount.users_corporate_accounts_user_idTousers,
+          accountManager: corporateAccount.users_corporate_accounts_account_manager_idTousers
         }
       },
       message: 'Corporate account retrieved successfully'
@@ -228,29 +253,42 @@ router.post('/register',
       return bdPhoneRegex.test(value.replace(/\s/g, ''));
     }).withMessage('Please enter a valid Bangladesh phone number'),
     body('companyEmail').isEmail().withMessage('Invalid company email'),
-    body('termsAccepted').optional().isBoolean().withMessage('Terms accepted must be a boolean')
+    body('termsAccepted').optional().custom((value) => {
+      // Handle both boolean and string "true"/"false" values
+      if (value === undefined || value === null || value === '') {
+        return true; // Optional field
+      }
+      if (typeof value === 'boolean') {
+        return true;
+      }
+      if (typeof value === 'string') {
+        return value === 'true' || value === 'false';
+      }
+      return false;
+    }).withMessage('Terms accepted must be a boolean or "true"/"false"')
   ],
   handleValidationErrors,
   async (req, res) => {
+    console.log('[CORPORATE REGISTRATION DEBUG] Endpoint handler reached');
+    console.log('[CORPORATE REGISTRATION DEBUG] Request body:', req.body);
+    console.log('[CORPORATE REGISTRATION DEBUG] Request files:', req.files);
     try {
-      const {
-        userId,
-        companyName,
-        companyRegistrationNumber,
-        tinNumber,
-        businessAddress,
-        division,
-        district,
-        upazila,
-        postalCode,
-        authorizedPersonName,
-        authorizedPersonEmail,
-        authorizedPersonPhone,
-        companyEmail,
-        termsAccepted
-      } = req.body;
+      // Handle case where req.body might be undefined (when only files are uploaded)
+      const userId = req.body?.userId;
+      const companyName = req.body?.companyName;
+      const companyRegistrationNumber = req.body?.companyRegistrationNumber;
+      const tinNumber = req.body?.tinNumber;
+      const businessAddress = req.body?.businessAddress;
+      const division = req.body?.division;
+      const district = req.body?.district;
+      const upazila = req.body?.upazila;
+      const postalCode = req.body?.postalCode;
+      const authorizedPersonName = req.body?.authorizedPersonName;
+      const authorizedPersonEmail = req.body?.authorizedPersonEmail;
+      const authorizedPersonPhone = req.body?.authorizedPersonPhone;
+      const companyEmail = req.body?.companyEmail;
+      const termsAccepted = req.body?.termsAccepted;
 
-      console.log('[CORPORATE REGISTRATION DEBUG] Request body:', req.body);
       console.log('[CORPORATE REGISTRATION DEBUG] Parsed data:', { userId, companyName, companyRegistrationNumber });
 
       // Check if userId is provided
@@ -276,25 +314,13 @@ router.post('/register',
       }
 
       // Check if company registration number already exists
-      console.log('[CORPORATE REGISTRATION DEBUG] Checking if company registration number exists:', companyRegistrationNumber);
-      const existingCompany = await prisma.corporateAccount.findFirst({
-        where: {
-          company_registration_number: companyRegistrationNumber
-        }
-      });
-      console.log('[CORPORATE REGISTRATION DEBUG] Existing company:', !!existingCompany);
-
-      if (existingCompany) {
-        return res.status(409).json({
-          error: 'Company registration number already exists',
-          message: 'A corporate account with this registration number already exists'
-        });
-      }
+      // Note: Removed duplicate check - Prisma unique constraint on companyRegistrationNumber will prevent duplicates
+      console.log('[CORPORATE REGISTRATION DEBUG] Skipping duplicate check - relying on Prisma unique constraint');
 
       // Check if user already has a corporate account
       console.log('[CORPORATE REGISTRATION DEBUG] Checking if user has corporate account:', userId);
       const existingUserAccount = await prisma.corporateAccount.findUnique({
-        where: { user_id: userId }
+        where: { userId: userId }
       });
       console.log('[CORPORATE REGISTRATION DEBUG] Existing user account:', !!existingUserAccount);
 
@@ -341,21 +367,21 @@ router.post('/register',
       // Create corporate account with mapped field names
       const corporateAccount = await prisma.corporateAccount.create({
         data: {
-          user_id: userId,
-          company_name: companyName,
-          company_registration_number: companyRegistrationNumber,
-          tin_number: tinNumber,
-          business_address: businessAddress,
-          business_division: division, // Map frontend field to backend schema
-          business_district: district, // Map frontend field to backend schema
-          business_upazila: upazila, // Map frontend field to backend schema
-          business_postal_code: postalCode, // Map frontend field to backend schema
-          authorized_person_name: authorizedPersonName,
-          authorized_person_email: authorizedPersonEmail,
-          authorized_person_phone: authorizedPersonPhone,
-          company_email: companyEmail,
-          account_status: 'pending_verification',
-          verification_status: 'pending'
+          userId,
+          companyName,
+          companyRegistrationNumber,
+          tinNumber,
+          businessAddress,
+          businessDivision: division,
+          businessDistrict: district,
+          businessUpazila: upazila,
+          businessPostalCode: postalCode,
+          authorizedPersonName,
+          authorizedPersonEmail,
+          authorizedPersonPhone,
+          companyEmail,
+          accountStatus: 'pending_verification',
+          verificationStatus: 'pending'
         }
       });
 
@@ -367,7 +393,7 @@ router.post('/register',
             corporateAccountId: corporateAccount.id,
             documentType: doc.documentType,
             documentName: doc.documentName,
-            documentUrl: documentUrl,
+            documentUrl,
             status: 'pending'
           }
         });
@@ -379,7 +405,7 @@ router.post('/register',
       await prisma.corporateUser.create({
         data: {
           corporateAccountId: corporateAccount.id,
-          userId,
+          userId: userId,
           role: 'admin',
           isActive: true
         }
@@ -408,11 +434,12 @@ router.post('/register',
       });
 
     } catch (error) {
-      console.log('[CORPORATE REGISTRATION ERROR] Error details:', {
+      console.error('[CORPORATE REGISTRATION ERROR] Error details:', {
         name: error.name,
         message: error.message,
         code: error.code,
-        meta: error.meta
+        meta: error.meta,
+        stack: error.stack
       });
       loggerService.error('Corporate registration error', error);
       res.status(500).json({
@@ -433,8 +460,8 @@ router.get('/:id/status', [
     const corporateAccount = await prisma.corporateAccount.findUnique({
       where: { id },
       include: {
-        corporateDocuments: true,
-        corporateApprovals: {
+        corporate_documents: true,
+        corporate_approvals: {
           where: {
             requestType: 'account_approval'
           },
@@ -470,7 +497,8 @@ router.get('/:id/status', [
         documentName: doc.documentName,
         status: doc.status,
         uploadedAt: doc.uploadedAt,
-        verifiedAt: doc.verifiedAt
+        verifiedAt: doc.verifiedAt,
+        documentUrl: doc.documentUrl
       })),
       latestApproval: corporateAccount.corporateApprovals[0] || null
     });
@@ -625,7 +653,7 @@ router.post('/:accountId/users', [
         expiresAt: expiresAt ? new Date(expiresAt) : null
       },
       include: {
-        user: {
+        users: {
           select: {
             id: true,
             email: true,
@@ -670,7 +698,7 @@ router.get('/:accountId/users', [
         corporateAccountId: accountId
       },
       include: {
-        user: {
+        users: {
           select: {
             id: true,
             email: true,
@@ -693,7 +721,7 @@ router.get('/:accountId/users', [
         isActive: cu.isActive,
         assignedAt: cu.assignedAt,
         expiresAt: cu.expiresAt,
-        user: cu.user
+        user: cu.users
       }))
     });
 
@@ -742,7 +770,7 @@ router.put('/:accountId/users/:userId', [
       where: { id: existingCorporateUser.id },
       data: updateData,
       include: {
-        user: {
+        users: {
           select: {
             id: true,
             email: true,
@@ -854,11 +882,11 @@ router.get('/pricing/products', [
     if (!corporateAccountId) {
       const corporateUser = await prisma.corporateUser.findFirst({
         where: {
-          userId: userId,
+          userId,
           isActive: true
         },
         include: {
-          corporateAccount: true
+          corporate_accounts: true
         }
       });
 
@@ -889,9 +917,9 @@ router.get('/pricing/products', [
     const products = await prisma.product.findMany({
       where: productWhere,
       include: {
-        corporatePricing: {
+        corporate_pricing: {
           where: {
-            corporateAccountId: corporateAccountId,
+            corporateAccountId,
             OR: [
               { validTo: null },
               { validTo: { gte: new Date() } }
@@ -915,7 +943,7 @@ router.get('/pricing/products', [
     });
 
     const productsWithPricing = products.map(product => {
-      const corporatePricing = product.corporatePricing[0];
+      const corporatePricing = product.corporate_pricing[0];
       return {
         id: product.id,
         name: product.name,
@@ -989,8 +1017,8 @@ router.post('/:accountId/pricing', [
     const existingPricing = await prisma.corporatePricing.findUnique({
       where: {
         corporateAccountId_productId: {
-          corporateAccountId: accountId,
-          productId: productId
+          corporateAccountId,
+          productId
         }
       }
     });
@@ -1053,7 +1081,7 @@ router.put('/:accountId/pricing/:productId', [
       where: {
         corporateAccountId_productId: {
           corporateAccountId: accountId,
-          productId: productId
+          productId
         }
       }
     });
@@ -1075,7 +1103,7 @@ router.put('/:accountId/pricing/:productId', [
       where: {
         corporateAccountId_productId: {
           corporateAccountId: accountId,
-          productId: productId
+          productId
         }
       },
       data: updateData
@@ -1197,9 +1225,9 @@ router.post('/:accountId/credit-request', [
       message: 'Credit limit increase request submitted successfully',
       creditRequest: {
         id: creditRequest.id,
-        requestedAmount: creditRequest.requestedAmount,
+        requested_amount: creditRequest.requested_amount,
         status: creditRequest.status,
-        requestedAt: creditRequest.requestedAt
+        requested_at: creditRequest.requested_at
       }
     });
 
@@ -1304,7 +1332,7 @@ router.get('/:accountId/invoices/:id/download', [
             phone: true
           }
         },
-        corporateAccount: true,
+        corporate_accounts: true,
         items: {
           include: {
             product: {
@@ -1791,7 +1819,7 @@ router.post('/:accountId/purchase-orders/:id/approve', [
     const corporateUser = await prisma.corporateUser.findFirst({
       where: {
         corporateAccountId: accountId,
-        userId: userId,
+        userId,
         role: { in: ['approver', 'admin'] },
         isActive: true
       }
@@ -1873,7 +1901,7 @@ router.get('/:accountId', [
     const corporateAccount = await prisma.corporateAccount.findUnique({
       where: { id: accountId },
       include: {
-        user: {
+        users_corporate_accounts_user_idTousers: {
           select: {
             id: true,
             email: true,
@@ -1882,7 +1910,7 @@ router.get('/:accountId', [
             phone: true
           }
         },
-        accountManager: {
+        users_corporate_accounts_account_manager_idTousers: {
           select: {
             id: true,
             email: true,
@@ -1890,10 +1918,10 @@ router.get('/:accountId', [
             lastName: true
           }
         },
-        corporateUsers: {
+        corporate_users: {
           where: { isActive: true },
           include: {
-            user: {
+            users: {
               select: {
                 id: true,
                 email: true,
@@ -1942,9 +1970,9 @@ router.get('/:accountId', [
         approvedAt: corporateAccount.approvedAt,
         createdAt: corporateAccount.createdAt,
         updatedAt: corporateAccount.updatedAt,
-        user: corporateAccount.user,
-        accountManager: corporateAccount.accountManager,
-        corporateUsers: corporateAccount.corporateUsers
+        user: corporateAccount.users_corporate_accounts_user_idTousers,
+        accountManager: corporateAccount.users_corporate_accounts_account_manager_idTousers,
+        corporateUsers: corporateAccount.corporate_users
       },
       message: 'Corporate account details retrieved successfully'
     });
@@ -2072,10 +2100,10 @@ router.get('/:accountId/users/:userId/activity', [
     const corporateUser = await prisma.corporateUser.findFirst({
       where: {
         corporateAccountId: accountId,
-        userId: userId
+        userId
       },
       include: {
-        user: {
+        users: {
           select: {
             id: true,
             email: true,
@@ -2096,7 +2124,7 @@ router.get('/:accountId/users/:userId/activity', [
     // Get orders placed by this user for the corporate account
     const orders = await prisma.order.findMany({
       where: {
-        userId: userId,
+        userId,
         corporateAccountId: accountId
       },
       select: {
@@ -2135,7 +2163,7 @@ router.get('/:accountId/users/:userId/activity', [
     res.json({
       success: true,
       data: {
-        user: corporateUser.user,
+        user: corporateUser.users,
         role: corporateUser.role,
         isActive: corporateUser.isActive,
         assignedAt: corporateUser.assignedAt,
@@ -2289,7 +2317,7 @@ router.post('/:accountId/purchase-orders/:id/reject', [
     const corporateUser = await prisma.corporateUser.findFirst({
       where: {
         corporateAccountId: accountId,
-        userId: userId,
+        userId,
         role: { in: ['approver', 'admin'] },
         isActive: true
       }
@@ -2515,7 +2543,7 @@ router.get('/:accountId/credit-history', [
         notes: approval.notes,
         requestedAt: approval.requestedAt,
         approvedAt: approval.approvedAt,
-        requestedBy,
+        requestedBy: approval.requestedBy,
         approvedBy
       };
     }));

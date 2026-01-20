@@ -208,9 +208,9 @@ const CorporateDashboardPage = () => {
         </div>
 
         {/* Stats Cards Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div className="flex flex-wrap gap-6 mb-6">
           {/* Account Status Card */}
-          <div className={`bg-white rounded-lg shadow-sm p-6 ${getStatusColor(dashboardStats?.accountStatus || CorporateStatus.PENDING)}`}>
+          <div className={`flex-1 min-w-[250px] bg-white rounded-lg shadow-sm p-6 ${getStatusColor(dashboardStats?.accountStatus || CorporateStatus.PENDING)}`}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">
                 {language === 'en' ? 'Account Status' : 'অ্যাকাউন্ট অবস্থা'}
@@ -225,16 +225,16 @@ const CorporateDashboardPage = () => {
                   {language === 'en' ? 'Credit Limit' : 'ক্রেডিট লিমিট'}
                 </span>
                 <span className="text-2xl font-bold text-gray-900">
-                  ৳{(dashboardStats?.creditLimit || 0).toLocaleString('en-BD')}
+                  ৳{dashboardStats?.creditLimit !== null && dashboardStats?.creditLimit !== undefined ? dashboardStats.creditLimit.toLocaleString('en-BD') : '0'}
                 </span>
                 <span className="text-sm text-gray-500">
                   / {language === 'en' ? 'BDT' : 'টাকা'}
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
+                <div
                   className="bg-primary-600 h-2 rounded-full"
-                  style={{ width: `${((dashboardStats?.usedCredit || 0) / (dashboardStats?.creditLimit || 1)) * 100}%` }}
+                  style={{ width: `${dashboardStats?.creditLimit && dashboardStats?.creditLimit > 0 && dashboardStats?.usedCredit !== null && dashboardStats?.usedCredit !== undefined ? ((dashboardStats.usedCredit / dashboardStats.creditLimit) * 100).toFixed(1) : '0'}%` }}
                 ></div>
               </div>
               <div className="flex items-center justify-between text-sm">
@@ -242,7 +242,7 @@ const CorporateDashboardPage = () => {
                   {language === 'en' ? 'Used' : 'ব্যবহাও'}
                 </span>
                 <span className="font-semibold text-gray-900">
-                  ৳{(dashboardStats?.usedCredit || 0).toLocaleString('en-BD')}
+                  ৳{dashboardStats?.usedCredit !== null && dashboardStats?.usedCredit !== undefined ? dashboardStats.usedCredit.toLocaleString('en-BD') : '0'}
                 </span>
                 <span className="text-sm text-gray-500">
                   / {language === 'en' ? 'BDT' : 'টাকা'}
@@ -253,7 +253,7 @@ const CorporateDashboardPage = () => {
                   {language === 'en' ? 'Available' : 'উপলব্ধ'}
                 </span>
                 <span className="font-semibold text-green-600">
-                  ৳{((dashboardStats?.creditLimit || 0) - (dashboardStats?.usedCredit || 0)).toLocaleString('en-BD')}
+                  ৳{dashboardStats?.creditLimit !== null && dashboardStats?.creditLimit !== undefined && dashboardStats?.usedCredit !== null && dashboardStats?.usedCredit !== undefined ? (dashboardStats.creditLimit - dashboardStats.usedCredit).toLocaleString('en-BD') : '0'}
                 </span>
                 <span className="text-sm text-gray-500">
                   / {language === 'en' ? 'BDT' : 'টাকা'}
@@ -263,14 +263,14 @@ const CorporateDashboardPage = () => {
           </div>
 
           {/* Quick Actions Card */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex-1 min-w-[250px] bg-white rounded-lg shadow-sm p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               {language === 'en' ? 'Quick Actions' : 'দ্রুত ক্রিয়'}
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-wrap gap-4">
               <button
                 onClick={() => handleQuickAction('new-po')}
-                className="flex flex-col items-center p-4 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-lg transition-colors"
+                className="flex-1 min-w-[140px] flex flex-col items-center p-4 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-lg transition-colors"
               >
                 <ShoppingBag className="w-10 h-10 text-primary-600 mb-2" />
                 <span className="font-medium text-gray-900">
@@ -283,7 +283,7 @@ const CorporateDashboardPage = () => {
 
               <button
                 onClick={() => handleQuickAction('quotation')}
-                className="flex flex-col items-center p-4 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-lg transition-colors"
+                className="flex-1 min-w-[140px] flex flex-col items-center p-4 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-lg transition-colors"
               >
                 <FileText className="w-10 h-10 text-primary-600 mb-2" />
                 <span className="font-medium text-gray-900">
@@ -296,7 +296,7 @@ const CorporateDashboardPage = () => {
 
               <button
                 onClick={() => handleQuickAction('invoices')}
-                className="flex flex-col items-center p-4 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-lg transition-colors"
+                className="flex-1 min-w-[140px] flex flex-col items-center p-4 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-lg transition-colors"
               >
                 <Download className="w-10 h-10 text-primary-600 mb-2" />
                 <span className="font-medium text-gray-900">
@@ -309,7 +309,7 @@ const CorporateDashboardPage = () => {
 
               <button
                 onClick={() => handleQuickAction('users')}
-                className="flex flex-col items-center p-4 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-lg transition-colors"
+                className="flex-1 min-w-[140px] flex flex-col items-center p-4 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-lg transition-colors"
               >
                 <Users className="w-10 h-10 text-primary-600 mb-2" />
                 <span className="font-medium text-gray-900">
@@ -322,7 +322,7 @@ const CorporateDashboardPage = () => {
 
               <button
                 onClick={() => handleQuickAction('credit')}
-                className="flex flex-col items-center p-4 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-lg transition-colors"
+                className="flex-1 min-w-[140px] flex flex-col items-center p-4 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-lg transition-colors"
               >
                 <CreditCard className="w-10 h-10 text-primary-600 mb-2" />
                 <span className="font-medium text-gray-900">
@@ -350,7 +350,7 @@ const CorporateDashboardPage = () => {
               {language === 'en' ? 'Mark All as Read' : 'সবর পড়ে হিত'}
             </button>
           </div>
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             {notifications.length > 0 ? (
               notifications.slice(0, 5).map((notification: Notification) => (
                 <div 

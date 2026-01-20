@@ -1,0 +1,162 @@
+{
+  "timestamp": "2026-01-20T16:48:50.919Z",
+  "summary": {
+    "total": 10,
+    "passed": 8,
+    "failed": 2,
+    "successRate": "80.00%"
+  },
+  "fixVerification": {
+    "no500Errors": true,
+    "allInvalidFilesRejected": false,
+    "largeFileRejected": true,
+    "validFilesAccepted": true,
+    "fixWorking": false
+  },
+  "tests": [
+    {
+      "name": "Test 1 - Invalid File Type (EXE)",
+      "passed": false,
+      "message": "Status is 400 but error response structure is incomplete",
+      "status": 400,
+      "response": {
+        "error": "File upload error",
+        "errorType": "MulterError",
+        "code": "INVALID_FILE_TYPE",
+        "message": "File upload error",
+        "messageBn": "ফাইল আপলোড ত্রুটি",
+        "timestamp": "2026-01-20T16:48:49.847Z"
+      },
+      "errorDetails": {
+        "hasErrorField": "File upload error",
+        "hasCodeField": true
+      },
+      "timestamp": "2026-01-20T16:48:49.869Z"
+    },
+    {
+      "name": "Test 2 - Invalid File Type (ZIP)",
+      "passed": true,
+      "message": "Correctly returned 400 for ZIP file",
+      "status": 400,
+      "response": {
+        "error": "File upload error",
+        "errorType": "MulterError",
+        "code": "INVALID_FILE_TYPE",
+        "message": "File upload error",
+        "messageBn": "ফাইল আপলোড ত্রুটি",
+        "timestamp": "2026-01-20T16:48:49.947Z"
+      },
+      "errorDetails": null,
+      "timestamp": "2026-01-20T16:48:49.953Z"
+    },
+    {
+      "name": "Test 3 - Invalid File Type (BAT)",
+      "passed": true,
+      "message": "Correctly returned 400 for BAT file",
+      "status": 400,
+      "response": {
+        "error": "File upload error",
+        "errorType": "MulterError",
+        "code": "INVALID_FILE_TYPE",
+        "message": "File upload error",
+        "messageBn": "ফাইল আপলোড ত্রুটি",
+        "timestamp": "2026-01-20T16:48:50.016Z"
+      },
+      "errorDetails": null,
+      "timestamp": "2026-01-20T16:48:50.023Z"
+    },
+    {
+      "name": "Test 4 - File Too Large",
+      "passed": true,
+      "message": "Correctly returned 413 with proper error structure",
+      "status": 413,
+      "response": {
+        "error": "File upload error",
+        "errorType": "MulterError",
+        "code": "LIMIT_FILE_SIZE",
+        "message": "File size exceeds the 10MB limit",
+        "messageBn": "ফাইলের আকার 10MB সীমা অতিক্রম করেছে",
+        "timestamp": "2026-01-20T16:48:50.570Z"
+      },
+      "errorDetails": null,
+      "timestamp": "2026-01-20T16:48:50.579Z"
+    },
+    {
+      "name": "Test 5 - Valid File Type (PDF)",
+      "passed": true,
+      "message": "Valid PDF file passed file validation (error: User already has a corporate account)",
+      "status": 409,
+      "response": {
+        "error": "User already has a corporate account",
+        "message": "This user is already associated with a corporate account"
+      },
+      "errorDetails": null,
+      "timestamp": "2026-01-20T16:48:50.656Z"
+    },
+    {
+      "name": "Test 6 - Valid File Type (JPG)",
+      "passed": true,
+      "message": "Valid JPG file passed file validation (error: User already has a corporate account)",
+      "status": 409,
+      "response": {
+        "error": "User already has a corporate account",
+        "message": "This user is already associated with a corporate account"
+      },
+      "errorDetails": null,
+      "timestamp": "2026-01-20T16:48:50.692Z"
+    },
+    {
+      "name": "Test 7 - Valid File Type (PNG)",
+      "passed": true,
+      "message": "Valid PNG file passed file validation (error: User already has a corporate account)",
+      "status": 409,
+      "response": {
+        "error": "User already has a corporate account",
+        "message": "This user is already associated with a corporate account"
+      },
+      "errorDetails": null,
+      "timestamp": "2026-01-20T16:48:50.757Z"
+    },
+    {
+      "name": "Test 8 - Valid File Type (TXT)",
+      "passed": true,
+      "message": "Valid TXT file passed file validation (error: User already has a corporate account)",
+      "status": 409,
+      "response": {
+        "error": "User already has a corporate account",
+        "message": "This user is already associated with a corporate account"
+      },
+      "errorDetails": null,
+      "timestamp": "2026-01-20T16:48:50.818Z"
+    },
+    {
+      "name": "Test 9 - Multiple Invalid Files",
+      "passed": true,
+      "message": "Correctly returned 400 for multiple invalid files",
+      "status": 400,
+      "response": {
+        "error": "File upload error",
+        "errorType": "MulterError",
+        "code": "INVALID_FILE_TYPE",
+        "message": "File upload error",
+        "messageBn": "ফাইল আপলোড ত্রুটি",
+        "timestamp": "2026-01-20T16:48:50.876Z"
+      },
+      "errorDetails": null,
+      "timestamp": "2026-01-20T16:48:50.881Z"
+    },
+    {
+      "name": "Test 10 - Missing Required Files",
+      "passed": false,
+      "message": "Expected 400 but got 409",
+      "status": 409,
+      "response": {
+        "error": "User already has a corporate account",
+        "message": "This user is already associated with a corporate account"
+      },
+      "errorDetails": null,
+      "timestamp": "2026-01-20T16:48:50.916Z"
+    }
+  ],
+  "userId": "95c63e45-4e91-4a90-93c3-5d9f1f0c0892"
+}

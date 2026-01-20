@@ -1,10 +1,5 @@
--- Add Missing RBAC and Corporate Account Tables
--- This migration adds the missing lowercase RBAC tables and Corporate account tables
--- Date: 2026-01-19
-
--- ============================================================
--- PART 1: ADD MISSING RBAC TABLES (lowercase, plural)
--- ============================================================
+-- Manually create RBAC and Corporate tables
+-- This is extracted from migration 20260119_add_missing_rbac_and_corporate_tables
 
 -- Create permissions table (plural, lowercase)
 CREATE TABLE IF NOT EXISTS permissions (
@@ -104,10 +99,6 @@ CREATE INDEX IF NOT EXISTS idx_user_roles_is_active ON user_roles(is_active);
 CREATE INDEX IF NOT EXISTS idx_user_roles_role_id ON user_roles(role_id);
 CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON user_roles(user_id);
 
--- ============================================================
--- PART 2: ADD CORPORATE ACCOUNT TABLES
--- ============================================================
-
 -- Create corporate_accounts table
 CREATE TABLE IF NOT EXISTS corporate_accounts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -203,10 +194,6 @@ CREATE TABLE IF NOT EXISTS corporate_pricing (
     CONSTRAINT unique_corporate_product_pricing UNIQUE (corporate_account_id, product_id)
 );
 
--- ============================================================
--- PART 3: UPDATE EXISTING TABLES TO SUPPORT CORPORATE
--- ============================================================
-
 -- Add corporate_account_id column to orders table if not exists
 DO $$
 BEGIN
@@ -219,50 +206,6 @@ BEGIN
             FOREIGN KEY (corporate_account_id) REFERENCES corporate_accounts(id);
     END IF;
 END $$;
-
--- ============================================================
--- PART 4: ADD PROFILE VISIBILITY ENUM IF MISSING
--- ============================================================
-
--- Create ProfileVisibility enum if not exists
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'ProfileVisibility') THEN
-        CREATE TYPE "ProfileVisibility" AS ENUM ('public', 'private', 'friends_only');
-    END IF;
-END $$;
-
--- Add profile_visibility column to user_privacy_settings if not exists
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.columns 
-        WHERE table_name = 'user_privacy_settings' AND column_name = 'profile_visibility'
-    ) THEN
-        ALTER TABLE user_privacy_settings ADD COLUMN profile_visibility "ProfileVisibility" DEFAULT 'public';
-    END IF;
-END $$;
-
--- ============================================================
--- PART 5: ADD CORPORATE ROLE TO USER ROLE ENUM IF MISSING
--- ============================================================
-
--- Check if corporate role exists in UserRole enum, add if missing
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_enum 
-        WHERE enumlabel = 'corporate' AND enumtypid = (
-            SELECT oid FROM pg_type WHERE typname = 'UserRole'
-        )
-    ) THEN
-        ALTER TYPE "UserRole" ADD VALUE 'corporate';
-    END IF;
-END $$;
-
--- ============================================================
--- PART 6: INSERT DEFAULT ROLES AND PERMISSIONS
--- ============================================================
 
 -- Insert default roles
 INSERT INTO roles (name, description, hierarchy_level) VALUES

@@ -1,0 +1,106 @@
+{
+  "dataRecovery": {
+    "backupFilesFound": false,
+    "backupDataExists": false,
+    "dockerLogsAnalyzed": true,
+    "walFilesAccessible": false,
+    "summary": "No historical data found in backups. Database was likely never populated before migration issue."
+  },
+  "databaseOperations": {
+    "crudTests": {},
+    "foreignKeyTests": {},
+    "enumTests": {},
+    "indexTests": {},
+    "transactionTests": {}
+  },
+  "backendAPI": {
+    "authentication": {
+      "register": false,
+      "adminLogin": false
+    },
+    "userProfile": {},
+    "productCatalog": {},
+    "shoppingCart": {},
+    "orders": {},
+    "rbac": {},
+    "corporate": {},
+    "endpoints": [
+      {
+        "endpoint": "/health",
+        "status": "pass",
+        "statusCode": 200
+      },
+      {
+        "endpoint": "/auth/register",
+        "status": "fail",
+        "error": "Request failed with status code 400"
+      },
+      {
+        "endpoint": "/auth/login (admin)",
+        "status": "fail",
+        "error": "Request failed with status code 400"
+      }
+    ]
+  },
+  "dataPersistence": {
+    "testDataCreated": true,
+    "testDataId": "ed9adb01-f6b8-4630-87da-0d00bd4ba89d",
+    "dataPersistedAfterRestart": false,
+    "automaticMigrationRan": false,
+    "noDataLoss": false
+  },
+  "tableCount": {
+    "actualTableCount": 38,
+    "expectedTableCount": 38,
+    "tablesList": [
+      "_prisma_migrations",
+      "account_deletion_requests",
+      "addresses",
+      "brands",
+      "cart_items",
+      "carts",
+      "categories",
+      "corporate_accounts",
+      "corporate_approvals",
+      "corporate_documents",
+      "corporate_pricing",
+      "corporate_users",
+      "coupons",
+      "email_verification_tokens",
+      "order_items",
+      "orders",
+      "password_history",
+      "permissions",
+      "phone_otps",
+      "product_images",
+      "product_specifications",
+      "product_variants",
+      "products",
+      "reviews",
+      "role_escalation_requests",
+      "role_permissions",
+      "roles",
+      "transactions",
+      "user_communication_preferences",
+      "user_data_exports",
+      "user_notification_preferences",
+      "user_privacy_settings",
+      "user_roles",
+      "user_sessions",
+      "user_social_accounts",
+      "users",
+      "wishlist_items",
+      "wishlists"
+    ],
+    "discrepancies": [
+      {
+        "type": "missing",
+        "tables": [
+          "permission"
+        ]
+      }
+    ],
+    "summary": "✗ Table count mismatch. Expected: 38, Actual: 38"
+  },
+  "overall": {}
+}

@@ -1,0 +1,137 @@
+{
+  "total": 26,
+  "passed": 25,
+  "failed": 1,
+  "tests": [
+    {
+      "name": "API_BASE_URL is correctly defined",
+      "passed": true,
+      "details": "Expected: http://localhost:3001/api/v1, Found: http://localhost:3001/api/v1"
+    },
+    {
+      "name": "URL construction uses API_BASE_URL + endpoint",
+      "passed": true,
+      "details": "Correct pattern found"
+    },
+    {
+      "name": "apiClient is imported",
+      "passed": true,
+      "details": "Import statement found"
+    },
+    {
+      "name": "loadDocuments uses apiClient.get for status endpoint",
+      "passed": true,
+      "details": "Correct apiClient.get usage found"
+    },
+    {
+      "name": "Endpoint path does not include /api prefix",
+      "passed": true,
+      "details": "Endpoint: /corporate/${accountId}/status"
+    },
+    {
+      "name": "Simulated URL has no duplicate /api segments",
+      "passed": true,
+      "details": "URL: http://localhost:3001/api/v1/corporate/5a5eaca8-37a7-4115-9e8d-c9577c6c9333/status"
+    },
+    {
+      "name": "No manual token handling in loadDocuments",
+      "passed": false,
+      "details": "Manual token handling found (should be removed)"
+    },
+    {
+      "name": "downloadInvoice uses direct API_BASE_URL",
+      "passed": true,
+      "details": "Direct API_BASE_URL found"
+    },
+    {
+      "name": "Invoice download URL has no duplicate /api segments",
+      "passed": true,
+      "details": "URL: http://localhost:3001/api/v1/corporate/5a5eaca8-37a7-4115-9e8d-c9577c6c9333/invoices/test-invoice-123/download"
+    },
+    {
+      "name": "URL construction does not use environment variable",
+      "passed": true,
+      "details": "No environment variable (correct)"
+    },
+    {
+      "name": "URL path starts with /corporate (not /api/corporate)",
+      "passed": true,
+      "details": "Path: /corporate/${accountId}/invoices/${invoiceId}/download"
+    },
+    {
+      "name": "addAuthHeader function exists",
+      "passed": true,
+      "details": "Function found"
+    },
+    {
+      "name": "Authorization header is added with Bearer token",
+      "passed": true,
+      "details": "Authorization header found"
+    },
+    {
+      "name": "addAuthHeader is called in request method",
+      "passed": true,
+      "details": "Function call found"
+    },
+    {
+      "name": "Invoice download includes Authorization header",
+      "passed": true,
+      "details": "Authorization header found"
+    },
+    {
+      "name": "ApiError class exists",
+      "passed": true,
+      "details": "ApiError class found"
+    },
+    {
+      "name": "handleResponse function exists",
+      "passed": true,
+      "details": "Function found"
+    },
+    {
+      "name": "Errors are thrown on non-ok responses",
+      "passed": true,
+      "details": "Error handling found"
+    },
+    {
+      "name": "Invoice download throws error on failure",
+      "passed": true,
+      "details": "Error handling found"
+    },
+    {
+      "name": "Corporate status URL is correctly formatted",
+      "passed": true,
+      "details": "URL: http://localhost:3001/api/v1/corporate/5a5eaca8-37a7-4115-9e8d-c9577c6c9333/status"
+    },
+    {
+      "name": "Invoice download URL is correctly formatted",
+      "passed": true,
+      "details": "URL: http://localhost:3001/api/v1/corporate/5a5eaca8-37a7-4115-9e8d-c9577c6c9333/invoices/test-invoice-123/download"
+    },
+    {
+      "name": "All tested URLs have no duplicate /api segments",
+      "passed": true,
+      "details": "Status URL: http://localhost:3001/api/v1/corporate/5a5eaca8-37a7-4115-9e8d-c9577c6c9333/status\nInvoice URL: http://localhost:3001/api/v1/corporate/5a5eaca8-37a7-4115-9e8d-c9577c6c9333/invoices/test-invoice-123/download"
+    },
+    {
+      "name": "Register endpoint still uses apiClient",
+      "passed": true,
+      "details": "apiClient usage found"
+    },
+    {
+      "name": "Get account endpoint still uses apiClient",
+      "passed": true,
+      "details": "apiClient usage found"
+    },
+    {
+      "name": "Dashboard endpoint still uses apiClient",
+      "passed": true,
+      "details": "apiClient usage found"
+    },
+    {
+      "name": "No other endpoints have duplicate /api in their paths",
+      "passed": true,
+      "details": "Checked 3 endpoint calls"
+    }
+  ]
+}

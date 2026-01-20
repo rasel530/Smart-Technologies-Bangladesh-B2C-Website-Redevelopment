@@ -294,7 +294,8 @@ export const InvoiceAPI = {
    */
   downloadInvoice: async (accountId: string, invoiceId: string): Promise<Blob> => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : '';
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/corporate/${accountId}/invoices/${invoiceId}/download`, {
+    const API_BASE_URL = 'http://localhost:3001/api/v1';
+    const response = await fetch(`${API_BASE_URL}/corporate/${accountId}/invoices/${invoiceId}/download`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,

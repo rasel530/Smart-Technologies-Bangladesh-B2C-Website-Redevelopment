@@ -394,7 +394,7 @@ function CorporatePurchaseOrdersContent() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          ৳{order.totalAmount.toLocaleString('en-BD')}
+                          ৳{order.totalAmount !== null && order.totalAmount !== undefined ? order.totalAmount.toLocaleString('en-BD') : '0'}
                         </div>
                         <div className="text-xs text-gray-500">{language === 'en' ? 'BDT' : 'টাকা'}</div>
                       </td>
@@ -483,11 +483,11 @@ function CorporatePurchaseOrdersContent() {
                             </div>
                             <div className="text-right">
                               <p className="text-sm text-gray-600">{language === 'en' ? 'Price' : 'দাম'}</p>
-                              <p className="font-semibold text-gray-900">৳{item.unitPrice.toLocaleString('en-BD')}</p>
+                              <p className="font-semibold text-gray-900">৳{item.unitPrice !== null && item.unitPrice !== undefined ? item.unitPrice.toLocaleString('en-BD') : '0'}</p>
                             </div>
                             <div className="text-right">
                               <p className="text-sm text-gray-600">{language === 'en' ? 'Total' : 'মোট'}</p>
-                              <p className="font-semibold text-gray-900">৳{item.totalPrice.toLocaleString('en-BD')}</p>
+                              <p className="font-semibold text-gray-900">৳{item.totalPrice !== null && item.totalPrice !== undefined ? item.totalPrice.toLocaleString('en-BD') : '0'}</p>
                             </div>
                           </div>
                         </div>
@@ -500,15 +500,15 @@ function CorporatePurchaseOrdersContent() {
                 <div className="border-t border-gray-200 pt-4 mb-6">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-gray-600">{language === 'en' ? 'Subtotal' : 'সাবটোটাল'}</span>
-                    <span className="font-semibold text-gray-900">৳{selectedOrder.subtotal.toLocaleString('en-BD')}</span>
+                    <span className="font-semibold text-gray-900">৳{selectedOrder.subtotal !== null && selectedOrder.subtotal !== undefined ? selectedOrder.subtotal.toLocaleString('en-BD') : '0'}</span>
                   </div>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-gray-600">{language === 'en' ? 'VAT' : 'ভ্যাট'}</span>
-                    <span className="font-semibold text-gray-900">৳{selectedOrder.vatAmount.toLocaleString('en-BD')}</span>
+                    <span className="font-semibold text-gray-900">৳{selectedOrder.vatAmount !== null && selectedOrder.vatAmount !== undefined ? selectedOrder.vatAmount.toLocaleString('en-BD') : '0'}</span>
                   </div>
                   <div className="flex justify-between items-center text-lg font-bold">
                     <span className="text-gray-900">{language === 'en' ? 'Total' : 'মোট'}</span>
-                    <span className="text-primary-600">৳{selectedOrder.totalAmount.toLocaleString('en-BD')}</span>
+                    <span className="text-primary-600">৳{selectedOrder.totalAmount !== null && selectedOrder.totalAmount !== undefined ? selectedOrder.totalAmount.toLocaleString('en-BD') : '0'}</span>
                   </div>
                 </div>
 
@@ -709,7 +709,7 @@ function CorporatePurchaseOrdersContent() {
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-gray-600">{language === 'en' ? 'Total' : 'মোট'}</p>
-                        <p className="text-lg font-semibold text-gray-900">৳{item.totalPrice.toLocaleString('en-BD')}</p>
+                        <p className="text-lg font-semibold text-gray-900">৳{item.totalPrice !== null && item.totalPrice !== undefined ? item.totalPrice.toLocaleString('en-BD') : '0'}</p>
                       </div>
                     </div>
                   ))}

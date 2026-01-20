@@ -115,11 +115,11 @@ const CorporateCreditPage = () => {
     }
   };
 
-  const creditUsagePercentage = creditLimit 
+  const creditUsagePercentage = creditLimit && creditLimit.limit && creditLimit.usedCredit !== null && creditLimit.usedCredit !== undefined
     ? ((creditLimit.usedCredit / creditLimit.limit) * 100).toFixed(1)
     : '0';
 
-  const availableCredit = creditLimit
+  const availableCredit = creditLimit && creditLimit.limit !== null && creditLimit.limit !== undefined && creditLimit.usedCredit !== null && creditLimit.usedCredit !== undefined
     ? creditLimit.limit - creditLimit.usedCredit
     : 0;
 
@@ -214,7 +214,7 @@ const CorporateCreditPage = () => {
                   {language === 'en' ? 'Total Limit' : 'মোট লিমিট'}
                 </span>
                 <span className="text-2xl font-bold text-gray-900">
-                  ৳{creditLimit?.limit.toLocaleString('en-BD') || 0}
+                  ৳{creditLimit?.limit !== null && creditLimit?.limit !== undefined ? creditLimit.limit.toLocaleString('en-BD') : '0'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -222,7 +222,7 @@ const CorporateCreditPage = () => {
                   {language === 'en' ? 'Used Credit' : 'ব্যবহাও ক্রেডিট'}
                 </span>
                 <span className="text-2xl font-bold text-red-600">
-                  ৳{creditLimit?.usedCredit.toLocaleString('en-BD') || 0}
+                  ৳{creditLimit?.usedCredit !== null && creditLimit?.usedCredit !== undefined ? creditLimit.usedCredit.toLocaleString('en-BD') : '0'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -230,7 +230,7 @@ const CorporateCreditPage = () => {
                   {language === 'en' ? 'Available' : 'উপলব্ধ'}
                 </span>
                 <span className="text-2xl font-bold text-green-600">
-                  ৳{availableCredit.toLocaleString('en-BD')}
+                  ৳{availableCredit !== null && availableCredit !== undefined ? availableCredit.toLocaleString('en-BD') : '0'}
                 </span>
               </div>
             </div>
@@ -389,13 +389,13 @@ const CorporateCreditPage = () => {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
                     <div>
                       <p className="text-xs text-gray-600">{language === 'en' ? 'Requested Amount' : 'অনুরোধিত পরিমাণ'}</p>
-                      <p className="font-semibold text-gray-900">৳{request.requestedAmount.toLocaleString('en-BD')}</p>
+                      <p className="font-semibold text-gray-900">৳{request.requestedAmount !== null && request.requestedAmount !== undefined ? request.requestedAmount.toLocaleString('en-BD') : '0'}</p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-600">{language === 'en' ? 'Current Limit' : 'বর্তমান লিমিট'}</p>
-                      <p className="font-semibold text-gray-900">৳{request.currentLimit.toLocaleString('en-BD')}</p>
+                      <p className="font-semibold text-gray-900">৳{request.currentLimit !== null && request.currentLimit !== undefined ? request.currentLimit.toLocaleString('en-BD') : '0'}</p>
                     </div>
-                    {request.approvedAmount && (
+                    {request.approvedAmount !== null && request.approvedAmount !== undefined && (
                       <div>
                         <p className="text-xs text-gray-600">{language === 'en' ? 'Approved Amount' : 'অনুমতিক পরিমাণ'}</p>
                         <p className="font-semibold text-green-600">৳{request.approvedAmount.toLocaleString('en-BD')}</p>

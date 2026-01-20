@@ -27,7 +27,7 @@ router.get('/', [
   query('search').optional().isString().trim(),
   query('minPrice').optional().isFloat({ min: 0 }),
   query('maxPrice').optional().isFloat({ min: 0 }),
-  query('status').optional().isIn(['ACTIVE', 'INACTIVE', 'OUT_OF_STOCK']),
+  query('status').optional().isIn(['active', 'inactive', 'out_of_stock', 'discontinued']),
   query('sortBy').optional().isIn(['price', 'name', 'createdAt', 'stockQuantity']),
   query('sortOrder').optional().isIn(['asc', 'desc'])
 ], handleValidationErrors, async (req, res) => {
@@ -40,7 +40,7 @@ router.get('/', [
       search,
       minPrice,
       maxPrice,
-      status = 'ACTIVE',
+      status = 'active',
       sortBy = 'createdAt',
       sortOrder = 'desc'
     } = req.query;
@@ -328,7 +328,7 @@ router.put('/:id', [
   body('salePrice').optional().isFloat({ min: 0 }),
   body('costPrice').optional().isFloat({ min: 0 }),
   body('stockQuantity').optional().isInt({ min: 0 }),
-  body('status').optional().isIn(['ACTIVE', 'INACTIVE', 'OUT_OF_STOCK', 'DISCONTINUED'])
+  body('status').optional().isIn(['active', 'inactive', 'out_of_stock', 'discontinued'])
 ], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
@@ -466,7 +466,7 @@ router.get('/featured/list', async (req, res) => {
     const products = await prisma.product.findMany({
       where: { 
         isFeatured: true,
-        status: 'ACTIVE'
+        status: 'active'
       },
       include: {
         category: {

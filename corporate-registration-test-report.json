@@ -1,0 +1,120 @@
+{
+  "timestamp": "2026-01-20T13:52:40.123Z",
+  "summary": {
+    "total": 13,
+    "passed": 10,
+    "failed": 3,
+    "successRate": "76.92%"
+  },
+  "tests": [
+    {
+      "name": "Happy Path - Successful Registration",
+      "passed": false,
+      "message": "500: Failed to register corporate account",
+      "status": 500,
+      "response": {
+        "error": "Failed to register corporate account",
+        "message": "Internal server error"
+      },
+      "timestamp": "2026-01-20T13:52:39.569Z"
+    },
+    {
+      "name": "Missing Field - companyName",
+      "passed": true,
+      "message": "Correctly returned 400 for missing field",
+      "status": null,
+      "response": null,
+      "timestamp": "2026-01-20T13:52:39.588Z"
+    },
+    {
+      "name": "Missing Field - companyRegistrationNumber",
+      "passed": true,
+      "message": "Correctly returned 400 for missing field",
+      "status": null,
+      "response": null,
+      "timestamp": "2026-01-20T13:52:39.637Z"
+    },
+    {
+      "name": "Missing Field - businessAddress",
+      "passed": true,
+      "message": "Correctly returned 400 for missing field",
+      "status": null,
+      "response": null,
+      "timestamp": "2026-01-20T13:52:39.686Z"
+    },
+    {
+      "name": "Missing Field - division",
+      "passed": true,
+      "message": "Correctly returned 400 for missing field",
+      "status": null,
+      "response": null,
+      "timestamp": "2026-01-20T13:52:39.734Z"
+    },
+    {
+      "name": "Missing Field - district",
+      "passed": true,
+      "message": "Correctly returned 400 for missing field",
+      "status": null,
+      "response": null,
+      "timestamp": "2026-01-20T13:52:39.782Z"
+    },
+    {
+      "name": "Missing Field - authorizedPersonName",
+      "passed": true,
+      "message": "Correctly returned 400 for missing field",
+      "status": null,
+      "response": null,
+      "timestamp": "2026-01-20T13:52:39.829Z"
+    },
+    {
+      "name": "Missing Field - authorizedPersonEmail",
+      "passed": true,
+      "message": "Correctly returned 400 for missing field",
+      "status": null,
+      "response": null,
+      "timestamp": "2026-01-20T13:52:39.878Z"
+    },
+    {
+      "name": "Missing Field - authorizedPersonPhone",
+      "passed": true,
+      "message": "Correctly returned 400 for missing field",
+      "status": null,
+      "response": null,
+      "timestamp": "2026-01-20T13:52:39.927Z"
+    },
+    {
+      "name": "Missing Field - companyEmail",
+      "passed": true,
+      "message": "Correctly returned 400 for missing field",
+      "status": null,
+      "response": null,
+      "timestamp": "2026-01-20T13:52:39.976Z"
+    },
+    {
+      "name": "Invalid File Type",
+      "passed": false,
+      "message": "Expected 400 but got 500",
+      "status": 500,
+      "response": null,
+      "timestamp": "2026-01-20T13:52:40.027Z"
+    },
+    {
+      "name": "File Size Limit",
+      "passed": false,
+      "message": "Expected 400 but got 500",
+      "status": 500,
+      "response": null,
+      "timestamp": "2026-01-20T13:52:40.100Z"
+    },
+    {
+      "name": "Backend Logs - Prisma Errors",
+      "passed": true,
+      "message": "No Prisma errors found in backend logs",
+      "status": null,
+      "response": null,
+      "timestamp": "2026-01-20T13:52:40.123Z"
+    }
+  ],
+  "corporateAccountId": null,
+  "userId": "95c63e45-4e91-4a90-93c3-5d9f1f0c0892"
+}

@@ -12,8 +12,12 @@ class Role {
    */
   async findAll() {
     try {
+      // DIAGNOSTIC LOGGING - Log database query
+      console.log('[Role Model] findAll - Executing query');
+      console.log('[Role Model] findAll - Database client:', !!this.db.getClient());
+      
       const roles = await this.db.getClient().$queryRaw`
-        SELECT 
+        SELECT
           id,
           name,
           description,
@@ -23,8 +27,16 @@ class Role {
         FROM roles
         ORDER BY hierarchy_level DESC, name ASC
       `;
+      
+      // DIAGNOSTIC LOGGING - Log query results
+      console.log('[Role Model] findAll - Query completed');
+      console.log('[Role Model] findAll - Roles returned:', roles);
+      console.log('[Role Model] findAll - Roles count:', roles?.length);
+      console.log('[Role Model] findAll - First role:', roles?.[0]);
+      
       return roles;
     } catch (error) {
+      console.error('[Role Model] findAll - Error:', error);
       this.logger.error('Error fetching all roles', error);
       throw error;
     }

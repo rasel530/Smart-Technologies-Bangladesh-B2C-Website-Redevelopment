@@ -39,11 +39,11 @@ class RBACAuthMiddleware {
           });
         }
 
-        // Check if user has any of the required roles
+        // Check if user has any of the required roles (case-insensitive comparison)
         const userRoles = await this.rbacUtils.getUserRoles(req.user.id);
-        const userRoleNames = userRoles.map(r => r.role_name);
+        const userRoleNames = userRoles.map(r => r.role_name.toUpperCase());
 
-        const hasRole = allowedRoles.some(role => userRoleNames.includes(role));
+        const hasRole = allowedRoles.some(role => userRoleNames.includes(role.toUpperCase()));
 
         if (!hasRole) {
           this.logger.warn('Role denied', {

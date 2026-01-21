@@ -29,20 +29,22 @@ import { getRoleDisplayName } from '@/lib/rbac/utils';
  */
 // Allowed role names as per backend validation
 const ALLOWED_ROLE_NAMES = [
-  'CUSTOMER',
-  'SUPPORT',
-  'CORPORATE',
-  'ADMIN',
-  'SUPER_ADMIN',
+  'customer',
+  'support',
+  'corporate',
+  'manager',
+  'admin',
+  'super_admin',
 ] as const;
 
 // Default hierarchy levels for each role name
 const DEFAULT_HIERARCHY_LEVELS: Record<string, number> = {
-  CUSTOMER: 0,
-  SUPPORT: 25,
-  CORPORATE: 50,
-  ADMIN: 75,
-  SUPER_ADMIN: 100,
+  customer: 0,
+  support: 1,
+  corporate: 2,
+  manager: 3,
+  admin: 4,
+  super_admin: 5,
 };
 
 export default function RoleManagementPage() {
@@ -114,6 +116,11 @@ export default function RoleManagementPage() {
       setError('');
       setSuccess('');
 
+      // DIAGNOSTIC LOGGING - Remove after fixing issue
+      console.log('[RoleManagement] Creating role with data:', formData);
+      console.log('[RoleManagement] Form data JSON:', JSON.stringify(formData));
+      console.log('[RoleManagement] Form data length:', JSON.stringify(formData).length);
+
       await rbacApi.roles.create(formData);
 
       setSuccess('Role created successfully');
@@ -123,6 +130,8 @@ export default function RoleManagementPage() {
       fetchRoles();
     } catch (error: any) {
       console.error('[RoleManagement] Error creating role:', error);
+      console.error('[RoleManagement] Error details:', error.response?.data || error.message);
+      console.error('[RoleManagement] Full error object:', JSON.stringify(error, null, 2));
       
       // Check if it's a duplicate role error and provide helpful guidance
       if (error.message?.includes('already exists') || error.message?.includes('duplicate')) {
@@ -356,17 +365,20 @@ export default function RoleManagementPage() {
                 <label htmlFor="hierarchy_level" className="block text-sm font-medium text-gray-700 mb-2">
                   Hierarchy Level
                 </label>
-                <input
-                  type="number"
+                <select
                   id="hierarchy_level"
                   value={formData.hierarchy_level}
                   onChange={(e) => setFormData({ ...formData, hierarchy_level: parseInt(e.target.value) || 0 })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="e.g., 100"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                   required
-                  min="0"
-                  max="100"
-                />
+                >
+                  <option value="0">0 - Customer</option>
+                  <option value="1">1 - Support</option>
+                  <option value="2">2 - Corporate</option>
+                  <option value="3">3 - Manager</option>
+                  <option value="4">4 - Admin</option>
+                  <option value="5">5 - Super Admin</option>
+                </select>
                 <p className="mt-1 text-sm text-gray-500">Higher level = more permissions</p>
               </div>
             </div>

@@ -334,6 +334,7 @@ export const getRoleDisplayName = (roleName: string): string => {
   const roleNames: Record<string, string> = {
     super_admin: 'Super Admin',
     admin: 'Admin',
+    manager: 'Manager',
     support: 'Support',
     corporate: 'Corporate',
     customer: 'Customer',

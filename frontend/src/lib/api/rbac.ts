@@ -47,7 +47,11 @@ export const roleApi = {
    */
   list: async (): Promise<RoleListResponse> => {
     const response = await apiClient.get<RoleListResponse>('/rbac/roles');
-    return response.data;
+    
+    // FIX: Return full response object, not response.data
+    // The API returns { success: true, data: [...], count: N }
+    // So we need to return the entire response, not response.data
+    return response;
   },
 
   /**

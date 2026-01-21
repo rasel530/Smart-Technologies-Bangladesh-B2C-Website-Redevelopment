@@ -208,7 +208,7 @@ export interface ApiResponse<T = any> {
   success: boolean;
   message: string;
   messageBn?: string;
-  data?: T;
+  data: T;  // Changed from optional to required
   errors?: ValidationError[];
 }
 

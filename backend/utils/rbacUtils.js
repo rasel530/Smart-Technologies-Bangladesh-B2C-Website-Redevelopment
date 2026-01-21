@@ -287,7 +287,7 @@ class RBACUtils {
    * @returns {boolean} True if format is valid
    */
   isValidRoleName(roleName) {
-    const validRoles = ['CUSTOMER', 'SUPPORT', 'CORPORATE', 'ADMIN', 'SUPER_ADMIN'];
+    const validRoles = ['CUSTOMER', 'SUPPORT', 'CORPORATE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'];
     return validRoles.includes(roleName);
   }
 

@@ -12,10 +12,25 @@ const roleModel = new Role();
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    // DIAGNOSTIC LOGGING - Remove after fixing issue
+    loggerService.error('[Role Creation] Validation failed:', {
+      body: req.body,
+      validationErrors: errors.array(),
+      timestamp: new Date().toISOString()
+    });
+    
     return res.status(400).json({
       error: 'Validation failed',
       details: errors.array()
     });
+  }
+  next();
+};
+
+// Middleware to normalize role name to uppercase before validation
+const normalizeRoleName = (req, res, next) => {
+  if (req.body.name) {
+    req.body.name = req.body.name.trim().toUpperCase();
   }
   next();
 };
@@ -27,7 +42,18 @@ const handleValidationErrors = (req, res, next) => {
  */
 router.get('/', rbacAuthMiddleware.authenticate(), async (req, res) => {
   try {
+    // DIAGNOSTIC LOGGING - Check authentication status
+    console.log('[RBAC ROLES GET] Request received');
+    console.log('[RBAC ROLES GET] User authenticated:', !!req.user);
+    console.log('[RBAC ROLES GET] User ID:', req.user?.id);
+    console.log('[RBAC ROLES GET] User roles:', req.user?.roles);
+    
     const roles = await roleModel.findAll();
+    
+    // DIAGNOSTIC LOGGING - Log query results
+    console.log('[RBAC ROLES GET] Roles found:', roles);
+    console.log('[RBAC ROLES GET] Roles count:', roles?.length);
+    console.log('[RBAC ROLES GET] First role:', roles?.[0]);
     
     res.json({
       success: true,
@@ -36,6 +62,7 @@ router.get('/', rbacAuthMiddleware.authenticate(), async (req, res) => {
       count: roles.length
     });
   } catch (error) {
+    console.error('[RBAC ROLES GET] Error:', error);
     loggerService.error('Get roles error', error);
     res.status(500).json({
       error: 'Failed to fetch roles',
@@ -107,13 +134,14 @@ router.get('/:id', [
  * @access  Admin/Super Admin only
  */
 router.post('/', [
+  normalizeRoleName,
   body('name').trim().notEmpty().withMessage('Role name is required')
-    .isIn(['CUSTOMER', 'SUPPORT', 'CORPORATE', 'ADMIN', 'SUPER_ADMIN'])
+    .isIn(['CUSTOMER', 'SUPPORT', 'CORPORATE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'])
     .withMessage('Invalid role name'),
   body('description').optional().trim(),
   body('hierarchy_level').isInt({ min: 0, max: 100 })
     .withMessage('Hierarchy level must be between 0 and 100')
-], handleValidationErrors, rbacAuthMiddleware.authenticate(), 
+], handleValidationErrors, rbacAuthMiddleware.authenticate(),
 rbacAuthMiddleware.requireAdmin(), async (req, res) => {
   try {
     const { name, description, hierarchy_level } = req.body;
@@ -161,9 +189,10 @@ rbacAuthMiddleware.requireAdmin(), async (req, res) => {
  * @access  Admin/Super Admin only
  */
 router.put('/:id', [
+  normalizeRoleName,
   param('id').isUUID().withMessage('Invalid role ID'),
   body('name').trim().notEmpty().withMessage('Role name is required')
-    .isIn(['CUSTOMER', 'SUPPORT', 'CORPORATE', 'ADMIN', 'SUPER_ADMIN'])
+    .isIn(['CUSTOMER', 'SUPPORT', 'CORPORATE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'])
     .withMessage('Invalid role name'),
   body('description').optional().trim(),
   body('hierarchy_level').isInt({ min: 0, max: 100 })

@@ -19,6 +19,7 @@ import {
 import { Role, RoleWithPermissions } from '@/types/rbac';
 import { rbacApi } from '@/lib/api/rbac';
 import { getRoleDisplayName } from '@/lib/rbac/utils';
+import { withAuth } from '@/components/auth/withAuth';
 
 /**
  * Role Management Page
@@ -47,7 +48,7 @@ const DEFAULT_HIERARCHY_LEVELS: Record<string, number> = {
   super_admin: 5,
 };
 
-export default function RoleManagementPage() {
+function RoleManagementPage() {
   const router = useRouter();
   const [roles, setRoles] = useState<Role[]>([]);
   const [selectedRole, setSelectedRole] = useState<RoleWithPermissions | null>(null);
@@ -556,3 +557,9 @@ export default function RoleManagementPage() {
     </div>
   );
 }
+
+export default withAuth(RoleManagementPage, {
+  requiredRole: ['admin', 'super_admin'],
+  redirectTo: '/login',
+  unauthorizedRedirectTo: '/403'
+});

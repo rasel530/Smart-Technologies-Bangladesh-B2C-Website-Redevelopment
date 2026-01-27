@@ -420,4 +420,5 @@ console.log('[NextAuth] - NODE_ENV:', process.env.NODE_ENV);
 // NextAuth route handler
 const handler = NextAuth(authOptions);
 
+// Type assertion for Next.js 15 compatibility
 export { handler as GET, handler as POST };

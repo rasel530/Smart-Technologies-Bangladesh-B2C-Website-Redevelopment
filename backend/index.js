@@ -166,18 +166,22 @@ const baseOrigins = process.env.NODE_ENV === 'production'
       'http://127.0.0.1:3001'
     ];
 
-// Always include localhost origins for development flexibility
+// Always include localhost origins for development flexibility (regardless of NODE_ENV)
 const localhostOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
   'http://127.0.0.1:3000',
-  'http://127.0.0.1:3001',
-  'http://localhost:3000',
-  'http://localhost:3001'
+  'http://127.0.0.1:3001'
 ];
 
-// Combine origins - always include localhost for development support
-const allowedOrigins = [...new Set([...baseOrigins, ...localhostOrigins])];
+// Docker-specific origins for containerized deployments
+const dockerOrigins = [
+  'http://host.docker.internal:3000',
+  'http://host.docker.internal:3001'
+];
+
+// Combine origins - always include localhost and Docker origins for development support
+const allowedOrigins = [...new Set([...baseOrigins, ...localhostOrigins, ...dockerOrigins])];
 
 // Simple CORS configuration that works with all browsers - MUST be before helmet
 app.use(cors({

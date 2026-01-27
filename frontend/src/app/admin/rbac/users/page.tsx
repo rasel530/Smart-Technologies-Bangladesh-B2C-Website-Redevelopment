@@ -16,6 +16,7 @@ import {
 import { UserRole, UserWithRoles, Role } from '@/types/rbac';
 import { rbacApi } from '@/lib/api/rbac';
 import { getRoleDisplayName } from '@/lib/rbac/utils';
+import { withAuth } from '@/components/auth/withAuth';
 
 /**
  * User Role Management Page
@@ -24,7 +25,7 @@ import { getRoleDisplayName } from '@/lib/rbac/utils';
  * Lists users with their roles, allows assigning/removing roles,
  * viewing role history, and handling role escalations.
  */
-export default function UserRoleManagementPage() {
+function UserRoleManagementPage() {
   const [users, setUsers] = useState<UserWithRoles[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [selectedUser, setSelectedUser] = useState<UserWithRoles | null>(null);
@@ -472,3 +473,9 @@ export default function UserRoleManagementPage() {
     </div>
   );
 }
+
+export default withAuth(UserRoleManagementPage, {
+  requiredRole: ['admin', 'super_admin'],
+  redirectTo: '/login',
+  unauthorizedRedirectTo: '/403'
+});

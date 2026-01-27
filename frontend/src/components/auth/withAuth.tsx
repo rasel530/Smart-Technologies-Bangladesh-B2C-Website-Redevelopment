@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSession } from 'next-auth/react';
 import { User } from '@/types/auth';
+import { getToken } from '@/lib/api/client';
 
 interface WithAuthProps {
   children: React.ReactNode;
@@ -44,6 +45,17 @@ const AuthWrapper: React.FC<AuthWrapperProps & WithAuthProps> = ({ children, use
 
   // Show loading state
   if (isLoading || !mounted) {
+    return fallback || (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-t-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  // CRITICAL FIX: Wait for token to be stored in localStorage before allowing page to render
+  // This prevents API requests from being made before the token is available,
+  // which causes 401 Unauthorized errors
+  if (sessionStatus === 'authenticated' && !getToken()) {
     return fallback || (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-t-2 border-primary-600"></div>

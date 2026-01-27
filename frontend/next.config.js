@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Removed standalone output mode to ensure middleware is properly compiled
-  // Standalone mode was causing middleware to not be included in the production build
+  // Disabled standalone output mode to avoid Windows symlink permission errors
+  // Standalone mode will be enabled in Docker build if needed
+  // output: 'standalone',
   images: {
     domains: ['localhost', 'smarttech.com', 'api.smarttech.com'],
   },

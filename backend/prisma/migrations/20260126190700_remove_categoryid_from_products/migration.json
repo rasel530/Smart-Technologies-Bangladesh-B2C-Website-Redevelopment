@@ -1,0 +1,22 @@
+{
+  "provider": "postgresql",
+  "migrationName": "20260126190700_remove_categoryid_from_products",
+  "steps": [
+    {
+      "step": "Migrate existing product-category relationships to product_categories junction table",
+      "description": "Insert existing categoryId relationships into product_categories table"
+    },
+    {
+      "step": "Drop foreign key constraint",
+      "description": "Remove products_categoryId_fkey constraint"
+    },
+    {
+      "step": "Drop categoryId column",
+      "description": "Remove categoryId column from products table"
+    },
+    {
+      "step": "Create indexes",
+      "description": "Add performance indexes on product_categories table"
+    }
+  ]
+}

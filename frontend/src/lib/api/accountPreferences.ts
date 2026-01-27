@@ -206,7 +206,7 @@ export class AccountPreferencesAPI {
    * Download data export
    */
   static async downloadDataExport(exportId: string): Promise<Blob> {
-    const API_BASE_URL = 'http://localhost:3001/api/v1';
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
     
     const response = await fetch(

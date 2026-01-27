@@ -1,0 +1,500 @@
+smarttech_frontend  |   data: undefined
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Request failed: TypeError: fetch failed
+smarttech_frontend  |     at node:internal/deps/undici/undici:14902:13
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_frontend  |     at async Object.request (/app/.next/server/chunks/9025.js:27:5387)
+smarttech_frontend  |     at async Object.o [as getCategories] (/app/.next/server/app/page.js:6:15921)
+smarttech_frontend  |     at async Promise.all (index 4) {
+smarttech_frontend  |   [cause]: AggregateError [ECONNREFUSED]: 
+smarttech_frontend  |       at internalConnectMultiple (node:net:1122:18)
+smarttech_frontend  |       at afterConnectMultiple (node:net:1689:7)
+smarttech_frontend  |       at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17) {
+smarttech_frontend  |     code: 'ECONNREFUSED',
+smarttech_frontend  |     [errors]: [ [Error], [Error] ]
+smarttech_frontend  |   }
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] CORS error details: {
+smarttech_frontend  |   'error-type': 'TypeError',
+smarttech_frontend  |   'error-message': 'fetch failed',
+smarttech_frontend  |   'is-cors-error': true,
+smarttech_frontend  |   'request-url': 'http://localhost:3001/api/v1/categories?status=active&limit=8',
+smarttech_frontend  |   'request-method': 'GET'
+smarttech_frontend  | }
+smarttech_frontend  | Error fetching categories: r [ApiError]: Network error occurred
+smarttech_frontend  |     at Object.request (/app/.next/server/chunks/9025.js:27:6127)
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_frontend  |     at async Object.o [as getCategories] (/app/.next/server/app/page.js:6:15921)
+smarttech_frontend  |     at async Promise.all (index 4) {
+smarttech_frontend  |   status: undefined,
+smarttech_frontend  |   data: undefined
+smarttech_frontend  | }
+smarttech_frontend  | r [ApiError]: Network error occurred
+smarttech_frontend  |     at Object.request (/app/.next/server/chunks/9025.js:27:6127)
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_frontend  |     at async i (/app/.next/server/chunks/4713.js:1:712)
+smarttech_frontend  |     at async Promise.all (index 0)
+smarttech_frontend  |     at async p (/app/.next/server/app/page.js:6:6865) {
+smarttech_frontend  |   status: undefined,
+smarttech_frontend  |   data: undefined,
+smarttech_frontend  |   digest: '1057711539'
+smarttech_frontend  | }
+smarttech_frontend  | r [ApiError]: Network error occurred
+smarttech_frontend  |     at Object.request (/app/.next/server/chunks/9025.js:27:6127)
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_frontend  |     at async i (/app/.next/server/chunks/4713.js:1:712)
+smarttech_frontend  |     at async Promise.all (index 0)
+smarttech_frontend  |     at async p (/app/.next/server/app/page.js:6:6865) {
+smarttech_frontend  |   status: undefined,
+smarttech_frontend  |   data: undefined,
+smarttech_frontend  |   digest: '1057711539'
+smarttech_frontend  | }
+smarttech_frontend  | [NextAuth] Redirect callback: { url: 'http://localhost:3000', baseUrl: 'http://localhost:3000' }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [NextAuth] Redirect callback: { url: 'http://localhost:3000', baseUrl: 'http://localhost:3000' }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [NextAuth] Redirect callback: { url: 'http://localhost:3000', baseUrl: 'http://localhost:3000' }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [NextAuth] Redirect callback: {
+smarttech_frontend  |   url: 'http://localhost:3000/login',
+smarttech_frontend  |   baseUrl: 'http://localhost:3000'
+smarttech_frontend  | }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [NextAuth] Credentials authorize called
+smarttech_frontend  | [NextAuth] BACKEND_API_URL: http://backend:3000/api/v1
+smarttech_frontend  | [NextAuth] Attempting login with: {
+smarttech_frontend  |   identifier: 'raselbepari88@gmail.com',
+smarttech_frontend  |   password: '[REDACTED]',
+smarttech_frontend  |   rememberMe: 'true',
+smarttech_frontend  |   endpoint: 'http://backend:3000/api/v1/auth/login'
+smarttech_frontend  | }
+smarttech_frontend  | [NextAuth] Sending request to backend...
+smarttech_frontend  | [NextAuth] Backend response received: {
+smarttech_frontend  |   status: 200,
+smarttech_frontend  |   statusText: 'OK',
+smarttech_frontend  |   ok: true,
+smarttech_frontend  |   headers: {
+smarttech_frontend  |     'access-control-allow-credentials': 'true',
+smarttech_frontend  |     'access-control-expose-headers': 'x-new-token',
+smarttech_frontend  |     connection: 'keep-alive',
+smarttech_frontend  |     'content-length': '1006',
+smarttech_frontend  |     'content-security-policy': "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+smarttech_frontend  |     'content-type': 'application/json; charset=utf-8',
+smarttech_frontend  |     'cross-origin-opener-policy': 'same-origin',
+smarttech_frontend  |     'cross-origin-resource-policy': 'cross-origin',
+smarttech_frontend  |     date: 'Mon, 26 Jan 2026 17:37:44 GMT',
+smarttech_frontend  |     etag: 'W/"3ee-OczkpJxAqYIBcH6v4jC/cBDR85c"',
+smarttech_frontend  |     'keep-alive': 'timeout=65',
+smarttech_frontend  |     'origin-agent-cluster': '?1',
+smarttech_frontend  |     'referrer-policy': 'no-referrer',
+smarttech_frontend  |     'set-cookie': 'rememberMeEnabled=true; Max-Age=2592000; Path=/; Expires=Wed, 25 Feb 2026 17:37:44 GMT; Secure; SameSite=Strict',
+smarttech_frontend  |     'strict-transport-security': 'max-age=31536000; includeSubDomains',
+smarttech_frontend  |     vary: 'Origin',
+smarttech_frontend  |     'x-content-type-options': 'nosniff',
+smarttech_frontend  |     'x-dns-prefetch-control': 'off',
+smarttech_frontend  |     'x-download-options': 'noopen',
+smarttech_frontend  |     'x-frame-options': 'SAMEORIGIN',
+smarttech_frontend  |     'x-login-status': 'success',
+smarttech_frontend  |     'x-login-timestamp': '2026-01-26T17:37:44.611Z',
+smarttech_frontend  |     'x-permitted-cross-domain-policies': 'none',
+smarttech_frontend  |     'x-ratelimit-limit': '100',
+smarttech_frontend  |     'x-ratelimit-remaining': '100',
+smarttech_frontend  |     'x-ratelimit-reset': '2026-01-26T17:52:44.166Z',
+smarttech_frontend  |     'x-ratelimit-window-end': '2026-01-26T17:52:44.166Z',
+smarttech_frontend  |     'x-request-id': 'req_1769449064165_si5kkmxgt',
+smarttech_frontend  |     'x-security-cleared': 'true',
+smarttech_frontend  |     'x-session-expires-at': '2026-02-02T17:37:44.512Z',
+smarttech_frontend  |     'x-session-id': 'eb4a087041f47e6b704c291eafcf3defdbbcbc3710162cb8d4171245a92f9d62',
+smarttech_frontend  |     'x-session-max-age': '604800000',
+smarttech_frontend  |     'x-session-security-level': 'standard',
+smarttech_frontend  |     'x-xss-protection': '0'
+smarttech_frontend  |   }
+smarttech_frontend  | }
+smarttech_frontend  | [NextAuth] Raw response body: {"message":"Login successful","messageBn":"লগিন সফল","user":{"id":"2bdca14e-ac33-43ca-b98a-5117c8ecdeb9","email":"raselbepari88@gmail.com","phone":"+8801914287530","firstName":"Rasel","lastName":"Bepari","role":"customer","status":"active"},"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyYmRjYTE0ZS1hYzMzLTQzY2EtYjk4YS01MTE3YzhlY2RlYjkiLCJlbWFpbCI6InJhc2VsYmVwYXJpODhAZ21haWwuY29tIiwicGhvbmUiOiIrODgwMTkxNDI4NzUzMCIsInJvbGUiOiJjdXN0b21lciIsInNlc3Npb25JZCI6ImViNGEwODcwNDFmNDdlNmI3MDRjM
+smarttech_frontend  | [NextAuth] Parsed response data: {
+smarttech_frontend  |   "message": "Login successful",
+smarttech_frontend  |   "messageBn": "লগিন সফল",
+smarttech_frontend  |   "user": {
+smarttech_frontend  |     "id": "2bdca14e-ac33-43ca-b98a-5117c8ecdeb9",
+smarttech_frontend  |     "email": "raselbepari88@gmail.com",
+smarttech_frontend  |     "phone": "+8801914287530",
+smarttech_frontend  |     "firstName": "Rasel",
+smarttech_frontend  |     "lastName": "Bepari",
+smarttech_frontend  |     "role": "customer",
+smarttech_frontend  |     "status": "active"
+smarttech_frontend  |   },
+smarttech_frontend  |   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyYmRjYTE0ZS1hYzMzLTQzY2EtYjk4YS01MTE3YzhlY2RlYjkiLCJlbWFpbCI6InJhc2VsYmVwYXJpODhAZ21haWwuY29tIiwicGhvbmUiOiIrODgwMTkxNDI4NzUzMCIsInJvbGUiOiJjdXN0b21lciIsInNlc3Npb25JZCI6ImViNGEwODcwNDFmNDdlNmI3MDRjMjkxZWFmY2YzZGVmZGJiY2JjMzcxMDE2MmNiOGQ0MTcxMjQ1YTkyZjlkNjIiLCJpYXQiOjE3Njk0NDkwNjQsImV4cCI6MTc3MDA1Mzg2NCwiYXVkIjoic21hcnQtZWNvbW1lcmNlLWNsaWVudHMiLCJpc3MiOiJzbWFydC1lY29tbWVyY2UtYXBpIn0.NBNTj1Yjzgh-mHc-o21tLUKXYPfbeZGyVJ1jJ6jg_OM",
+smarttech_frontend  |   "sessionId": "eb4a087041f47e6b704c291eafcf3defdbbcbc3710162cb8d4171245a92f9d62",
+smarttech_frontend  |   "expiresAt": "2026-02-02T17:37:44.512Z",
+smarttech_frontend  |   "maxAge": 604800000,
+smarttech_frontend  |   "loginType": "email",
+smarttech_frontend  |   "rememberMe": "true",
+smarttech_frontend  |   "rememberToken": "debb740efbabaf6191c69cd1f137491c4a4af74020ebffe4c1c02cc3b9d9807e"
+smarttech_frontend  | }
+smarttech_frontend  | [NextAuth] Validating response structure...
+smarttech_frontend  | [NextAuth] Has token? true
+smarttech_frontend  | [NextAuth] Has user? true
+smarttech_frontend  | [NextAuth] Has sessionId? true
+smarttech_frontend  | [NextAuth] Backend login successful, returning user object
+smarttech_frontend  | [NextAuth] User data: {
+smarttech_frontend  |   id: '2bdca14e-ac33-43ca-b98a-5117c8ecdeb9',
+smarttech_frontend  |   email: 'raselbepari88@gmail.com',
+smarttech_frontend  |   phone: '+8801914287530',
+smarttech_frontend  |   firstName: 'Rasel',
+smarttech_frontend  |   lastName: 'Bepari',
+smarttech_frontend  |   role: 'customer'
+smarttech_frontend  | }
+smarttech_frontend  | [NextAuth] Sign in callback: {
+smarttech_frontend  |   user: 'raselbepari88@gmail.com',
+smarttech_frontend  |   provider: 'credentials',
+smarttech_frontend  |   role: 'customer'
+smarttech_frontend  | }
+smarttech_frontend  | [NextAuth] JWT callback - initial sign in
+smarttech_frontend  | [NextAuth] Token populated with user data
+smarttech_frontend  | [NextAuth] Event - signIn: {
+smarttech_frontend  |   user: 'raselbepari88@gmail.com',
+smarttech_frontend  |   provider: 'credentials',
+smarttech_frontend  |   isNewUser: undefined
+smarttech_frontend  | }
+smarttech_frontend  | [NextAuth] Redirect callback: { url: 'http://localhost:3000', baseUrl: 'http://localhost:3000' }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [NextAuth] JWT callback - preserving existing token
+smarttech_frontend  | [NextAuth] Session callback
+smarttech_frontend  | [NextAuth] Token in session callback: true
+smarttech_frontend  | [NextAuth] Session created successfully
+smarttech_frontend  | [NextAuth] Event - session
+smarttech_frontend  | [NextAuth] Redirect callback: { url: 'http://localhost:3000', baseUrl: 'http://localhost:3000' }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [NextAuth] JWT callback - preserving existing token
+smarttech_frontend  | [NextAuth] Session callback
+smarttech_frontend  | [NextAuth] Token in session callback: true
+smarttech_frontend  | [NextAuth] Session created successfully
+smarttech_frontend  | [NextAuth] Event - session
+smarttech_frontend  | [NextAuth] Redirect callback: { url: 'http://localhost:3000', baseUrl: 'http://localhost:3000' }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [NextAuth] JWT callback - preserving existing token
+smarttech_frontend  | [NextAuth] Session callback
+smarttech_frontend  | [NextAuth] Token in session callback: true
+smarttech_frontend  | [NextAuth] Session created successfully
+smarttech_frontend  | [NextAuth] Event - session
+smarttech_frontend  | [NextAuth] Redirect callback: { url: 'http://localhost:3000', baseUrl: 'http://localhost:3000' }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [NextAuth] JWT callback - preserving existing token
+smarttech_frontend  | [NextAuth] Session callback
+smarttech_frontend  | [NextAuth] Token in session callback: true
+smarttech_frontend  | [NextAuth] Session created successfully
+smarttech_frontend  | [NextAuth] Event - session
+smarttech_frontend  | [NextAuth] Redirect callback: { url: 'http://localhost:3000', baseUrl: 'http://localhost:3000' }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [NextAuth] JWT callback - preserving existing token
+smarttech_frontend  | [NextAuth] Session callback
+smarttech_frontend  | [NextAuth] Token in session callback: true
+smarttech_frontend  | [NextAuth] Session created successfully
+smarttech_frontend  | [NextAuth] Event - session
+smarttech_frontend  | [NextAuth] Redirect callback: { url: 'http://localhost:3000', baseUrl: 'http://localhost:3000' }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [NextAuth] JWT callback - preserving existing token
+smarttech_frontend  | [NextAuth] Session callback
+smarttech_frontend  | [NextAuth] Token in session callback: true
+smarttech_frontend  | [NextAuth] Session created successfully
+smarttech_frontend  | [NextAuth] Event - session
+smarttech_frontend  | [NextAuth] Redirect callback: { url: 'http://localhost:3000', baseUrl: 'http://localhost:3000' }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [NextAuth] JWT callback - preserving existing token
+smarttech_frontend  | [NextAuth] Session callback
+smarttech_frontend  | [NextAuth] Token in session callback: true
+smarttech_frontend  | [NextAuth] Session created successfully
+smarttech_frontend  | [NextAuth] Event - session
+smarttech_frontend  | [NextAuth] Redirect callback: { url: 'http://localhost:3000', baseUrl: 'http://localhost:3000' }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [NextAuth] JWT callback - preserving existing token
+smarttech_frontend  | [NextAuth] Session callback
+smarttech_frontend  | [NextAuth] Token in session callback: true
+smarttech_frontend  | [NextAuth] Session created successfully
+smarttech_frontend  | [NextAuth] Event - session
+smarttech_frontend  | [NextAuth] Redirect callback: { url: 'http://localhost:3000', baseUrl: 'http://localhost:3000' }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [NextAuth] JWT callback - preserving existing token
+smarttech_frontend  | [NextAuth] Session callback
+smarttech_frontend  | [NextAuth] Token in session callback: true
+smarttech_frontend  | [NextAuth] Session created successfully
+smarttech_frontend  | [NextAuth] Event - session
+smarttech_frontend  | [NextAuth] Redirect callback: { url: 'http://localhost:3000', baseUrl: 'http://localhost:3000' }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [NextAuth] Redirect callback: {
+smarttech_frontend  |   url: 'http://localhost:3000/account',
+smarttech_frontend  |   baseUrl: 'http://localhost:3000'
+smarttech_frontend  | }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [NextAuth] Event - signOut
+smarttech_frontend  | [NextAuth] Redirect callback: { url: 'http://localhost:3000', baseUrl: 'http://localhost:3000' }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [API Client] GET http://localhost:3001/api/v1/products/featured
+smarttech_frontend  | [API Client] Request options: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   hasBody: false,
+smarttech_frontend  |   timeout: 10000,
+smarttech_frontend  |   skipAuthRefresh: undefined,
+smarttech_frontend  |   'request-url': 'http://localhost:3001/api/v1/products/featured',
+smarttech_frontend  |   'api-base-url': 'http://localhost:3001/api/v1',
+smarttech_frontend  |   'window-origin': 'server-side',
+smarttech_frontend  |   'is-localhost': true,
+smarttech_frontend  |   'uses-nextjs-rewrite': false,
+smarttech_frontend  |   credentials: 'not-set'
+smarttech_frontend  | }
+smarttech_frontend  | [Token Manager] getToken called - window not available
+smarttech_frontend  | [API Client] Token check: No token found
+smarttech_frontend  | [API Client] No Authorization header added
+smarttech_frontend  | [API Client] Final headers: { 'Content-Type': 'application/json', Authorization: 'Not set' }
+smarttech_frontend  | [API Client] GET http://localhost:3001/api/v1/products?isNewArrival=true&status=active&sortBy=createdAt&sortOrder=desc&limit=20
+smarttech_frontend  | [API Client] Request options: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   hasBody: false,
+smarttech_frontend  |   timeout: 10000,
+smarttech_frontend  |   skipAuthRefresh: undefined,
+smarttech_frontend  |   'request-url': 'http://localhost:3001/api/v1/products?isNewArrival=true&status=active&sortBy=createdAt&sortOrder=desc&limit=20',
+smarttech_frontend  |   'api-base-url': 'http://localhost:3001/api/v1',
+smarttech_frontend  |   'window-origin': 'server-side',
+smarttech_frontend  |   'is-localhost': true,
+smarttech_frontend  |   'uses-nextjs-rewrite': false,
+smarttech_frontend  |   credentials: 'not-set'
+smarttech_frontend  | }
+smarttech_frontend  | [Token Manager] getToken called - window not available
+smarttech_frontend  | [API Client] Token check: No token found
+smarttech_frontend  | [API Client] No Authorization header added
+smarttech_frontend  | [API Client] Final headers: { 'Content-Type': 'application/json', Authorization: 'Not set' }
+smarttech_frontend  | [API Client] GET http://localhost:3001/api/v1/products?isBestSeller=true&status=active&sortBy=createdAt&sortOrder=desc&limit=20
+smarttech_frontend  | [API Client] Request options: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   hasBody: false,
+smarttech_frontend  |   timeout: 10000,
+smarttech_frontend  |   skipAuthRefresh: undefined,
+smarttech_frontend  |   'request-url': 'http://localhost:3001/api/v1/products?isBestSeller=true&status=active&sortBy=createdAt&sortOrder=desc&limit=20',
+smarttech_frontend  |   'api-base-url': 'http://localhost:3001/api/v1',
+smarttech_frontend  |   'window-origin': 'server-side',
+smarttech_frontend  |   'is-localhost': true,
+smarttech_frontend  |   'uses-nextjs-rewrite': false,
+smarttech_frontend  |   credentials: 'not-set'
+smarttech_frontend  | }
+smarttech_frontend  | [Token Manager] getToken called - window not available
+smarttech_frontend  | [API Client] Token check: No token found
+smarttech_frontend  | [API Client] No Authorization header added
+smarttech_frontend  | [API Client] Final headers: { 'Content-Type': 'application/json', Authorization: 'Not set' }
+smarttech_frontend  | [API Client] GET http://localhost:3001/api/v1/brands?status=active&limit=6
+smarttech_frontend  | [API Client] Request options: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   hasBody: false,
+smarttech_frontend  |   timeout: 10000,
+smarttech_frontend  |   skipAuthRefresh: undefined,
+smarttech_frontend  |   'request-url': 'http://localhost:3001/api/v1/brands?status=active&limit=6',
+smarttech_frontend  |   'api-base-url': 'http://localhost:3001/api/v1',
+smarttech_frontend  |   'window-origin': 'server-side',
+smarttech_frontend  |   'is-localhost': true,
+smarttech_frontend  |   'uses-nextjs-rewrite': false,
+smarttech_frontend  |   credentials: 'not-set'
+smarttech_frontend  | }
+smarttech_frontend  | [Token Manager] getToken called - window not available
+smarttech_frontend  | [API Client] Token check: No token found
+smarttech_frontend  | [API Client] No Authorization header added
+smarttech_frontend  | [API Client] Final headers: { 'Content-Type': 'application/json', Authorization: 'Not set' }
+smarttech_frontend  | [API Client] GET http://localhost:3001/api/v1/categories?status=active&limit=8
+smarttech_frontend  | [API Client] Request options: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   hasBody: false,
+smarttech_frontend  |   timeout: 10000,
+smarttech_frontend  |   skipAuthRefresh: undefined,
+smarttech_frontend  |   'request-url': 'http://localhost:3001/api/v1/categories?status=active&limit=8',
+smarttech_frontend  |   'api-base-url': 'http://localhost:3001/api/v1',
+smarttech_frontend  |   'window-origin': 'server-side',
+smarttech_frontend  |   'is-localhost': true,
+smarttech_frontend  |   'uses-nextjs-rewrite': false,
+smarttech_frontend  |   credentials: 'not-set'
+smarttech_frontend  | }
+smarttech_frontend  | [Token Manager] getToken called - window not available
+smarttech_frontend  | [API Client] Token check: No token found
+smarttech_frontend  | [API Client] No Authorization header added
+smarttech_frontend  | [API Client] Final headers: { 'Content-Type': 'application/json', Authorization: 'Not set' }
+smarttech_frontend  | [API Client] Request failed: TypeError: fetch failed
+smarttech_frontend  |     at node:internal/deps/undici/undici:14902:13
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_frontend  |     at async Object.request (/app/.next/server/chunks/9025.js:27:5387)
+smarttech_frontend  |     at async s (/app/.next/server/chunks/4713.js:1:346)
+smarttech_frontend  |     at async n (/app/.next/server/chunks/4713.js:1:872)
+smarttech_frontend  |     at async Promise.all (index 1)
+smarttech_frontend  |     at async p (/app/.next/server/app/page.js:6:6865) {
+smarttech_frontend  |   [cause]: AggregateError [ECONNREFUSED]: 
+smarttech_frontend  |       at internalConnectMultiple (node:net:1122:18)
+smarttech_frontend  |       at afterConnectMultiple (node:net:1689:7)
+smarttech_frontend  |       at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17) {
+smarttech_frontend  |     code: 'ECONNREFUSED',
+smarttech_frontend  |     [errors]: [ [Error], [Error] ]
+smarttech_frontend  |   }
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] CORS error details: {
+smarttech_frontend  |   'error-type': 'TypeError',
+smarttech_frontend  |   'error-message': 'fetch failed',
+smarttech_frontend  |   'is-cors-error': true,
+smarttech_frontend  |   'request-url': 'http://localhost:3001/api/v1/products?isNewArrival=true&status=active&sortBy=createdAt&sortOrder=desc&limit=20',
+smarttech_frontend  |   'request-method': 'GET'
+smarttech_frontend  | }
+smarttech_frontend  | Error fetching products: r [ApiError]: Network error occurred
+smarttech_frontend  |     at Object.request (/app/.next/server/chunks/9025.js:27:6127)
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_frontend  |     at async s (/app/.next/server/chunks/4713.js:1:346)
+smarttech_frontend  |     at async n (/app/.next/server/chunks/4713.js:1:872)
+smarttech_frontend  |     at async Promise.all (index 1)
+smarttech_frontend  |     at async p (/app/.next/server/app/page.js:6:6865) {
+smarttech_frontend  |   status: undefined,
+smarttech_frontend  |   data: undefined
+smarttech_frontend  | }
+smarttech_frontend  | Error fetching new arrivals: r [ApiError]: Network error occurred
+smarttech_frontend  |     at Object.request (/app/.next/server/chunks/9025.js:27:6127)
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_frontend  |     at async s (/app/.next/server/chunks/4713.js:1:346)
+smarttech_frontend  |     at async n (/app/.next/server/chunks/4713.js:1:872)
+smarttech_frontend  |     at async Promise.all (index 1)
+smarttech_frontend  |     at async p (/app/.next/server/app/page.js:6:6865) {
+smarttech_frontend  |   status: undefined,
+smarttech_frontend  |   data: undefined
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Request failed: TypeError: fetch failed
+smarttech_frontend  |     at node:internal/deps/undici/undici:14902:13
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_frontend  |     at async Object.request (/app/.next/server/chunks/9025.js:27:5387)
+smarttech_frontend  |     at async i (/app/.next/server/chunks/4713.js:1:712)
+smarttech_frontend  |     at async Promise.all (index 0) {
+smarttech_frontend  |   [cause]: AggregateError [ECONNREFUSED]: 
+smarttech_frontend  |       at internalConnectMultiple (node:net:1122:18)
+smarttech_frontend  |       at afterConnectMultiple (node:net:1689:7)
+smarttech_frontend  |       at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17) {
+smarttech_frontend  |     code: 'ECONNREFUSED',
+smarttech_frontend  |     [errors]: [ [Error], [Error] ]
+smarttech_frontend  |   }
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] CORS error details: {
+smarttech_frontend  |   'error-type': 'TypeError',
+smarttech_frontend  |   'error-message': 'fetch failed',
+smarttech_frontend  |   'is-cors-error': true,
+smarttech_frontend  |   'request-url': 'http://localhost:3001/api/v1/products/featured',
+smarttech_frontend  |   'request-method': 'GET'
+smarttech_frontend  | }
+smarttech_frontend  | Error fetching featured products: r [ApiError]: Network error occurred
+smarttech_frontend  |     at Object.request (/app/.next/server/chunks/9025.js:27:6127)
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_frontend  |     at async i (/app/.next/server/chunks/4713.js:1:712)
+smarttech_frontend  |     at async Promise.all (index 0) {
+smarttech_frontend  |   status: undefined,
+smarttech_frontend  |   data: undefined
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Request failed: TypeError: fetch failed
+smarttech_frontend  |     at node:internal/deps/undici/undici:14902:13
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_frontend  |     at async Object.request (/app/.next/server/chunks/9025.js:27:5387)
+smarttech_frontend  |     at async s (/app/.next/server/chunks/4713.js:1:346)
+smarttech_frontend  |     at async d (/app/.next/server/chunks/4713.js:1:1060)
+smarttech_frontend  |     at async Promise.all (index 2) {
+smarttech_frontend  |   [cause]: AggregateError [ECONNREFUSED]: 
+smarttech_frontend  |       at internalConnectMultiple (node:net:1122:18)
+smarttech_frontend  |       at afterConnectMultiple (node:net:1689:7)
+smarttech_frontend  |       at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17) {
+smarttech_frontend  |     code: 'ECONNREFUSED',
+smarttech_frontend  |     [errors]: [ [Error], [Error] ]
+smarttech_frontend  |   }
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] CORS error details: {
+smarttech_frontend  |   'error-type': 'TypeError',
+smarttech_frontend  |   'error-message': 'fetch failed',
+smarttech_frontend  |   'is-cors-error': true,
+smarttech_frontend  |   'request-url': 'http://localhost:3001/api/v1/products?isBestSeller=true&status=active&sortBy=createdAt&sortOrder=desc&limit=20',
+smarttech_frontend  |   'request-method': 'GET'
+smarttech_frontend  | }
+smarttech_frontend  | Error fetching products: r [ApiError]: Network error occurred
+smarttech_frontend  |     at Object.request (/app/.next/server/chunks/9025.js:27:6127)
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_frontend  |     at async s (/app/.next/server/chunks/4713.js:1:346)
+smarttech_frontend  |     at async d (/app/.next/server/chunks/4713.js:1:1060)
+smarttech_frontend  |     at async Promise.all (index 2) {
+smarttech_frontend  |   status: undefined,
+smarttech_frontend  |   data: undefined
+smarttech_frontend  | }
+smarttech_frontend  | Error fetching best sellers: r [ApiError]: Network error occurred
+smarttech_frontend  |     at Object.request (/app/.next/server/chunks/9025.js:27:6127)
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_frontend  |     at async s (/app/.next/server/chunks/4713.js:1:346)
+smarttech_frontend  |     at async d (/app/.next/server/chunks/4713.js:1:1060)
+smarttech_frontend  |     at async Promise.all (index 2) {
+smarttech_frontend  |   status: undefined,
+smarttech_frontend  |   data: undefined
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Request failed: TypeError: fetch failed
+smarttech_frontend  |     at node:internal/deps/undici/undici:14902:13
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_frontend  |     at async Object.request (/app/.next/server/chunks/9025.js:27:5387)
+smarttech_frontend  |     at async Object.o [as getBrands] (/app/.next/server/chunks/772.js:12:1248)
+smarttech_frontend  |     at async Promise.all (index 3) {
+smarttech_frontend  |   [cause]: AggregateError [ECONNREFUSED]: 
+smarttech_frontend  |       at internalConnectMultiple (node:net:1122:18)
+smarttech_frontend  |       at afterConnectMultiple (node:net:1689:7)
+smarttech_frontend  |       at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17) {
+smarttech_frontend  |     code: 'ECONNREFUSED',
+smarttech_frontend  |     [errors]: [ [Error], [Error] ]
+smarttech_frontend  |   }
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] CORS error details: {
+smarttech_frontend  |   'error-type': 'TypeError',
+smarttech_frontend  |   'error-message': 'fetch failed',
+smarttech_frontend  |   'is-cors-error': true,
+smarttech_frontend  |   'request-url': 'http://localhost:3001/api/v1/brands?status=active&limit=6',
+smarttech_frontend  |   'request-method': 'GET'
+smarttech_frontend  | }
+smarttech_frontend  | Error fetching brands: r [ApiError]: Network error occurred
+smarttech_frontend  |     at Object.request (/app/.next/server/chunks/9025.js:27:6127)
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_frontend  |     at async Object.o [as getBrands] (/app/.next/server/chunks/772.js:12:1248)
+smarttech_frontend  |     at async Promise.all (index 3) {
+smarttech_frontend  |   status: undefined,
+smarttech_frontend  |   data: undefined
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Request failed: TypeError: fetch failed
+smarttech_frontend  |     at node:internal/deps/undici/undici:14902:13
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_frontend  |     at async Object.request (/app/.next/server/chunks/9025.js:27:5387)
+smarttech_frontend  |     at async Object.o [as getCategories] (/app/.next/server/app/page.js:6:15921)
+smarttech_frontend  |     at async Promise.all (index 4) {
+smarttech_frontend  |   [cause]: AggregateError [ECONNREFUSED]: 
+smarttech_frontend  |       at internalConnectMultiple (node:net:1122:18)
+smarttech_frontend  |       at afterConnectMultiple (node:net:1689:7)
+smarttech_frontend  |       at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17) {
+smarttech_frontend  |     code: 'ECONNREFUSED',
+smarttech_frontend  |     [errors]: [ [Error], [Error] ]
+smarttech_frontend  |   }
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] CORS error details: {
+smarttech_frontend  |   'error-type': 'TypeError',
+smarttech_frontend  |   'error-message': 'fetch failed',
+smarttech_frontend  |   'is-cors-error': true,
+smarttech_frontend  |   'request-url': 'http://localhost:3001/api/v1/categories?status=active&limit=8',
+smarttech_frontend  |   'request-method': 'GET'
+smarttech_frontend  | }
+smarttech_frontend  | Error fetching categories: r [ApiError]: Network error occurred
+smarttech_frontend  |     at Object.request (/app/.next/server/chunks/9025.js:27:6127)
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_frontend  |     at async Object.o [as getCategories] (/app/.next/server/app/page.js:6:15921)
+smarttech_frontend  |     at async Promise.all (index 4) {
+smarttech_frontend  |   status: undefined,
+smarttech_frontend  |   data: undefined
+smarttech_frontend  | }
+smarttech_frontend  | r [ApiError]: Network error occurred
+smarttech_frontend  |     at Object.request (/app/.next/server/chunks/9025.js:27:6127)
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_frontend  |     at async s (/app/.next/server/chunks/4713.js:1:346)
+smarttech_frontend  |     at async n (/app/.next/server/chunks/4713.js:1:872)
+smarttech_frontend  |     at async Promise.all (index 1)
+smarttech_frontend  |     at async p (/app/.next/server/app/page.js:6:6865) {
+smarttech_frontend  |   status: undefined,
+smarttech_frontend  |   data: undefined,
+smarttech_frontend  |   digest: '2717601163'
+smarttech_frontend  | }
+smarttech_frontend  | [Auth Middleware] Unauthenticated access attempt to: /admin
+smarttech_frontend  | [NextAuth] Redirect callback: { url: 'http://localhost:3000', baseUrl: 'http://localhost:3000' }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000

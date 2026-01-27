@@ -1,0 +1,29 @@
+{
+  "total": 59,
+  "passed": 55,
+  "failed": 4,
+  "warnings": [],
+  "passRate": 93.22,
+  "failedTests": [
+    {
+      "testName": "DELETE - Product (cascade)",
+      "message": "\nInvalid `prisma.product.delete()` invocation in\ne:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\phase4-database-test.test.js:681:36\n\n  678 // Test 2.19: DELETE - Product (should cascade to specifications, variants, images)\n  679 try {\n  680   if (testProductId) {\n→ 681     await prisma.product.delete(\nForeign key constraint violated: `product_images_productId_fkey (index)`",
+      "timestamp": "2026-01-26T04:42:07.184Z"
+    },
+    {
+      "testName": "DELETE - Brand",
+      "message": "\nInvalid `prisma.brand.delete()` invocation in\ne:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\phase4-database-test.test.js:707:34\n\n  704 // Test 2.21: DELETE - Brand\n  705 try {\n  706   if (testBrandId) {\n→ 707     await prisma.brand.delete(\nForeign key constraint violated: `products_brandId_fkey (index)`",
+      "timestamp": "2026-01-26T04:42:07.225Z"
+    },
+    {
+      "testName": "DELETE - Category",
+      "message": "\nInvalid `prisma.category.delete()` invocation in\ne:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\phase4-database-test.test.js:719:37\n\n  716 // Test 2.22: DELETE - Category\n  717 try {\n  718   if (testCategoryId) {\n→ 719     await prisma.category.delete(\nForeign key constraint violated: `products_categoryId_fkey (index)`",
+      "timestamp": "2026-01-26T04:42:07.228Z"
+    },
+    {
+      "testName": "Self-reference prevention - Category",
+      "message": "Category can be its own parent",
+      "timestamp": "2026-01-26T04:42:07.349Z"
+    }
+  ]
+}

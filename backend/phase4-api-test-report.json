@@ -1,0 +1,130 @@
+{
+  "total": 34,
+  "passed": 14,
+  "failed": 20,
+  "warnings": [
+    {
+      "testName": "Product Specifications Endpoints",
+      "message": "Skipping tests - could not create test product",
+      "timestamp": "2026-01-26T04:42:15.029Z"
+    },
+    {
+      "testName": "POST Create Product Image",
+      "message": "Skipping - requires file upload (multipart/form-data)",
+      "timestamp": "2026-01-26T04:42:15.130Z"
+    },
+    {
+      "testName": "PUT Update Product Image",
+      "message": "Skipping - requires file upload (multipart/form-data)",
+      "timestamp": "2026-01-26T04:42:15.130Z"
+    },
+    {
+      "testName": "DELETE Product Image",
+      "message": "Skipping - requires existing image",
+      "timestamp": "2026-01-26T04:42:15.130Z"
+    }
+  ],
+  "passRate": 41.18,
+  "failedTests": [
+    {
+      "testName": "POST Create Product Variant",
+      "message": "Status: 404, Expected: 201, Duration: 11ms",
+      "timestamp": "2026-01-26T04:42:15.060Z"
+    },
+    {
+      "testName": "PUT Update Product Variant",
+      "message": "Status: 404, Expected: 200, Duration: 9ms",
+      "timestamp": "2026-01-26T04:42:15.097Z"
+    },
+    {
+      "testName": "DELETE Product Variant",
+      "message": "Status: 404, Expected: 200, Duration: 7ms",
+      "timestamp": "2026-01-26T04:42:15.104Z"
+    },
+    {
+      "testName": "PATCH Update Product Status",
+      "message": "Status: 401, Expected: 200, Duration: 11ms",
+      "timestamp": "2026-01-26T04:42:15.176Z"
+    },
+    {
+      "testName": "PATCH Update Product Visibility",
+      "message": "Status: 404, Expected: 200, Duration: 16ms",
+      "timestamp": "2026-01-26T04:42:15.192Z"
+    },
+    {
+      "testName": "PATCH Update Product SEO",
+      "message": "Status: 401, Expected: 200, Duration: 17ms",
+      "timestamp": "2026-01-26T04:42:15.234Z"
+    },
+    {
+      "testName": "POST Create Category",
+      "message": "Status: 401, Expected: 201, Duration: 11ms",
+      "timestamp": "2026-01-26T04:42:15.276Z"
+    },
+    {
+      "testName": "POST Create Brand",
+      "message": "Status: 401, Expected: 201, Duration: 19ms",
+      "timestamp": "2026-01-26T04:42:15.349Z"
+    },
+    {
+      "testName": "POST Assign Categories to Product",
+      "message": "Status: 404, Expected: 201, Duration: 8ms",
+      "timestamp": "2026-01-26T04:42:15.385Z"
+    },
+    {
+      "testName": "PATCH Set Primary Category",
+      "message": "Status: 404, Expected: 200, Duration: 13ms",
+      "timestamp": "2026-01-26T04:42:15.398Z"
+    },
+    {
+      "testName": "PATCH Assign Brand to Product",
+      "message": "Status: 404, Expected: 200, Duration: 15ms",
+      "timestamp": "2026-01-26T04:42:15.413Z"
+    },
+    {
+      "testName": "POST Add Cross-sell Product",
+      "message": "Status: 404, Expected: 201, Duration: 7ms",
+      "timestamp": "2026-01-26T04:42:15.420Z"
+    },
+    {
+      "testName": "PATCH Reorder Cross-sell Products",
+      "message": "Status: 404, Expected: 200, Duration: 15ms",
+      "timestamp": "2026-01-26T04:42:15.435Z"
+    },
+    {
+      "testName": "DELETE Remove Cross-sell Product",
+      "message": "Status: 404, Expected: 200, Duration: 6ms",
+      "timestamp": "2026-01-26T04:42:15.441Z"
+    },
+    {
+      "testName": "POST Add Up-sell Product",
+      "message": "Status: 404, Expected: 201, Duration: 6ms",
+      "timestamp": "2026-01-26T04:42:15.447Z"
+    },
+    {
+      "testName": "PATCH Reorder Up-sell Products",
+      "message": "Status: 404, Expected: 200, Duration: 5ms",
+      "timestamp": "2026-01-26T04:42:15.452Z"
+    },
+    {
+      "testName": "DELETE Remove Up-sell Product",
+      "message": "Status: 404, Expected: 200, Duration: 8ms",
+      "timestamp": "2026-01-26T04:42:15.460Z"
+    },
+    {
+      "testName": "POST Add Related Product",
+      "message": "Status: 404, Expected: 201, Duration: 6ms",
+      "timestamp": "2026-01-26T04:42:15.466Z"
+    },
+    {
+      "testName": "PATCH Reorder Related Products",
+      "message": "Status: 404, Expected: 200, Duration: 6ms",
+      "timestamp": "2026-01-26T04:42:15.472Z"
+    },
+    {
+      "testName": "DELETE Remove Related Product",
+      "message": "Status: 404, Expected: 200, Duration: 6ms",
+      "timestamp": "2026-01-26T04:42:15.478Z"
+    }
+  ]
+}

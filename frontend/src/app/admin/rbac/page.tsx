@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   ArrowLeft
 } from 'lucide-react';
+import { withAuth } from '@/components/auth/withAuth';
 
 /**
  * RBAC Dashboard Page
@@ -16,7 +17,7 @@ import {
  * Main dashboard for RBAC management.
  * Provides navigation to all RBAC admin pages.
  */
-export default function RBACDashboardPage() {
+function RBACDashboardPage() {
   const rbacSections = [
     {
       title: 'Role Management',
@@ -210,3 +211,9 @@ export default function RBACDashboardPage() {
     </div>
   );
 }
+
+export default withAuth(RBACDashboardPage, {
+  requiredRole: ['admin', 'super_admin'],
+  redirectTo: '/login',
+  unauthorizedRedirectTo: '/403'
+});

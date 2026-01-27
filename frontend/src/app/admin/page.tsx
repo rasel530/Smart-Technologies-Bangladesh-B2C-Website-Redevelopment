@@ -30,9 +30,8 @@ function AdminDashboard() {
       title: 'Product Management',
       description: 'Manage products and inventory',
       icon: '📦',
-      href: '#',
-      color: 'purple',
-      disabled: true
+      href: '/admin/products',
+      color: 'purple'
     },
     {
       title: 'Order Management',

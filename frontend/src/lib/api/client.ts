@@ -1,8 +1,10 @@
 import { ApiResponse } from '@/types/auth';
 
 // API base configuration
-// Use full backend URL to avoid cross-origin issues
-const API_BASE_URL = 'http://localhost:3001/api/v1';
+// Use BACKEND_API_URL for server-side requests, NEXT_PUBLIC_API_URL for client-side
+const API_BASE_URL = typeof window === 'undefined' 
+  ? process.env.BACKEND_API_URL || 'http://backend:3000/api/v1'
+  : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
 
 // Request options interface
 interface RequestOptions {

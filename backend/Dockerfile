@@ -7,15 +7,18 @@ WORKDIR /app
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Environment variables are provided by docker-compose
+# Copy Prisma schema
+COPY prisma ./prisma/
 
-# Install dependencies, OpenSSL, and curl for healthcheck
-RUN npm ci --only=production && \
+# Install all dependencies (including dev dependencies for Prisma generate)
+RUN npm ci && \
   apk add --no-cache openssl curl
 
-# Copy Prisma schema and generate Prisma client
-COPY prisma ./prisma/
+# Generate Prisma client
 RUN npx prisma generate
+
+# Remove dev dependencies to keep production image small
+RUN npm prune --production
 
 # Copy application code
 COPY . .

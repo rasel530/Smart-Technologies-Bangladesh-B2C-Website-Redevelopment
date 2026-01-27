@@ -1,0 +1,46 @@
+{
+  "total": 24,
+  "passed": 19,
+  "failed": 5,
+  "warnings": [
+    {
+      "testName": "Admin Authentication Setup",
+      "message": "Error: \nInvalid `prisma.user.findFirst()` invocation in\ne:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\phase4-comprehensive-api-test.test.js:151:39\n\n  148 \n  149 try {\n  150   // Find or create admin user\n→ 151   let adminUser = await prisma.user.findFirst({\n          where: {\n            role: \"ADMIN\"\n                  ~~~~~~~\n          }\n        })\n\nInvalid value for argument `role`. Expected UserRole., using test token",
+      "timestamp": "2026-01-26T04:45:05.220Z"
+    }
+  ],
+  "passRate": 79.17,
+  "failedTests": [
+    {
+      "testName": "PATCH Update Product Status",
+      "message": "Status: 401, Expected: 200, Duration: 8ms",
+      "timestamp": "2026-01-26T04:45:05.333Z"
+    },
+    {
+      "testName": "PATCH Update Product SEO",
+      "message": "Status: 401, Expected: 200, Duration: 8ms",
+      "timestamp": "2026-01-26T04:45:05.341Z"
+    },
+    {
+      "testName": "POST Create Product Specification",
+      "message": "Status: 401, Expected: 201, Duration: 7ms",
+      "timestamp": "2026-01-26T04:45:05.348Z"
+    },
+    {
+      "testName": "POST Create Category",
+      "message": "Status: 401, Expected: 201, Duration: 7ms",
+      "timestamp": "2026-01-26T04:45:05.402Z"
+    },
+    {
+      "testName": "POST Create Brand",
+      "message": "Status: 401, Expected: 201, Duration: 8ms",
+      "timestamp": "2026-01-26T04:45:05.446Z"
+    }
+  ],
+  "performance": {
+    "average": "10.42",
+    "max": 36,
+    "min": 3,
+    "slowTests": 0
+  }
+}

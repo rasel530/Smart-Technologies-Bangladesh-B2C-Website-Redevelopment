@@ -1,0 +1,1 @@
+"const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); (async () => { try { const cats = await prisma.category.findMany({ select: { status: true } }); const statuses = [...new Set(cats.map(c => c.status))]; console.log('Status values:', statuses); } catch(e) { console.error(e); } finally { await prisma.\$disconnect(); }})()"  

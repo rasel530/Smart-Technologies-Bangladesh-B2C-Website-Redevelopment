@@ -5,9 +5,22 @@ const { authMiddleware } = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { elasticsearchConfig } = require('../config/elasticsearch');
+const { ProductIndexingService } = require('../services/elasticsearch/productIndexingService');
 
 const router = express.Router();
 const prisma = new PrismaClient();
+const productIndexingService = new ProductIndexingService();
+
+// Helper function to convert Decimal values to numbers
+const serializeProduct = (product) => {
+  return {
+    ...product,
+    regularPrice: parseFloat(product.regularPrice),
+    salePrice: product.salePrice ? parseFloat(product.salePrice) : null,
+    costPrice: parseFloat(product.costPrice)
+  };
+};
 
 // Multer configuration for brand logo upload
 const storage = multer.diskStorage({
@@ -62,7 +75,7 @@ const handleValidationErrors = (req, res, next) => {
 // GET /api/v1/brands - List all brands
 router.get('/', [
   query('page').optional().isInt({ min: 1 }),
-  query('limit').optional().isInt({ min: 1, max: 100 }),
+  query('limit').optional().isInt({ min: 1, max: 1000 }),
   query('status').optional().isIn(['active', 'inactive']),
   query('isFeatured').optional().isBoolean(),
   query('search').optional().isString().trim(),
@@ -159,9 +172,7 @@ router.get('/featured', async (req, res) => {
 });
 
 // GET /api/v1/brands/slug/:slug - Get brand by slug
-router.get('/slug/:slug', [
-  param('slug').matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).withMessage('Invalid slug format')
-], handleValidationErrors, async (req, res) => {
+router.get('/slug/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
 
@@ -241,7 +252,7 @@ router.post('/', [
   body('metaTitle').optional().isString().trim(),
   body('metaDescription').optional().isString(),
   body('metaKeywords').optional().isString()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const brandData = req.body;
 
@@ -308,7 +319,7 @@ router.put('/:id', [
   body('metaTitle').optional().isString().trim(),
   body('metaDescription').optional().isString(),
   body('metaKeywords').optional().isString()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -342,6 +353,23 @@ router.put('/:id', [
       data: updateData
     });
 
+    // Reindex all products in this brand (non-blocking)
+    if (elasticsearchConfig.isAvailable()) {
+      const products = await prisma.product.findMany({
+        where: { brandId: id },
+        select: { id: true }
+      });
+
+      const productIds = products.map(p => p.id);
+      
+      if (productIds.length > 0) {
+        productIndexingService.indexProducts(productIds)
+          .catch(error => {
+            console.error('Failed to reindex brand products in Elasticsearch:', error);
+          });
+      }
+    }
+
     res.json({
       message: 'Brand updated successfully',
       brand: updatedBrand
@@ -359,7 +387,7 @@ router.put('/:id', [
 // DELETE /api/v1/brands/:id - Delete brand (admin only)
 router.delete('/:id', [
   param('id').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -420,7 +448,7 @@ router.delete('/:id', [
 router.patch('/:id/status', [
   param('id').isUUID(),
   body('status').isIn(['active', 'inactive'])
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -464,7 +492,7 @@ router.patch('/:id/featured', [
   param('id').isUUID(),
   body('isFeatured').isBoolean(),
   body('featuredOrder').optional().isInt({ min: 0 })
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { isFeatured, featuredOrder } = req.body;
@@ -509,7 +537,7 @@ router.patch('/featured-reorder', [
   body('orders').isArray({ min: 1 }),
   body('orders.*.id').isUUID(),
   body('orders.*.featuredOrder').isInt({ min: 0 })
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { orders } = req.body;
 
@@ -546,9 +574,10 @@ router.get('/:id/products', [
   param('id').isUUID(),
   query('page').optional().isInt({ min: 1 }),
   query('limit').optional().isInt({ min: 1, max: 100 }),
+  query('status').optional().isIn(['active', 'inactive', 'draft', 'published', 'archived', 'out_of_stock', 'discontinued']),
   query('minPrice').optional().isFloat({ min: 0 }),
   query('maxPrice').optional().isFloat({ min: 0 }),
-  query('sortBy').optional().isIn(['price', 'name', 'createdAt', 'rating']),
+  query('sortBy').optional().isIn(['price', 'name', 'createdAt']),
   query('sortOrder').optional().isIn(['asc', 'desc'])
 ], handleValidationErrors, async (req, res) => {
   try {
@@ -556,6 +585,7 @@ router.get('/:id/products', [
     const {
       page = 1,
       limit = 20,
+      status,
       minPrice,
       maxPrice,
       sortBy = 'createdAt',
@@ -581,7 +611,8 @@ router.get('/:id/products', [
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const where = { brandId: id, status: 'active' };
+    const where = { brandId: id };
+    if (status) where.status = status;
 
     if (minPrice !== undefined || maxPrice !== undefined) {
       where.regularPrice = {};
@@ -615,6 +646,9 @@ router.get('/:id/products', [
       prisma.product.count({ where })
     ]);
 
+    // Serialize Decimal values to numbers
+    products = products.map(serializeProduct);
+
     res.json({
       brand: {
         id: brand.id,
@@ -647,7 +681,7 @@ router.get('/:id/products', [
 // POST /api/v1/brands/:id/logo - Upload brand logo
 router.post('/:id/logo', [
   param('id').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), upload.single('logo'), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), upload.single('logo'), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -676,7 +710,7 @@ router.post('/:id/logo', [
       }
     }
 
-    const logoUrl = `/uploads/brands/${req.file.filename}`;
+    const logoUrl = `${process.env.BACKEND_URL || 'http://localhost:3001'}/uploads/brands/${req.file.filename}`;
 
     const updatedBrand = await prisma.brand.update({
       where: { id },
@@ -700,7 +734,7 @@ router.post('/:id/logo', [
 // DELETE /api/v1/brands/:id/logo - Delete brand logo
 router.delete('/:id/logo', [
   param('id').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -747,6 +781,263 @@ router.delete('/:id/logo', [
 });
 
 // ============================================
+// BULK BRAND OPERATIONS ENDPOINTS
+// ============================================
+
+// POST /api/v1/brands/bulk - Batch create brands (admin only)
+router.post('/bulk', [
+  body('brands').isArray({ min: 1, max: 100 }).withMessage('Brands array must contain 1-100 items'),
+  body('brands.*.name').notEmpty().trim(),
+  body('brands.*.slug').matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).withMessage('Slug must contain only lowercase letters, numbers, and hyphens'),
+  body('brands.*.status').optional().isIn(['active', 'inactive'])
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
+  try {
+    const { brands } = req.body;
+
+    // Validate all brands before creation
+    const slugs = brands.map(b => b.slug);
+
+    // Check for duplicate slugs in batch
+    const duplicateSlugs = slugs.filter((slug, index) => slugs.indexOf(slug) !== index);
+    if (duplicateSlugs.length > 0) {
+      return res.status(400).json({
+        error: 'Duplicate slugs in batch',
+        duplicates: duplicateSlugs
+      });
+    }
+
+    // Check if slugs already exist in database
+    const existingSlugs = await prisma.brand.findMany({
+      where: { slug: { in: slugs } },
+      select: { slug: true }
+    });
+
+    if (existingSlugs.length > 0) {
+      return res.status(409).json({
+        error: 'Some slugs already exist',
+        existingSlugs: existingSlugs.map(s => s.slug)
+      });
+    }
+
+    // Create brands in a transaction
+    const createdBrands = await prisma.$transaction(async (tx) => {
+      const results = [];
+      for (const brandData of brands) {
+        const brand = await tx.brand.create({
+          data: {
+            name: brandData.name,
+            slug: brandData.slug,
+            nameEn: brandData.nameEn || null,
+            nameBn: brandData.nameBn || null,
+            description: brandData.description || null,
+            websiteUrl: brandData.websiteUrl || null,
+            contactEmail: brandData.contactEmail || null,
+            contactPhone: brandData.contactPhone || null,
+            address: brandData.address || null,
+            status: brandData.status || 'active',
+            isFeatured: brandData.isFeatured || false,
+            featuredOrder: brandData.featuredOrder || 0,
+            metaTitle: brandData.metaTitle || null,
+            metaDescription: brandData.metaDescription || null,
+            metaKeywords: brandData.metaKeywords || null
+          }
+        });
+        results.push(brand);
+      }
+      return results;
+    });
+
+    res.status(201).json({
+      success: true,
+      created: createdBrands.length,
+      failed: 0,
+      results: createdBrands.map(brand => ({
+        brand,
+        status: 'created'
+      }))
+    });
+
+  } catch (error) {
+    console.error('Bulk create brands error:', error);
+    res.status(500).json({
+      error: 'Failed to create brands in bulk',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// PUT /api/v1/brands/bulk - Batch update brands (admin only)
+router.put('/bulk', [
+  body('brands').isArray({ min: 1, max: 100 }).withMessage('Brands array must contain 1-100 items'),
+  body('brands.*.id').isUUID(),
+  body('brands.*.name').optional().notEmpty().trim(),
+  body('brands.*.slug').optional().matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).withMessage('Slug must contain only lowercase letters, numbers, and hyphens'),
+  body('brands.*.status').optional().isIn(['active', 'inactive'])
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
+  try {
+    const { brands } = req.body;
+
+    const brandIds = brands.map(b => b.id);
+
+    // Check if all brands exist
+    const existingBrands = await prisma.brand.findMany({
+      where: { id: { in: brandIds } },
+      select: { id: true, slug: true }
+    });
+
+    if (existingBrands.length !== brandIds.length) {
+      const missingIds = brandIds.filter(id => !existingBrands.find(b => b.id === id));
+      return res.status(404).json({
+        error: 'Some brands not found',
+        missingIds
+      });
+    }
+
+    // Check for slug conflicts
+    const slugsToUpdate = brands.filter(b => b.slug).map(b => ({ slug: b.slug, id: b.id }));
+    if (slugsToUpdate.length > 0) {
+      const slugConflicts = await prisma.brand.findMany({
+        where: {
+          slug: { in: slugsToUpdate.map(s => s.slug) },
+          NOT: { id: { in: brandIds } }
+        },
+        select: { slug: true }
+      });
+
+      if (slugConflicts.length > 0) {
+        return res.status(409).json({
+          error: 'Some slugs conflict with existing brands',
+          conflicts: slugConflicts.map(s => s.slug)
+        });
+      }
+    }
+
+    // Update brands in a transaction
+    const updatedBrands = await prisma.$transaction(async (tx) => {
+      const results = [];
+      for (const brandData of brands) {
+        const updateData = { ...brandData };
+        delete updateData.id;
+
+        const brand = await tx.brand.update({
+          where: { id: brandData.id },
+          data: updateData
+        });
+        results.push(brand);
+      }
+      return results;
+    });
+
+    // Reindex all products in updated brands (non-blocking)
+    if (elasticsearchConfig.isAvailable()) {
+      const products = await prisma.product.findMany({
+        where: { brandId: { in: brandIds } },
+        select: { id: true }
+      });
+
+      const productIds = products.map(p => p.id);
+
+      if (productIds.length > 0) {
+        productIndexingService.indexProducts(productIds)
+          .catch(error => {
+            console.error('Failed to reindex brand products in Elasticsearch:', error);
+          });
+      }
+    }
+
+    res.json({
+      success: true,
+      updated: updatedBrands.length,
+      failed: 0,
+      results: updatedBrands.map(brand => ({
+        brand,
+        status: 'updated'
+      }))
+    });
+
+  } catch (error) {
+    console.error('Bulk update brands error:', error);
+    res.status(500).json({
+      error: 'Failed to update brands in bulk',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// DELETE /api/v1/brands/bulk - Batch delete brands (admin only)
+router.delete('/bulk', [
+  body('brandIds').isArray({ min: 1, max: 100 }).withMessage('Brand IDs array must contain 1-100 items'),
+  body('brandIds.*').isUUID()
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
+  try {
+    const { brandIds } = req.body;
+
+    // Check if all brands exist
+    const brands = await prisma.brand.findMany({
+      where: { id: { in: brandIds } },
+      include: {
+        _count: {
+          select: { products: true }
+        }
+      }
+    });
+
+    if (brands.length !== brandIds.length) {
+      const missingIds = brandIds.filter(id => !brands.find(b => b.id === id));
+      return res.status(404).json({
+        error: 'Some brands not found',
+        missingIds
+      });
+    }
+
+    // Check if any brand has products
+    const brandsWithProducts = brands.filter(b => b._count.products > 0);
+    if (brandsWithProducts.length > 0) {
+      return res.status(400).json({
+        error: 'Cannot delete brands with products',
+        brandsWithProducts: brandsWithProducts.map(b => b.id)
+      });
+    }
+
+    // Delete brands in a transaction
+    const deletedBrandIds = await prisma.$transaction(async (tx) => {
+      // Delete logo files
+      for (const brand of brands) {
+        if (brand.logoUrl) {
+          const logoPath = path.join(__dirname, '..', brand.logoUrl);
+          if (fs.existsSync(logoPath)) {
+            fs.unlinkSync(logoPath);
+          }
+        }
+      }
+
+      await tx.brand.deleteMany({
+        where: { id: { in: brandIds } }
+      });
+
+      return brandIds;
+    });
+
+    res.json({
+      success: true,
+      deleted: deletedBrandIds.length,
+      failed: 0,
+      results: deletedBrandIds.map(brandId => ({
+        brandId,
+        status: 'deleted'
+      }))
+    });
+
+  } catch (error) {
+    console.error('Bulk delete brands error:', error);
+    res.status(500).json({
+      error: 'Failed to delete brands in bulk',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// ============================================
 // BRAND SEO MANAGEMENT ENDPOINT
 // ============================================
 
@@ -756,7 +1047,7 @@ router.patch('/:id/seo', [
   body('metaTitle').optional().isString().trim(),
   body('metaDescription').optional().isString(),
   body('metaKeywords').optional().isString()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { metaTitle, metaDescription, metaKeywords } = req.body;

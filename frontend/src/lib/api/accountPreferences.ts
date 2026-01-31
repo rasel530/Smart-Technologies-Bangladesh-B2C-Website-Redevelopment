@@ -32,7 +32,7 @@ export class AccountPreferencesAPI {
     const response = await apiClient.get<{ preferences: NotificationPreferences }>(
       `${this.BASE_PATH}/notifications`
     );
-    return response.data.preferences;
+    return response.preferences;
   }
 
   /**
@@ -45,7 +45,7 @@ export class AccountPreferencesAPI {
       `${this.BASE_PATH}/notifications`,
       preferences
     );
-    return response.data.preferences;
+    return response.preferences;
   }
 
   /**
@@ -55,7 +55,7 @@ export class AccountPreferencesAPI {
     const response = await apiClient.get<{ preferences: CommunicationPreferences }>(
       `${this.BASE_PATH}/communication`
     );
-    return response.data.preferences;
+    return response.preferences;
   }
 
   /**
@@ -68,7 +68,7 @@ export class AccountPreferencesAPI {
       `${this.BASE_PATH}/communication`,
       preferences
     );
-    return response.data.preferences;
+    return response.preferences;
   }
 
   // ==================== Privacy Settings ====================
@@ -80,7 +80,7 @@ export class AccountPreferencesAPI {
     const response = await apiClient.get<{ settings: PrivacySettings }>(
       `${this.BASE_PATH}/privacy`
     );
-    return response.data.settings;
+    return response.settings;
   }
 
   /**
@@ -93,7 +93,7 @@ export class AccountPreferencesAPI {
       `${this.BASE_PATH}/privacy`,
       settings
     );
-    return response.data.settings;
+    return response.settings;
   }
 
   // ==================== Password Management ====================
@@ -118,7 +118,7 @@ export class AccountPreferencesAPI {
       '/profile/account/2fa/enable',
       { method, phoneNumber }
     );
-    return response.data;
+    return response;
   }
 
   /**
@@ -141,7 +141,7 @@ export class AccountPreferencesAPI {
       expiresAt: string;
       scheduledDeletionDate: string;
     }>('/profile/account/deletion/request', data);
-    return response.data;
+    return response;
   }
 
   /**
@@ -167,7 +167,7 @@ export class AccountPreferencesAPI {
     const response = await apiClient.get<{ status: AccountDeletionStatus }>(
       '/profile/account/deletion/status'
     );
-    return response.data.status;
+    return response.status;
   }
 
   // ==================== Data Export ====================
@@ -179,13 +179,13 @@ export class AccountPreferencesAPI {
     const response = await apiClient.get<{ exports: DataExport[] }>(
       '/profile/data/export'
     );
-    console.log('[AccountPreferencesAPI] getDataExports response:', response.data);
-    console.log('[AccountPreferencesAPI] exports array:', response.data.exports);
-    if (response.data.exports && response.data.exports.length > 0) {
-      console.log('[AccountPreferencesAPI] First export:', response.data.exports[0]);
-      console.log('[AccountPreferencesAPI] First export keys:', Object.keys(response.data.exports[0]));
+    console.log('[AccountPreferencesAPI] getDataExports response:', response);
+    console.log('[AccountPreferencesAPI] exports array:', response.exports);
+    if (response.exports && response.exports.length > 0) {
+      console.log('[AccountPreferencesAPI] First export:', response.exports[0]);
+      console.log('[AccountPreferencesAPI] First export keys:', Object.keys(response.exports[0]));
     }
-    return response.data.exports;
+    return response.exports;
   }
 
   /**
@@ -198,8 +198,8 @@ export class AccountPreferencesAPI {
       '/profile/data/export/generate',
       data
     );
-    console.log('[AccountPreferencesAPI] generateDataExport response:', response.data);
-    return response.data.export;
+    console.log('[AccountPreferencesAPI] generateDataExport response:', response);
+    return response.export;
   }
 
   /**

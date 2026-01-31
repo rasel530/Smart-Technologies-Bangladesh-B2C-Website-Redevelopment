@@ -39,7 +39,7 @@ export class ProfileAPI {
    */
   static async getProfile(): Promise<{ user: UserProfile }> {
     const response = await apiClient.get<{ user: UserProfile }>(`${this.BASE_PATH}/me`);
-    return response.data;
+    return response.data; // Return only the data, not the full response
   }
 
   /**

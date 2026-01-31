@@ -1,9 +1,11 @@
 /**
  * Product Entity Type Definitions
- * 
+ *
  * This file contains all TypeScript interfaces and types related to Product entities
- * including Product, ProductImage, ProductSpecification, and ProductVariant.
+ * including Product, ProductSpecification, and ProductVariant.
  */
+
+import type { ProductImage } from './product-image';
 
 /**
  * Product Status Type
@@ -19,17 +21,6 @@ export type ProductVisibility = 'public' | 'private' | 'restricted';
  * Inventory Status Type
  */
 export type InventoryStatus = 'in_stock' | 'low_stock' | 'out_of_stock';
-
-/**
- * Product Image Interface
- */
-export interface ProductImage {
-  id: string;
-  productId: string;
-  url: string;
-  alt: string | null;
-  sortOrder: number;
-}
 
 /**
  * Product Specification Interface
@@ -385,11 +376,14 @@ export interface SearchFilters {
   page?: number;
   limit?: number;
   category?: string;
+  categoryId?: string;
   brand?: string;
+  brandId?: string;
   search?: string;
   minPrice?: number;
   maxPrice?: number;
   status?: ProductStatus;
+  visibility?: ProductVisibility;
   sortBy?: 'price' | 'name' | 'createdAt' | 'stockQuantity';
   sortOrder?: 'asc' | 'desc';
   isFeatured?: boolean;

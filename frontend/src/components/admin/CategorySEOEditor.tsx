@@ -100,13 +100,13 @@ export const CategorySEOEditor: React.FC<CategorySEOEditorProps> = ({
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
             />
             <div className="flex justify-between items-center mt-1">
-              <p className={`text-xs ${getCharacterCountColor(seoData.metaTitle.length, 60)}`}>
-                {seoData.metaTitle.length}/60 characters
+              <p className={`text-xs ${getCharacterCountColor(seoData.metaTitle?.length || 0, 60)}`}>
+                {seoData.metaTitle?.length || 0}/60 characters
               </p>
               <p className={`text-xs ${
-                seoData.metaTitle.length > 50 ? 'text-yellow-600' : 'text-green-600'
+                (seoData.metaTitle?.length || 0) > 50 ? 'text-yellow-600' : 'text-green-600'
               }`}>
-                {seoData.metaTitle.length > 50 ? 'Getting long' : 'Good length'}
+                {(seoData.metaTitle?.length || 0) > 50 ? 'Getting long' : 'Good length'}
               </p>
             </div>
           </div>
@@ -124,13 +124,13 @@ export const CategorySEOEditor: React.FC<CategorySEOEditorProps> = ({
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
             />
             <div className="flex justify-between items-center mt-1">
-              <p className={`text-xs ${getCharacterCountColor(seoData.metaDescription.length, 160)}`}>
-                {seoData.metaDescription.length}/160 characters
+              <p className={`text-xs ${getCharacterCountColor(seoData.metaDescription?.length || 0, 160)}`}>
+                {seoData.metaDescription?.length || 0}/160 characters
               </p>
               <p className={`text-xs ${
-                seoData.metaDescription.length > 140 ? 'text-yellow-600' : 'text-green-600'
+                (seoData.metaDescription?.length || 0) > 140 ? 'text-yellow-600' : 'text-green-600'
               }`}>
-                {seoData.metaDescription.length > 140 ? 'Getting long' : 'Good length'}
+                {(seoData.metaDescription?.length || 0) > 140 ? 'Getting long' : 'Good length'}
               </p>
             </div>
           </div>

@@ -242,7 +242,7 @@ export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   error: LoginErrorPayload | string | null;
-  login: (emailOrPhone: string, password: string, rememberMe?: boolean) => Promise<void>;
+  login: (emailOrPhone: string, password: string, rememberMe?: boolean) => Promise<{ success: boolean; error: LoginErrorPayload | null }>;
   register: (data: RegistrationData) => Promise<void>;
   logout: () => void;
   verifyEmail: (email: string, code: string) => Promise<void>;

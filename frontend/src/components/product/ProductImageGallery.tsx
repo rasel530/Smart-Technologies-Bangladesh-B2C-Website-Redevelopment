@@ -1,98 +1,157 @@
 /**
- * ProductImageGallery Component
+ * Product Image Gallery with Zoom
  * 
- * An image gallery component for product images with zoom, thumbnails, and lightbox.
- * Features include main image display, thumbnail navigation, and full-size lightbox.
+ * Features:
+ * - Main image with thumbnails
+ * - Click-to-zoom functionality
+ * - Hover zoom on desktop
+ * - Touch swipe support for mobile
+ * - Keyboard navigation
+ * - Lightbox modal view
+ * - Integration with new ProductImage types
+ * - Backward compatibility with existing ProductImage interface
  * 
- * @component
+ * NS_BINDING_ABORTED Error Prevention:
+ * - Uses isMountedRef to prevent state updates after unmount
+ * - Uses useRef to track current image ID and prevent stale closures
+ * - Implements proper error handling for cancelled/failed requests
+ * - Stable key props to prevent unnecessary re-renders
+ * - Debounced thumbnail clicks to prevent rapid image switching
  */
 
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import Image from 'next/image';
-import { ProductImage } from '@/types/product';
+import { ProductImage as NewProductImage } from '@/types/product-image';
+import { getImageUrl, getAltText } from '@/lib/api/product-images';
+import { ImageLightbox } from '@/components/products/ImageLightbox';
+import { ImageThumbnailStrip } from '@/components/products/ImageThumbnailStrip';
+
+// Backward compatibility interface
+interface ProductImage {
+  id: string;
+  url: string;
+  alt?: string;
+  sortOrder: number;
+}
 
 interface ProductImageGalleryProps {
   images: ProductImage[];
   productName: string;
-  className?: string;
 }
 
-/**
- * ProductImageGallery Component
- * 
- * @param {ProductImageGalleryProps} props - Component props
- * @returns {JSX.Element} Product image gallery component
- */
-export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
-  images,
-  productName,
-  className = ''
-}) => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
+// Convert old ProductImage to new ProductImage (memoized for performance)
+const convertToNewProductImage = (oldImage: ProductImage): NewProductImage => ({
+  id: oldImage.id,
+  productId: '', // Will be set by parent
+  originalUrl: oldImage.url,
+  optimizedUrl: null,
+  thumbnailUrl: null,
+  altTextBn: oldImage.alt || '',
+  altTextEn: oldImage.alt || '',
+  displayOrder: oldImage.sortOrder,
+  isPrimary: oldImage.sortOrder === 0, // First image is primary
+  fileSizeBytes: null,
+  mimeType: null,
+  width: null,
+  height: null,
+  processingStatus: 'completed' as const,
+  createdAt: new Date(),
+  updatedAt: new Date()
+});
 
-  // Get current image
-  const currentImage = images[selectedIndex] || {
-    id: '',
-    productId: '',
-    url: '/images/placeholder-product.png',
-    alt: productName,
-    sortOrder: 0
-  };
+// Debounce utility for preventing rapid image switching that causes NS_BINDING_ABORTED
+function useDebounce<T extends (...args: unknown[]) => void>(
+  callback: T,
+  delay: number
+): T {
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Handle thumbnail click
-  const handleThumbnailClick = useCallback((index: number) => {
-    setSelectedIndex(index);
-  }, []);
-
-  // Handle previous image
-  const handlePrevious = useCallback(() => {
-    setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  }, [images.length]);
-
-  // Handle next image
-  const handleNext = useCallback(() => {
-    setSelectedIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-  }, [images.length]);
-
-  // Handle image error
-  const handleImageError = useCallback((index: number) => {
-    setImageErrors((prev) => new Set(Array.from(prev).concat([index])));
-  }, []);
-
-  // Handle lightbox open
-  const handleLightboxOpen = useCallback(() => {
-    setIsLightboxOpen(true);
-  }, []);
-
-  // Handle lightbox close
-  const handleLightboxClose = useCallback(() => {
-    setIsLightboxOpen(false);
-  }, []);
-
-  // Handle keyboard navigation
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isLightboxOpen) return;
-      
-      if (e.key === 'ArrowLeft') {
-        handlePrevious();
-      } else if (e.key === 'ArrowRight') {
-        handleNext();
-      } else if (e.key === 'Escape') {
-        handleLightboxClose();
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
     };
+  }, []);
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isLightboxOpen, handlePrevious, handleNext, handleLightboxClose]);
+  return useCallback((...args: Parameters<T>) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      callback(...args);
+    }, delay);
+  }, [callback, delay]) as T;
+}
+
+export function ProductImageGallery({ images, productName }: ProductImageGalleryProps) {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  
+  // Refs for preventing stale closures and NS_BINDING_ABORTED errors
+  const isMountedRef = useRef(true);
+  const currentImageIdRef = useRef<string | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const selectedIndexRef = useRef(selectedIndex);
+  
+  const mainImageRef = useRef<HTMLDivElement>(null);
+  const lightboxRef = useRef<HTMLDivElement>(null);
+
+  // Set client flag after mount and cleanup on unmount
+  useEffect(() => {
+    setIsClient(true);
+    
+    return () => {
+      isMountedRef.current = false;
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Update ref when selectedIndex changes
+  useEffect(() => {
+    selectedIndexRef.current = selectedIndex;
+  }, [selectedIndex]);
+
+  // Convert and memoize images to prevent re-renders
+  const newImages = useMemo(() => 
+    images.map(convertToNewProductImage), 
+    [images]
+  );
+  
+  // Memoize validImages with stable reference
+  const validImages = useMemo(() => 
+    newImages.length > 0 ? newImages : [
+      {
+        id: 'placeholder',
+        productId: '',
+        originalUrl: '/images/placeholder-product.jpg',
+        optimizedUrl: null,
+        thumbnailUrl: null,
+        altTextBn: productName,
+        altTextEn: productName,
+        displayOrder: 0,
+        isPrimary: true,
+        fileSizeBytes: null,
+        mimeType: null,
+        width: null,
+        height: null,
+        processingStatus: 'completed' as const,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ],
+    [newImages, productName]
+  );
 
   // Prevent body scroll when lightbox is open
-  React.useEffect(() => {
+  useEffect(() => {
     if (isLightboxOpen) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -103,239 +162,238 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
     };
   }, [isLightboxOpen]);
 
-  // If no images, show placeholder
-  if (images.length === 0) {
+  // Debounced thumbnail click handler to prevent rapid image switching
+  const debouncedSetSelectedIndex = useDebounce((index: number) => {
+    if (isMountedRef.current && index >= 0 && index < validImages.length) {
+      setSelectedIndex(index);
+      setIsLoaded(false);
+      setHasError(false);
+      currentImageIdRef.current = validImages[index]?.id || null;
+    }
+  }, 150);
+
+  // Handle thumbnail click with debounce to prevent NS_BINDING_ABORTED
+  const handleThumbnailClick = useCallback((index: number) => {
+    if (index === selectedIndexRef.current) return;
+    debouncedSetSelectedIndex(index);
+  }, [debouncedSetSelectedIndex]);
+
+  // Ref to track if navigation is in progress (prevents rapid switching)
+  const navigationInProgressRef = useRef(false);
+
+  // Debounced lightbox navigation to prevent NS_BINDING_ABORTED
+  const debouncedLightboxNav = useDebounce((direction: 'prev' | 'next') => {
+    if (!isMountedRef.current || navigationInProgressRef.current) return;
+    
+    navigationInProgressRef.current = true;
+    setSelectedIndex(prev => {
+      const newIndex = direction === 'prev'
+        ? (prev > 0 ? prev - 1 : validImages.length - 1)
+        : (prev < validImages.length - 1 ? prev + 1 : 0);
+      return newIndex;
+    });
+    setIsLoaded(false);
+    setHasError(false);
+    
+    // Reset navigation lock after a short delay
+    setTimeout(() => {
+      navigationInProgressRef.current = false;
+    }, 100);
+  }, 100);
+
+  // Handle keyboard navigation with debounce to prevent NS_BINDING_ABORTED
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isLightboxOpen || !isMountedRef.current) return;
+      
+      switch (e.key) {
+        case 'Escape':
+          setIsLightboxOpen(false);
+          break;
+        case 'ArrowLeft':
+          debouncedLightboxNav('prev');
+          break;
+        case 'ArrowRight':
+          debouncedLightboxNav('next');
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isLightboxOpen, debouncedLightboxNav]);
+
+  const handleMainImageClick = useCallback(() => {
+    setIsLightboxOpen(true);
+    setIsLoaded(false);
+    setHasError(false);
+  }, []);
+
+  const handleLightboxClose = useCallback(() => {
+    setIsLightboxOpen(false);
+  }, []);
+
+  const handleLightboxBackgroundClick = useCallback((e: React.MouseEvent) => {
+    if (e.target === lightboxRef.current) {
+      handleLightboxClose();
+    }
+  }, [handleLightboxClose]);
+
+  const handleLightboxNav = useCallback((direction: 'prev' | 'next') => {
+    debouncedLightboxNav(direction);
+  }, [debouncedLightboxNav]);
+
+  // Handle image load - only update if component is mounted and image hasn't changed
+  const handleImageLoad = useCallback(() => {
+    if (isMountedRef.current && 
+        currentImageIdRef.current === validImages[selectedIndexRef.current]?.id) {
+      setIsLoaded(true);
+      setHasError(false);
+    }
+  }, [validImages]);
+
+  // Handle image error - distinguish between actual errors and cancelled requests
+  const handleImageError = useCallback(() => {
+    // Only treat as error if the component is still mounted and this is the current image
+    if (isMountedRef.current && 
+        currentImageIdRef.current === validImages[selectedIndexRef.current]?.id) {
+      setHasError(true);
+      setIsLoaded(false);
+    }
+  }, [validImages]);
+
+  // Update current image ID when selectedIndex changes
+  useEffect(() => {
+    currentImageIdRef.current = validImages[selectedIndex]?.id || null;
+  }, [selectedIndex, validImages]);
+
+  // Show loading skeleton until client-side hydration is complete
+  if (!isClient) {
     return (
-      <div className={`aspect-square bg-gray-100 rounded-lg overflow-hidden ${className}`}>
-        <div className="w-full h-full flex items-center justify-center">
-          <svg
-            className="w-24 h-24 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-          </svg>
+      <div className="space-y-4">
+        <div className="aspect-square bg-gray-200 rounded-lg animate-pulse" />
+        <div className="flex gap-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="w-20 h-20 bg-gray-200 rounded-lg animate-pulse" />
+          ))}
         </div>
       </div>
     );
   }
 
+  // Get the current image with stable reference
+  const currentImage = validImages[selectedIndex];
+  const imageKey = `main-image-${currentImage?.id || 'placeholder'}-${selectedIndex}`;
+
   return (
-    <div className={className}>
-      {/* Main Image */}
-      <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden group">
-        <button
-          onClick={handleLightboxOpen}
-          className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-          aria-label="View full-size image"
+    <>
+      <div className="space-y-4">
+        {/* Main Image */}
+        <div 
+          ref={mainImageRef}
+          className="relative aspect-square bg-white rounded-lg overflow-hidden border border-gray-200 cursor-zoom-in group"
+          onClick={handleMainImageClick}
         >
-          <div className="bg-black/50 text-white p-3 rounded-full">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-            </svg>
-          </div>
-        </button>
-
-        {!imageErrors.has(selectedIndex) ? (
-          <Image
-            src={currentImage.url}
-            alt={currentImage.alt || productName}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-            onError={() => handleImageError(selectedIndex)}
-            priority={selectedIndex === 0}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-200">
-            <svg
-              className="w-24 h-24 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+          {/* Conditionally render only the selected image to prevent NS_BINDING_ABORTED errors */}
+          {currentImage && (
+            <div className={`absolute inset-0 transition-opacity duration-300 ${
+              isLoaded ? 'opacity-100' : 'opacity-0'
+            }`}>
+              <Image
+                key={imageKey}
+                src={getImageUrl(currentImage, 'large')}
+                alt={getAltText(currentImage) || `${productName} - Image ${selectedIndex + 1}`}
+                fill
+                className="object-contain transition-transform duration-200 group-hover:scale-110"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                // Priority for current image to prevent unnecessary re-renders
+                priority={true}
+                // Note: loading="eager" is NOT set here because priority=true already handles eager loading
+                // Using both can cause NS_BINDING_ABORTED in some browsers
+                onLoad={handleImageLoad}
+                onError={handleImageError}
               />
-            </svg>
+            </div>
+          )}
+          
+          {/* Loading skeleton - shown when image is not loaded */}
+          {!isLoaded && !hasError && (
+            <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+          )}
+          
+          {/* Error state placeholder - shown when image fails to load */}
+          {hasError && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+              <div className="text-center text-gray-500">
+                <svg className="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-sm">Image unavailable</p>
+              </div>
+            </div>
+          )}
+          
+          {/* Zoom hint */}
+          <div className="absolute bottom-4 right-4 bg-black/50 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+            Click to enlarge
           </div>
-        )}
+          
+          {/* Navigation arrows for mobile */}
+          {validImages.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const newIndex = selectedIndex > 0 ? selectedIndex - 1 : validImages.length - 1;
+                  handleThumbnailClick(newIndex);
+                }}
+                className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+                aria-label="Previous image"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const newIndex = selectedIndex < validImages.length - 1 ? selectedIndex + 1 : 0;
+                  handleThumbnailClick(newIndex);
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+                aria-label="Next image"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </>
+          )}
+        </div>
 
-        {/* Navigation Arrows (only show if multiple images) */}
-        {images.length > 1 && (
-          <>
-            <button
-              onClick={handlePrevious}
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-              aria-label="Previous image"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              onClick={handleNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-              aria-label="Next image"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </>
-        )}
-
-        {/* Image Counter */}
-        {images.length > 1 && (
-          <div className="absolute bottom-2 right-2 z-10 bg-black/50 text-white text-xs px-2 py-1 rounded">
-            {selectedIndex + 1} / {images.length}
-          </div>
+        {/* Thumbnails */}
+        {validImages.length > 1 && (
+          <ImageThumbnailStrip
+            images={validImages}
+            activeIndex={selectedIndex}
+            onThumbnailClick={handleThumbnailClick}
+          />
         )}
       </div>
 
-      {/* Thumbnail Gallery */}
-      {images.length > 1 && (
-        <div className="mt-4 grid grid-cols-5 gap-2">
-          {images.map((image, index) => (
-            <button
-              key={image.id}
-              onClick={() => handleThumbnailClick(index)}
-              className={`
-                relative aspect-square rounded-lg overflow-hidden border-2 transition-all
-                ${selectedIndex === index
-                  ? 'border-primary-600 ring-2 ring-primary-600 ring-offset-2'
-                  : 'border-transparent hover:border-gray-300'
-                }
-              `}
-              aria-label={`View image ${index + 1}`}
-            >
-              {!imageErrors.has(index) ? (
-                <Image
-                  src={image.url}
-                  alt={image.alt || `${productName} - Image ${index + 1}`}
-                  fill
-                  className="object-cover"
-                  onError={() => handleImageError(index)}
-                  loading="lazy"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                  <svg
-                    className="w-8 h-8 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                </div>
-              )}
-            </button>
-          ))}
-        </div>
-      )}
-
       {/* Lightbox Modal */}
-      {isLightboxOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
-          onClick={handleLightboxClose}
-        >
-          <button
-            onClick={handleLightboxClose}
-            className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors focus:outline-none"
-            aria-label="Close lightbox"
-          >
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-
-          {/* Previous Button */}
-          {images.length > 1 && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handlePrevious();
-              }}
-              className="absolute left-4 text-white hover:text-gray-300 transition-colors focus:outline-none"
-              aria-label="Previous image"
-            >
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-          )}
-
-          {/* Lightbox Image */}
-          <div className="relative max-w-4xl max-h-[80vh] w-full">
-            {!imageErrors.has(selectedIndex) ? (
-              <Image
-                src={currentImage.url}
-                alt={currentImage.alt || productName}
-                width={800}
-                height={800}
-                className="w-full h-auto object-contain"
-                priority
-              />
-            ) : (
-              <div className="w-full h-96 flex items-center justify-center bg-gray-800 rounded-lg">
-                <svg
-                  className="w-24 h-24 text-gray-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-            )}
-          </div>
-
-          {/* Next Button */}
-          {images.length > 1 && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleNext();
-              }}
-              className="absolute right-4 text-white hover:text-gray-300 transition-colors focus:outline-none"
-              aria-label="Next image"
-            >
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          )}
-
-          {/* Image Counter */}
-          {images.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm">
-              {selectedIndex + 1} / {images.length}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+      <ImageLightbox
+        isOpen={isLightboxOpen}
+        images={validImages}
+        currentIndex={selectedIndex}
+        productName={productName}
+        onClose={handleLightboxClose}
+        onNext={() => handleLightboxNav('next')}
+        onPrevious={() => handleLightboxNav('prev')}
+        onIndexChange={setSelectedIndex}
+      />
+    </>
   );
-};
+}
 
 export default ProductImageGallery;

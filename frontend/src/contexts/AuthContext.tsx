@@ -251,9 +251,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   
   // Track previous user data to prevent duplicate dispatches
   const prevUserRef = React.useRef<any>(null);
+  
+  // Track mounted state to prevent hydration issues
+  const [isMounted, setIsMounted] = React.useState(false);
+  
+  // Set mounted state after first render
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
-  // Sync NextAuth session with local state
+  // Sync NextAuth session with local state (only after mount to prevent hydration issues)
   useEffect(() => {
+    if (!isMounted) return;
+
     console.log('[AuthContext] NextAuth session changed:', {
       status: sessionStatus,
       previousStatus: prevSessionStatusRef.current,
@@ -325,10 +335,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Update previous user ref
       prevUserRef.current = sessionUser;
     }
-  }, [session, sessionStatus]);
+  }, [session, sessionStatus, isMounted]);
 
-  // Login function using NextAuth
-  const login = async (emailOrPhone: string, password: string, rememberMe: boolean = false) => {
+  // Login function using NextAuth - returns result with success/error status
+  const login = async (emailOrPhone: string, password: string, rememberMe: boolean = false): Promise<{ success: boolean; error: LoginErrorPayload | null }> => {
     console.log('[AuthContext] Login attempt for:', emailOrPhone);
     
     dispatch({ type: 'LOGIN_START' });
@@ -370,43 +380,57 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         }
 
+        const errorPayload: LoginErrorPayload = {
+          message: errorMessage,
+          messageBn: errorMessageBn,
+          requiresVerification,
+          verificationType,
+          code,
+        };
+
         dispatch({
           type: 'LOGIN_FAILURE',
-          payload: {
-            message: errorMessage,
-            messageBn: errorMessageBn,
-            requiresVerification,
-            verificationType,
-            code,
-          }
+          payload: errorPayload
         });
+        
+        return { success: false, error: errorPayload };
       } else if (result?.ok) {
         console.log('[AuthContext] NextAuth login successful');
         // User state will be updated by the session sync effect
+        return { success: true, error: null };
       } else {
-        dispatch({
-          type: 'LOGIN_FAILURE',
-          payload: {
-            message: 'Login failed',
-            messageBn: 'লগইন ব্যর্থ হয়েছে',
-            requiresVerification: null,
-            verificationType: null,
-            code: null,
-          }
-        });
-      }
-    } catch (error: any) {
-      console.error('[AuthContext] Login error:', error);
-      dispatch({
-        type: 'LOGIN_FAILURE',
-        payload: {
-          message: error.message || 'Login failed',
+        const errorPayload: LoginErrorPayload = {
+          message: 'Login failed',
           messageBn: 'লগইন ব্যর্থ হয়েছে',
           requiresVerification: null,
           verificationType: null,
           code: null,
-        }
+        };
+        
+        dispatch({
+          type: 'LOGIN_FAILURE',
+          payload: errorPayload
+        });
+        
+        return { success: false, error: errorPayload };
+      }
+    } catch (error: any) {
+      console.error('[AuthContext] Login error:', error);
+      
+      const errorPayload: LoginErrorPayload = {
+        message: error.message || 'Login failed',
+        messageBn: 'লগইন ব্যর্থ হয়েছে',
+        requiresVerification: null,
+        verificationType: null,
+        code: null,
+      };
+      
+      dispatch({
+        type: 'LOGIN_FAILURE',
+        payload: errorPayload
       });
+      
+      return { success: false, error: errorPayload };
     }
   };
 

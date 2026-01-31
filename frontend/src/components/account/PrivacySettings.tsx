@@ -59,7 +59,7 @@ const PrivacySettings: React.FC<PrivacySettingsProps> = ({ language }) => {
     if (!settings) return;
     setSettings({
       ...settings,
-      [field]: !settings[field as any],
+      [field]: !settings[field],
     });
   };
 

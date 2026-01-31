@@ -7,6 +7,8 @@ import { Brand } from '@/types/brand';
 import productsApi from '@/lib/api/products';
 import categoriesApi from '@/lib/api/categories';
 import brandsApi from '@/lib/api/brands';
+import { generateSlug } from '@/lib/utils/slug';
+import { useShowToast } from '@/components/ui/Toast';
 import { ProductCategoryManager } from './ProductCategoryManager';
 import { ProductBrandManager } from './ProductBrandManager';
 import { ProductVariantRelationships } from './ProductVariantRelationships';
@@ -31,6 +33,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   brands = [],
   allProducts = []
 }) => {
+  const toast = useShowToast();
   const [formData, setFormData] = useState<CreateProductRequest>({
     sku: '',
     name: '',
@@ -66,6 +69,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const [availableBrands, setAvailableBrands] = useState<Brand[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [loadingBrands, setLoadingBrands] = useState(false);
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
 
   // Fetch categories and brands on component mount
   useEffect(() => {
@@ -123,8 +127,18 @@ const ProductForm: React.FC<ProductFormProps> = ({
         warrantyPeriod: product.warrantyPeriod || 0,
         warrantyType: product.warrantyType || '',
       });
+      // If editing an existing product, consider the slug as already manually edited
+      setSlugManuallyEdited(true);
     }
   }, [product]);
+
+  // Auto-generate slug when nameEn changes
+  useEffect(() => {
+    if (formData.nameEn && !slugManuallyEdited && !formData.slug) {
+      const generatedSlug = generateSlug(formData.nameEn);
+      setFormData(prev => ({ ...prev, slug: generatedSlug }));
+    }
+  }, [formData.nameEn, slugManuallyEdited, formData.slug]);
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -151,9 +165,13 @@ const ProductForm: React.FC<ProductFormProps> = ({
     setSubmitting(true);
     try {
       await onSubmit(formData);
+      const successMessage = product 
+        ? 'Product updated successfully!' 
+        : 'Product created successfully!';
+      toast.success(successMessage, 'Success');
     } catch (error) {
       console.error('Error submitting product:', error);
-      alert('Failed to save product');
+      toast.error('Failed to save product', 'Error');
     } finally {
       setSubmitting(false);
     }
@@ -163,6 +181,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const handleSlugChange = (value: string) => {
+    setFormData(prev => ({ ...prev, slug: value }));
+    setSlugManuallyEdited(true);
+    if (errors.slug) {
+      setErrors(prev => ({ ...prev, slug: '' }));
     }
   };
 
@@ -413,14 +439,23 @@ const ProductForm: React.FC<ProductFormProps> = ({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Slug *
             </label>
-            <input
-              type="text"
-              value={formData.slug}
-              onChange={(e) => handleChange('slug', e.target.value)}
-              className={`w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 ${
-                errors.slug ? 'border-red-500' : 'border-gray-300'
-              }`}
-            />
+            <div className="relative">
+              <input
+                type="text"
+                value={formData.slug}
+                onChange={(e) => handleSlugChange(e.target.value)}
+                className={`w-full border rounded-lg px-4 py-2 pr-10 focus:ring-2 focus:ring-blue-500 ${
+                  errors.slug ? 'border-red-500' : 'border-gray-300'
+                }`}
+              />
+              {formData.slug && !slugManuallyEdited && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800" title="Auto-generated from product name">
+                    Auto
+                  </span>
+                </div>
+              )}
+            </div>
             {errors.slug && <p className="text-red-500 text-sm mt-1">{errors.slug}</p>}
           </div>
 
@@ -664,7 +699,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
             />
             <p className="text-xs text-gray-500 mt-1">
-              {formData.metaTitle.length}/60 characters
+              {formData.metaTitle?.length || 0}/60 characters
             </p>
           </div>
 
@@ -680,7 +715,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
             />
             <p className="text-xs text-gray-500 mt-1">
-              {formData.metaDescription.length}/160 characters
+              {formData.metaDescription?.length || 0}/160 characters
             </p>
           </div>
 

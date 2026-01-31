@@ -5,9 +5,22 @@ const { authMiddleware } = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { elasticsearchConfig } = require('../config/elasticsearch');
+const { ProductIndexingService } = require('../services/elasticsearch/productIndexingService');
 
 const router = express.Router();
 const prisma = new PrismaClient();
+const productIndexingService = new ProductIndexingService();
+
+// Helper function to convert Decimal values to numbers
+const serializeProduct = (product) => {
+  return {
+    ...product,
+    regularPrice: parseFloat(product.regularPrice),
+    salePrice: product.salePrice ? parseFloat(product.salePrice) : null,
+    costPrice: parseFloat(product.costPrice)
+  };
+};
 
 // Multer configuration for product image upload
 const storage = multer.diskStorage({
@@ -62,7 +75,7 @@ const handleValidationErrors = (req, res, next) => {
 // GET /api/v1/products - List all products with filtering
 router.get('/', [
   query('page').optional().isInt({ min: 1 }),
-  query('limit').optional().isInt({ min: 1, max: 100 }),
+  query('limit').optional().isInt({ min: 1, max: 1000 }),
   query('status').optional().isIn(['active', 'inactive', 'draft', 'published', 'archived', 'out_of_stock', 'discontinued']),
   query('visibility').optional().isIn(['public', 'private', 'restricted']),
   query('categoryId').optional().isUUID(),
@@ -96,7 +109,7 @@ router.get('/', [
 
     const where = {};
 
-    if (status) where.status = status;
+    if (status) where.status = status; else where.status = 'active';
     if (visibility) where.visibility = visibility;
     if (categoryId) {
       where.categories = {
@@ -127,7 +140,7 @@ router.get('/', [
 
     const skip = (page - 1) * limit;
 
-    const [products, total] = await Promise.all([
+    let [products, total] = await Promise.all([
       prisma.product.findMany({
         where,
         skip: parseInt(skip),
@@ -144,7 +157,7 @@ router.get('/', [
             select: { id: true, name: true, slug: true }
           },
           images: {
-            orderBy: { sortOrder: 'asc' }
+            orderBy: { displayOrder: 'asc' }
           },
           _count: {
             select: { reviews: true }
@@ -154,6 +167,9 @@ router.get('/', [
       }),
       prisma.product.count({ where })
     ]);
+
+    // Serialize Decimal values to numbers
+    products = products.map(serializeProduct);
 
     res.json({
       products,
@@ -177,7 +193,7 @@ router.get('/', [
 // GET /api/v1/products/featured - Get featured products
 router.get('/featured', async (req, res) => {
   try {
-    const products = await prisma.product.findMany({
+    let products = await prisma.product.findMany({
       where: {
         status: 'active',
         visibility: 'public',
@@ -195,7 +211,7 @@ router.get('/featured', async (req, res) => {
           select: { id: true, name: true, slug: true }
         },
         images: {
-          orderBy: { sortOrder: 'asc' }
+          orderBy: { displayOrder: 'asc' }
         },
         _count: {
           select: { reviews: true }
@@ -204,6 +220,9 @@ router.get('/featured', async (req, res) => {
       orderBy: { createdAt: 'desc' },
       take: 20
     });
+
+    // Serialize Decimal values to numbers
+    products = products.map(serializeProduct);
 
     res.json({
       products,
@@ -222,7 +241,7 @@ router.get('/featured', async (req, res) => {
 // GET /api/v1/products/new-arrivals - Get new arrivals
 router.get('/new-arrivals', async (req, res) => {
   try {
-    const products = await prisma.product.findMany({
+    let products = await prisma.product.findMany({
       where: {
         status: 'active',
         visibility: 'public',
@@ -240,7 +259,7 @@ router.get('/new-arrivals', async (req, res) => {
           select: { id: true, name: true, slug: true }
         },
         images: {
-          orderBy: { sortOrder: 'asc' }
+          orderBy: { displayOrder: 'asc' }
         },
         _count: {
           select: { reviews: true }
@@ -249,6 +268,9 @@ router.get('/new-arrivals', async (req, res) => {
       orderBy: { createdAt: 'desc' },
       take: 20
     });
+
+    // Serialize Decimal values to numbers
+    products = products.map(serializeProduct);
 
     res.json({
       products,
@@ -267,7 +289,7 @@ router.get('/new-arrivals', async (req, res) => {
 // GET /api/v1/products/best-sellers - Get best sellers
 router.get('/best-sellers', async (req, res) => {
   try {
-    const products = await prisma.product.findMany({
+    let products = await prisma.product.findMany({
       where: {
         status: 'active',
         visibility: 'public',
@@ -285,7 +307,7 @@ router.get('/best-sellers', async (req, res) => {
           select: { id: true, name: true, slug: true }
         },
         images: {
-          orderBy: { sortOrder: 'asc' }
+          orderBy: { displayOrder: 'asc' }
         },
         _count: {
           select: { reviews: true }
@@ -294,6 +316,9 @@ router.get('/best-sellers', async (req, res) => {
       orderBy: { createdAt: 'desc' },
       take: 20
     });
+
+    // Serialize Decimal values to numbers
+    products = products.map(serializeProduct);
 
     res.json({
       products,
@@ -316,7 +341,7 @@ router.get('/slug/:slug', [
   try {
     const { slug } = req.params;
 
-    const product = await prisma.product.findUnique({
+    let product = await prisma.product.findUnique({
       where: { slug },
       include: {
         categories: {
@@ -330,7 +355,7 @@ router.get('/slug/:slug', [
           select: { id: true, name: true, slug: true }
         },
         images: {
-          orderBy: { sortOrder: 'asc' }
+          orderBy: { displayOrder: 'asc' }
         },
         specifications: {
           orderBy: { sortOrder: 'asc' }
@@ -358,7 +383,7 @@ router.get('/slug/:slug', [
                 salePrice: true,
                 images: {
                   take: 1,
-                  orderBy: { sortOrder: 'asc' }
+                  orderBy: { displayOrder: 'asc' }
                 }
               }
             }
@@ -377,7 +402,7 @@ router.get('/slug/:slug', [
                 salePrice: true,
                 images: {
                   take: 1,
-                  orderBy: { sortOrder: 'asc' }
+                  orderBy: { displayOrder: 'asc' }
                 }
               }
             }
@@ -396,7 +421,7 @@ router.get('/slug/:slug', [
                 salePrice: true,
                 images: {
                   take: 1,
-                  orderBy: { sortOrder: 'asc' }
+                  orderBy: { displayOrder: 'asc' }
                 }
               }
             }
@@ -414,6 +439,9 @@ router.get('/slug/:slug', [
         error: 'Product not found'
       });
     }
+
+    // Serialize Decimal values to numbers
+    product = serializeProduct(product);
 
     res.json({ product });
 
@@ -433,7 +461,7 @@ router.get('/:id', [
   try {
     const { id } = req.params;
 
-    const product = await prisma.product.findUnique({
+    let product = await prisma.product.findUnique({
       where: { id },
       include: {
         categories: {
@@ -447,7 +475,7 @@ router.get('/:id', [
           select: { id: true, name: true, slug: true }
         },
         images: {
-          orderBy: { sortOrder: 'asc' }
+          orderBy: { displayOrder: 'asc' }
         },
         specifications: {
           orderBy: { sortOrder: 'asc' }
@@ -475,7 +503,7 @@ router.get('/:id', [
                 salePrice: true,
                 images: {
                   take: 1,
-                  orderBy: { sortOrder: 'asc' }
+                  orderBy: { displayOrder: 'asc' }
                 }
               }
             }
@@ -494,7 +522,7 @@ router.get('/:id', [
                 salePrice: true,
                 images: {
                   take: 1,
-                  orderBy: { sortOrder: 'asc' }
+                  orderBy: { displayOrder: 'asc' }
                 }
               }
             }
@@ -513,7 +541,7 @@ router.get('/:id', [
                 salePrice: true,
                 images: {
                   take: 1,
-                  orderBy: { sortOrder: 'asc' }
+                  orderBy: { displayOrder: 'asc' }
                 }
               }
             }
@@ -530,6 +558,31 @@ router.get('/:id', [
       return res.status(404).json({
         error: 'Product not found'
       });
+    }
+
+    // Serialize Decimal values to numbers
+    product = serializeProduct(product);
+
+    // Serialize nested related products to convert Decimal values to numbers
+    if (product.crossSellProducts && product.crossSellProducts.length > 0) {
+      product.crossSellProducts = product.crossSellProducts.map(item => ({
+        ...item,
+        relatedProduct: serializeProduct(item.relatedProduct)
+      }));
+    }
+
+    if (product.upSellProducts && product.upSellProducts.length > 0) {
+      product.upSellProducts = product.upSellProducts.map(item => ({
+        ...item,
+        relatedProduct: serializeProduct(item.relatedProduct)
+      }));
+    }
+
+    if (product.relatedProducts && product.relatedProducts.length > 0) {
+      product.relatedProducts = product.relatedProducts.map(item => ({
+        ...item,
+        relatedProduct: serializeProduct(item.relatedProduct)
+      }));
     }
 
     res.json({ product });
@@ -569,7 +622,7 @@ router.post('/', [
   body('isBestSeller').optional().isBoolean(),
   body('warrantyPeriod').optional().isInt({ min: 0 }),
   body('warrantyType').optional().isString()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const productData = req.body;
 
@@ -670,6 +723,14 @@ router.post('/', [
       }
     });
 
+    // Index product in Elasticsearch (non-blocking)
+    if (elasticsearchConfig.isAvailable()) {
+      productIndexingService.indexProduct(product.id)
+        .catch(error => {
+          console.error('Failed to index product in Elasticsearch:', error);
+        });
+    }
+
     res.status(201).json({
       message: 'Product created successfully',
       product
@@ -694,7 +755,7 @@ router.put('/:id', [
   body('shortDescription').optional().isString(),
   body('description').optional().isString(),
   body('categories').optional().isArray().withMessage('Categories must be an array'),
-  body('brandId').optional().isUUID(),
+  body('brandId').optional({ checkFalsy: true }).isUUID(),
   body('regularPrice').optional().isFloat({ min: 0 }),
   body('salePrice').optional().isFloat({ min: 0 }),
   body('costPrice').optional().isFloat({ min: 0 }),
@@ -711,7 +772,7 @@ router.put('/:id', [
   body('isBestSeller').optional().isBoolean(),
   body('warrantyPeriod').optional().isInt({ min: 0 }),
   body('warrantyType').optional().isString()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -825,6 +886,14 @@ router.put('/:id', [
       }
     });
 
+    // Reindex product in Elasticsearch (non-blocking)
+    if (elasticsearchConfig.isAvailable()) {
+      productIndexingService.updateProduct(id)
+        .catch(error => {
+          console.error('Failed to reindex product in Elasticsearch:', error);
+        });
+    }
+
     res.json({
       message: 'Product updated successfully',
       product: updatedProduct
@@ -842,7 +911,7 @@ router.put('/:id', [
 // DELETE /api/v1/products/:id - Delete product (admin only)
 router.delete('/:id', [
   param('id').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -869,7 +938,8 @@ router.delete('/:id', [
     // Delete product images from filesystem
     if (product.images.length > 0) {
       for (const image of product.images) {
-        const imagePath = path.join(__dirname, '..', image.url);
+        const sanitizedUrl = path.basename(image.originalUrl);
+        const imagePath = path.join(__dirname, '..', sanitizedUrl);
         if (fs.existsSync(imagePath)) {
           fs.unlinkSync(imagePath);
         }
@@ -879,6 +949,14 @@ router.delete('/:id', [
     await prisma.product.delete({
       where: { id }
     });
+
+    // Remove product from Elasticsearch (non-blocking)
+    if (elasticsearchConfig.isAvailable()) {
+      productIndexingService.deleteProduct(id)
+        .catch(error => {
+          console.error('Failed to delete product from Elasticsearch:', error);
+        });
+    }
 
     res.json({
       message: 'Product deleted successfully'
@@ -901,7 +979,7 @@ router.delete('/:id', [
 router.patch('/:id/status', [
   param('id').isUUID(),
   body('status').isIn(['active', 'inactive', 'draft', 'published', 'archived', 'out_of_stock', 'discontinued'])
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -929,6 +1007,14 @@ router.patch('/:id/status', [
       data: updateData
     });
 
+    // Reindex product in Elasticsearch (non-blocking)
+    if (elasticsearchConfig.isAvailable()) {
+      productIndexingService.updateProduct(id)
+        .catch(error => {
+          console.error('Failed to reindex product in Elasticsearch:', error);
+        });
+    }
+
     res.json({
       message: 'Product status updated successfully',
       product: updatedProduct
@@ -951,7 +1037,7 @@ router.patch('/:id/status', [
 router.patch('/:id/featured', [
   param('id').isUUID(),
   body('isFeatured').isBoolean()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { isFeatured } = req.body;
@@ -972,6 +1058,14 @@ router.patch('/:id/featured', [
       data: { isFeatured }
     });
 
+    // Reindex product in Elasticsearch (non-blocking)
+    if (elasticsearchConfig.isAvailable()) {
+      productIndexingService.updateProduct(id)
+        .catch(error => {
+          console.error('Failed to reindex product in Elasticsearch:', error);
+        });
+    }
+
     res.json({
       message: 'Product featured status updated successfully',
       product: updatedProduct
@@ -990,7 +1084,7 @@ router.patch('/:id/featured', [
 router.patch('/:id/new-arrival', [
   param('id').isUUID(),
   body('isNewArrival').isBoolean()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { isNewArrival } = req.body;
@@ -1011,6 +1105,14 @@ router.patch('/:id/new-arrival', [
       data: { isNewArrival }
     });
 
+    // Reindex product in Elasticsearch (non-blocking)
+    if (elasticsearchConfig.isAvailable()) {
+      productIndexingService.updateProduct(id)
+        .catch(error => {
+          console.error('Failed to reindex product in Elasticsearch:', error);
+        });
+    }
+
     res.json({
       message: 'Product new arrival status updated successfully',
       product: updatedProduct
@@ -1029,7 +1131,7 @@ router.patch('/:id/new-arrival', [
 router.patch('/:id/best-seller', [
   param('id').isUUID(),
   body('isBestSeller').isBoolean()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { isBestSeller } = req.body;
@@ -1050,6 +1152,14 @@ router.patch('/:id/best-seller', [
       data: { isBestSeller }
     });
 
+    // Reindex product in Elasticsearch (non-blocking)
+    if (elasticsearchConfig.isAvailable()) {
+      productIndexingService.updateProduct(id)
+        .catch(error => {
+          console.error('Failed to reindex product in Elasticsearch:', error);
+        });
+    }
+
     res.json({
       message: 'Product best seller status updated successfully',
       product: updatedProduct
@@ -1064,78 +1174,20 @@ router.patch('/:id/best-seller', [
   }
 });
 
-// ============================================
-// PRODUCT IMAGE MANAGEMENT ENDPOINTS
-// ============================================
-
-// POST /api/v1/products/:id/images - Upload product image
-router.post('/:id/images', [
-  param('id').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), upload.single('image'), async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    if (!req.file) {
-      return res.status(400).json({
-        error: 'No image file provided'
-      });
-    }
-
-    // Check if product exists
-    const product = await prisma.product.findUnique({
-      where: { id },
-      include: {
-        images: {
-          orderBy: { sortOrder: 'desc' },
-          take: 1
-        }
-      }
-    });
-
-    if (!product) {
-      return res.status(404).json({
-        error: 'Product not found'
-      });
-    }
-
-    const imageUrl = `/uploads/products/${req.file.filename}`;
-    const sortOrder = product.images.length > 0 ? product.images[0].sortOrder + 1 : 0;
-
-    const image = await prisma.productImage.create({
-      data: {
-        productId: id,
-        url: imageUrl,
-        alt: req.body.alt || null,
-        sortOrder: sortOrder
-      }
-    });
-
-    res.status(201).json({
-      message: 'Product image uploaded successfully',
-      image
-    });
-
-  } catch (error) {
-    console.error('Upload product image error:', error);
-    res.status(500).json({
-      error: 'Failed to upload product image',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
 // PUT /api/v1/products/:productId/images/:imageId - Update product image
 router.put('/:productId/images/:imageId', [
   param('productId').isUUID(),
   param('imageId').isUUID(),
-  body('alt').optional().isString(),
-  body('sortOrder').optional().isInt({ min: 0 })
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+  body('altTextEn').optional().isString(),
+  body('altTextBn').optional().isString(),
+  body('displayOrder').optional().isInt({ min: 0 }),
+  body('isPrimary').optional().isBoolean()
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { productId, imageId } = req.params;
-    const { alt, sortOrder } = req.body;
+    const { altTextEn, altTextBn, displayOrder, isPrimary } = req.body;
 
-    // Check if image exists
+    // Check if image exists using Prisma ORM
     const image = await prisma.productImage.findUnique({
       where: { id: imageId }
     });
@@ -1154,8 +1206,10 @@ router.put('/:productId/images/:imageId', [
     }
 
     const updateData = {};
-    if (alt !== undefined) updateData.alt = alt;
-    if (sortOrder !== undefined) updateData.sortOrder = sortOrder;
+    if (altTextEn !== undefined) updateData.altTextEn = altTextEn;
+    if (altTextBn !== undefined) updateData.altTextBn = altTextBn;
+    if (displayOrder !== undefined) updateData.displayOrder = displayOrder;
+    if (isPrimary !== undefined) updateData.isPrimary = isPrimary;
 
     const updatedImage = await prisma.productImage.update({
       where: { id: imageId },
@@ -1180,7 +1234,7 @@ router.put('/:productId/images/:imageId', [
 router.delete('/:productId/images/:imageId', [
   param('productId').isUUID(),
   param('imageId').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { productId, imageId } = req.params;
 
@@ -1203,7 +1257,7 @@ router.delete('/:productId/images/:imageId', [
     }
 
     // Delete file from filesystem
-    const imagePath = path.join(__dirname, '..', image.url);
+    const imagePath = path.join(__dirname, '..', image.originalUrl);
     if (fs.existsSync(imagePath)) {
       fs.unlinkSync(imagePath);
     }
@@ -1235,7 +1289,7 @@ router.post('/:id/specifications', [
   body('name').notEmpty().trim(),
   body('value').notEmpty().trim(),
   body('sortOrder').optional().isInt({ min: 0 })
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { name, value, sortOrder } = req.body;
@@ -1281,7 +1335,7 @@ router.put('/:productId/specifications/:specId', [
   body('name').optional().notEmpty().trim(),
   body('value').optional().notEmpty().trim(),
   body('sortOrder').optional().isInt({ min: 0 })
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { productId, specId } = req.params;
     const { name, value, sortOrder } = req.body;
@@ -1332,7 +1386,7 @@ router.put('/:productId/specifications/:specId', [
 router.delete('/:productId/specifications/:specId', [
   param('productId').isUUID(),
   param('specId').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { productId, specId } = req.params;
 
@@ -1380,7 +1434,7 @@ router.patch('/:id/stock', [
   param('id').isUUID(),
   body('stockQuantity').isInt({ min: 0 }),
   body('lowStockThreshold').optional().isInt({ min: 0 })
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { stockQuantity, lowStockThreshold } = req.body;
@@ -1413,6 +1467,14 @@ router.patch('/:id/stock', [
       data: updateData
     });
 
+    // Reindex product in Elasticsearch (non-blocking)
+    if (elasticsearchConfig.isAvailable()) {
+      productIndexingService.updateProduct(id)
+        .catch(error => {
+          console.error('Failed to reindex product in Elasticsearch:', error);
+        });
+    }
+
     res.json({
       message: 'Product stock updated successfully',
       product: updatedProduct
@@ -1437,7 +1499,7 @@ router.patch('/:id/seo', [
   body('metaTitle').optional().isString().trim(),
   body('metaDescription').optional().isString(),
   body('metaKeywords').optional().isString()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { metaTitle, metaDescription, metaKeywords } = req.body;
@@ -1463,6 +1525,14 @@ router.patch('/:id/seo', [
       data: updateData
     });
 
+    // Reindex product in Elasticsearch (non-blocking)
+    if (elasticsearchConfig.isAvailable()) {
+      productIndexingService.updateProduct(id)
+        .catch(error => {
+          console.error('Failed to reindex product in Elasticsearch:', error);
+        });
+    }
+
     res.json({
       message: 'SEO fields updated successfully',
       product: updatedProduct
@@ -1485,8 +1555,8 @@ router.patch('/:id/seo', [
 router.post('/:id/categories', [
   param('id').isUUID(),
   body('categoryIds').isArray().withMessage('categoryIds must be an array'),
-  body('primaryCategoryId').optional().isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+  body('primaryCategoryId').optional({ checkFalsy: true }).isUUID()
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { categoryIds, primaryCategoryId } = req.body;
@@ -1559,7 +1629,7 @@ router.post('/:id/categories', [
 router.delete('/:id/categories/:categoryId', [
   param('id').isUUID(),
   param('categoryId').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id, categoryId } = req.params;
 
@@ -1606,7 +1676,7 @@ router.delete('/:id/categories/:categoryId', [
 router.patch('/:id/categories/:categoryId/primary', [
   param('id').isUUID(),
   param('categoryId').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id, categoryId } = req.params;
 
@@ -1679,7 +1749,7 @@ router.post('/:id/variants', [
   body('comparePrice').optional().isFloat({ min: 0 }),
   body('stock').optional().isInt({ min: 0 }),
   body('isActive').optional().isBoolean()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { name, sku, price, comparePrice, stock, isActive } = req.body;
@@ -1742,7 +1812,7 @@ router.put('/:id/variants/:variantId', [
   body('comparePrice').optional().isFloat({ min: 0 }),
   body('stock').optional().isInt({ min: 0 }),
   body('isActive').optional().isBoolean()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id, variantId } = req.params;
     const { name, sku, price, comparePrice, stock, isActive } = req.body;
@@ -1809,7 +1879,7 @@ router.put('/:id/variants/:variantId', [
 router.delete('/:id/variants/:variantId', [
   param('id').isUUID(),
   param('variantId').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id, variantId } = req.params;
 
@@ -1868,7 +1938,7 @@ router.patch('/:id/variants/:variantId/status', [
   param('id').isUUID(),
   param('variantId').isUUID(),
   body('isActive').isBoolean()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id, variantId } = req.params;
     const { isActive } = req.body;
@@ -1918,7 +1988,7 @@ router.patch('/:id/variants/:variantId/status', [
 router.post('/:id/variant-types', [
   param('id').isUUID(),
   body('name').notEmpty().trim()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { name } = req.body;
@@ -1974,7 +2044,7 @@ router.put('/:id/variant-types/:typeId', [
   param('id').isUUID(),
   param('typeId').isUUID(),
   body('name').optional().notEmpty().trim()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id, typeId } = req.params;
     const { name } = req.body;
@@ -2039,7 +2109,7 @@ router.put('/:id/variant-types/:typeId', [
 router.delete('/:id/variant-types/:typeId', [
   param('id').isUUID(),
   param('typeId').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id, typeId } = req.params;
 
@@ -2097,7 +2167,7 @@ router.post('/:id/variant-types/:typeId/values', [
   param('id').isUUID(),
   param('typeId').isUUID(),
   body('value').notEmpty().trim()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id, typeId } = req.params;
     const { value } = req.body;
@@ -2158,7 +2228,7 @@ router.put('/:id/variant-types/:typeId/values/:valueId', [
   param('typeId').isUUID(),
   param('valueId').isUUID(),
   body('value').optional().notEmpty().trim()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id, typeId, valueId } = req.params;
     const { value } = req.body;
@@ -2232,7 +2302,7 @@ router.delete('/:id/variant-types/:typeId/values/:valueId', [
   param('id').isUUID(),
   param('typeId').isUUID(),
   param('valueId').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id, typeId, valueId } = req.params;
 
@@ -2291,7 +2361,7 @@ router.post('/:id/cross-sell', [
   param('id').isUUID(),
   body('relatedProductId').isUUID().withMessage('Related product ID must be a valid UUID'),
   body('displayOrder').optional().isInt({ min: 0 })
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { relatedProductId, displayOrder } = req.body;
@@ -2369,7 +2439,7 @@ router.post('/:id/cross-sell', [
             salePrice: true,
             images: {
               take: 1,
-              orderBy: { sortOrder: 'asc' }
+              orderBy: { displayOrder: 'asc' }
             }
           }
         }
@@ -2394,7 +2464,7 @@ router.post('/:id/cross-sell', [
 router.delete('/:id/cross-sell/:relatedProductId', [
   param('id').isUUID(),
   param('relatedProductId').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id, relatedProductId } = req.params;
 
@@ -2443,7 +2513,7 @@ router.patch('/:id/cross-sell/reorder', [
   body('orders').isArray().withMessage('Orders must be an array'),
   body('orders.*.relatedProductId').isUUID(),
   body('orders.*.displayOrder').isInt({ min: 0 })
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { orders } = req.body;
@@ -2486,7 +2556,7 @@ router.patch('/:id/cross-sell/reorder', [
             salePrice: true,
             images: {
               take: 1,
-              orderBy: { sortOrder: 'asc' }
+              orderBy: { displayOrder: 'asc' }
             }
           }
         }
@@ -2517,7 +2587,7 @@ router.post('/:id/up-sell', [
   param('id').isUUID(),
   body('relatedProductId').isUUID().withMessage('Related product ID must be a valid UUID'),
   body('displayOrder').optional().isInt({ min: 0 })
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { relatedProductId, displayOrder } = req.body;
@@ -2595,7 +2665,7 @@ router.post('/:id/up-sell', [
             salePrice: true,
             images: {
               take: 1,
-              orderBy: { sortOrder: 'asc' }
+              orderBy: { displayOrder: 'asc' }
             }
           }
         }
@@ -2620,7 +2690,7 @@ router.post('/:id/up-sell', [
 router.delete('/:id/up-sell/:relatedProductId', [
   param('id').isUUID(),
   param('relatedProductId').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id, relatedProductId } = req.params;
 
@@ -2669,7 +2739,7 @@ router.patch('/:id/up-sell/reorder', [
   body('orders').isArray().withMessage('Orders must be an array'),
   body('orders.*.relatedProductId').isUUID(),
   body('orders.*.displayOrder').isInt({ min: 0 })
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { orders } = req.body;
@@ -2712,7 +2782,7 @@ router.patch('/:id/up-sell/reorder', [
             salePrice: true,
             images: {
               take: 1,
-              orderBy: { sortOrder: 'asc' }
+              orderBy: { displayOrder: 'asc' }
             }
           }
         }
@@ -2735,6 +2805,856 @@ router.patch('/:id/up-sell/reorder', [
 });
 
 // ============================================
+// BULK PRODUCT OPERATIONS ENDPOINTS
+// ============================================
+
+// POST /api/v1/products/bulk - Batch create products (admin only)
+router.post('/bulk', [
+  body('products').isArray({ min: 1, max: 100 }).withMessage('Products array must contain 1-100 items'),
+  body('products.*.sku').notEmpty().trim(),
+  body('products.*.name').notEmpty().trim(),
+  body('products.*.nameEn').notEmpty().trim(),
+  body('products.*.slug').isSlug(),
+  body('products.*.categories').isArray().withMessage('Categories must be an array'),
+  body('products.*.brandId').isUUID(),
+  body('products.*.regularPrice').isFloat({ min: 0 }),
+  body('products.*.costPrice').isFloat({ min: 0 }),
+  body('products.*.status').optional().isIn(['active', 'inactive', 'draft', 'published', 'archived', 'out_of_stock', 'discontinued']),
+  body('products.*.visibility').optional().isIn(['public', 'private', 'restricted'])
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
+  try {
+    const { products } = req.body;
+
+    // Validate all products before creation
+    const validationResults = [];
+    const validProducts = [];
+    const skus = products.map(p => p.sku);
+    const slugs = products.map(p => p.slug);
+    const categoryIds = [...new Set(products.flatMap(p => p.categories))];
+    const brandIds = [...new Set(products.map(p => p.brandId))];
+
+    // Check for duplicate SKUs in the batch
+    const duplicateSkus = skus.filter((sku, index) => skus.indexOf(sku) !== index);
+    if (duplicateSkus.length > 0) {
+      return res.status(400).json({
+        error: 'Duplicate SKUs in batch',
+        duplicates: duplicateSkus
+      });
+    }
+
+    // Check for duplicate slugs in the batch
+    const duplicateSlugs = slugs.filter((slug, index) => slugs.indexOf(slug) !== index);
+    if (duplicateSlugs.length > 0) {
+      return res.status(400).json({
+        error: 'Duplicate slugs in batch',
+        duplicates: duplicateSlugs
+      });
+    }
+
+    // Check if SKUs already exist in database
+    const existingSkus = await prisma.product.findMany({
+      where: { sku: { in: skus } },
+      select: { sku: true }
+    });
+
+    if (existingSkus.length > 0) {
+      return res.status(409).json({
+        error: 'Some SKUs already exist',
+        existingSkus: existingSkus.map(s => s.sku)
+      });
+    }
+
+    // Check if slugs already exist in database
+    const existingSlugs = await prisma.product.findMany({
+      where: { slug: { in: slugs } },
+      select: { slug: true }
+    });
+
+    if (existingSlugs.length > 0) {
+      return res.status(409).json({
+        error: 'Some slugs already exist',
+        existingSlugs: existingSlugs.map(s => s.slug)
+      });
+    }
+
+    // Check if all categories exist
+    const categories = await prisma.category.findMany({
+      where: { id: { in: categoryIds } },
+      select: { id: true }
+    });
+
+    if (categories.length !== categoryIds.length) {
+      const missingCategories = categoryIds.filter(id => !categories.find(c => c.id === id));
+      return res.status(404).json({
+        error: 'Some categories not found',
+        missingCategories
+      });
+    }
+
+    // Check if all brands exist
+    const brands = await prisma.brand.findMany({
+      where: { id: { in: brandIds } },
+      select: { id: true }
+    });
+
+    if (brands.length !== brandIds.length) {
+      const missingBrands = brandIds.filter(id => !brands.find(b => b.id === id));
+      return res.status(404).json({
+        error: 'Some brands not found',
+        missingBrands
+      });
+    }
+
+    // Create products in a transaction
+    const createdProducts = await prisma.$transaction(async (tx) => {
+      const results = [];
+      for (const productData of products) {
+        const product = await tx.product.create({
+          data: {
+            sku: productData.sku,
+            name: productData.name,
+            nameEn: productData.nameEn,
+            nameBn: productData.nameBn || null,
+            slug: productData.slug,
+            shortDescription: productData.shortDescription || null,
+            description: productData.description || null,
+            brandId: productData.brandId,
+            regularPrice: parseFloat(productData.regularPrice),
+            salePrice: productData.salePrice ? parseFloat(productData.salePrice) : null,
+            costPrice: parseFloat(productData.costPrice),
+            taxRate: productData.taxRate ? parseFloat(productData.taxRate) : 0,
+            stockQuantity: productData.stockQuantity || 0,
+            lowStockThreshold: productData.lowStockThreshold || 10,
+            status: productData.status || 'active',
+            visibility: productData.visibility || 'public',
+            metaTitle: productData.metaTitle || null,
+            metaDescription: productData.metaDescription || null,
+            metaKeywords: productData.metaKeywords || null,
+            isFeatured: productData.isFeatured || false,
+            isNewArrival: productData.isNewArrival || false,
+            isBestSeller: productData.isBestSeller || false,
+            warrantyPeriod: productData.warrantyPeriod || null,
+            warrantyType: productData.warrantyType || null,
+            publishedAt: productData.status === 'published' ? new Date() : null,
+            categories: {
+              create: productData.categories.map((categoryId, index) => ({
+                categoryId,
+                isPrimary: index === 0
+              }))
+            }
+          },
+          include: {
+            categories: {
+              include: {
+                category: true
+              }
+            },
+            brand: true
+          }
+        });
+        results.push(product);
+      }
+      return results;
+    });
+
+    // Index products in Elasticsearch (non-blocking)
+    if (elasticsearchConfig.isAvailable()) {
+      const productIds = createdProducts.map(p => p.id);
+      productIndexingService.indexProducts(productIds)
+        .catch(error => {
+          console.error('Failed to index products in Elasticsearch:', error);
+        });
+    }
+
+    res.status(201).json({
+      success: true,
+      created: createdProducts.length,
+      failed: 0,
+      results: createdProducts.map(product => ({
+        product,
+        status: 'created'
+      }))
+    });
+
+  } catch (error) {
+    console.error('Bulk create products error:', error);
+    res.status(500).json({
+      error: 'Failed to create products in bulk',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// PUT /api/v1/products/bulk - Batch update products (admin only)
+router.put('/bulk', [
+  body('products').isArray({ min: 1, max: 100 }).withMessage('Products array must contain 1-100 items'),
+  body('products.*.id').isUUID(),
+  body('products.*.sku').optional().notEmpty().trim(),
+  body('products.*.name').optional().notEmpty().trim(),
+  body('products.*.nameEn').optional().notEmpty().trim(),
+  body('products.*.slug').optional().isSlug(),
+  body('products.*.categories').optional().isArray().withMessage('Categories must be an array'),
+  body('products.*.brandId').optional({ checkFalsy: true }).isUUID(),
+  body('products.*.regularPrice').optional().isFloat({ min: 0 }),
+  body('products.*.salePrice').optional().isFloat({ min: 0 }),
+  body('products.*.costPrice').optional().isFloat({ min: 0 }),
+  body('products.*.status').optional().isIn(['active', 'inactive', 'draft', 'published', 'archived', 'out_of_stock', 'discontinued']),
+  body('products.*.visibility').optional().isIn(['public', 'private', 'restricted'])
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
+  try {
+    const { products } = req.body;
+
+    const productIds = products.map(p => p.id);
+
+    // Check if all products exist
+    const existingProducts = await prisma.product.findMany({
+      where: { id: { in: productIds } },
+      select: { id: true, sku: true, slug: true }
+    });
+
+    if (existingProducts.length !== productIds.length) {
+      const missingIds = productIds.filter(id => !existingProducts.find(p => p.id === id));
+      return res.status(404).json({
+        error: 'Some products not found',
+        missingIds
+      });
+    }
+
+    // Check for SKU conflicts
+    const skusToUpdate = products.filter(p => p.sku).map(p => ({ sku: p.sku, id: p.id }));
+    if (skusToUpdate.length > 0) {
+      const skuConflicts = await prisma.product.findMany({
+        where: {
+          sku: { in: skusToUpdate.map(s => s.sku) },
+          NOT: { id: { in: productIds } }
+        },
+        select: { sku: true }
+      });
+
+      if (skuConflicts.length > 0) {
+        return res.status(409).json({
+          error: 'Some SKUs conflict with existing products',
+          conflicts: skuConflicts.map(s => s.sku)
+        });
+      }
+    }
+
+    // Check for slug conflicts
+    const slugsToUpdate = products.filter(p => p.slug).map(p => ({ slug: p.slug, id: p.id }));
+    if (slugsToUpdate.length > 0) {
+      const slugConflicts = await prisma.product.findMany({
+        where: {
+          slug: { in: slugsToUpdate.map(s => s.slug) },
+          NOT: { id: { in: productIds } }
+        },
+        select: { slug: true }
+      });
+
+      if (slugConflicts.length > 0) {
+        return res.status(409).json({
+          error: 'Some slugs conflict with existing products',
+          conflicts: slugConflicts.map(s => s.slug)
+        });
+      }
+    }
+
+    // Update products in a transaction
+    const updatedProducts = await prisma.$transaction(async (tx) => {
+      const results = [];
+      for (const productData of products) {
+        const updateData = { ...productData };
+        delete updateData.id;
+        delete updateData.categories;
+
+        // Handle categories if provided
+        if (productData.categories !== undefined) {
+          if (productData.categories.length === 0) {
+            return res.status(400).json({
+              error: 'At least one category is required'
+            });
+          }
+
+          // Delete existing category associations
+          await tx.productCategory.deleteMany({
+            where: { productId: productData.id }
+          });
+
+          // Create new category associations
+          await tx.productCategory.createMany({
+            data: productData.categories.map((categoryId, index) => ({
+              productId: productData.id,
+              categoryId,
+              isPrimary: index === 0
+            }))
+          });
+        }
+
+        // Update publishedAt if status changes to published
+        if (updateData.status === 'published') {
+          const existingProduct = existingProducts.find(p => p.id === productData.id);
+          if (existingProduct && existingProduct.status !== 'published') {
+            updateData.publishedAt = new Date();
+          }
+        }
+
+        const product = await tx.product.update({
+          where: { id: productData.id },
+          data: updateData,
+          include: {
+            categories: {
+              include: {
+                category: true
+              }
+            },
+            brand: true
+          }
+        });
+        results.push(product);
+      }
+      return results;
+    });
+
+    // Reindex products in Elasticsearch (non-blocking)
+    if (elasticsearchConfig.isAvailable()) {
+      productIndexingService.indexProducts(productIds)
+        .catch(error => {
+          console.error('Failed to reindex products in Elasticsearch:', error);
+        });
+    }
+
+    res.json({
+      success: true,
+      updated: updatedProducts.length,
+      failed: 0,
+      results: updatedProducts.map(product => ({
+        product,
+        status: 'updated'
+      }))
+    });
+
+  } catch (error) {
+    console.error('Bulk update products error:', error);
+    res.status(500).json({
+      error: 'Failed to update products in bulk',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// DELETE /api/v1/products/bulk - Batch delete products (admin only)
+router.delete('/bulk', [
+  body('productIds').isArray({ min: 1, max: 100 }).withMessage('Product IDs array must contain 1-100 items'),
+  body('productIds.*').isUUID()
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
+  try {
+    const { productIds } = req.body;
+
+    // Check if all products exist
+    const products = await prisma.product.findMany({
+      where: { id: { in: productIds } },
+      include: {
+        images: true
+      }
+    });
+
+    if (products.length !== productIds.length) {
+      const missingIds = productIds.filter(id => !products.find(p => p.id === id));
+      return res.status(404).json({
+        error: 'Some products not found',
+        missingIds
+      });
+    }
+
+    // Delete products in a transaction
+    const deletedProductIds = await prisma.$transaction(async (tx) => {
+      // Delete product images from filesystem
+      for (const product of products) {
+        if (product.images.length > 0) {
+          for (const image of product.images) {
+            const imagePath = path.join(__dirname, '..', image.originalUrl);
+            if (fs.existsSync(imagePath)) {
+              fs.unlinkSync(imagePath);
+            }
+          }
+        }
+      }
+
+      // Delete products (cascade will handle related records)
+      await tx.product.deleteMany({
+        where: { id: { in: productIds } }
+      });
+
+      return productIds;
+    });
+
+    // Remove products from Elasticsearch (non-blocking)
+    if (elasticsearchConfig.isAvailable()) {
+      for (const productId of deletedProductIds) {
+        productIndexingService.deleteProduct(productId)
+          .catch(error => {
+            console.error('Failed to delete product from Elasticsearch:', error);
+          });
+      }
+    }
+
+    res.json({
+      success: true,
+      deleted: deletedProductIds.length,
+      failed: 0,
+      results: deletedProductIds.map(productId => ({
+        productId,
+        status: 'deleted'
+      }))
+    });
+
+  } catch (error) {
+    console.error('Bulk delete products error:', error);
+    res.status(500).json({
+      error: 'Failed to delete products in bulk',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// PATCH /api/v1/products/bulk/status - Batch update product status (admin only)
+router.patch('/bulk/status', [
+  body('productIds').isArray({ min: 1, max: 100 }).withMessage('Product IDs array must contain 1-100 items'),
+  body('productIds.*').isUUID(),
+  body('status').isIn(['active', 'inactive', 'draft', 'published', 'archived', 'out_of_stock', 'discontinued'])
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
+  try {
+    const { productIds, status } = req.body;
+
+    // Check if all products exist
+    const existingProducts = await prisma.product.findMany({
+      where: { id: { in: productIds } },
+      select: { id: true, status: true }
+    });
+
+    if (existingProducts.length !== productIds.length) {
+      const missingIds = productIds.filter(id => !existingProducts.find(p => p.id === id));
+      return res.status(404).json({
+        error: 'Some products not found',
+        missingIds
+      });
+    }
+
+    // Update products in a transaction
+    const updatedProducts = await prisma.$transaction(async (tx) => {
+      const results = [];
+      for (const productId of productIds) {
+        const existingProduct = existingProducts.find(p => p.id === productId);
+        const updateData = { status };
+
+        // Update publishedAt if status changes to published
+        if (status === 'published' && existingProduct.status !== 'published') {
+          updateData.publishedAt = new Date();
+        }
+
+        const product = await tx.product.update({
+          where: { id: productId },
+          data: updateData
+        });
+        results.push(product);
+      }
+      return results;
+    });
+
+    // Reindex products in Elasticsearch (non-blocking)
+    if (elasticsearchConfig.isAvailable()) {
+      productIndexingService.indexProducts(productIds)
+        .catch(error => {
+          console.error('Failed to reindex products in Elasticsearch:', error);
+        });
+    }
+
+    res.json({
+      success: true,
+      updated: updatedProducts.length,
+      failed: 0
+    });
+
+  } catch (error) {
+    console.error('Bulk update product status error:', error);
+    res.status(500).json({
+      error: 'Failed to update product status in bulk',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// ============================================
+// CSV IMPORT/EXPORT ENDPOINTS
+// ============================================
+
+// POST /api/v1/products/import - Import products from CSV (admin only)
+router.post('/import', [
+  upload.single('file')
+], authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: 'No CSV file provided'
+      });
+    }
+
+    // Check file type
+    if (!req.file.mimetype.includes('csv') && !req.file.originalname.endsWith('.csv')) {
+      return res.status(400).json({
+        error: 'File must be a CSV'
+      });
+    }
+
+    const csv = require('csv-parser');
+    const fs = require('fs');
+    const results = [];
+    const errors = [];
+
+    // Parse CSV file
+    await new Promise((resolve, reject) => {
+      fs.createReadStream(req.file.path)
+        .pipe(csv())
+        .on('data', (data) => results.push(data))
+        .on('error', reject)
+        .on('end', resolve);
+    });
+
+    // Clean up uploaded file
+    fs.unlinkSync(req.file.path);
+
+    if (results.length === 0) {
+      return res.status(400).json({
+        error: 'CSV file is empty'
+      });
+    }
+
+    // Validate and import products
+    const importedProducts = [];
+    const failedRows = [];
+
+    for (let i = 0; i < results.length; i++) {
+      const row = results[i];
+      const rowNumber = i + 2; // +2 for header and 0-based index
+
+      try {
+        // Validate required fields
+        if (!row.nameEn || !row.slug || !row.sku || !row.basePrice || !row.categoryId || !row.brandId) {
+          failedRows.push({
+            row: rowNumber,
+            error: 'Missing required fields (nameEn, slug, sku, basePrice, categoryId, brandId)'
+          });
+          continue;
+        }
+
+        // Validate price
+        const basePrice = parseFloat(row.basePrice);
+        if (isNaN(basePrice) || basePrice < 0) {
+          failedRows.push({
+            row: rowNumber,
+            error: 'Invalid basePrice'
+          });
+          continue;
+        }
+
+        // Validate discount price if provided
+        let discountPrice = null;
+        if (row.discountPrice) {
+          discountPrice = parseFloat(row.discountPrice);
+          if (isNaN(discountPrice) || discountPrice < 0) {
+            failedRows.push({
+              row: rowNumber,
+              error: 'Invalid discountPrice'
+            });
+            continue;
+          }
+        }
+
+        // Validate status
+        const validStatuses = ['active', 'inactive', 'draft', 'published', 'archived', 'out_of_stock', 'discontinued'];
+        const status = row.status || 'active';
+        if (!validStatuses.includes(status)) {
+          failedRows.push({
+            row: rowNumber,
+            error: 'Invalid status'
+          });
+          continue;
+        }
+
+        // Validate visibility
+        const validVisibilities = ['public', 'private', 'restricted'];
+        const visibility = row.visibility || 'public';
+        if (!validVisibilities.includes(visibility)) {
+          failedRows.push({
+            row: rowNumber,
+            error: 'Invalid visibility'
+          });
+          continue;
+        }
+
+        // Check if category exists
+        const category = await prisma.category.findUnique({
+          where: { id: row.categoryId }
+        });
+
+        if (!category) {
+          failedRows.push({
+            row: rowNumber,
+            error: 'Category not found'
+          });
+          continue;
+        }
+
+        // Check if brand exists
+        const brand = await prisma.brand.findUnique({
+          where: { id: row.brandId }
+        });
+
+        if (!brand) {
+          failedRows.push({
+            row: rowNumber,
+            error: 'Brand not found'
+          });
+          continue;
+        }
+
+        // Check if SKU already exists
+        const existingSku = await prisma.product.findUnique({
+          where: { sku: row.sku }
+        });
+
+        if (existingSku) {
+          failedRows.push({
+            row: rowNumber,
+            error: 'SKU already exists'
+          });
+          continue;
+        }
+
+        // Check if slug already exists
+        const existingSlug = await prisma.product.findUnique({
+          where: { slug: row.slug }
+        });
+
+        if (existingSlug) {
+          failedRows.push({
+            row: rowNumber,
+            error: 'Slug already exists'
+          });
+          continue;
+        }
+
+        // Create product
+        const product = await prisma.product.create({
+          data: {
+            sku: row.sku,
+            name: row.nameEn,
+            nameEn: row.nameEn,
+            nameBn: row.nameBn || null,
+            slug: row.slug,
+            shortDescription: row.shortDescription || null,
+            description: row.descriptionEn || null,
+            brandId: row.brandId,
+            regularPrice: basePrice,
+            salePrice: discountPrice,
+            costPrice: basePrice * 0.7, // Default cost price as 70% of base price
+            taxRate: row.taxRate ? parseFloat(row.taxRate) : 0,
+            stockQuantity: row.stockQuantity ? parseInt(row.stockQuantity) : 0,
+            lowStockThreshold: row.lowStockThreshold ? parseInt(row.lowStockThreshold) : 10,
+            status,
+            visibility,
+            metaTitle: row.metaTitle || null,
+            metaDescription: row.metaDescription || null,
+            metaKeywords: row.metaKeywords || null,
+            isFeatured: row.isFeatured === 'true' || row.isFeatured === true,
+            isNewArrival: row.isNewArrival === 'true' || row.isNewArrival === true,
+            isBestSeller: row.isBestSeller === 'true' || row.isBestSeller === true,
+            warrantyPeriod: row.warrantyPeriod ? parseInt(row.warrantyPeriod) : null,
+            warrantyType: row.warrantyType || null,
+            publishedAt: status === 'published' ? new Date() : null,
+            categories: {
+              create: [
+                {
+                  categoryId: row.categoryId,
+                  isPrimary: true
+                }
+              ]
+            }
+          }
+        });
+
+        importedProducts.push(product);
+
+      } catch (error) {
+        console.error(`Error importing row ${rowNumber}:`, error);
+        failedRows.push({
+          row: rowNumber,
+          error: error.message
+        });
+      }
+    }
+
+    // Index imported products in Elasticsearch (non-blocking)
+    if (elasticsearchConfig.isAvailable() && importedProducts.length > 0) {
+      const productIds = importedProducts.map(p => p.id);
+      productIndexingService.indexProducts(productIds)
+        .catch(error => {
+          console.error('Failed to index imported products in Elasticsearch:', error);
+        });
+    }
+
+    res.json({
+      success: true,
+      imported: importedProducts.length,
+      failed: failedRows.length,
+      total: results.length,
+      errors: failedRows
+    });
+
+  } catch (error) {
+    console.error('Import products error:', error);
+    res.status(500).json({
+      error: 'Failed to import products',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// GET /api/v1/products/export - Export products to CSV (admin only)
+router.get('/export', [
+  query('categoryId').optional().isUUID(),
+  query('brandId').optional().isUUID(),
+  query('status').optional().isIn(['active', 'inactive', 'draft', 'published', 'archived', 'out_of_stock', 'discontinued']),
+  query('limit').optional().isInt({ min: 1, max: 10000 })
+], authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
+  try {
+    const {
+      categoryId,
+      brandId,
+      status,
+      limit = 1000
+    } = req.query;
+
+    const where = {};
+    if (status) where.status = status;
+    if (brandId) where.brandId = brandId;
+    if (categoryId) {
+      where.categories = {
+        some: {
+          categoryId: categoryId
+        }
+      };
+    }
+
+    const products = await prisma.product.findMany({
+      where,
+      take: parseInt(limit),
+      include: {
+        categories: {
+          include: {
+            category: {
+              select: { id: true, name: true }
+            }
+          },
+          where: { isPrimary: true },
+          take: 1
+        },
+        brand: {
+          select: { id: true, name: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    // Generate CSV
+    const csvHeader = [
+      'nameEn',
+      'nameBn',
+      'slug',
+      'shortDescription',
+      'descriptionEn',
+      'descriptionBn',
+      'basePrice',
+      'discountPrice',
+      'categoryId',
+      'categoryName',
+      'brandId',
+      'brandName',
+      'sku',
+      'status',
+      'visibility',
+      'isFeatured',
+      'isNewArrival',
+      'isBestSeller',
+      'stockQuantity',
+      'lowStockThreshold',
+      'taxRate',
+      'warrantyPeriod',
+      'warrantyType',
+      'metaTitle',
+      'metaDescription',
+      'metaKeywords'
+    ];
+
+    const csvRows = products.map(product => {
+      const primaryCategory = product.categories[0]?.category || {};
+      return [
+        product.nameEn || '',
+        product.nameBn || '',
+        product.slug || '',
+        product.shortDescription || '',
+        product.description || '',
+        '',
+        product.regularPrice || 0,
+        product.salePrice || '',
+        primaryCategory.id || '',
+        primaryCategory.name || '',
+        product.brandId || '',
+        product.brand?.name || '',
+        product.sku || '',
+        product.status || '',
+        product.visibility || '',
+        product.isFeatured ? 'true' : 'false',
+        product.isNewArrival ? 'true' : 'false',
+        product.isBestSeller ? 'true' : 'false',
+        product.stockQuantity || 0,
+        product.lowStockThreshold || 10,
+        product.taxRate || 0,
+        product.warrantyPeriod || '',
+        product.warrantyType || '',
+        product.metaTitle || '',
+        product.metaDescription || '',
+        product.metaKeywords || ''
+      ].map(field => {
+        // Escape quotes and wrap in quotes if contains comma or quote
+        const fieldStr = String(field);
+        if (fieldStr.includes(',') || fieldStr.includes('"') || fieldStr.includes('\n')) {
+          return `"${fieldStr.replace(/"/g, '""')}"`;
+        }
+        return fieldStr;
+      }).join(',');
+    });
+
+    const csvContent = [
+      csvHeader.join(','),
+      ...csvRows
+    ].join('\n');
+
+    // Set response headers for CSV download
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="products-export-${Date.now()}.csv"`);
+
+    res.send(csvContent);
+
+  } catch (error) {
+    console.error('Export products error:', error);
+    res.status(500).json({
+      error: 'Failed to export products',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// ============================================
 // PRODUCT RELATED PRODUCTS ENDPOINTS
 // ============================================
 
@@ -2743,7 +3663,7 @@ router.post('/:id/related', [
   param('id').isUUID(),
   body('relatedProductId').isUUID().withMessage('Related product ID must be a valid UUID'),
   body('displayOrder').optional().isInt({ min: 0 })
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { relatedProductId, displayOrder } = req.body;
@@ -2821,7 +3741,7 @@ router.post('/:id/related', [
             salePrice: true,
             images: {
               take: 1,
-              orderBy: { sortOrder: 'asc' }
+              orderBy: { displayOrder: 'asc' }
             }
           }
         }
@@ -2846,7 +3766,7 @@ router.post('/:id/related', [
 router.delete('/:id/related/:relatedProductId', [
   param('id').isUUID(),
   param('relatedProductId').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id, relatedProductId } = req.params;
 
@@ -2895,7 +3815,7 @@ router.patch('/:id/reorder-related', [
   body('orders').isArray().withMessage('Orders must be an array'),
   body('orders.*.relatedProductId').isUUID(),
   body('orders.*.displayOrder').isInt({ min: 0 })
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { orders } = req.body;
@@ -2938,7 +3858,7 @@ router.patch('/:id/reorder-related', [
             salePrice: true,
             images: {
               take: 1,
-              orderBy: { sortOrder: 'asc' }
+              orderBy: { displayOrder: 'asc' }
             }
           }
         }

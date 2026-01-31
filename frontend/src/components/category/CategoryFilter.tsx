@@ -48,7 +48,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     onFilterChange({});
   };
 
-  const hasSubcategories = category.children && category.children.length > 0;
+  const hasSubcategories = category.children && category.children?.length > 0;
 
   return (
     <div className="relative">
@@ -118,7 +118,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
                   >
                     All Subcategories
                   </button>
-                  {category.children.map((child) => (
+                  {category.children?.map((child) => (
                     <button
                       key={child.id}
                       type="button"

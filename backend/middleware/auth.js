@@ -716,12 +716,16 @@ class AuthMiddleware {
     return (req, res, next) => {
       if (!req.user) {
         return res.status(401).json({
-          error: 'Authentication required',
-          message: 'Please authenticate first'
+          error: 'Unauthorized',
+          message: 'Authentication required'
         });
       }
       
-      if (req.user.role !== 'ADMIN') {
+      // Check both legacy role and RBAC role
+      const hasLegacyAdminRole = req.user.role?.toUpperCase() === 'ADMIN';
+      const hasRbacAdminRole = req.user.rbacRole?.toLowerCase() === 'admin';
+      
+      if (!hasLegacyAdminRole && !hasRbacAdminRole) {
         return res.status(403).json({
           error: 'Access denied',
           message: 'Admin access required'
@@ -741,14 +745,16 @@ class AuthMiddleware {
           message: 'Please authenticate first'
         });
       }
-      
-      if (req.user.role !== 'ADMIN' && req.user.role !== 'MANAGER') {
+
+      // Case-insensitive role check
+      const userRole = req.user.role?.toUpperCase();
+      if (userRole !== 'ADMIN' && userRole !== 'MANAGER') {
         return res.status(403).json({
           error: 'Access denied',
           message: 'Manager or Admin access required'
         });
       }
-      
+
       next();
     };
   }
@@ -763,15 +769,16 @@ class AuthMiddleware {
           message: 'Please authenticate first'
         });
       }
-      
-      // Check if user is admin or accessing their own resources
-      if (req.user.role !== 'ADMIN' && req.user.id !== userId) {
+
+      // Case-insensitive role check
+      const userRole = req.user.role?.toUpperCase();
+      if (userRole !== 'ADMIN' && req.user.id !== userId) {
         return res.status(403).json({
           error: 'Access denied',
           message: 'You can only access your own resources'
         });
       }
-      
+
       next();
     };
   }

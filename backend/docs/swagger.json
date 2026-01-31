@@ -1,0 +1,1252 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Smart Tech B2C API",
+    "description": "Comprehensive API documentation for Smart Tech B2C E-commerce Platform - Phase 4 Milestone 2: Product Management APIs\n\n## Key Features\n\n- **Search Endpoints**: Advanced Elasticsearch-powered product search with faceted search, autocomplete, and analytics\n- **Bulk Operations**: Batch create, update, delete, and status management for products, categories, and brands\n- **CSV Import/Export**: Bulk product data management via CSV files\n- **Elasticsearch Integration**: Full-text search with bilingual (English/Bangla) support\n\n## Authentication\n\n- Admin-only endpoints require JWT authentication with admin role\n- Public endpoints are accessible without authentication\n- Use Bearer token in Authorization header: `Authorization: Bearer <token>`\n\n## Rate Limiting\n\n- Bulk operations: Maximum 100 items per request\n- Search endpoints: Standard rate limiting applies\n- CSV import: Max file size 5MB\n\n## Bilingual Support\n\nAll entities support bilingual fields (English and Bangla):\n- Products: `nameEn`, `nameBn`, `description`\n- Categories: `nameEn`, `nameBn`, `description`\n- Brands: `nameEn`, `nameBn`, `description`\n\n## Response Format\n\nAll responses follow a consistent format:\n```json\n{\n  \"success\": true,\n  \"data\": { ... },\n  \"message\": \"Optional message\"\n}\n```\n\n## Error Format\n\n```json\n{\n  \"error\": \"Error type\",\n  \"message\": \"Human-readable message\",\n  \"details\": [...] \n}\n```",
+    "version": "4.2.0",
+    "contact": {
+      "name": "Smart Tech API Support",
+      "email": "api-support@smarttech.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api/v1",
+      "description": "Development server"
+    },
+    {
+      "url": "https://api.smarttech.com/api/v1",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Search",
+      "description": "Product search endpoints powered by Elasticsearch"
+    },
+    {
+      "name": "Products",
+      "description": "Product CRUD and bulk operations"
+    },
+    {
+      "name": "Categories",
+      "description": "Category CRUD and bulk operations"
+    },
+    {
+      "name": "Brands",
+      "description": "Brand CRUD and bulk operations"
+    }
+  ],
+  "paths": {
+    "/search": {
+      "get": {
+        "tags": ["Search"],
+        "summary": "Advanced product search",
+        "description": "Search products using Elasticsearch with full-text search, filtering, sorting, and pagination. Includes graceful degradation to PostgreSQL fallback.",
+        "operationId": "searchProducts",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Search query string",
+            "required": false,
+            "schema": {"type": "string", "example": "smartphone"}
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (1-based)",
+            "required": false,
+            "schema": {"type": "integer", "minimum": 1, "default": 1, "example": 1}
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Items per page (max: 100)",
+            "required": false,
+            "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20, "example": 20}
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Sort field",
+            "required": false,
+            "schema": {"type": "string", "enum": ["price", "name", "rating", "popularity", "createdAt"], "default": "createdAt"}
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "Sort order",
+            "required": false,
+            "schema": {"type": "string", "enum": ["asc", "desc"], "default": "desc"}
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "description": "Filter by category UUID",
+            "required": false,
+            "schema": {"type": "string", "format": "uuid"}
+          },
+          {
+            "name": "brandId",
+            "in": "query",
+            "description": "Filter by brand UUID",
+            "required": false,
+            "schema": {"type": "string", "format": "uuid"}
+          },
+          {
+            "name": "priceMin",
+            "in": "query",
+            "description": "Minimum price filter",
+            "required": false,
+            "schema": {"type": "number", "minimum": 0}
+          },
+          {
+            "name": "priceMax",
+            "in": "query",
+            "description": "Maximum price filter",
+            "required": false,
+            "schema": {"type": "number", "minimum": 0}
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by product status",
+            "required": false,
+            "schema": {"type": "string", "enum": ["draft", "published", "archived", "active", "inactive", "out_of_stock", "discontinued"]}
+          },
+          {
+            "name": "visibility",
+            "in": "query",
+            "description": "Filter by visibility",
+            "required": false,
+            "schema": {"type": "string", "enum": ["public", "private", "restricted"]}
+          },
+          {
+            "name": "isFeatured",
+            "in": "query",
+            "description": "Filter by featured flag",
+            "required": false,
+            "schema": {"type": "boolean"}
+          },
+          {
+            "name": "isNewArrival",
+            "in": "query",
+            "description": "Filter by new arrival flag",
+            "required": false,
+            "schema": {"type": "boolean"}
+          },
+          {
+            "name": "isBestSeller",
+            "in": "query",
+            "description": "Filter by best seller flag",
+            "required": false,
+            "schema": {"type": "boolean"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results with pagination",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/SearchResponse"}
+              }
+            }
+          },
+          "400": {"description": "Invalid parameters"},
+          "500": {"description": "Server error"}
+        }
+      }
+    },
+    "/search/suggestions": {
+      "get": {
+        "tags": ["Search"],
+        "summary": "Get search autocomplete suggestions",
+        "description": "Returns autocomplete suggestions for search queries based on product names. Supports bilingual search (English/Bangla).",
+        "operationId": "getSearchSuggestions",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Partial search query (minimum 2 characters)",
+            "required": true,
+            "schema": {"type": "string", "minLength": 2, "example": "iph"}
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of suggestions (max: 50)",
+            "required": false,
+            "schema": {"type": "integer", "minimum": 1, "maximum": 50, "default": 10}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Search suggestions"},
+          "400": {"description": "Missing or invalid query parameter"}
+        }
+      }
+    },
+    "/search/facets": {
+      "get": {
+        "tags": ["Search"],
+        "summary": "Get faceted search aggregations",
+        "description": "Returns aggregations for faceted search including categories, brands, price ranges, and status flags.",
+        "operationId": "getSearchFacets",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Optional search query for context-aware facets",
+            "required": false,
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Faceted search aggregations"}
+        }
+      }
+    },
+    "/search/analytics": {
+      "get": {
+        "tags": ["Search"],
+        "summary": "Get search analytics (admin only)",
+        "description": "Returns search analytics data including popular queries, result counts, and performance metrics.",
+        "operationId": "getSearchAnalytics",
+        "security": [{"bearerAuth": ["admin"]}],
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "Start date (ISO 8601 format)",
+            "required": false,
+            "schema": {"type": "string", "format": "date-time"}
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "End date (ISO 8601 format)",
+            "required": false,
+            "schema": {"type": "string", "format": "date-time"}
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum results (default: 100, max: 1000)",
+            "required": false,
+            "schema": {"type": "integer", "minimum": 1, "maximum": 1000, "default": 100}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Search analytics data"},
+          "401": {"description": "Authentication required"},
+          "403": {"description": "Admin access required"}
+        }
+      }
+    },
+    "/products/bulk": {
+      "post": {
+        "tags": ["Products"],
+        "summary": "Batch create products",
+        "description": "Create multiple products in a single request. Maximum 100 products per request. All products are validated before creation.",
+        "operationId": "bulkCreateProducts",
+        "security": [{"bearerAuth": ["admin"]}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/BulkCreateProductsRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Products created successfully"},
+          "400": {"description": "Validation errors"},
+          "401": {"description": "Authentication required"},
+          "403": {"description": "Admin access required"},
+          "409": {"description": "SKUs or slugs already exist"}
+        }
+      },
+      "put": {
+        "tags": ["Products"],
+        "summary": "Batch update products",
+        "description": "Update multiple products in a single request. Maximum 100 products per request.",
+        "operationId": "bulkUpdateProducts",
+        "security": [{"bearerAuth": ["admin"]}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/BulkUpdateProductsRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Products updated successfully"},
+          "400": {"description": "Validation errors"},
+          "401": {"description": "Authentication required"},
+          "403": {"description": "Admin access required"},
+          "404": {"description": "Some products not found"}
+        }
+      },
+      "delete": {
+        "tags": ["Products"],
+        "summary": "Batch delete products",
+        "description": "Delete multiple products in a single request. Maximum 100 products per request.",
+        "operationId": "bulkDeleteProducts",
+        "security": [{"bearerAuth": ["admin"]}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/BulkDeleteRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Products deleted successfully"},
+          "400": {"description": "Validation errors"},
+          "401": {"description": "Authentication required"},
+          "403": {"description": "Admin access required"}
+        }
+      }
+    },
+    "/products/bulk/status": {
+      "patch": {
+        "tags": ["Products"],
+        "summary": "Batch update product status",
+        "description": "Update the status of multiple products in a single request. Maximum 100 products per request.",
+        "operationId": "bulkUpdateProductStatus",
+        "security": [{"bearerAuth": ["admin"]}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["productIds", "status"],
+                "properties": {
+                  "productIds": {
+                    "type": "array",
+                    "items": {"type": "string", "format": "uuid"},
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "description": "Array of product IDs to update"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["active", "inactive", "draft", "published", "archived", "out_of_stock", "discontinued"],
+                    "description": "New status for all products"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Product statuses updated successfully"},
+          "400": {"description": "Validation errors"},
+          "401": {"description": "Authentication required"},
+          "403": {"description": "Admin access required"},
+          "404": {"description": "Some products not found"}
+        }
+      }
+    },
+    "/products/import": {
+      "post": {
+        "tags": ["Products"],
+        "summary": "Import products from CSV",
+        "description": "Import products from a CSV file. Maximum file size: 5MB. Supports bilingual fields.",
+        "operationId": "importProducts",
+        "security": [{"bearerAuth": ["admin"]}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["file"],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "CSV file containing product data"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Products imported successfully"},
+          "400": {"description": "Invalid CSV format or empty file"},
+          "401": {"description": "Authentication required"},
+          "403": {"description": "Admin access required"}
+        }
+      }
+    },
+    "/products/export": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Export products to CSV",
+        "description": "Export products to a CSV file. Optional filters for category, brand, and status.",
+        "operationId": "exportProducts",
+        "security": [{"bearerAuth": ["admin"]}],
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "query",
+            "description": "Filter by category UUID",
+            "required": false,
+            "schema": {"type": "string", "format": "uuid"}
+          },
+          {
+            "name": "brandId",
+            "in": "query",
+            "description": "Filter by brand UUID",
+            "required": false,
+            "schema": {"type": "string", "format": "uuid"}
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by product status",
+            "required": false,
+            "schema": {"type": "string", "enum": ["draft", "published", "archived", "active", "inactive", "out_of_stock", "discontinued"]}
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum products to export (max: 10000)",
+            "required": false,
+            "schema": {"type": "integer", "minimum": 1, "maximum": 10000, "default": 1000}
+          }
+        ],
+        "responses": {
+          "200": {"description": "CSV file download"},
+          "401": {"description": "Authentication required"},
+          "403": {"description": "Admin access required"}
+        }
+      }
+    },
+    "/categories/bulk": {
+      "post": {
+        "tags": ["Categories"],
+        "summary": "Batch create categories",
+        "description": "Create multiple categories in a single request. Maximum 100 categories per request.",
+        "operationId": "bulkCreateCategories",
+        "security": [{"bearerAuth": ["admin"]}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/BulkCreateCategoriesRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Categories created successfully"},
+          "400": {"description": "Validation errors or duplicate slugs"},
+          "401": {"description": "Authentication required"},
+          "403": {"description": "Admin access required"}
+        }
+      },
+      "put": {
+        "tags": ["Categories"],
+        "summary": "Batch update categories",
+        "description": "Update multiple categories in a single request. Maximum 100 categories per request.",
+        "operationId": "bulkUpdateCategories",
+        "security": [{"bearerAuth": ["admin"]}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/BulkUpdateCategoriesRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Categories updated successfully"},
+          "400": {"description": "Validation errors"},
+          "401": {"description": "Authentication required"},
+          "403": {"description": "Admin access required"}
+        }
+      },
+      "delete": {
+        "tags": ["Categories"],
+        "summary": "Batch delete categories",
+        "description": "Delete multiple categories in a single request. Cannot delete categories with products or subcategories.",
+        "operationId": "bulkDeleteCategories",
+        "security": [{"bearerAuth": ["admin"]}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/BulkDeleteRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Categories deleted successfully"},
+          "400": {"description": "Cannot delete categories with products or subcategories"},
+          "401": {"description": "Authentication required"},
+          "403": {"description": "Admin access required"}
+        }
+      }
+    },
+    "/brands/bulk": {
+      "post": {
+        "tags": ["Brands"],
+        "summary": "Batch create brands",
+        "description": "Create multiple brands in a single request. Maximum 100 brands per request.",
+        "operationId": "bulkCreateBrands",
+        "security": [{"bearerAuth": ["admin"]}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/BulkCreateBrandsRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Brands created successfully"},
+          "400": {"description": "Validation errors or duplicate slugs"},
+          "401": {"description": "Authentication required"},
+          "403": {"description": "Admin access required"}
+        }
+      },
+      "put": {
+        "tags": ["Brands"],
+        "summary": "Batch update brands",
+        "description": "Update multiple brands in a single request. Maximum 100 brands per request.",
+        "operationId": "bulkUpdateBrands",
+        "security": [{"bearerAuth": ["admin"]}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/BulkUpdateBrandsRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Brands updated successfully"},
+          "400": {"description": "Validation errors"},
+          "401": {"description": "Authentication required"},
+          "403": {"description": "Admin access required"}
+        }
+      },
+      "delete": {
+        "tags": ["Brands"],
+        "summary": "Batch delete brands",
+        "description": "Delete multiple brands in a single request. Cannot delete brands with products.",
+        "operationId": "bulkDeleteBrands",
+        "security": [{"bearerAuth": ["admin"]}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/BulkDeleteRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Brands deleted successfully"},
+          "400": {"description": "Cannot delete brands with products"},
+          "401": {"description": "Authentication required"},
+          "403": {"description": "Admin access required"}
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "List all products",
+        "description": "Get a paginated list of products with optional filtering.",
+        "operationId": "listProducts",
+        "parameters": [
+          {"name": "page", "in": "query", "schema": {"type": "integer", "default": 1}},
+          {"name": "limit", "in": "query", "schema": {"type": "integer", "default": 20, "maximum": 100}},
+          {"name": "status", "in": "query", "schema": {"type": "string", "enum": ["draft", "published", "archived", "active", "inactive", "out_of_stock", "discontinued"]}},
+          {"name": "categoryId", "in": "query", "schema": {"type": "string", "format": "uuid"}},
+          {"name": "brandId", "in": "query", "schema": {"type": "string", "format": "uuid"}}
+        ],
+        "responses": {"200": {"description": "List of products"}}
+      },
+      "post": {
+        "tags": ["Products"],
+        "summary": "Create product",
+        "description": "Create a new product. Requires admin authentication. Triggers Elasticsearch indexing.",
+        "operationId": "createProduct",
+        "security": [{"bearerAuth": ["admin"]}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/ProductCreateRequest"}
+            }
+          }
+        },
+        "responses": {
+          "201": {"description": "Product created successfully"},
+          "400": {"description": "Validation errors"},
+          "401": {"description": "Authentication required"},
+          "409": {"description": "Product with this SKU or slug already exists"}
+        }
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Get product by ID",
+        "operationId": "getProduct",
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "responses": {
+          "200": {"description": "Product found"},
+          "404": {"description": "Product not found"}
+        }
+      },
+      "put": {
+        "tags": ["Products"],
+        "summary": "Update product",
+        "description": "Update an existing product. Requires admin authentication. Triggers Elasticsearch reindexing.",
+        "operationId": "updateProduct",
+        "security": [{"bearerAuth": ["admin"]}],
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/ProductUpdateRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Product updated successfully"},
+          "404": {"description": "Product not found"}
+        }
+      },
+      "delete": {
+        "tags": ["Products"],
+        "summary": "Delete product",
+        "description": "Delete a product. Requires admin authentication. Removes from Elasticsearch index.",
+        "operationId": "deleteProduct",
+        "security": [{"bearerAuth": ["admin"]}],
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "responses": {
+          "200": {"description": "Product deleted successfully"},
+          "404": {"description": "Product not found"}
+        }
+      }
+    },
+    "/products/{id}/status": {
+      "patch": {
+        "tags": ["Products"],
+        "summary": "Update product status",
+        "description": "Update product status. Triggers Elasticsearch reindexing.",
+        "operationId": "updateProductStatus",
+        "security": [{"bearerAuth": ["admin"]}],
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["status"],
+                "properties": {
+                  "status": {"type": "string", "enum": ["active", "inactive", "draft", "published", "archived", "out_of_stock", "discontinued"]}
+                }
+              }
+            }
+          }
+        },
+        "responses": {"200": {"description": "Status updated successfully"}}
+      }
+    },
+    "/products/{id}/stock": {
+      "patch": {
+        "tags": ["Products"],
+        "summary": "Update product stock",
+        "description": "Update product stock quantity. Triggers Elasticsearch reindexing.",
+        "operationId": "updateProductStock",
+        "security": [{"bearerAuth": ["admin"]}],
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["stockQuantity"],
+                "properties": {
+                  "stockQuantity": {"type": "integer", "minimum": 0},
+                  "lowStockThreshold": {"type": "integer", "minimum": 0}
+                }
+              }
+            }
+          }
+        },
+        "responses": {"200": {"description": "Stock updated successfully"}}
+      }
+    },
+    "/products/{id}/featured": {
+      "patch": {
+        "tags": ["Products"],
+        "summary": "Toggle featured status",
+        "description": "Toggle product featured flag. Triggers Elasticsearch reindexing.",
+        "operationId": "toggleFeatured",
+        "security": [{"bearerAuth": ["admin"]}],
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["isFeatured"],
+                "properties": {"isFeatured": {"type": "boolean"}}
+              }
+            }
+          }
+        },
+        "responses": {"200": {"description": "Featured status updated successfully"}}
+      }
+    },
+    "/products/{id}/new-arrival": {
+      "patch": {
+        "tags": ["Products"],
+        "summary": "Toggle new arrival status",
+        "description": "Toggle product new arrival flag. Triggers Elasticsearch reindexing.",
+        "operationId": "toggleNewArrival",
+        "security": [{"bearerAuth": ["admin"]}],
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["isNewArrival"],
+                "properties": {"isNewArrival": {"type": "boolean"}}
+              }
+            }
+          }
+        },
+        "responses": {"200": {"description": "New arrival status updated successfully"}}
+      }
+    },
+    "/products/{id}/best-seller": {
+      "patch": {
+        "tags": ["Products"],
+        "summary": "Toggle best seller status",
+        "description": "Toggle product best seller flag. Triggers Elasticsearch reindexing.",
+        "operationId": "toggleBestSeller",
+        "security": [{"bearerAuth": ["admin"]}],
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["isBestSeller"],
+                "properties": {"isBestSeller": {"type": "boolean"}}
+              }
+            }
+          }
+        },
+        "responses": {"200": {"description": "Best seller status updated successfully"}}
+      }
+    },
+    "/products/{id}/seo": {
+      "patch": {
+        "tags": ["Products"],
+        "summary": "Update SEO fields",
+        "description": "Update product SEO meta fields. Triggers Elasticsearch reindexing.",
+        "operationId": "updateProductSEO",
+        "security": [{"bearerAuth": ["admin"]}],
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "metaTitle": {"type": "string"},
+                  "metaDescription": {"type": "string"},
+                  "metaKeywords": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {"200": {"description": "SEO fields updated successfully"}}
+      }
+    },
+    "/categories/{id}": {
+      "put": {
+        "tags": ["Categories"],
+        "summary": "Update category",
+        "description": "Update an existing category. Reindexes all products in this category in Elasticsearch.",
+        "operationId": "updateCategory",
+        "security": [{"bearerAuth": ["admin"]}],
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CategoryUpdateRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Category updated successfully"},
+          "404": {"description": "Category not found"}
+        }
+      }
+    },
+    "/brands/{id}": {
+      "put": {
+        "tags": ["Brands"],
+        "summary": "Update brand",
+        "description": "Update an existing brand. Reindexes all products of this brand in Elasticsearch.",
+        "operationId": "updateBrand",
+        "security": [{"bearerAuth": ["admin"]}],
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/BrandUpdateRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Brand updated successfully"},
+          "404": {"description": "Brand not found"}
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT authentication token. Obtain from POST /api/v1/auth/login"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {"type": "string", "description": "Error type code"},
+          "message": {"type": "string", "description": "Human-readable error message"},
+          "details": {
+            "type": "array",
+            "description": "Validation error details",
+            "items": {
+              "type": "object",
+              "properties": {
+                "param": {"type": "string"},
+                "message": {"type": "string"},
+                "value": {"type": "any"}
+              }
+            }
+          }
+        }
+      },
+      "SearchResponse": {
+        "type": "object",
+        "properties": {
+          "products": {"type": "array", "items": {"$ref": "#/components/schemas/ProductSearchResult"}},
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": {"type": "integer"},
+              "limit": {"type": "integer"},
+              "total": {"type": "integer"},
+              "pages": {"type": "integer"}
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "query": {"type": "string"},
+              "executionTime": {"type": "integer", "description": "Execution time in milliseconds"},
+              "searchEngine": {"type": "string", "enum": ["elasticsearch", "postgresql"]}
+            }
+          }
+        }
+      },
+      "ProductSearchResult": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string", "format": "uuid"},
+          "sku": {"type": "string"},
+          "name": {"type": "string"},
+          "nameEn": {"type": "string"},
+          "nameBn": {"type": "string"},
+          "slug": {"type": "string"},
+          "shortDescription": {"type": "string"},
+          "basePrice": {"type": "number"},
+          "discountPrice": {"type": "number", "nullable": true},
+          "salePrice": {"type": "number", "nullable": true},
+          "thumbnail": {"type": "string"},
+          "rating": {"type": "number"},
+          "reviewCount": {"type": "integer"},
+          "inStock": {"type": "boolean"},
+          "isFeatured": {"type": "boolean"},
+          "isNewArrival": {"type": "boolean"},
+          "isBestSeller": {"type": "boolean"},
+          "categoryId": {"type": "string", "format": "uuid"},
+          "categoryName": {"type": "string"},
+          "categoryNameEn": {"type": "string"},
+          "categoryNameBn": {"type": "string"},
+          "brandId": {"type": "string", "format": "uuid"},
+          "brandName": {"type": "string"},
+          "brandNameEn": {"type": "string"},
+          "brandNameBn": {"type": "string"}
+        }
+      },
+      "SearchSuggestionsResponse": {
+        "type": "object",
+        "properties": {
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {"type": "string", "format": "uuid"},
+                "nameEn": {"type": "string"},
+                "nameBn": {"type": "string"},
+                "slug": {"type": "string"},
+                "thumbnail": {"type": "string"},
+                "categoryId": {"type": "string", "format": "uuid"},
+                "categoryNameEn": {"type": "string"},
+                "categoryNameBn": {"type": "string"}
+              }
+            }
+          },
+          "count": {"type": "integer"},
+          "query": {"type": "string"}
+        }
+      },
+      "SearchFacetsResponse": {
+        "type": "object",
+        "properties": {
+          "facets": {
+            "type": "object",
+            "properties": {
+              "categories": {"type": "array", "items": {"type": "object", "properties": {"id": {"type": "string"}, "count": {"type": "integer"}, "name": {"type": "string"}}}},
+              "brands": {"type": "array", "items": {"type": "object", "properties": {"id": {"type": "string"}, "count": {"type": "integer"}, "name": {"type": "string"}}}},
+              "priceRanges": {"type": "array", "items": {"type": "object", "properties": {"key": {"type": "string"}, "count": {"type": "integer"}, "from": {"type": "number"}, "to": {"type": "number", "nullable": true}}}},
+              "statusFlags": {"type": "array", "items": {"type": "object", "properties": {"key": {"type": "string"}, "count": {"type": "integer"}}}}
+            }
+          },
+          "query": {"type": "string"}
+        }
+      },
+      "SearchAnalyticsResponse": {
+        "type": "object",
+        "properties": {
+          "analytics": {
+            "type": "object",
+            "properties": {
+              "totalSearches": {"type": "integer"},
+              "uniqueQueries": {"type": "integer"},
+              "averageResults": {"type": "number"},
+              "averageExecutionTime": {"type": "number"},
+              "topQueries": {"type": "array", "items": {"type": "object", "properties": {"query": {"type": "string"}, "count": {"type": "integer"}, "avgResults": {"type": "integer"}}}},
+              "noResultQueries": {"type": "array", "items": {"type": "object", "properties": {"query": {"type": "string"}, "count": {"type": "integer"}}}}
+            }
+          },
+          "period": {
+            "type": "object",
+            "properties": {
+              "startDate": {"type": "string", "format": "date-time"},
+              "endDate": {"type": "string", "format": "date-time"}
+            }
+          }
+        }
+      },
+      "BulkOperationResponse": {
+        "type": "object",
+        "properties": {
+          "success": {"type": "boolean"},
+          "created": {"type": "integer"},
+          "updated": {"type": "integer"},
+          "deleted": {"type": "integer"},
+          "failed": {"type": "integer"},
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {"type": "string"},
+                "status": {"type": "string", "enum": ["created", "updated", "deleted", "failed"]},
+                "error": {"type": "string"}
+              }
+            }
+          }
+        }
+      },
+      "CSVImportResponse": {
+        "type": "object",
+        "properties": {
+          "success": {"type": "boolean"},
+          "imported": {"type": "integer"},
+          "failed": {"type": "integer"},
+          "total": {"type": "integer"},
+          "errors": {"type": "array", "items": {"type": "object", "properties": {"row": {"type": "integer"}, "error": {"type": "string"}}}}
+        }
+      },
+      "BulkCreateProductsRequest": {
+        "type": "object",
+        "required": ["products"],
+        "properties": {
+          "products": {"type": "array", "minItems": 1, "maxItems": 100, "items": {"$ref": "#/components/schemas/ProductCreateRequest"}}
+        }
+      },
+      "BulkUpdateProductsRequest": {
+        "type": "object",
+        "required": ["products"],
+        "properties": {
+          "products": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "required": ["id"],
+              "properties": {
+                "id": {"type": "string", "format": "uuid"},
+                "sku": {"type": "string"},
+                "name": {"type": "string"},
+                "nameEn": {"type": "string"},
+                "nameBn": {"type": "string"},
+                "slug": {"type": "string"},
+                "categories": {"type": "array", "items": {"type": "string", "format": "uuid"}},
+                "brandId": {"type": "string", "format": "uuid"},
+                "regularPrice": {"type": "number"},
+                "salePrice": {"type": "number"},
+                "costPrice": {"type": "number"},
+                "status": {"type": "string", "enum": ["draft", "published", "archived", "active", "inactive", "out_of_stock", "discontinued"]},
+                "visibility": {"type": "string", "enum": ["public", "private", "restricted"]}
+              }
+            }
+          }
+        }
+      },
+      "BulkDeleteRequest": {
+        "type": "object",
+        "required": ["ids"],
+        "properties": {
+          "ids": {"type": "array", "items": {"type": "string", "format": "uuid"}, "minItems": 1, "maxItems": 100}
+        }
+      },
+      "BulkCreateCategoriesRequest": {
+        "type": "object",
+        "required": ["categories"],
+        "properties": {
+          "categories": {"type": "array", "minItems": 1, "maxItems": 100, "items": {"$ref": "#/components/schemas/CategoryCreateRequest"}}
+        }
+      },
+      "BulkUpdateCategoriesRequest": {
+        "type": "object",
+        "required": ["categories"],
+        "properties": {
+          "categories": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "required": ["id"],
+              "properties": {
+                "id": {"type": "string", "format": "uuid"},
+                "name": {"type": "string"},
+                "slug": {"type": "string"},
+                "nameEn": {"type": "string"},
+                "nameBn": {"type": "string"},
+                "parentId": {"type": "string", "format": "uuid"},
+                "status": {"type": "string", "enum": ["active", "inactive"]}
+              }
+            }
+          }
+        }
+      },
+      "BulkCreateBrandsRequest": {
+        "type": "object",
+        "required": ["brands"],
+        "properties": {
+          "brands": {"type": "array", "minItems": 1, "maxItems": 100, "items": {"$ref": "#/components/schemas/BrandCreateRequest"}}
+        }
+      },
+      "BulkUpdateBrandsRequest": {
+        "type": "object",
+        "required": ["brands"],
+        "properties": {
+          "brands": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "required": ["id"],
+              "properties": {
+                "id": {"type": "string", "format": "uuid"},
+                "name": {"type": "string"},
+                "slug": {"type": "string"},
+                "nameEn": {"type": "string"},
+                "nameBn": {"type": "string"},
+                "status": {"type": "string", "enum": ["active", "inactive"]},
+                "isFeatured": {"type": "boolean"}
+              }
+            }
+          }
+        }
+      },
+      "ProductCreateRequest": {
+        "type": "object",
+        "required": ["sku", "name", "nameEn", "slug", "categories", "brandId", "regularPrice", "costPrice"],
+        "properties": {
+          "sku": {"type": "string", "description": "Unique product SKU"},
+          "name": {"type": "string", "description": "Product name (default)"},
+          "nameEn": {"type": "string", "description": "Product name in English"},
+          "nameBn": {"type": "string", "description": "Product name in Bangla", "nullable": true},
+          "slug": {"type": "string", "description": "URL-friendly slug"},
+          "shortDescription": {"type": "string"},
+          "description": {"type": "string"},
+          "categories": {"type": "array", "items": {"type": "string", "format": "uuid"}, "description": "Category IDs"},
+          "brandId": {"type": "string", "format": "uuid"},
+          "regularPrice": {"type": "number", "minimum": 0},
+          "salePrice": {"type": "number", "minimum": 0},
+          "costPrice": {"type": "number", "minimum": 0},
+          "taxRate": {"type": "number", "minimum": 0, "default": 0},
+          "stockQuantity": {"type": "integer", "minimum": 0, "default": 0},
+          "lowStockThreshold": {"type": "integer", "minimum": 0, "default": 10},
+          "status": {"type": "string", "enum": ["draft", "published", "archived", "active", "inactive", "out_of_stock", "discontinued"], "default": "active"},
+          "visibility": {"type": "string", "enum": ["public", "private", "restricted"], "default": "public"},
+          "metaTitle": {"type": "string"},
+          "metaDescription": {"type": "string"},
+          "metaKeywords": {"type": "string"},
+          "isFeatured": {"type": "boolean", "default": false},
+          "isNewArrival": {"type": "boolean", "default": false},
+          "isBestSeller": {"type": "boolean", "default": false},
+          "warrantyPeriod": {"type": "integer", "minimum": 0},
+          "warrantyType": {"type": "string"}
+        }
+      },
+      "ProductUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "sku": {"type": "string"},
+          "name": {"type": "string"},
+          "nameEn": {"type": "string"},
+          "nameBn": {"type": "string"},
+          "slug": {"type": "string"},
+          "shortDescription": {"type": "string"},
+          "description": {"type": "string"},
+          "categories": {"type": "array", "items": {"type": "string", "format": "uuid"}},
+          "brandId": {"type": "string", "format": "uuid"},
+          "regularPrice": {"type": "number", "minimum": 0},
+          "salePrice": {"type": "number", "minimum": 0},
+          "costPrice": {"type": "number", "minimum": 0},
+          "taxRate": {"type": "number", "minimum": 0},
+          "stockQuantity": {"type": "integer", "minimum": 0},
+          "lowStockThreshold": {"type": "integer", "minimum": 0},
+          "status": {"type": "string", "enum": ["draft", "published", "archived", "active", "inactive", "out_of_stock", "discontinued"]},
+          "visibility": {"type": "string", "enum": ["public", "private", "restricted"]},
+          "metaTitle": {"type": "string"},
+          "metaDescription": {"type": "string"},
+          "metaKeywords": {"type": "string"},
+          "isFeatured": {"type": "boolean"},
+          "isNewArrival": {"type": "boolean"},
+          "isBestSeller": {"type": "boolean"},
+          "warrantyPeriod": {"type": "integer", "minimum": 0},
+          "warrantyType": {"type": "string"}
+        }
+      },
+      "CategoryCreateRequest": {
+        "type": "object",
+        "required": ["name", "slug"],
+        "properties": {
+          "name": {"type": "string"},
+          "nameEn": {"type": "string"},
+          "nameBn": {"type": "string"},
+          "slug": {"type": "string"},
+          "description": {"type": "string"},
+          "parentId": {"type": "string", "format": "uuid"},
+          "displayOrder": {"type": "integer", "default": 0},
+          "sortOrder": {"type": "integer", "default": 0},
+          "status": {"type": "string", "enum": ["active", "inactive"], "default": "active"},
+          "metaTitle": {"type": "string"},
+          "metaDescription": {"type": "string"},
+          "metaKeywords": {"type": "string"}
+        }
+      },
+      "CategoryUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "nameEn": {"type": "string"},
+          "nameBn": {"type": "string"},
+          "slug": {"type": "string"},
+          "description": {"type": "string"},
+          "parentId": {"type": "string", "format": "uuid"},
+          "displayOrder": {"type": "integer"},
+          "sortOrder": {"type": "integer"},
+          "status": {"type": "string", "enum": ["active", "inactive"]},
+          "metaTitle": {"type": "string"},
+          "metaDescription": {"type": "string"},
+          "metaKeywords": {"type": "string"}
+        }
+      },
+      "BrandCreateRequest": {
+        "type": "object",
+        "required": ["name", "slug"],
+        "properties": {
+          "name": {"type": "string"},
+          "nameEn": {"type": "string"},
+          "nameBn": {"type": "string"},
+          "slug": {"type": "string"},
+          "description": {"type": "string"},
+          "websiteUrl": {"type": "string", "format": "url"},
+          "contactEmail": {"type": "string", "format": "email"},
+          "contactPhone": {"type": "string"},
+          "address": {"type": "string"},
+          "status": {"type": "string", "enum": ["active", "inactive"], "default": "active"},
+          "isFeatured": {"type": "boolean", "default": false},
+          "featuredOrder": {"type": "integer", "default": 0},
+          "metaTitle": {"type": "string"},
+          "metaDescription": {"type": "string"},
+          "metaKeywords": {"type": "string"}
+        }
+      },
+      "BrandUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "nameEn": {"type": "string"},
+          "nameBn": {"type": "string"},
+          "slug": {"type": "string"},
+          "description": {"type": "string"},
+          "websiteUrl": {"type": "string", "format": "url"},
+          "contactEmail": {"type": "string", "format": "email"},
+          "contactPhone": {"type": "string"},
+          "address": {"type": "string"},
+          "status": {"type": "string", "enum": ["active", "inactive"]},
+          "isFeatured": {"type": "boolean"},
+          "featuredOrder": {"type": "integer"},
+          "metaTitle": {"type": "string"},
+          "metaDescription": {"type": "string"},
+          "metaKeywords": {"type": "string"}
+        }
+      }
+    }
+  }
+}

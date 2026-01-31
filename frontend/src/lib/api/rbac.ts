@@ -47,7 +47,7 @@ export const roleApi = {
    */
   list: async (): Promise<RoleListResponse> => {
     const response = await apiClient.get<RoleListResponse>('/rbac/roles');
-    return response.data;
+    return response;
   },
 
   /**
@@ -55,7 +55,7 @@ export const roleApi = {
    */
   getHierarchy: async (): Promise<RoleHierarchyResponse> => {
     const response = await apiClient.get<RoleHierarchyResponse>('/rbac/roles/hierarchy');
-    return response.data;
+    return response;
   },
 
   /**
@@ -63,7 +63,7 @@ export const roleApi = {
    */
   get: async (id: string): Promise<RoleDetailResponse> => {
     const response = await apiClient.get<RoleDetailResponse>(`/rbac/roles/${id}`);
-    return response.data;
+    return response;
   },
 
   /**
@@ -71,7 +71,7 @@ export const roleApi = {
    */
   create: async (data: CreateRoleData): Promise<RoleDetailResponse> => {
     const response = await apiClient.post<RoleDetailResponse>('/rbac/roles', data);
-    return response.data;
+    return response;
   },
 
   /**
@@ -79,7 +79,7 @@ export const roleApi = {
    */
   update: async (id: string, data: UpdateRoleData): Promise<RoleDetailResponse> => {
     const response = await apiClient.put<RoleDetailResponse>(`/rbac/roles/${id}`, data);
-    return response.data;
+    return response;
   },
 
   /**
@@ -87,7 +87,7 @@ export const roleApi = {
    */
   delete: async (id: string): Promise<{ success: boolean; message: string }> => {
     const response = await apiClient.delete<{ success: boolean; message: string }>(`/rbac/roles/${id}`);
-    return response.data;
+    return response;
   },
 };
 
@@ -101,7 +101,7 @@ export const permissionApi = {
   list: async (resource?: string): Promise<PermissionListResponse> => {
     const url = resource ? `/rbac/permissions?resource=${resource}` : '/rbac/permissions';
     const response = await apiClient.get<PermissionListResponse>(url);
-    return response.data;
+    return response;
   },
 
   /**
@@ -109,7 +109,7 @@ export const permissionApi = {
    */
   getResources: async (): Promise<ResourceCategoriesResponse> => {
     const response = await apiClient.get<ResourceCategoriesResponse>('/rbac/permissions/resources');
-    return response.data;
+    return response;
   },
 
   /**
@@ -117,7 +117,7 @@ export const permissionApi = {
    */
   get: async (id: string): Promise<PermissionDetailResponse> => {
     const response = await apiClient.get<PermissionDetailResponse>(`/rbac/permissions/${id}`);
-    return response.data;
+    return response;
   },
 
   /**
@@ -125,7 +125,7 @@ export const permissionApi = {
    */
   create: async (data: CreatePermissionData): Promise<PermissionDetailResponse> => {
     const response = await apiClient.post<PermissionDetailResponse>('/rbac/permissions', data);
-    return response.data;
+    return response;
   },
 
   /**
@@ -133,7 +133,7 @@ export const permissionApi = {
    */
   update: async (id: string, data: UpdatePermissionData): Promise<PermissionDetailResponse> => {
     const response = await apiClient.put<PermissionDetailResponse>(`/rbac/permissions/${id}`, data);
-    return response.data;
+    return response;
   },
 
   /**
@@ -141,7 +141,7 @@ export const permissionApi = {
    */
   delete: async (id: string): Promise<{ success: boolean; message: string }> => {
     const response = await apiClient.delete<{ success: boolean; message: string }>(`/rbac/permissions/${id}`);
-    return response.data;
+    return response;
   },
 };
 
@@ -153,7 +153,7 @@ export const rolePermissionApi = {
    */
   getRolePermissions: async (roleId: string): Promise<PermissionListResponse> => {
     const response = await apiClient.get<PermissionListResponse>(`/rbac/role-permissions/${roleId}/permissions`);
-    return response.data;
+    return response;
   },
 
   /**
@@ -163,7 +163,7 @@ export const rolePermissionApi = {
     const response = await apiClient.post<{ success: boolean; message: string }>(
       `/rbac/role-permissions/${roleId}/permissions/${permissionId}`
     );
-    return response.data;
+    return response;
   },
 
   /**
@@ -173,7 +173,7 @@ export const rolePermissionApi = {
     const response = await apiClient.delete<{ success: boolean; message: string }>(
       `/rbac/role-permissions/${roleId}/permissions/${permissionId}`
     );
-    return response.data;
+    return response;
   },
 };
 
@@ -185,7 +185,7 @@ export const userRoleApi = {
    */
   getUserRoles: async (userId: string): Promise<UserRoleListResponse> => {
     const response = await apiClient.get<UserRoleListResponse>(`/rbac/users/${userId}/roles`);
-    return response.data;
+    return response;
   },
 
   /**
@@ -196,7 +196,7 @@ export const userRoleApi = {
       `/rbac/users/${userId}/roles/${data.roleId}`,
       { expiresAt: data.expiresAt }
     );
-    return response.data;
+    return response;
   },
 
   /**
@@ -204,7 +204,7 @@ export const userRoleApi = {
    */
   removeRole: async (userId: string, roleId: string): Promise<UserRoleListResponse> => {
     const response = await apiClient.delete<UserRoleListResponse>(`/rbac/users/${userId}/roles/${roleId}`);
-    return response.data;
+    return response;
   },
 
   /**
@@ -212,7 +212,7 @@ export const userRoleApi = {
    */
   updateUserRole: async (userId: string, roleId: string, data: UpdateUserRoleData): Promise<UserRoleListResponse> => {
     const response = await apiClient.put<UserRoleListResponse>(`/rbac/users/${userId}/roles/${roleId}`, data);
-    return response.data;
+    return response;
   },
 
   /**
@@ -222,7 +222,7 @@ export const userRoleApi = {
     const response = await apiClient.get<UserListWithRolesResponse>(
       `/rbac/roles/${roleId}/users?page=${page}&limit=${limit}`
     );
-    return response.data;
+    return response;
   },
 };
 
@@ -235,7 +235,7 @@ export const escalationApi = {
   list: async (status?: string): Promise<EscalationRequestListResponse> => {
     const url = status ? `/rbac/role-escalation-requests?status=${status}` : '/rbac/role-escalation-requests';
     const response = await apiClient.get<EscalationRequestListResponse>(url);
-    return response.data;
+    return response;
   },
 
   /**
@@ -243,7 +243,7 @@ export const escalationApi = {
    */
   getPending: async (): Promise<EscalationRequestListResponse> => {
     const response = await apiClient.get<EscalationRequestListResponse>('/rbac/role-escalation-requests/pending');
-    return response.data;
+    return response;
   },
 
   /**
@@ -251,7 +251,7 @@ export const escalationApi = {
    */
   get: async (id: string): Promise<EscalationRequestDetailResponse> => {
     const response = await apiClient.get<EscalationRequestDetailResponse>(`/rbac/role-escalation-requests/${id}`);
-    return response.data;
+    return response;
   },
 
   /**
@@ -259,7 +259,7 @@ export const escalationApi = {
    */
   create: async (data: CreateEscalationRequestData): Promise<EscalationRequestDetailResponse> => {
     const response = await apiClient.post<EscalationRequestDetailResponse>('/rbac/role-escalation-requests', data);
-    return response.data;
+    return response;
   },
 
   /**
@@ -270,7 +270,7 @@ export const escalationApi = {
       `/rbac/role-escalation-requests/${id}/approve`,
       data
     );
-    return response.data;
+    return response;
   },
 
   /**
@@ -281,7 +281,7 @@ export const escalationApi = {
       `/rbac/role-escalation-requests/${id}/reject`,
       data
     );
-    return response.data;
+    return response;
   },
 
   /**
@@ -289,7 +289,7 @@ export const escalationApi = {
    */
   cancel: async (id: string): Promise<EscalationRequestDetailResponse> => {
     const response = await apiClient.delete<EscalationRequestDetailResponse>(`/rbac/role-escalation-requests/${id}`);
-    return response.data;
+    return response;
   },
 
   /**
@@ -297,7 +297,7 @@ export const escalationApi = {
    */
   getMyRequests: async (): Promise<EscalationRequestListResponse> => {
     const response = await apiClient.get<EscalationRequestListResponse>('/rbac/role-escalation-requests/my-requests');
-    return response.data;
+    return response;
   },
 };
 
@@ -309,7 +309,7 @@ export const authCheckApi = {
    */
   getPermissions: async (): Promise<PermissionListResponse> => {
     const response = await apiClient.get<PermissionListResponse>('/rbac/auth/permissions');
-    return response.data;
+    return response;
   },
 
   /**
@@ -317,7 +317,7 @@ export const authCheckApi = {
    */
   getRoles: async (): Promise<UserRoleListResponse> => {
     const response = await apiClient.get<UserRoleListResponse>('/rbac/auth/roles');
-    return response.data;
+    return response;
   },
 
   /**
@@ -325,7 +325,7 @@ export const authCheckApi = {
    */
   hasPermission: async (permission: string): Promise<PermissionCheckResponse> => {
     const response = await apiClient.get<PermissionCheckResponse>(`/rbac/auth/has-permission/${permission}`);
-    return response.data;
+    return response;
   },
 
   /**
@@ -341,7 +341,7 @@ export const authCheckApi = {
       permissions,
       mode,
     });
-    return response.data;
+    return response;
   },
 
   /**
@@ -349,7 +349,7 @@ export const authCheckApi = {
    */
   canAssignRole: async (role: string): Promise<RoleAssignmentCheckResponse> => {
     const response = await apiClient.get<RoleAssignmentCheckResponse>(`/rbac/auth/can-assign-role/${role}`);
-    return response.data;
+    return response;
   },
 
   /**
@@ -357,7 +357,7 @@ export const authCheckApi = {
    */
   getRoleLevel: async (): Promise<RoleLevelResponse> => {
     const response = await apiClient.get<RoleLevelResponse>('/rbac/auth/role-level');
-    return response.data;
+    return response;
   },
 };
 

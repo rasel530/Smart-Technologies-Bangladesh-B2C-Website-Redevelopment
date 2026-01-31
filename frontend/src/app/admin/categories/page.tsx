@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { CategoryList } from '@/components/admin/CategoryList';
 import { CategoryTreeEditor } from '@/components/admin/CategoryTreeEditor';
 import { withAuth } from '@/components/auth/withAuth';
+import { getCategoryStats } from '@/lib/api/categories';
 
 /**
  * Categories Admin Page
@@ -16,6 +17,30 @@ import { withAuth } from '@/components/auth/withAuth';
  * - Navigation to create new category
  */
 function CategoriesPage() {
+  const [stats, setStats] = useState<{
+    total: number;
+    active: number;
+    inactive: number;
+  }>({ total: 0, active: 0, inactive: 0 });
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+  const [statsError, setStatsError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setIsLoadingStats(true);
+        const statsData = await getCategoryStats();
+        setStats(statsData);
+      } catch (err: any) {
+        setStatsError(err.message || 'Failed to load statistics');
+      } finally {
+        setIsLoadingStats(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -31,7 +56,13 @@ function CategoriesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Categories</p>
-                <p className="text-2xl font-bold text-gray-900">Loading...</p>
+                {isLoadingStats ? (
+                  <p className="text-2xl font-bold text-gray-900">Loading...</p>
+                ) : statsError ? (
+                  <p className="text-2xl font-bold text-red-600">-</p>
+                ) : (
+                  <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                )}
               </div>
               <div className="bg-blue-100 p-3 rounded-full">
                 <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,7 +76,13 @@ function CategoriesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Active Categories</p>
-                <p className="text-2xl font-bold text-green-600">Loading...</p>
+                {isLoadingStats ? (
+                  <p className="text-2xl font-bold text-green-600">Loading...</p>
+                ) : statsError ? (
+                  <p className="text-2xl font-bold text-red-600">-</p>
+                ) : (
+                  <p className="text-2xl font-bold text-green-600">{stats.active}</p>
+                )}
               </div>
               <div className="bg-green-100 p-3 rounded-full">
                 <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,7 +96,13 @@ function CategoriesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Inactive Categories</p>
-                <p className="text-2xl font-bold text-gray-600">Loading...</p>
+                {isLoadingStats ? (
+                  <p className="text-2xl font-bold text-gray-600">Loading...</p>
+                ) : statsError ? (
+                  <p className="text-2xl font-bold text-red-600">-</p>
+                ) : (
+                  <p className="text-2xl font-bold text-gray-600">{stats.inactive}</p>
+                )}
               </div>
               <div className="bg-gray-100 p-3 rounded-full">
                 <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

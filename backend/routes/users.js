@@ -25,7 +25,7 @@ router.get('/', [
   query('page').optional().isInt({ min: 1 }),
   query('limit').optional().isInt({ min: 1, max: 100 }),
   query('search').optional().isString().trim()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { page = 1, limit = 10, search } = req.query;
     const skip = (page - 1) * limit;
@@ -224,7 +224,7 @@ router.put('/:id', [
 // Delete user (admin only)
 router.delete('/:id', [
   param('id').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
 

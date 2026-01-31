@@ -5,14 +5,27 @@ const { authMiddleware } = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { elasticsearchConfig } = require('../config/elasticsearch');
+const { ProductIndexingService } = require('../services/elasticsearch/productIndexingService');
 
 const router = express.Router();
 const prisma = new PrismaClient();
+const productIndexingService = new ProductIndexingService();
+
+// Helper function to convert Decimal values to numbers
+const serializeProduct = (product) => {
+  return {
+    ...product,
+    regularPrice: parseFloat(product.regularPrice),
+    salePrice: product.salePrice ? parseFloat(product.salePrice) : null,
+    costPrice: parseFloat(product.costPrice)
+  };
+};
 
 // Multer configuration for category image upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '../uploads/categories');
+    const uploadDir = path.join(__dirname, '..', process.env.UPLOAD_PATH || 'uploads', 'categories');
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -125,9 +138,7 @@ router.get('/tree', async (req, res) => {
 });
 
 // GET /api/v1/categories/slug/:slug - Get category by slug
-router.get('/slug/:slug', [
-  param('slug').isSlug()
-], handleValidationErrors, async (req, res) => {
+router.get('/slug/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
 
@@ -181,7 +192,7 @@ router.get('/slug/:slug', [
 // GET /api/v1/categories - List all categories with hierarchy
 router.get('/', [
   query('page').optional().isInt({ min: 1 }),
-  query('limit').optional().isInt({ min: 1, max: 100 }),
+  query('limit').optional().isInt({ min: 1, max: 1000 }),
   query('status').optional().isIn(['active', 'inactive']),
   query('parentId').optional().isUUID(),
   query('tree').optional().isBoolean(),
@@ -266,6 +277,29 @@ router.get('/', [
   }
 });
 
+// GET /api/v1/categories/stats - Get category statistics (MUST be before /:id to avoid route conflict)
+router.get('/stats', async (req, res) => {
+  try {
+    const [total, active, inactive] = await Promise.all([
+      prisma.category.count(),
+      prisma.category.count({ where: { status: 'active' } }),
+      prisma.category.count({ where: { status: 'inactive' } })
+    ]);
+
+    res.json({
+      total,
+      active,
+      inactive
+    });
+  } catch (error) {
+    console.error('Get category stats error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch category statistics',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
 // GET /api/v1/categories/:id - Get category by ID with details
 router.get('/:id', [
   param('id').isUUID()
@@ -316,6 +350,29 @@ router.get('/:id', [
   }
 });
 
+// GET /api/v1/categories/stats - Get category statistics
+router.get('/stats', async (req, res) => {
+  try {
+    const [total, active, inactive] = await Promise.all([
+      prisma.category.count(),
+      prisma.category.count({ where: { status: 'active' } }),
+      prisma.category.count({ where: { status: 'inactive' } })
+    ]);
+
+    res.json({
+      total,
+      active,
+      inactive
+    });
+  } catch (error) {
+    console.error('Get category stats error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch category statistics',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
 // POST /api/v1/categories - Create category (admin only)
 router.post('/', [
   body('name').notEmpty().trim(),
@@ -323,14 +380,14 @@ router.post('/', [
   body('nameEn').optional().isString().trim(),
   body('nameBn').optional().isString().trim(),
   body('description').optional().isString(),
-  body('parentId').optional().isUUID(),
+  body('parentId').optional({ checkFalsy: true }).isUUID(),
   body('displayOrder').optional().isInt({ min: 0 }),
   body('sortOrder').optional().isInt({ min: 0 }),
   body('status').optional().isIn(['active', 'inactive']),
   body('metaTitle').optional().isString().trim(),
   body('metaDescription').optional().isString(),
   body('metaKeywords').optional().isString()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const categoryData = req.body;
 
@@ -401,17 +458,32 @@ router.put('/:id', [
   body('nameEn').optional().isString().trim(),
   body('nameBn').optional().isString().trim(),
   body('description').optional().isString(),
-  body('parentId').optional().isUUID(),
+  body('parentId').optional({ checkFalsy: true }).isUUID(),
   body('displayOrder').optional().isInt({ min: 0 }),
   body('sortOrder').optional().isInt({ min: 0 }),
   body('status').optional().isIn(['active', 'inactive']),
   body('metaTitle').optional().isString().trim(),
   body('metaDescription').optional().isString(),
   body('metaKeywords').optional().isString()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
-    const updateData = req.body;
+    // Filter to only include valid Category model fields
+    const updateData = {};
+    const validFields = ['name', 'slug', 'nameEn', 'nameBn', 'description', 
+                        'parentId', 'displayOrder', 'sortOrder', 'status', 
+                        'metaTitle', 'metaDescription', 'metaKeywords'];
+
+    for (const field of validFields) {
+      if (req.body[field] !== undefined) {
+        // Convert empty strings to null for foreign key fields
+        if (field === 'parentId' && req.body[field] === '') {
+          updateData[field] = null;
+        } else {
+          updateData[field] = req.body[field];
+        }
+      }
+    }
 
     // Check if category exists
     const existingCategory = await prisma.category.findUnique({
@@ -474,13 +546,37 @@ router.put('/:id', [
       }
     });
 
+    // Reindex all products in this category (non-blocking)
+    if (elasticsearchConfig.isAvailable()) {
+      // Get all products in this category
+      const productCategories = await prisma.productCategory.findMany({
+        where: { categoryId: id },
+        select: { productId: true }
+      });
+
+      const productIds = productCategories.map(pc => pc.productId);
+      
+      if (productIds.length > 0) {
+        productIndexingService.indexProducts(productIds)
+          .catch(error => {
+            console.error('Failed to reindex category products in Elasticsearch:', error);
+          });
+      }
+    }
+
     res.json({
       message: 'Category updated successfully',
       category: updatedCategory
     });
 
   } catch (error) {
-    console.error('Update category error:', error);
+    console.error('Update category error:', {
+      categoryId: id,
+      requestBody: req.body,
+      errorName: error.name,
+      errorMessage: error.message,
+      errorCode: error.code
+    });
     res.status(500).json({
       error: 'Failed to update category',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
@@ -511,7 +607,7 @@ const checkCircularReference = async (categoryId, newParentId) => {
 // DELETE /api/v1/categories/:id - Delete category (admin only)
 router.delete('/:id', [
   param('id').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -581,7 +677,7 @@ router.post('/:id/subcategories', [
   body('metaTitle').optional().isString().trim(),
   body('metaDescription').optional().isString(),
   body('metaKeywords').optional().isString()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const subcategoryData = req.body;
@@ -645,8 +741,8 @@ router.post('/:id/subcategories', [
 // PUT /api/v1/categories/:id/move - Move category to new parent
 router.put('/:id/move', [
   param('id').isUUID(),
-  body('parentId').optional().isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+  body('parentId').optional({ checkFalsy: true }).isUUID()
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { parentId } = req.body;
@@ -721,7 +817,7 @@ router.put('/:id/move', [
 router.patch('/:id/reorder', [
   param('id').isUUID(),
   body('displayOrder').isInt({ min: 0 })
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { displayOrder } = req.body;
@@ -761,7 +857,7 @@ router.patch('/reorder-batch', [
   body('orders').isArray({ min: 1 }),
   body('orders.*.id').isUUID(),
   body('orders.*.displayOrder').isInt({ min: 0 })
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { orders } = req.body;
 
@@ -882,6 +978,9 @@ router.get('/:id/products', [
       prisma.product.count({ where })
     ]);
 
+    // Serialize Decimal values to numbers
+    products = products.map(serializeProduct);
+
     res.json({
       category: {
         id: category.id,
@@ -914,8 +1013,16 @@ router.get('/:id/products', [
 // POST /api/v1/categories/:id/image - Upload category image
 router.post('/:id/image', [
   param('id').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), upload.single('image'), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), upload.single('image'), async (req, res) => {
   try {
+    // Check for multer errors
+    if (req.multerError) {
+      return res.status(400).json({
+        error: 'File upload failed',
+        details: req.multerError.message
+      });
+    }
+
     const { id } = req.params;
 
     if (!req.file) {
@@ -967,8 +1074,16 @@ router.post('/:id/image', [
 // POST /api/v1/categories/:id/icon - Upload category icon
 router.post('/:id/icon', [
   param('id').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), upload.single('icon'), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), upload.single('icon'), async (req, res) => {
   try {
+    // Check for multer errors
+    if (req.multerError) {
+      return res.status(400).json({
+        error: 'File upload failed',
+        details: req.multerError.message
+      });
+    }
+
     const { id } = req.params;
 
     if (!req.file) {
@@ -1020,7 +1135,7 @@ router.post('/:id/icon', [
 // DELETE /api/v1/categories/:id/image - Delete category image
 router.delete('/:id/image', [
   param('id').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -1069,7 +1184,7 @@ router.delete('/:id/image', [
 // DELETE /api/v1/categories/:id/icon - Delete category icon
 router.delete('/:id/icon', [
   param('id').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -1116,6 +1231,325 @@ router.delete('/:id/icon', [
 });
 
 // ============================================
+// BULK CATEGORY OPERATIONS ENDPOINTS
+// ============================================
+
+// POST /api/v1/categories/bulk - Batch create categories (admin only)
+router.post('/bulk', [
+  body('categories').isArray({ min: 1, max: 100 }).withMessage('Categories array must contain 1-100 items'),
+  body('categories.*.name').notEmpty().trim(),
+  body('categories.*.slug').isSlug(),
+  body('categories.*.parentId').optional({ checkFalsy: true }).isUUID(),
+  body('categories.*.status').optional().isIn(['active', 'inactive'])
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
+  try {
+    const { categories } = req.body;
+
+    // Validate all categories before creation
+    const slugs = categories.map(c => c.slug);
+    const parentIds = categories.filter(c => c.parentId).map(c => c.parentId);
+
+    // Check for duplicate slugs in batch
+    const duplicateSlugs = slugs.filter((slug, index) => slugs.indexOf(slug) !== index);
+    if (duplicateSlugs.length > 0) {
+      return res.status(400).json({
+        error: 'Duplicate slugs in batch',
+        duplicates: duplicateSlugs
+      });
+    }
+
+    // Check if slugs already exist in database
+    const existingSlugs = await prisma.category.findMany({
+      where: { slug: { in: slugs } },
+      select: { slug: true }
+    });
+
+    if (existingSlugs.length > 0) {
+      return res.status(409).json({
+        error: 'Some slugs already exist',
+        existingSlugs: existingSlugs.map(s => s.slug)
+      });
+    }
+
+    // Check if all parent categories exist
+    if (parentIds.length > 0) {
+      const existingParents = await prisma.category.findMany({
+        where: { id: { in: parentIds } },
+        select: { id: true }
+      });
+
+      if (existingParents.length !== parentIds.length) {
+        const missingParents = parentIds.filter(id => !existingParents.find(p => p.id === id));
+        return res.status(404).json({
+          error: 'Some parent categories not found',
+          missingParents
+        });
+      }
+    }
+
+    // Create categories in a transaction
+    const createdCategories = await prisma.$transaction(async (tx) => {
+      const results = [];
+      let displayOrder = 0;
+
+      for (const categoryData of categories) {
+        const category = await tx.category.create({
+          data: {
+            name: categoryData.name,
+            slug: categoryData.slug,
+            nameEn: categoryData.nameEn || null,
+            nameBn: categoryData.nameBn || null,
+            description: categoryData.description || null,
+            parentId: categoryData.parentId || null,
+            displayOrder: categoryData.displayOrder !== undefined ? categoryData.displayOrder : displayOrder,
+            sortOrder: categoryData.sortOrder || 0,
+            status: categoryData.status || 'active',
+            metaTitle: categoryData.metaTitle || null,
+            metaDescription: categoryData.metaDescription || null,
+            metaKeywords: categoryData.metaKeywords || null
+          },
+          include: {
+            parent: true,
+            children: true
+          }
+        });
+        results.push(category);
+        displayOrder++;
+      }
+      return results;
+    });
+
+    res.status(201).json({
+      success: true,
+      created: createdCategories.length,
+      failed: 0,
+      results: createdCategories.map(category => ({
+        category,
+        status: 'created'
+      }))
+    });
+
+  } catch (error) {
+    console.error('Bulk create categories error:', error);
+    res.status(500).json({
+      error: 'Failed to create categories in bulk',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// PUT /api/v1/categories/bulk - Batch update categories (admin only)
+router.put('/bulk', [
+  body('categories').isArray({ min: 1, max: 100 }).withMessage('Categories array must contain 1-100 items'),
+  body('categories.*.id').isUUID(),
+  body('categories.*.name').optional().notEmpty().trim(),
+  body('categories.*.slug').optional().isSlug(),
+  body('categories.*.parentId').optional({ checkFalsy: true }).isUUID(),
+  body('categories.*.status').optional().isIn(['active', 'inactive'])
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
+  try {
+    const { categories } = req.body;
+
+    const categoryIds = categories.map(c => c.id);
+
+    // Check if all categories exist
+    const existingCategories = await prisma.category.findMany({
+      where: { id: { in: categoryIds } },
+      select: { id: true, slug: true, parentId: true }
+    });
+
+    if (existingCategories.length !== categoryIds.length) {
+      const missingIds = categoryIds.filter(id => !existingCategories.find(c => c.id === id));
+      return res.status(404).json({
+        error: 'Some categories not found',
+        missingIds
+      });
+    }
+
+    // Check for slug conflicts
+    const slugsToUpdate = categories.filter(c => c.slug).map(c => ({ slug: c.slug, id: c.id }));
+    if (slugsToUpdate.length > 0) {
+      const slugConflicts = await prisma.category.findMany({
+        where: {
+          slug: { in: slugsToUpdate.map(s => s.slug) },
+          NOT: { id: { in: categoryIds } }
+        },
+        select: { slug: true }
+      });
+
+      if (slugConflicts.length > 0) {
+        return res.status(409).json({
+          error: 'Some slugs conflict with existing categories',
+          conflicts: slugConflicts.map(s => s.slug)
+        });
+      }
+    }
+
+    // Validate parent relationships
+    const parentIdsToUpdate = categories.filter(c => c.parentId).map(c => ({ parentId: c.parentId, id: c.id }));
+    for (const { parentId, id } of parentIdsToUpdate) {
+      // Prevent setting category as its own parent
+      if (parentId === id) {
+        return res.status(400).json({
+          error: 'Cannot set category as its own parent',
+          categoryId: id
+        });
+      }
+
+      // Check if parent exists
+      const parent = await prisma.category.findUnique({
+        where: { id: parentId }
+      });
+
+      if (!parent) {
+        return res.status(404).json({
+          error: 'Parent category not found',
+          parentId
+        });
+      }
+
+      // Check if this would create a circular reference
+      const isDescendant = await checkCircularReference(id, parentId);
+      if (isDescendant) {
+        return res.status(400).json({
+          error: 'Cannot move category to its own descendant',
+          categoryId: id,
+          parentId
+        });
+      }
+    }
+
+    // Update categories in a transaction
+    const updatedCategories = await prisma.$transaction(async (tx) => {
+      const results = [];
+      for (const categoryData of categories) {
+        const updateData = { ...categoryData };
+        delete updateData.id;
+
+        const category = await tx.category.update({
+          where: { id: categoryData.id },
+          data: updateData,
+          include: {
+            parent: true,
+            children: true
+          }
+        });
+        results.push(category);
+      }
+      return results;
+    });
+
+    // Reindex all products in updated categories (non-blocking)
+    if (elasticsearchConfig.isAvailable()) {
+      const productCategories = await prisma.productCategory.findMany({
+        where: { categoryId: { in: categoryIds } },
+        select: { productId: true }
+      });
+
+      const productIds = [...new Set(productCategories.map(pc => pc.productId))];
+
+      if (productIds.length > 0) {
+        productIndexingService.indexProducts(productIds)
+          .catch(error => {
+            console.error('Failed to reindex category products in Elasticsearch:', error);
+          });
+      }
+    }
+
+    res.json({
+      success: true,
+      updated: updatedCategories.length,
+      failed: 0,
+      results: updatedCategories.map(category => ({
+        category,
+        status: 'updated'
+      }))
+    });
+
+  } catch (error) {
+    console.error('Bulk update categories error:', error);
+    res.status(500).json({
+      error: 'Failed to update categories in bulk',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// DELETE /api/v1/categories/bulk - Batch delete categories (admin only)
+router.delete('/bulk', [
+  body('categoryIds').isArray({ min: 1, max: 100 }).withMessage('Category IDs array must contain 1-100 items'),
+  body('categoryIds.*').isUUID()
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
+  try {
+    const { categoryIds } = req.body;
+
+    // Check if all categories exist
+    const categories = await prisma.category.findMany({
+      where: { id: { in: categoryIds } },
+      include: {
+        _count: {
+          select: {
+            productCategories: true,
+            children: true
+          }
+        }
+      }
+    });
+
+    if (categories.length !== categoryIds.length) {
+      const missingIds = categoryIds.filter(id => !categories.find(c => c.id === id));
+      return res.status(404).json({
+        error: 'Some categories not found',
+        missingIds
+      });
+    }
+
+    // Check if any category has products
+    const categoriesWithProducts = categories.filter(c => c._count.productCategories > 0);
+    if (categoriesWithProducts.length > 0) {
+      return res.status(400).json({
+        error: 'Cannot delete categories with products',
+        categoriesWithProducts: categoriesWithProducts.map(c => c.id)
+      });
+    }
+
+    // Check if any category has subcategories
+    const categoriesWithChildren = categories.filter(c => c._count.children > 0);
+    if (categoriesWithChildren.length > 0) {
+      return res.status(400).json({
+        error: 'Cannot delete categories with subcategories',
+        categoriesWithChildren: categoriesWithChildren.map(c => c.id)
+      });
+    }
+
+    // Delete categories in a transaction
+    const deletedCategoryIds = await prisma.$transaction(async (tx) => {
+      await tx.category.deleteMany({
+        where: { id: { in: categoryIds } }
+      });
+      return categoryIds;
+    });
+
+    res.json({
+      success: true,
+      deleted: deletedCategoryIds.length,
+      failed: 0,
+      results: deletedCategoryIds.map(categoryId => ({
+        categoryId,
+        status: 'deleted'
+      }))
+    });
+
+  } catch (error) {
+    console.error('Bulk delete categories error:', error);
+    res.status(500).json({
+      error: 'Failed to delete categories in bulk',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// ============================================
 // CATEGORY SEO MANAGEMENT ENDPOINT
 // ============================================
 
@@ -1125,7 +1559,7 @@ router.patch('/:id/seo', [
   body('metaTitle').optional().isString().trim(),
   body('metaDescription').optional().isString(),
   body('metaKeywords').optional().isString()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const { metaTitle, metaDescription, metaKeywords } = req.body;

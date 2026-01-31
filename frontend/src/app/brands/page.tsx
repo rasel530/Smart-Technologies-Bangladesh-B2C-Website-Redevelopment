@@ -64,7 +64,7 @@ export default async function BrandsPage({
   const [brandsResponse, featuredBrandsResponse] = await Promise.all([
     brandsApi.getBrands({
       page,
-      limit: 20,
+      limit: 50,
       search: search || undefined,
       status,
     }),
@@ -158,7 +158,7 @@ export default async function BrandsPage({
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
-            <BrandList initialBrands={brands} showPagination={false} />
+            <BrandList initialBrands={brands} showPagination={true} />
           </div>
         </div>
       </section>

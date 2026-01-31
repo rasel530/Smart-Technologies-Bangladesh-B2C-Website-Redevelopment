@@ -112,10 +112,10 @@ export const CategoryList: React.FC<CategoryListProps> = ({
 }) => {
   // Grid columns based on breakpoints
   const gridClasses = `
-    grid grid-cols-${columns.mobile}
-    sm:grid-cols-${columns.tablet}
-    lg:grid-cols-${columns.desktop}
-    xl:grid-cols-${columns.desktop + 1}
+    grid grid-cols-${columns.mobile || 1}
+    sm:grid-cols-${columns.tablet || 2}
+    lg:grid-cols-${columns.desktop || 3}
+    xl:grid-cols-${(columns.desktop || 3) + 1}
     gap-6
   `;
 

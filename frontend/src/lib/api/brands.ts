@@ -48,11 +48,11 @@ export const getBrands = async (params: BrandListFilter = {}): Promise<BrandList
     const queryString = buildQueryString(params);
     const endpoint = `/brands${queryString ? `?${queryString}` : ''}`;
     
-    const response = await apiClient.get<BrandListResponse>(endpoint);
+    const response = await apiClient.get<BrandListResponse>(endpoint) as unknown as BrandListResponse;
     
     return {
-      brands: response.data?.brands || [],
-      pagination: response.data?.pagination || {
+      brands: response.brands || [],
+      pagination: response.pagination || {
         page: 1,
         limit: 50,
         total: 0,
@@ -72,10 +72,10 @@ export const getBrands = async (params: BrandListFilter = {}): Promise<BrandList
  */
 export const getFeaturedBrands = async (): Promise<FeaturedBrandsResponse> => {
   try {
-    const response = await apiClient.get<FeaturedBrandsResponse>('/brands/featured');
+    const response = await apiClient.get<FeaturedBrandsResponse>('/brands/featured') as unknown as FeaturedBrandsResponse;
     return {
-      brands: response.data?.brands || [],
-      total: response.data?.total || 0
+      brands: response.brands || [],
+      total: response.total || 0
     };
   } catch (error) {
     console.error('Error fetching featured brands:', error);
@@ -91,8 +91,8 @@ export const getFeaturedBrands = async (): Promise<FeaturedBrandsResponse> => {
  */
 export const getBrandById = async (id: string): Promise<BrandWithRelations> => {
   try {
-    const response = await apiClient.get<{ brand: BrandWithRelations }>(`/brands/${id}`);
-    return response.data?.brand;
+    const response = await apiClient.get<{ brand: BrandWithRelations }>(`/brands/${id}`) as unknown as { brand: BrandWithRelations };
+    return response.brand!;
   } catch (error) {
     console.error(`Error fetching brand ${id}:`, error);
     throw error;
@@ -107,8 +107,8 @@ export const getBrandById = async (id: string): Promise<BrandWithRelations> => {
  */
 export const getBrandBySlug = async (slug: string): Promise<BrandWithRelations> => {
   try {
-    const response = await apiClient.get<{ brand: BrandWithRelations }>(`/brands/slug/${slug}`);
-    return response.data?.brand;
+    const response = await apiClient.get<{ brand: BrandWithRelations }>(`/brands/slug/${slug}`) as unknown as { brand: BrandWithRelations };
+    return response.brand!;
   } catch (error) {
     console.error(`Error fetching brand with slug ${slug}:`, error);
     throw error;
@@ -126,8 +126,8 @@ export const createBrand = async (data: CreateBrandRequest): Promise<Brand> => {
     const response = await apiClient.post<{ brand: Brand }>(
       '/brands',
       data
-    );
-    return response.data?.brand;
+    ) as unknown as { brand: Brand };
+    return response.brand!;
   } catch (error) {
     console.error('Error creating brand:', error);
     throw error;
@@ -149,8 +149,8 @@ export const updateBrand = async (
     const response = await apiClient.put<{ brand: Brand }>(
       `/brands/${id}`,
       data
-    );
-    return response.data?.brand;
+    ) as unknown as { brand: Brand };
+    return response.brand!;
   } catch (error) {
     console.error(`Error updating brand ${id}:`, error);
     throw error;
@@ -187,8 +187,8 @@ export const updateBrandStatus = async (
     const response = await apiClient.patch<{ brand: Brand }>(
       `/brands/${id}/status`,
       { status }
-    );
-    return response.data?.brand;
+    ) as unknown as { brand: Brand };
+    return response.brand!;
   } catch (error) {
     console.error(`Error updating status for brand ${id}:`, error);
     throw error;
@@ -217,8 +217,8 @@ export const toggleBrandFeatured = async (
     const response = await apiClient.patch<{ brand: Brand }>(
       `/brands/${id}/featured`,
       data
-    );
-    return response.data?.brand;
+    ) as unknown as { brand: Brand };
+    return response.brand!;
   } catch (error) {
     console.error(`Error toggling featured status for brand ${id}:`, error);
     throw error;
@@ -238,8 +238,8 @@ export const reorderFeaturedBrands = async (
     const response = await apiClient.patch<{ brands: Brand[] }>(
       '/brands/featured-reorder',
       orders
-    );
-    return response.data?.brands || [];
+    ) as unknown as { brands: Brand[] };
+    return response.brands || [];
   } catch (error) {
     console.error('Error reordering featured brands:', error);
     throw error;
@@ -261,17 +261,17 @@ export const getBrandProducts = async (
     const queryString = buildQueryString(params);
     const endpoint = `/brands/${id}/products${queryString ? `?${queryString}` : ''}`;
     
-    const response = await apiClient.get<BrandProductListResponse>(endpoint);
+    const response = await apiClient.get<BrandProductListResponse>(endpoint) as unknown as BrandProductListResponse;
     
     return {
-      brand: response.data?.brand || {
+      brand: response.brand || {
         id: '',
         name: '',
         slug: '',
         logoUrl: null
       },
-      products: response.data?.products || [],
-      pagination: response.data?.pagination || {
+      products: response.products || [],
+      pagination: response.pagination || {
         page: 1,
         limit: 20,
         total: 0,
@@ -307,8 +307,8 @@ export const uploadBrandLogo = async (
           'Content-Type': 'multipart/form-data',
         },
       }
-    );
-    return response.data?.brand;
+    ) as unknown as { brand: Brand };
+    return response.brand!;
   } catch (error) {
     console.error(`Error uploading logo for brand ${id}:`, error);
     throw error;
@@ -323,8 +323,8 @@ export const uploadBrandLogo = async (
  */
 export const deleteBrandLogo = async (id: string): Promise<Brand> => {
   try {
-    const response = await apiClient.delete<{ brand: Brand }>(`/brands/${id}/logo`);
-    return response.data?.brand;
+    const response = await apiClient.delete<{ brand: Brand }>(`/brands/${id}/logo`) as unknown as { brand: Brand };
+    return response.brand!;
   } catch (error) {
     console.error(`Error deleting logo for brand ${id}:`, error);
     throw error;
@@ -346,8 +346,8 @@ export const updateBrandSEO = async (
     const response = await apiClient.patch<{ brand: Brand }>(
       `/brands/${id}/seo`,
       data
-    );
-    return response.data?.brand;
+    ) as unknown as { brand: Brand };
+    return response.brand!;
   } catch (error) {
     console.error(`Error updating SEO for brand ${id}:`, error);
     throw error;

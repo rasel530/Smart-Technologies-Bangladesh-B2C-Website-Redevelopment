@@ -51,7 +51,7 @@ export interface OAuthProvidersResponse {
  */
 export async function getOAuthProviders(): Promise<OAuthProvidersResponse> {
   const response = await apiClient.get('/api/v1/oauth/providers');
-  return response.data;
+  return response;
 }
 
 /**
@@ -64,7 +64,7 @@ export async function handleOAuthCallback(
   const response = await apiClient.post(`/api/v1/oauth/callback/${provider}`, {
     profile
   });
-  return response.data;
+  return response;
 }
 
 /**
@@ -77,7 +77,7 @@ export async function linkSocialAccount(
   const response = await apiClient.post(`/api/v1/oauth/link/${provider}`, {
     profile
   });
-  return response.data;
+  return response;
 }
 
 /**
@@ -87,7 +87,7 @@ export async function unlinkSocialAccount(
   provider: string
 ): Promise<{ message: string; messageBn: string; provider: string }> {
   const response = await apiClient.delete(`/api/v1/oauth/unlink/${provider}`);
-  return response.data;
+  return response;
 }
 
 /**
@@ -99,7 +99,7 @@ export async function getSocialAccounts(): Promise<{
   messageBn: string;
 }> {
   const response = await apiClient.get('/api/v1/oauth/accounts');
-  return response.data;
+  return response;
 }
 
 /**
@@ -112,5 +112,5 @@ export async function validateOAuthToken(
   const response = await apiClient.post(`/api/v1/oauth/validate/${provider}`, {
     accessToken
   });
-  return response.data;
+  return response;
 }

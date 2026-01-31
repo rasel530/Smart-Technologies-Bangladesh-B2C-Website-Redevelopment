@@ -91,11 +91,11 @@ const CorporateRegistrationPage = () => {
         newErrors.businessAddress = language === 'en' ? 'Business address is required' : 'ব্যবসায়ক ঠিকানা প্রয়োজন';
         isValid = false;
       }
-      if (formData.division === '') {
+      if ((formData.division ?? '') === '') {
         newErrors.division = language === 'en' ? 'Division is required' : 'বিভাগ নির্বাচন করুন';
         isValid = false;
       }
-      if (formData.district === '') {
+      if ((formData.district ?? '') === '') {
         newErrors.district = language === 'en' ? 'District is required' : 'জেলা নির্বাচন করুন';
         isValid = false;
       }
@@ -398,9 +398,9 @@ const CorporateRegistrationPage = () => {
               </div>
    
               <BangladeshAddress
-                division={formData.division}
-                district={formData.district}
-                upazila={formData.upazila}
+                division={formData.division ?? ''}
+                district={formData.district ?? ''}
+                upazila={formData.upazila ?? ''}
                 onDivisionChange={(value) => setFormData({ ...formData, division: value })}
                 onDistrictChange={(value) => setFormData({ ...formData, district: value })}
                 onUpazilaChange={(value) => setFormData({ ...formData, upazila: value })}

@@ -1,0 +1,189 @@
+{
+  "testSuite": "Image Deletion Fix - Comprehensive Test",
+  "executedAt": "2026-01-29T18:45:51.765Z",
+  "apiBaseUrl": "http://localhost:3001 ",
+  "summary": {
+    "total": 11,
+    "passed": 7,
+    "failed": 3,
+    "skipped": 1
+  },
+  "tests": [
+    {
+      "testName": "Server Health Check",
+      "status": "PASS",
+      "timestamp": "2026-01-29T18:45:50.839Z",
+      "details": {
+        "statusCode": 200,
+        "response": {
+          "status": "OK",
+          "timestamp": "2026-01-29T18:45:50.831Z",
+          "database": "connected",
+          "redis": "connected",
+          "environment": "production",
+          "services": {
+            "database": "healthy",
+            "redis": "healthy",
+            "loginSecurity": "initialized",
+            "rateLimiting": "active"
+          }
+        }
+      },
+      "error": null,
+      "stack": null
+    },
+    {
+      "testName": "Admin Login",
+      "status": "PASS",
+      "timestamp": "2026-01-29T18:45:51.027Z",
+      "details": {
+        "statusCode": 200,
+        "hasToken": true
+      },
+      "error": null,
+      "stack": null
+    },
+    {
+      "testName": "Get Products List (with images)",
+      "status": "PASS",
+      "timestamp": "2026-01-29T18:45:51.155Z",
+      "details": {
+        "statusCode": 200,
+        "totalProducts": 4,
+        "selectedProductId": "42c99f44-82d0-4f1d-912b-16dd0b687070",
+        "selectedImageId": "1ee2d009-23e5-421a-a022-fd94bacfdca2",
+        "imageCount": 10
+      },
+      "error": null,
+      "stack": null
+    },
+    {
+      "testName": "Get Product Images (Baseline)",
+      "status": "PASS",
+      "timestamp": "2026-01-29T18:45:51.259Z",
+      "details": {
+        "statusCode": 200,
+        "imageCount": 10
+      },
+      "error": null,
+      "stack": null
+    },
+    {
+      "testName": "Update Image Metadata (CORRECTED URL: /products/{id})",
+      "status": "FAIL",
+      "timestamp": "2026-01-29T18:45:51.357Z",
+      "details": {
+        "statusCode": 404,
+        "url": "/api/v1/products/1ee2d009-23e5-421a-a022-fd94bacfdca2",
+        "error": "404 Not Found - URL mismatch detected",
+        "response": {
+          "error": "Product not found"
+        }
+      },
+      "error": null,
+      "stack": null
+    },
+    {
+      "testName": "Get Image Versions (CORRECTED URL: /products/{id}/versions)",
+      "status": "PASS",
+      "timestamp": "2026-01-29T18:45:51.544Z",
+      "details": {
+        "statusCode": 200,
+        "url": "/api/v1/products/1ee2d009-23e5-421a-a022-fd94bacfdca2/versions",
+        "hasVariants": true,
+        "variantCount": 6
+      },
+      "error": null,
+      "stack": null
+    },
+    {
+      "testName": "Set Primary Image (CORRECTED URL: /products/{id}/primary)",
+      "status": "PASS",
+      "timestamp": "2026-01-29T18:45:51.633Z",
+      "details": {
+        "statusCode": 200,
+        "url": "/api/v1/products/1ee2d009-23e5-421a-a022-fd94bacfdca2/primary",
+        "response": {
+          "message": "Image set as primary successfully",
+          "messageBn": "ইমেজ প্রাইমারি হিসাবে করা হয়েছে",
+          "messageEn": "Image set as primary successfully",
+          "image": {
+            "id": "1ee2d009-23e5-421a-a022-fd94bacfdca2",
+            "productId": "42c99f44-82d0-4f1d-912b-16dd0b687070",
+            "originalUrl": "/uploads/products/42c99f44-82d0-4f1d-912b-16dd0b687070/1769710778144_322608306_0_HP-15-fc0355AU-Laptop.jpg",
+            "optimizedUrl": "products/42c99f44-82d0-4f1d-912b-16dd0b687070/1769710778144_322608306_0_HP-15-fc0355AU-Laptop_large.jpg",
+            "thumbnailUrl": "products/42c99f44-82d0-4f1d-912b-16dd0b687070/1769710778144_322608306_0_HP-15-fc0355AU-Laptop_thumb.jpg",
+            "altTextBn": "Dell Laptop core i9",
+            "altTextEn": "Dell Laptop core i9",
+            "displayOrder": 0,
+            "isPrimary": true,
+            "fileSizeBytes": 33219,
+            "mimeType": "image/jpeg",
+            "width": 500,
+            "height": 500,
+            "processingStatus": "completed",
+            "createdAt": "2026-01-29T18:19:38.609Z",
+            "updatedAt": "2026-01-29T18:45:51.617Z"
+          }
+        }
+      },
+      "error": null,
+      "stack": null
+    },
+    {
+      "testName": "Delete Image (CORRECTED URL: /products/{id}) - MAIN TEST",
+      "status": "FAIL",
+      "timestamp": "2026-01-29T18:45:51.685Z",
+      "details": {
+        "statusCode": 404,
+        "url": "/api/v1/products/1ee2d009-23e5-421a-a022-fd94bacfdca2",
+        "error": "❌ 404 Not Found - URL mismatch still exists",
+        "response": {
+          "error": "Product not found"
+        },
+        "message": "Fix did not resolve the 404 error"
+      },
+      "error": null,
+      "stack": null
+    },
+    {
+      "testName": "Verify Image Deleted from Database",
+      "status": "FAIL",
+      "timestamp": "2026-01-29T18:45:51.710Z",
+      "details": {
+        "statusCode": 200,
+        "imageExists": true,
+        "remainingImages": 10
+      },
+      "error": null,
+      "stack": null
+    },
+    {
+      "testName": "Authentication Required for Delete",
+      "status": "PASS",
+      "timestamp": "2026-01-29T18:45:51.744Z",
+      "details": {
+        "statusCode": 401,
+        "requiresAuth": true
+      },
+      "error": null,
+      "stack": null
+    },
+    {
+      "testName": "Authorization Check (Non-Admin)",
+      "status": "SKIP",
+      "timestamp": "2026-01-29T18:45:51.765Z",
+      "details": {
+        "reason": "Could not login as regular user"
+      }
+    }
+  ],
+  "conclusions": [
+    {
+      "type": "FAILURE",
+      "message": "❌ Image deletion fix is NOT working",
+      "details": "DELETE requests still return 404 Not Found",
+      "recommendation": "Further investigation required - check route mounting and URL structure"
+    }
+  ]
+}

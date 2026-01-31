@@ -1,6 +1,6 @@
 /**
  * Categories Listing Page
- * 
+ *
  * Server component for listing all categories.
  * Features include:
  * - Server-side data fetching for SEO
@@ -16,7 +16,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getCategories, getCategoryTree } from '@/lib/api/categories';
-import { CategoryWithRelations, CategoryTree } from '@/types/category';
+import { CategoryWithRelations, CategoryTree, CategoryStatus } from '@/types/category';
 import { CategoryList } from '@/components/category/CategoryList';
 import { CategoryTreeComponent } from '@/components/category/CategoryTree';
 
@@ -39,11 +39,11 @@ export default function CategoriesPage() {
       try {
         setLoading(true);
         const [categoriesData, treeData] = await Promise.all([
-          getCategories(),
+          getCategories({ tree: true }),
           getCategoryTree(),
         ]);
-        setCategories(categoriesData.categories || []);
-        setFilteredCategories(categoriesData.categories || []);
+        setCategories((categoriesData.categories as CategoryWithRelations[]) || []);
+        setFilteredCategories((categoriesData.categories as CategoryWithRelations[]) || []);
         setCategoryTree(treeData.tree || []);
         setError(null);
       } catch (err) {
@@ -72,7 +72,7 @@ export default function CategoriesPage() {
 
     // Filter by active status
     if (!showInactive) {
-      filtered = filtered.filter(category => category.isActive);
+      filtered = filtered.filter(category => category.status === CategoryStatus.ACTIVE);
     }
 
     setFilteredCategories(filtered);

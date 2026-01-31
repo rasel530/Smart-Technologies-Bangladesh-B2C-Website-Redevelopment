@@ -162,7 +162,7 @@ router.post('/', [
   body('usageLimit').isInt({ min: 1 }),
   body('isActive').optional().isBoolean(),
   body('expiresAt').optional().isISO8601().toDate()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const couponData = req.body;
 
@@ -213,7 +213,7 @@ router.put('/:id', [
   body('usageLimit').optional().isInt({ min: 1 }),
   body('isActive').optional().isBoolean(),
   body('expiresAt').optional().isISO8601().toDate()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -265,7 +265,7 @@ router.put('/:id', [
 // Delete coupon (admin only)
 router.delete('/:id', [
   param('id').isUUID()
-], handleValidationErrors, authMiddleware.adminOnly(), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const { id } = req.params;
 

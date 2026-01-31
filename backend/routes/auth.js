@@ -530,8 +530,7 @@ router.post('/login', [
   body('captcha').optional().isString(),
   body('deviceFingerprint').optional().isString()
 ], handleValidationErrors,
-  // Temporarily disabled login security for debugging
-  // loginSecurityMiddleware.enforce(),
+  // loginSecurityMiddleware.enforce(), // TEMPORARILY DISABLED - causing login failures
   async (req, res) => {
   const startTime = Date.now();
   const { identifier, password, rememberMe, captcha, deviceFingerprint } = req.body;
@@ -1027,7 +1026,10 @@ router.post('/refresh', async (req, res) => {
       throw new Error('JWT_SECRET environment variable is required');
     }
     
-    const decoded = jwt.verify(token, jwtSecretRefresh);
+    const decoded = jwt.verify(token, jwtSecretRefresh, {
+      issuer: 'smart-ecommerce-api',
+      audience: 'smart-ecommerce-clients'
+    });
     
     // Get user info
     const user = await prisma.user.findUnique({

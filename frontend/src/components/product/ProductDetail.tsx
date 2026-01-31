@@ -9,7 +9,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Link from 'next/link';
 import { ProductWithRelations, ProductStatus, ProductVisibility } from '@/types/product';
 import { ProductImageGallery } from './ProductImageGallery';
@@ -20,6 +20,8 @@ import { ProductCard } from './ProductCard';
 import { CrossSellProducts } from './CrossSellProducts';
 import { UpSellProducts } from './UpSellProducts';
 import { RelatedProducts } from './RelatedProducts';
+import { CompareButton } from './CompareButton';
+import CompareContext from './CompareContext';
 
 interface ProductDetailProps {
   product: ProductWithRelations;
@@ -215,7 +217,12 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
         {/* Left Column - Image Gallery */}
         <div>
           <ProductImageGallery
-            images={product.images}
+            images={product.images.map(img => ({
+              id: img.id,
+              url: img.originalUrl || img.optimizedUrl || img.thumbnailUrl || '',
+              alt: img.altTextEn || img.altTextBn || '',
+              sortOrder: img.displayOrder
+            }))}
             productName={product.name}
           />
         </div>
@@ -244,7 +251,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                 </p>
               </div>
               <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
           )}
@@ -402,6 +409,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </button>
+            <CompareButton product={product} />
           </div>
 
           {/* Share Buttons */}

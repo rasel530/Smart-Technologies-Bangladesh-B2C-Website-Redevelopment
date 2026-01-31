@@ -3,6 +3,7 @@
 import React from 'react';
 import { ShoppingCart, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { CrossSellProduct } from '@/types/product';
+import { getImageUrl } from '@/lib/api/product-images';
 
 interface CrossSellProductsProps {
   crossSellProducts: CrossSellProduct[];
@@ -83,7 +84,7 @@ export const CrossSellProducts: React.FC<CrossSellProductsProps> = ({
             {displayProducts.map(item => {
               const product = item.relatedProduct;
               const price = getDisplayPrice(product.regularPrice, product.salePrice);
-              const imageUrl = product.images?.[0]?.url;
+              const imageUrl = product.images?.[0] ? getImageUrl(product.images[0], 'medium') : undefined;
 
               return (
                 <div
@@ -171,7 +172,7 @@ export const CrossSellProducts: React.FC<CrossSellProductsProps> = ({
               {displayProducts.map(item => {
                 const product = item.relatedProduct;
                 const price = getDisplayPrice(product.regularPrice, product.salePrice);
-                const imageUrl = product.images?.[0]?.url;
+                const imageUrl = product.images?.[0] ? getImageUrl(product.images[0], 'medium') : undefined;
 
                 return (
                   <div key={item.id} className="flex gap-6">

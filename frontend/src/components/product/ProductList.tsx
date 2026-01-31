@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { ProductWithRelations, SearchResult } from '@/types/product';
 import { ProductPrice } from './ProductPrice';
 import { Pagination } from './Pagination';
+import { getImageUrl } from '@/lib/api/product-images';
 
 interface ProductListProps {
   products: ProductWithRelations[];
@@ -111,11 +112,11 @@ const ProductListItem: React.FC<ProductListItemProps> = ({
   isWishlisted = false
 }) => {
   const [imageError, setImageError] = React.useState(false);
-
+  
   // Get primary image or fallback
   const primaryImage = product.images?.[0];
-  const imageUrl = primaryImage?.url || '/images/placeholder-product.png';
-  const imageAlt = primaryImage?.alt || product.name || 'Product image';
+  const imageUrl = primaryImage ? getImageUrl(primaryImage, 'medium') : '';
+  const imageAlt = primaryImage?.altTextEn || product.name || 'Product image';
 
   // Calculate discount percentage
   const discountPercentage = product.salePrice && product.regularPrice
@@ -149,7 +150,7 @@ const ProductListItem: React.FC<ProductListItemProps> = ({
     >
       {/* Product Image */}
       <div className="relative w-full sm:w-32 sm:h-32 md:w-48 md:h-48 bg-gray-100 flex-shrink-0">
-        {!imageError ? (
+        {!imageError && imageUrl ? (
           <Image
             src={imageUrl}
             alt={imageAlt}

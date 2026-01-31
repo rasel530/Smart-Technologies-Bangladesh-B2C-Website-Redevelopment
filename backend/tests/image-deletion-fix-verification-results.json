@@ -1,0 +1,63 @@
+{
+  "testSuite": "Image Deletion Fix - Verification Test",
+  "executedAt": "2026-01-29T19:29:00.584Z",
+  "apiBaseUrl": "http://localhost:3001",
+  "summary": {
+    "total": 3,
+    "passed": 1,
+    "failed": 2,
+    "skipped": 0
+  },
+  "tests": [
+    {
+      "testName": "Server Health Check",
+      "status": "PASS",
+      "timestamp": "2026-01-29T19:28:56.473Z",
+      "details": {
+        "statusCode": 200,
+        "response": {
+          "status": "OK",
+          "timestamp": "2026-01-29T19:28:56.467Z",
+          "database": "disconnected",
+          "redis": "disconnected",
+          "environment": "development",
+          "services": {
+            "database": "unhealthy",
+            "redis": "unhealthy",
+            "loginSecurity": "initialized",
+            "rateLimiting": "active"
+          }
+        }
+      },
+      "error": null,
+      "stack": null
+    },
+    {
+      "testName": "Admin Login",
+      "status": "FAIL",
+      "timestamp": "2026-01-29T19:29:00.581Z",
+      "details": {
+        "statusCode": 500,
+        "response": {
+          "error": "Login failed",
+          "message": "\nInvalid `prisma.user.findUnique()` invocation in\ne:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\routes\\auth.js:577:32\n\n  574 \n  575 // Find user by email\n  576 console.log('[LOGIN DIAGNOSTIC] Step 4: Looking up user by email:', identifier);\n→ 577 user = await prisma.user.findUnique(\nCan't reach database server at `localhost:5432`\n\nPlease make sure your database server is running at `localhost:5432`.",
+          "messageBn": "লগিন ব্যর্থ হয়েছে",
+          "timestamp": "2026-01-29T19:29:00.578Z"
+        }
+      },
+      "error": null,
+      "stack": null
+    },
+    {
+      "testName": "Admin Login",
+      "status": "FAIL",
+      "timestamp": "2026-01-29T19:29:00.583Z",
+      "details": {
+        "error": "Login request failed"
+      },
+      "error": "Failed to login as admin",
+      "stack": "Error: Failed to login as admin\n    at runTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\tests\\verify-image-deletion-fix.test.js:186:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"
+    }
+  ],
+  "conclusions": []
+}

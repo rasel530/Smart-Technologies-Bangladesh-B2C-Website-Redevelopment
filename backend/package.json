@@ -21,13 +21,17 @@
     "migrate:comprehensive": "node scripts/comprehensive-migration-solution.js",
     "migrate:validate": "node scripts/validate-migrations.js",
     "migrate:status": "prisma migrate status",
-    "migrate:deploy": "prisma migrate deploy"
+    "migrate:deploy": "prisma migrate deploy",
+    "migrate:image-urls": "node migrations/update-image-urls-to-absolute.js",
+    "cleanup:orphaned-images": "node scripts/cleanup-orphaned-images.js",
+    "cleanup:orphaned-images:dry-run": "node scripts/cleanup-orphaned-images.js --dry-run"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "Smart Technologies Bangladesh B2C Website Backend API",
   "dependencies": {
+    "@elastic/elasticsearch": "^9.2.0",
     "@prisma/client": "^5.22.0",
     "axios": "^1.13.2",
     "bcryptjs": "^2.4.3",
@@ -47,6 +51,7 @@
     "pg": "^8.16.3",
     "prisma": "^5.22.0",
     "redis": "^5.10.0",
+    "sharp": "^0.33.0",
     "speakeasy": "^2.0.0",
     "swagger-jsdoc": "^6.2.8",
     "twilio": "^4.19.0",
@@ -57,7 +62,7 @@
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "jest": "^30.2.0",
-    "node-fetch": "^3.3.2",
+    "node-fetch": "^2.7.0",
     "nodemon": "^3.1.7",
     "supertest": "^7.1.4"
   }

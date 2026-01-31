@@ -99,7 +99,7 @@ router.get('/validate', sessionMiddleware.required(), async (req, res) => {
 
 // Refresh session
 router.post('/refresh', [
-  body('sessionId').optional().isUUID(),
+  body('sessionId').optional({ checkFalsy: true }).isUUID(),
   body('maxAge').optional().isInt({ min: 300000, max: 30 * 24 * 60 * 60 * 1000 })
 ], handleValidationErrors, async (req, res) => {
   try {
@@ -155,7 +155,7 @@ router.post('/refresh', [
 
 // Destroy session (logout)
 router.post('/destroy', [
-  body('sessionId').optional().isUUID(),
+  body('sessionId').optional({ checkFalsy: true }).isUUID(),
   body('allDevices').optional().isBoolean()
 ], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
   try {

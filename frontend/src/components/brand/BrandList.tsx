@@ -28,18 +28,19 @@ export default function BrandList({
   featuredOnly = false
 }: BrandListProps) {
   const [brands, setBrands] = useState<BrandWithRelations[]>(initialBrands || []);
-  const [loading, setLoading] = useState(!initialBrands);
+  const [loading, setLoading] = useState(!initialBrands || initialBrands.length === 0);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState(filters.search || '');
   const [currentPage, setCurrentPage] = useState(filters.page || 1);
   const [statusFilter, setStatusFilter] = useState(filters.status || 'all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
+  // Fetch brands when filter values change
   useEffect(() => {
     if (!initialBrands) {
       fetchBrands();
     }
-  }, [filters]);
+  }, [initialBrands, filters.search, filters.status, filters.page]);
 
   const fetchBrands = async () => {
     try {
@@ -51,7 +52,7 @@ export default function BrandList({
         search: searchTerm || undefined,
         status: statusFilter === 'all' ? undefined : statusFilter as any,
         page: currentPage,
-        limit: 24
+        limit: 50
       };
 
       const response = await brandsApi.getBrands(params);

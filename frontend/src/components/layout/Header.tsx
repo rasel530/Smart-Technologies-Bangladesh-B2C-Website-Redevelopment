@@ -6,13 +6,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { User } from '@/types/auth';
 import {
   ShoppingCart,
-  Search,
+  Search as SearchIcon,
   Menu,
   X,
   ChevronDown,
   User as UserIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SearchAutocomplete } from '@/components/product/SearchAutocomplete';
 
 interface HeaderProps {
   className?: string;
@@ -60,7 +61,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
     {
       href: '/products',
       label: language === 'bn' ? 'পণ্য়ার' : 'Products',
-      icon: Search,
+      icon: SearchIcon,
     },
     {
       href: '/account',
@@ -105,6 +106,14 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                 {language === 'bn' ? 'বাংলাদেশ প্রক্ষর' : 'Technologies Bangladesh'}
               </p>
             </div>
+          </div>
+
+          {/* Search Autocomplete */}
+          <div className="hidden md:block flex-1 max-w-md mx-8">
+            <SearchAutocomplete />
+            <span className="ml-2 text-xs text-gray-400 hidden sm:inline-block">
+              Press <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-gray-600">Ctrl</kbd> + <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-gray-600">K</kbd> to search
+            </span>
           </div>
 
           {/* Navigation */}

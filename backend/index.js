@@ -140,6 +140,8 @@ const rbacEscalationRoutes = require('./routes/rbacEscalation');
 const rbacAuthCheckRoutes = require('./routes/rbacAuthCheck');
 
 const corporateRoutes = require('./routes/corporate');
+const productImagesRoutes = require('./routes/product-images');
+const adminProductImagesRoutes = require('./routes/admin-product-images');
 
 const app = express();
 const PORT = configService.get('PORT');
@@ -392,6 +394,12 @@ app.use('/api/v1/rbac/auth', rbacAuthCheckRoutes);
 
 // Corporate account management routes
 app.use('/api/v1/corporate', corporateRoutes);
+
+// Product image management routes
+app.use('/api/v1/products', productImagesRoutes);
+
+// Admin product image management routes
+app.use('/api/v1/admin/products', adminProductImagesRoutes);
 
 // Basic route
 app.get('/', (req, res) => {
@@ -731,6 +739,28 @@ app.use((req, res) => {
         auth: '/api/v1/rbac/auth'
       },
       corporate: '/api/v1/corporate',
+      productImages: {
+        upload: '/api/v1/products/:id/images',
+        list: '/api/v1/products/:id/images',
+        update: '/api/v1/images/:id',
+        reorder: '/api/v1/products/:id/images/reorder',
+        delete: '/api/v1/images/:id',
+        setPrimary: '/api/v1/images/:id/primary',
+        versions: '/api/v1/images/:id/versions'
+      },
+      adminProductImages: {
+        statistics: '/api/v1/admin/products/:productId/images/statistics',
+        quota: '/api/v1/admin/products/:productId/images/quota',
+        bulkUpdate: '/api/v1/admin/images/bulk-update',
+        bulkDelete: '/api/v1/admin/images/bulk-delete',
+        queue: '/api/v1/admin/products/:productId/images/queue',
+        queueCancel: '/api/v1/admin/products/:productId/images/queue/cancel',
+        queueRetry: '/api/v1/admin/products/:productId/images/queue/retry',
+        overallStatistics: '/api/v1/admin/products/images/statistics',
+        cdnStatus: '/api/v1/admin/products/:productId/images/cdn-status',
+        cdnSync: '/api/v1/admin/products/:productId/images/cdn-sync',
+        optimizationSuggestions: '/api/v1/admin/products/:productId/images/optimization-suggestions'
+      },
       health: '/api/v1/health',
       docs: '/api-docs'
     }

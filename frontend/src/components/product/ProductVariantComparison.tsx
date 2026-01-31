@@ -4,6 +4,12 @@ import React from 'react';
 import { DollarSign, Package, Check, X } from 'lucide-react';
 import { ProductVariant } from '@/types/product';
 
+const getSafePrice = (price: number | string | null | undefined, defaultValue: number = 0): number => {
+  if (price === null || price === undefined) return defaultValue;
+  const numPrice = typeof price === 'string' ? parseFloat(price) : Number(price);
+  return isNaN(numPrice) ? defaultValue : numPrice;
+};
+
 interface ProductVariantComparisonProps {
   variants: ProductVariant[];
   basePrice?: number;
@@ -105,7 +111,7 @@ export const ProductVariantComparison: React.FC<ProductVariantComparisonProps> =
                     <div className="flex items-center gap-2">
                       <DollarSign className="w-4 h-4 text-gray-500" />
                       <span className="font-semibold text-gray-900">
-                        {variant.price.toFixed(2)}
+                        {getSafePrice(variant.price).toFixed(2)}
                       </span>
                       {priceDiff && (
                         <span className={`text-xs font-medium ${
@@ -123,7 +129,7 @@ export const ProductVariantComparison: React.FC<ProductVariantComparisonProps> =
                       <div className="flex items-center gap-2">
                         <DollarSign className="w-4 h-4 text-gray-400" />
                         <span className="text-gray-500 line-through">
-                          {variant.comparePrice.toFixed(2)}
+                          {getSafePrice(variant.comparePrice)?.toFixed(2)}
                         </span>
                       </div>
                     ) : (

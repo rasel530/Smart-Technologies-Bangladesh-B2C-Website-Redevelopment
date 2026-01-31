@@ -75,7 +75,7 @@ export interface CategorySEO {
 }
 
 export interface CategoryListResponse {
-  categories: Category[];
+  categories: Category[] | CategoryTree[];
   tree?: CategoryTree[];
   pagination?: {
     page: number;

@@ -21,6 +21,10 @@ RUN \
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
+
+# Install libc6-compat for SWC binary to work on Alpine
+RUN apk add --no-cache libc6-compat
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -33,26 +37,30 @@ COPY . .
 ARG NEXT_PUBLIC_API_URL=http://localhost:3001/api/v1
 ARG NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-ENV NEXT_PRIVATE_SKIP_TYPE_CHECK=true
+# Completely disable TypeScript checking and telemetry during build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_BUILD_SKIP_BUILD_ID=true
+ENV NEXT_PRIVATE_SKIP_TYPE_CHECK=true
+ENV NODE_ENV=production
+ENV CI=true
 
 # Use build arguments for environment variables
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
 
+# Build with TypeScript completely disabled
 RUN \
   if [ -f pnpm-lock.yaml ]; then \
-  corepack enable pnpm && NEXT_PRIVATE_SKIP_TYPE_CHECK=true pnpm run build; \
+  corepack enable pnpm && pnpm run build; \
   else \
-  NEXT_PRIVATE_SKIP_TYPE_CHECK=true npm run build; \
+  npm run build; \
   fi
 
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 # Uncomment the following line in case you want to disable telemetry during runtime.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
@@ -79,9 +87,9 @@ USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
+ENV PORT=3000
 # set hostname to localhost
-ENV HOSTNAME "0.0.0.0"
+ENV HOSTNAME="0.0.0.0"
 
 # Use npm start
 CMD ["npm", "start"]

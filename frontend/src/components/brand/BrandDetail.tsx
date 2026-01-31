@@ -26,7 +26,7 @@ export default function BrandDetail({ brand, initialProducts }: BrandDetailProps
   const [products, setProducts] = useState(initialProducts || []);
   const [loading, setLoading] = useState(!initialProducts);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'price' | 'name' | 'createdAt' | 'rating'>('createdAt');
+  const [sortBy, setSortBy] = useState<'price' | 'name' | 'createdAt'>('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -249,16 +249,6 @@ export default function BrandDetail({ brand, initialProducts }: BrandDetailProps
               }`}
             >
               Newest {sortBy === 'createdAt' && (sortOrder === 'asc' ? '↑' : '↓')}
-            </button>
-            <button
-              onClick={() => handleSortChange('rating')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                sortBy === 'rating'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Rating {sortBy === 'rating' && (sortOrder === 'asc' ? '↑' : '↓')}
             </button>
           </div>
         </div>

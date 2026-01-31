@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ProductWithRelations, ProductStatus, ProductVisibility } from '@/types/product';
 import productsApi from '@/lib/api/products';
+import { getImageUrl } from '@/lib/api/product-images';
 
 interface ProductListProps {
   initialProducts?: ProductWithRelations[];
@@ -15,26 +16,81 @@ const ProductList: React.FC<ProductListProps> = ({ initialProducts = [] }) => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [visibilityFilter, setVisibilityFilter] = useState<string>('');
+  const [hasImagesFilter, setHasImagesFilter] = useState<string>('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProducts();
-  }, [page, statusFilter, visibilityFilter]);
+  }, [page, statusFilter, visibilityFilter, hasImagesFilter]);
 
   const fetchProducts = async () => {
     setLoading(true);
+    setError(null);
     try {
+      console.log('[ProductList] Fetching products with filters:', {
+        page,
+        limit: 20,
+        status: statusFilter,
+        search: search || undefined,
+      });
+      
       const result = await productsApi.getAll({
         page,
         limit: 20,
         status: statusFilter as ProductStatus,
         search: search || undefined,
       });
+      
+      console.log('[ProductList] Products fetched successfully:', {
+        count: result.products.length,
+        totalPages: result.pagination.pages,
+        total: result.pagination.total,
+      });
+      
+      // Log the first product to check data types
+      if (result.products.length > 0) {
+        console.log('[ProductList] First product data:', {
+          id: result.products[0].id,
+          name: result.products[0].name,
+          regularPrice: result.products[0].regularPrice,
+          regularPriceType: typeof result.products[0].regularPrice,
+          salePrice: result.products[0].salePrice,
+          salePriceType: typeof result.products[0].salePrice,
+        });
+      }
+      
       setProducts(result.products);
       setTotalPages(result.pagination.pages);
-    } catch (error) {
-      console.error('Error fetching products:', error);
+    } catch (error: any) {
+      console.error('[ProductList] Error fetching products:', error);
+      
+      // Extract error message for display
+      let errorMessage = 'Failed to load products. Please try again.';
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.data?.message) {
+        errorMessage = error.data.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
+      // Check for authentication errors
+      if (error?.status === 401) {
+        errorMessage = 'Authentication required. Please log in again.';
+        console.warn('[ProductList] Authentication error detected');
+      } else if (error?.status === 403) {
+        errorMessage = 'You do not have permission to view products.';
+        console.warn('[ProductList] Authorization error detected');
+      } else if (error?.status === 500) {
+        errorMessage = 'Server error. Please try again later.';
+        console.error('[ProductList] Server error detected');
+      }
+      
+      setError(errorMessage);
+      setProducts([]);
+      setTotalPages(0);
     } finally {
       setLoading(false);
     }
@@ -108,6 +164,21 @@ const ProductList: React.FC<ProductListProps> = ({ initialProducts = [] }) => {
     );
   };
 
+  // Helper function to safely format price values
+  const formatPrice = (price: number | string | null | undefined): string => {
+    if (price === null || price === undefined) {
+      return '0.00';
+    }
+    // Convert to number if it's a string
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    // Check if conversion resulted in a valid number
+    if (isNaN(numPrice)) {
+      console.warn('[ProductList] Invalid price value:', price);
+      return '0.00';
+    }
+    return numPrice.toFixed(2);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -154,6 +225,15 @@ const ProductList: React.FC<ProductListProps> = ({ initialProducts = [] }) => {
             <option value="private">Private</option>
             <option value="restricted">Restricted</option>
           </select>
+          <select
+            value={hasImagesFilter}
+            onChange={(e) => setHasImagesFilter(e.target.value)}
+            className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">All Products</option>
+            <option value="yes">With Images</option>
+            <option value="no">Without Images</option>
+          </select>
           <button
             type="submit"
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
@@ -162,6 +242,30 @@ const ProductList: React.FC<ProductListProps> = ({ initialProducts = [] }) => {
           </button>
         </form>
       </div>
+
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3 flex-1">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+            <div className="flex-shrink-0">
+              <button
+                onClick={() => fetchProducts()}
+                className="text-sm text-red-600 hover:text-red-800 font-medium"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Products Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -192,6 +296,9 @@ const ProductList: React.FC<ProductListProps> = ({ initialProducts = [] }) => {
                   Visibility
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Images
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -203,7 +310,7 @@ const ProductList: React.FC<ProductListProps> = ({ initialProducts = [] }) => {
                     <div className="flex items-center">
                       {product.images[0] && (
                         <img
-                          src={product.images[0].url}
+                          src={getImageUrl(product.images[0], 'thumbnail')}
                           alt={product.name}
                           className="h-10 w-10 rounded object-cover mr-3"
                         />
@@ -218,7 +325,7 @@ const ProductList: React.FC<ProductListProps> = ({ initialProducts = [] }) => {
                     {product.sku}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    ৳{product.regularPrice.toFixed(2)}
+                    ৳{formatPrice(product.regularPrice)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {product.stockQuantity}
@@ -228,6 +335,21 @@ const ProductList: React.FC<ProductListProps> = ({ initialProducts = [] }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {getVisibilityBadge(product.visibility)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-medium">
+                        {product.images?.length || 0}
+                      </span>
+                      {product.images && product.images.length > 0 && (
+                        <Link
+                          href={`/admin/products/${product.id}/images`}
+                          className="text-xs text-blue-600 hover:text-blue-700"
+                        >
+                          Manage
+                        </Link>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex gap-2">

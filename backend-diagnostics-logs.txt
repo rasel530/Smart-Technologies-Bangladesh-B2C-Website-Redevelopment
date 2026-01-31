@@ -1,0 +1,810 @@
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+✅ Database event listeners setup completed
+🔍 Environment detected: production
+⚠️  Environment file not found: .env.production
+⚠️  Environment file not found: .env.local
+⚠️  Environment file not found: .env
+🐳 Docker environment detected, applying Docker-specific configuration
+🔧 Database URL configured: postgresql://smart_dev:****@postgres:5432/smart_ecommerce_dev
+🔍 Raw REDIS_URL: redis://:redis_smarttech_2024@redis:6379
+✅ Parsed REDIS_URL: redis://redis:6379
+🔧 Final Redis config: host=redis, port=6379, password=***
+🔧 Redis configuration: host=redis, port=6379, password=***
+🐳 Applying Docker-specific Redis configuration
+🔧 Using environment-aware Redis configuration
+[Backend] Exports directory path: /app/exports
+[Backend] Exports directory exists
+[Backend] Files in exports directory: [
+  'dc33ac56-67bf-4443-aea1-42ca227321ec.json',
+  'export_2b107167-5014-4823-89ca-52e83433b671_1768841631013.json',
+  'export_79bdf110-9a77-4169-a71a-8591a99558b5_1768060279826.json',
+  'export_dc33ac56-67bf-4443-aea1-42ca227321ec_1768189776718.json'
+]
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-27T19:00:27.315Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-01-27T19:00:27.316Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1769539527322
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+ℹ️ Database Info: {
+  target: 'quaint::pooled',
+  message: 'Starting a postgresql pool with 13 connections.',
+  timestamp: 2026-01-27T19:00:28.773Z
+}
+✅ Database connected successfully (attempt 1, 1887ms)
+🔍 Database connection pool stats: {
+  activeConnections: 0,
+  idleConnections: 0,
+  totalConnections: 0,
+  maxConnections: 10,
+  utilizationRate: '0.00%',
+  timeouts: { connection: 30000, idle: 10000, acquire: 30000 },
+  queryCount: 0,
+  errorCount: 0,
+  timestamp: '2026-01-27T19:00:28.898Z'
+}
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "smart_ecommerce_dev", schema "public" at "postgres:5432"
+
+11 migrations found in prisma/migrations
+
+{"environment":"production","error":"Command failed: npx prisma migrate deploy","instanceId":"default","level":"error","message":"❌ Prisma migration execution failed","service":"smart-ecommerce-api","stack":"Error: Command failed: npx prisma migrate deploy\n    at genericNodeError (node:internal/errors:984:15)\n    at wrappedFn (node:internal/errors:538:14)\n    at checkExecSyncError (node:child_process:891:11)\n    at execSync (node:child_process:963:15)\n    at Server.<anonymous> (/app/index.js:777:5)","timestamp":"2026-01-27T19:00:31.401Z","version":"1.0.0"}
+🐳 Applying Docker-specific Redis configuration
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '55ms',
+  timestamp: 2026-01-27T19:00:31.404Z
+}
+{"environment":"production","error":"","instanceId":"default","level":"error","maxRetries":3,"message":"Elasticsearch health check failed","retryCount":1,"service":"smart-ecommerce-api","timestamp":"2026-01-27T19:00:34.601Z","version":"1.0.0"}
+{"environment":"production","error":"","instanceId":"default","level":"error","maxRetries":3,"message":"Elasticsearch health check failed","retryCount":2,"service":"smart-ecommerce-api","timestamp":"2026-01-27T19:00:47.031Z","version":"1.0.0"}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-27T19:00:52.807Z',
+  method: 'GET',
+  path: '/api/v1/products',
+  origin: 'http://localhost:3000',
+  referer: 'http://localhost:3000/',
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': true,
+  credentials: 'no-cookies',
+  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/products',
+  url: '/api/v1/products?page=1&limit=20',
+  timestamp: '2026-01-27T19:00:52.807Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/products?page=1&limit=20
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1769539552808
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-27T19:00:57.973Z',
+  method: 'GET',
+  path: '/api/v1/categories',
+  origin: 'http://localhost:3000',
+  referer: 'http://localhost:3000/',
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': true,
+  credentials: 'no-cookies',
+  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/categories',
+  url: '/api/v1/categories?tree=true',
+  timestamp: '2026-01-27T19:00:57.973Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/categories?tree=true
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1769539557974
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-27T19:00:57.985Z',
+  method: 'GET',
+  path: '/api/v1/categories/tree',
+  origin: 'http://localhost:3000',
+  referer: 'http://localhost:3000/',
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': true,
+  credentials: 'no-cookies',
+  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/categories/tree',
+  url: '/api/v1/categories/tree?status=active',
+  timestamp: '2026-01-27T19:00:57.986Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/categories/tree?status=active
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1769539557988
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-27T19:00:57.990Z',
+  method: 'GET',
+  path: '/api/v1/categories/stats',
+  origin: 'http://localhost:3000',
+  referer: 'http://localhost:3000/',
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': true,
+  credentials: 'no-cookies',
+  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/categories/stats',
+  url: '/api/v1/categories/stats',
+  timestamp: '2026-01-27T19:00:57.990Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/categories/stats
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1769539557992
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+{"environment":"production","error":"","instanceId":"default","level":"error","maxRetries":3,"message":"Elasticsearch health check failed","retryCount":3,"service":"smart-ecommerce-api","timestamp":"2026-01-27T19:01:00.338Z","version":"1.0.0"}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-27T19:01:01.549Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-01-27T19:01:01.549Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1769539561550
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-27T19:01:01.555Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-27T19:01:01.555Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-27T19:01:03.758Z',
+  method: 'GET',
+  path: '/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1',
+  origin: 'http://localhost:3000',
+  referer: 'http://localhost:3000/',
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': true,
+  credentials: 'no-cookies',
+  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1',
+  url: '/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1',
+  timestamp: '2026-01-27T19:01:03.758Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1769539563758
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-27T19:01:03.780Z',
+  method: 'GET',
+  path: '/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1',
+  origin: 'http://localhost:3000',
+  referer: 'http://localhost:3000/',
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': true,
+  credentials: 'no-cookies',
+  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1',
+  url: '/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1',
+  timestamp: '2026-01-27T19:01:03.780Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1769539563780
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-27T19:01:03.781Z',
+  method: 'GET',
+  path: '/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1',
+  origin: 'http://localhost:3000',
+  referer: 'http://localhost:3000/',
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': true,
+  credentials: 'no-cookies',
+  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1',
+  url: '/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1',
+  timestamp: '2026-01-27T19:01:03.781Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1769539563782
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-27T19:01:12.271Z',
+  method: 'PUT',
+  path: '/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1',
+  origin: 'http://localhost:3000',
+  referer: 'http://localhost:3000/',
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': true,
+  credentials: 'no-cookies',
+  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0'
+}
+[SERVER] Request received: {
+  method: 'PUT',
+  path: '/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1',
+  url: '/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1',
+  timestamp: '2026-01-27T19:01:12.271Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1
+[RATE LIMIT SERVICE] Request method: PUT
+[RATE LIMIT SERVICE] req.body before processing: {
+  name: 'Acer Laptop',
+  slug: 'acer-laptop',
+  nameEn: 'Acer Laptop',
+  nameBn: 'এসার ল্যাপটপ',
+  description: 'Acer Laptop',
+  parentId: '',
+  displayOrder: 1,
+  sortOrder: 0,
+  status: 'active',
+  metaTitle: 'Acer Laptop',
+  metaDescription: 'Acer Laptop',
+  metaKeywords: 'Acer Laptop'
+}
+[RATE LIMIT SERVICE] req.body type: object
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1769539572279
+[RATE LIMIT SERVICE] req.body after key generation: {
+  name: 'Acer Laptop',
+  slug: 'acer-laptop',
+  nameEn: 'Acer Laptop',
+  nameBn: 'এসার ল্যাপটপ',
+  description: 'Acer Laptop',
+  parentId: '',
+  displayOrder: 1,
+  sortOrder: 0,
+  status: 'active',
+  metaTitle: 'Acer Laptop',
+  metaDescription: 'Acer Laptop',
+  metaKeywords: 'Acer Laptop'
+}
+🔍 Query: {
+  query: '\n' +
+    '        SELECT \n' +
+    '          ur.id,\n' +
+    '          ur.user_id,\n' +
+    '          ur.role_id,\n' +
+    '          r.name as role_name,\n' +
+    '          r.description as role_description,\n' +
+    '          r.hierarchy_level,\n' +
+    '          ur.assigned_by,\n' +
+    '          ur.assigned_at,\n' +
+    '          ur.expires_at,\n' +
+    '          ur.is_active\n' +
+    '        FROM user_roles ur\n' +
+    '        JOIN roles r ON ur.role_id = r.id\n' +
+    '        WHERE ur.user_id = $1\n' +
+    '          AND ur.is_active = true\n' +
+    '          AND (ur.expires_at IS NULL OR ur.expires_at > NOW())\n' +
+    '        ORDER BY r.hierarchy_level DESC, ur.assigned_at DESC\n' +
+    '      ',
+  params: '["ea59bf47-4b66-431d-ba63-a0a69437798f"]',
+  duration: '17ms',
+  timestamp: 2026-01-27T19:01:12.343Z
+}
+[AUTH DEBUG] User authenticated successfully: {
+  userId: 'ea59bf47-4b66-431d-ba63-a0a69437798f',
+  email: 'admin@smarttech.com',
+  role: 'admin',
+  timestamp: '2026-01-27T19:01:12.344Z'
+}
+{"environment":"production","errorId":"err_1769540472360_7kaztu8mi","instanceId":"default","ip":"172.18.0.1","level":"error","message":"Application Error id is not defined","method":"PUT","requestId":"req_1769540472278_rltsmn7ti","service":"smart-ecommerce-api","stack":"ReferenceError: id is not defined\n    at /app/routes/categories.js:561:19","timestamp":"2026-01-27T19:01:12.360Z","url":"/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0","version":"1.0.0"}
+{"environment":"production","error":"id is not defined","instanceId":"default","ip":"172.18.0.1","level":"error","message":"Unhandled error","method":"PUT","service":"smart-ecommerce-api","stack":"ReferenceError: id is not defined\n    at /app/routes/categories.js:561:19","timestamp":"2026-01-27T19:01:12.361Z","url":"/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0","version":"1.0.0"}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-27T19:01:27.907Z',
+  method: 'PUT',
+  path: '/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1',
+  origin: 'http://localhost:3000',
+  referer: 'http://localhost:3000/',
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': true,
+  credentials: 'no-cookies',
+  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0'
+}
+[SERVER] Request received: {
+  method: 'PUT',
+  path: '/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1',
+  url: '/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1',
+  timestamp: '2026-01-27T19:01:27.908Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1
+[RATE LIMIT SERVICE] Request method: PUT
+[RATE LIMIT SERVICE] req.body before processing: {
+  name: 'Acer Laptop',
+  slug: 'acer-laptop',
+  nameEn: 'Acer Laptop',
+  nameBn: 'এসার ল্যাপটপ',
+  description: 'Acer Laptop',
+  parentId: '',
+  displayOrder: 1,
+  sortOrder: 0,
+  status: 'active',
+  metaTitle: 'Acer Laptop',
+  metaDescription: 'Acer Laptop',
+  metaKeywords: 'Acer Laptop'
+}
+[RATE LIMIT SERVICE] req.body type: object
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1769539587909
+[RATE LIMIT SERVICE] req.body after key generation: {
+  name: 'Acer Laptop',
+  slug: 'acer-laptop',
+  nameEn: 'Acer Laptop',
+  nameBn: 'এসার ল্যাপটপ',
+  description: 'Acer Laptop',
+  parentId: '',
+  displayOrder: 1,
+  sortOrder: 0,
+  status: 'active',
+  metaTitle: 'Acer Laptop',
+  metaDescription: 'Acer Laptop',
+  metaKeywords: 'Acer Laptop'
+}
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-27T19:01:27.919Z
+}
+🔍 Query: {
+  query: '\n' +
+    '        SELECT \n' +
+    '          ur.id,\n' +
+    '          ur.user_id,\n' +
+    '          ur.role_id,\n' +
+    '          r.name as role_name,\n' +
+    '          r.description as role_description,\n' +
+    '          r.hierarchy_level,\n' +
+    '          ur.assigned_by,\n' +
+    '          ur.assigned_at,\n' +
+    '          ur.expires_at,\n' +
+    '          ur.is_active\n' +
+    '        FROM user_roles ur\n' +
+    '        JOIN roles r ON ur.role_id = r.id\n' +
+    '        WHERE ur.user_id = $1\n' +
+    '          AND ur.is_active = true\n' +
+    '          AND (ur.expires_at IS NULL OR ur.expires_at > NOW())\n' +
+    '        ORDER BY r.hierarchy_level DESC, ur.assigned_at DESC\n' +
+    '      ',
+  params: '["ea59bf47-4b66-431d-ba63-a0a69437798f"]',
+  duration: '0ms',
+  timestamp: 2026-01-27T19:01:27.920Z
+}
+[AUTH DEBUG] User authenticated successfully: {
+  userId: 'ea59bf47-4b66-431d-ba63-a0a69437798f',
+  email: 'admin@smarttech.com',
+  role: 'admin',
+  timestamp: '2026-01-27T19:01:27.920Z'
+}
+{"environment":"production","errorId":"err_1769540487928_w6wxp96w7","instanceId":"default","ip":"172.18.0.1","level":"error","message":"Application Error id is not defined","method":"PUT","requestId":"req_1769540487909_wmbrwwp0n","service":"smart-ecommerce-api","stack":"ReferenceError: id is not defined\n    at /app/routes/categories.js:561:19","timestamp":"2026-01-27T19:01:27.928Z","url":"/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0","version":"1.0.0"}
+{"environment":"production","error":"id is not defined","instanceId":"default","ip":"172.18.0.1","level":"error","message":"Unhandled error","method":"PUT","service":"smart-ecommerce-api","stack":"ReferenceError: id is not defined\n    at /app/routes/categories.js:561:19","timestamp":"2026-01-27T19:01:27.929Z","url":"/api/v1/categories/e1e7b80a-ee6d-45fb-af9c-62efbcb17ff1","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0","version":"1.0.0"}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-27T19:01:31.638Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-01-27T19:01:31.639Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1769539591639
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-27T19:01:31.642Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-27T19:01:49.929Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.13.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-01-27T19:01:49.930Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1769539609930
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-27T19:01:49.934Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-27T19:01:49.934Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-27T19:02:01.747Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-01-27T19:02:01.748Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1769539621748
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-27T19:02:01.752Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-27T19:02:31.809Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-01-27T19:02:31.809Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1769539651810
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-27T19:02:31.813Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-27T19:02:31.813Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-27T19:03:01.878Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-01-27T19:03:01.878Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1769539681879
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-27T19:03:01.880Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-27T19:03:01.881Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-01-27T19:03:31.951Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-01-27T19:03:31.952Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1769539711953
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-27T19:03:31.957Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-01-27T19:03:31.957Z
+}

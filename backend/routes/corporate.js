@@ -237,7 +237,7 @@ router.post('/register',
     { name: 'vatCertificate', maxCount: 1 }
   ]),
   [
-    body('userId').optional().isUUID().withMessage('Invalid user ID'),
+    body('userId').optional({ checkFalsy: true }).isUUID().withMessage('Invalid user ID'),
     body('companyName').notEmpty().trim().withMessage('Company name is required'),
     body('companyRegistrationNumber').notEmpty().trim().withMessage('Company registration number is required'),
     body('tinNumber').optional().trim(),

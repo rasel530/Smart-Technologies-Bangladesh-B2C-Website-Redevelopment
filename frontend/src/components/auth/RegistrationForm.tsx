@@ -423,21 +423,22 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
               )}
             />
 
-            <Controller
-              name="phone"
-              control={control}
-              render={({ field }) => (
-                <PhoneInput
-                  {...field}
-                  label={language === 'bn' ? 'মোবাইল নম্বর' : 'Phone Number'}
-                  labelBn="মোবাইল নম্বর"
-                  error={errors.phone?.message}
-                  errorBn={errors.phone?.message}
-                  required={false}
-                  language={language}
-                  showValidation={true}
-                />
-              )}
+              <Controller
+                name="phone"
+                control={control}
+                render={({ field }) => (
+                  <PhoneInput
+                    {...field}
+                    value={field.value || ''}
+                    label={language === 'bn' ? 'মোবাইল নম্বর' : 'Phone Number'}
+                    labelBn="মোবাইল নম্বর"
+                    error={errors.phone?.message}
+                    errorBn={errors.phone?.message}
+                    required={false}
+                    language={language}
+                    showValidation={true}
+                  />
+                )}
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

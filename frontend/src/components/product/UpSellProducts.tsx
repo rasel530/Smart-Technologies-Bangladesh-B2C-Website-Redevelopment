@@ -3,6 +3,7 @@
 import React from 'react';
 import { TrendingUp, Star, Award, Check } from 'lucide-react';
 import { UpSellProduct } from '@/types/product';
+import { getImageUrl } from '@/lib/api/product-images';
 
 interface UpSellProductsProps {
   upSellProducts: UpSellProduct[];
@@ -67,7 +68,7 @@ export const UpSellProducts: React.FC<UpSellProductsProps> = ({
         {upSellProducts.map(item => {
           const product = item.relatedProduct;
           const price = getDisplayPrice(product.regularPrice, product.salePrice);
-          const imageUrl = product.images?.[0]?.url;
+          const imageUrl = product.images?.[0] ? getImageUrl(product.images[0], 'medium') : undefined;
 
           return (
             <div

@@ -60,11 +60,10 @@ export const getCategories = async (
     const queryString = buildQueryString(filters);
     const endpoint = `/categories${queryString ? `?${queryString}` : ''}`;
     
-    const response = await apiClient.get<CategoryListResponse>(endpoint);
+    const response = await apiClient.get<CategoryListResponse>(endpoint) as unknown as CategoryListResponse;
     
-    return response.data || { categories: [] };
+    return response || { categories: [] };
   } catch (error) {
-    console.error('Error fetching categories:', error);
     throw error;
   }
 };
@@ -78,7 +77,7 @@ export const getCategories = async (
 export const getCategoryById = async (id: string): Promise<CategoryDetailResponse> => {
   try {
     const response = await apiClient.get<CategoryDetailResponse>(`/categories/${id}`);
-    return response.data || { category: null as any, path: [] };
+    return (response as unknown as CategoryDetailResponse) || { category: null as any, path: [] };
   } catch (error) {
     console.error(`Error fetching category ${id}:`, error);
     throw error;
@@ -94,7 +93,7 @@ export const getCategoryById = async (id: string): Promise<CategoryDetailRespons
 export const getCategoryBySlug = async (slug: string): Promise<CategoryDetailResponse> => {
   try {
     const response = await apiClient.get<CategoryDetailResponse>(`/categories/slug/${slug}`);
-    return response.data || { category: null as any, path: [] };
+    return (response as unknown as CategoryDetailResponse) || { category: null as any, path: [] };
   } catch (error) {
     console.error(`Error fetching category with slug ${slug}:`, error);
     throw error;
@@ -113,7 +112,7 @@ export const createCategory = async (data: CreateCategoryRequest): Promise<Categ
       '/categories',
       data
     );
-    return response.data?.category;
+    return (response as unknown as { category: Category })?.category;
   } catch (error) {
     console.error('Error creating category:', error);
     throw error;
@@ -136,7 +135,7 @@ export const updateCategory = async (
       `/categories/${id}`,
       data
     );
-    return response.data?.category;
+    return (response as unknown as { category: Category })?.category;
   } catch (error) {
     console.error(`Error updating category ${id}:`, error);
     throw error;
@@ -176,10 +175,10 @@ export const getCategoryTree = async (status?: 'active' | 'inactive'): Promise<C
     const queryString = buildQueryString(filters);
     const endpoint = `/categories/tree${queryString ? `?${queryString}` : ''}`;
     
-    const response = await apiClient.get<CategoryTreeResponse>(endpoint);
-    return response.data || { tree: [], total: 0 };
+    const response = await apiClient.get<CategoryTreeResponse>(endpoint) as unknown as CategoryTreeResponse;
+    
+    return response || { tree: [], total: 0 };
   } catch (error) {
-    console.error('Error fetching category tree:', error);
     throw error;
   }
 };
@@ -200,7 +199,7 @@ export const createSubcategory = async (
       `/categories/${parentId}/subcategories`,
       data
     );
-    return response.data?.subcategory;
+    return (response as unknown as { subcategory: Category })?.subcategory;
   } catch (error) {
     console.error(`Error creating subcategory for ${parentId}:`, error);
     throw error;
@@ -223,7 +222,7 @@ export const moveCategory = async (
       `/categories/${id}/move`,
       data
     );
-    return response.data?.category;
+    return (response as unknown as { category: Category })?.category;
   } catch (error) {
     console.error(`Error moving category ${id}:`, error);
     throw error;
@@ -250,7 +249,7 @@ export const reorderCategory = async (
       `/categories/${id}/reorder`,
       { displayOrder }
     );
-    return response.data?.category;
+    return (response as unknown as { category: Category })?.category;
   } catch (error) {
     console.error(`Error reordering category ${id}:`, error);
     throw error;
@@ -271,7 +270,7 @@ export const reorderCategoriesBatch = async (
       '/categories/reorder-batch',
       { orders }
     );
-    return response.data?.categories || [];
+    return (response as unknown as { categories: Category[] })?.categories || [];
   } catch (error) {
     console.error('Error batch reordering categories:', error);
     throw error;
@@ -305,7 +304,7 @@ export const getCategoryProducts = async (
     const endpoint = `/categories/${id}/products${queryString ? `?${queryString}` : ''}`;
     
     const response = await apiClient.get<CategoryProductsResponse>(endpoint);
-    return response.data || { category: null as any, products: [], pagination: {} as any };
+    return (response as unknown as CategoryProductsResponse) || { category: null as any, products: [], pagination: {} as any };
   } catch (error) {
     console.error(`Error fetching products for category ${id}:`, error);
     throw error;
@@ -340,7 +339,7 @@ export const uploadCategoryImage = async (
         },
       }
     );
-    return response.data?.category;
+    return (response as unknown as { category: Category })?.category;
   } catch (error) {
     console.error(`Error uploading image for category ${id}:`, error);
     throw error;
@@ -371,7 +370,7 @@ export const uploadCategoryIcon = async (
         },
       }
     );
-    return response.data?.category;
+    return (response as unknown as { category: Category })?.category;
   } catch (error) {
     console.error(`Error uploading icon for category ${id}:`, error);
     throw error;
@@ -387,7 +386,7 @@ export const uploadCategoryIcon = async (
 export const deleteCategoryImage = async (id: string): Promise<Category> => {
   try {
     const response = await apiClient.delete<{ category: Category }>(`/categories/${id}/image`);
-    return response.data?.category;
+    return (response as unknown as { category: Category })?.category;
   } catch (error) {
     console.error(`Error deleting image for category ${id}:`, error);
     throw error;
@@ -403,7 +402,7 @@ export const deleteCategoryImage = async (id: string): Promise<Category> => {
 export const deleteCategoryIcon = async (id: string): Promise<Category> => {
   try {
     const response = await apiClient.delete<{ category: Category }>(`/categories/${id}/icon`);
-    return response.data?.category;
+    return (response as unknown as { category: Category })?.category;
   } catch (error) {
     console.error(`Error deleting icon for category ${id}:`, error);
     throw error;
@@ -430,32 +429,62 @@ export const updateCategorySEO = async (
       `/categories/${id}/seo`,
       data
     );
-    return response.data?.category;
+    return (response as unknown as { category: Category })?.category;
   } catch (error) {
     console.error(`Error updating SEO for category ${id}:`, error);
     throw error;
   }
 };
 
-// Export all functions as a named object for convenience
-const categoriesApi = {
-  getCategories,
-  getCategoryById,
-  getCategoryBySlug,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-  getCategoryTree,
-  createSubcategory,
-  moveCategory,
-  reorderCategory,
-  reorderCategoriesBatch,
-  getCategoryProducts,
-  uploadCategoryImage,
-  uploadCategoryIcon,
-  deleteCategoryImage,
-  deleteCategoryIcon,
-  updateCategorySEO
+  // ============================================
+  // CATEGORY STATISTICS FUNCTIONS
+  // ============================================
+
+  /**
+   * Get category statistics
+   * 
+   * @returns Promise with category statistics
+   */
+  export const getCategoryStats = async (): Promise<{
+  total: number;
+  active: number;
+  inactive: number;
+}> => {
+  try {
+    const endpoint = '/categories/stats';
+    
+    const response = await apiClient.get<{
+      total: number;
+      active: number;
+      inactive: number;
+    }>(endpoint) as unknown as { total: number; active: number; inactive: number };
+    
+    return response || { total: 0, active: 0, inactive: 0 };
+  } catch (error) {
+    throw error;
+  }
 };
 
-export default categoriesApi;
+  // Export all functions as a named object for convenience
+  const categoriesApi = {
+    getCategories,
+    getCategoryById,
+    getCategoryBySlug,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+    getCategoryTree,
+    createSubcategory,
+    moveCategory,
+    reorderCategory,
+    reorderCategoriesBatch,
+    getCategoryProducts,
+    uploadCategoryImage,
+    uploadCategoryIcon,
+    deleteCategoryImage,
+    deleteCategoryIcon,
+    updateCategorySEO,
+    getCategoryStats
+  };
+
+  export default categoriesApi;

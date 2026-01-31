@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Category, CreateCategoryRequest, UpdateCategoryRequest, CategoryStatus } from '@/types/category';
-import { createCategory, updateCategory, getCategoryById } from '@/lib/api/categories';
+import { createCategory, updateCategory, getCategoryById, getCategories } from '@/lib/api/categories';
+import { useShowToast } from '@/components/ui/Toast';
 
 interface CategoryFormProps {
   categoryId?: string;
@@ -20,6 +21,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   onSuccess,
   onCancel
 }) => {
+  const { success } = useShowToast();
   const [formData, setFormData] = useState<CreateCategoryRequest>({
     name: '',
     slug: '',
@@ -66,6 +68,63 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
     }
   }, [categoryId]);
 
+  // Fetch available parent categories
+  useEffect(() => {
+    const loadAvailableParents = async () => {
+      try {
+        const response = await getCategories({ status: 'active' });
+        const allCategories = response.categories;
+
+        // If editing, filter out the current category and its descendants to prevent circular references
+        if (categoryId) {
+          const excludedIds = new Set<string>([categoryId]);
+          
+          // Recursively find all descendant IDs
+          const findDescendants = (parentId: string) => {
+            allCategories.forEach((cat) => {
+              if (cat.parentId === parentId && !excludedIds.has(cat.id)) {
+                excludedIds.add(cat.id);
+                findDescendants(cat.id);
+              }
+            });
+          };
+          
+          findDescendants(categoryId);
+          
+          // Filter out excluded categories
+          setAvailableParents(allCategories.filter((cat) => !excludedIds.has(cat.id)));
+        } else {
+          // When creating, show all available categories
+          setAvailableParents(allCategories);
+        }
+      } catch (err: any) {
+        console.error('Failed to load available parent categories:', err);
+        setAvailableParents([]);
+      }
+    };
+    loadAvailableParents();
+  }, [categoryId]);
+
+  // Helper function to render parent options with hierarchy indentation
+  const renderParentOptions = (categories: Category[], parentId: string | null = null, level: number = 0): JSX.Element[] => {
+    const options: JSX.Element[] = [];
+    const indent = '\u00A0\u00A0\u00A0\u00A0'.repeat(level); // Non-breaking spaces for indentation
+
+    categories
+      .filter((cat) => cat.parentId === parentId)
+      .forEach((cat) => {
+        options.push(
+          <option key={cat.id} value={cat.id}>
+            {indent}{cat.name}
+          </option>
+        );
+        // Recursively render children
+        options.push(...renderParentOptions(categories, cat.id, level + 1));
+      });
+
+    return options;
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -96,8 +155,10 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
 
       if (categoryId) {
         result = await updateCategory(categoryId, formData as UpdateCategoryRequest);
+        success('Category updated successfully');
       } else {
         result = await createCategory(formData);
+        success('Category created successfully');
       }
 
       onSuccess?.(result);
@@ -215,11 +276,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
           >
             <option value="">None (Root Category)</option>
-            {availableParents.map((parent) => (
-              <option key={parent.id} value={parent.id}>
-                {parent.name}
-              </option>
-            ))}
+            {renderParentOptions(availableParents)}
           </select>
         </div>
 

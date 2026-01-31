@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
 import { BrandWithRelations, BrandStatus } from '@/types/brand';
 import brandsApi from '@/lib/api/brands';
 
@@ -20,6 +21,8 @@ interface BrandListProps {
  * - Pagination
  */
 export default function BrandList({ initialBrands = [] }: BrandListProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [brands, setBrands] = useState<BrandWithRelations[]>(initialBrands);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
@@ -28,16 +31,22 @@ export default function BrandList({ initialBrands = [] }: BrandListProps) {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  // Force refresh when pathname changes (e.g., navigating back from new brand page)
   useEffect(() => {
     fetchBrands();
-  }, [page, statusFilter, featuredFilter]);
+  }, [pathname]);
+
+  // Initial fetch on mount
+  useEffect(() => {
+    fetchBrands();
+  }, []); // Only run once on mount
 
   const fetchBrands = async () => {
     setLoading(true);
     try {
       const result = await brandsApi.getBrands({
         page,
-        limit: 20,
+        limit: 50,
         status: statusFilter as BrandStatus || undefined,
         isFeatured: featuredFilter === 'featured' ? true : featuredFilter === 'not-featured' ? false : undefined,
         search: search || undefined

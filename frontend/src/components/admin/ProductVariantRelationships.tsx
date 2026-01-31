@@ -4,6 +4,12 @@ import React, { useState } from 'react';
 import { GitBranch, Plus, Trash2, GripVertical } from 'lucide-react';
 import { ProductVariant } from '@/types/product';
 
+const getSafePrice = (price: number | string | null | undefined, defaultValue: number = 0): number => {
+  if (price === null || price === undefined) return defaultValue;
+  const numPrice = typeof price === 'string' ? parseFloat(price) : Number(price);
+  return isNaN(numPrice) ? defaultValue : numPrice;
+};
+
 interface ProductVariantRelationshipsProps {
   productId: string;
   variants: ProductVariant[];
@@ -87,7 +93,7 @@ export const ProductVariantRelationships: React.FC<ProductVariantRelationshipsPr
                       </div>
                     </div>
                     <div className="text-sm font-semibold text-gray-900">
-                      ৳{variant.price.toFixed(2)}
+                      ৳{getSafePrice(variant.price).toFixed(2)}
                     </div>
                   </div>
                 </div>
@@ -126,7 +132,7 @@ export const ProductVariantRelationships: React.FC<ProductVariantRelationshipsPr
                       </div>
                     </div>
                     <div className="text-sm font-semibold text-gray-900">
-                      ৳{variant.price.toFixed(2)}
+                      ৳{getSafePrice(variant.price).toFixed(2)}
                     </div>
                   </div>
                 </div>

@@ -213,9 +213,9 @@ const authOptions: NextAuthOptions = {
         } catch (error) {
           console.error('[NextAuth] Credentials authorize error:', error);
           console.error('[NextAuth] Error details:', {
-            name: error.name,
-            message: error.message,
-            stack: error.stack
+            name: error instanceof Error ? error.name : String(error),
+            message: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined
           });
           return null;
         }
@@ -318,7 +318,7 @@ const authOptions: NextAuthOptions = {
 
       // Always return session if token exists
       // Don't return null as this can cause unexpected logout behavior
-      return token ? session : null;
+      return token ? session : (undefined as any);
     },
 
     /**

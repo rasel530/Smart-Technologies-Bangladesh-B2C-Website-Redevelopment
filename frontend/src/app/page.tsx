@@ -49,17 +49,46 @@ export const metadata: Metadata = {
  * Home Page Component
  */
 export default async function Home() {
-  // Fetch data for home page sections
+  // Fetch data for home page sections with error handling
   const [featuredProducts, newArrivals, bestSellers, brandsResponse, categoriesResponse] = await Promise.all([
-    getFeatured(),
-    getNewArrivals(),
-    getBestSellers(),
-    brandsApi.getBrands({ status: 'active', limit: 6 }),
-    categoriesApi.getCategories({ status: 'active', limit: 8 }),
+    getFeatured().catch(err => {
+      console.error('Error fetching featured products:', err);
+      return [];
+    }),
+    getNewArrivals().catch(err => {
+      console.error('Error fetching new arrivals:', err);
+      return [];
+    }),
+    getBestSellers().catch(err => {
+      console.error('Error fetching best sellers:', err);
+      return [];
+    }),
+    brandsApi.getBrands({ status: 'active', limit: 6 }).catch(err => {
+      console.error('Error fetching brands:', err);
+      return { brands: [], pagination: { page: 1, limit: 6, total: 0, pages: 0 } };
+    }),
+    categoriesApi.getCategories({ status: 'active', limit: 8 }).catch(err => {
+      console.error('Error fetching categories:', err);
+      return { categories: [] };
+    }),
   ]);
 
-  const brands = brandsResponse.brands;
-  const categories = categoriesResponse.categories;
+  const brands = brandsResponse?.brands || [];
+  const categories = categoriesResponse?.categories || [];
+
+  // Recursive function to transform Category to CategoryNode
+  const transformCategoryToNode = (category: any): any => ({
+    id: category.id,
+    name: category.name,
+    nameEn: category.nameEn || category.name,
+    nameBn: category.nameBn ?? undefined,
+    slug: category.slug,
+    image: category.imageUrl ?? undefined,
+    children: category.children?.map(transformCategoryToNode) || []
+  });
+
+  // Transform categories to CategoryNode format for CategoryNavigation
+  const categoryNodes = categories.map(transformCategoryToNode);
 
   return (
     <main className="min-h-screen">
@@ -109,7 +138,7 @@ export default async function Home() {
             <div className="text-center">
               <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               </div>
               <h2 className="text-2xl font-semibold mb-4 text-gray-900">Expert Support</h2>
@@ -135,7 +164,7 @@ export default async function Home() {
       {/* Category Navigation */}
       <section className="py-12 bg-white border-b border-gray-200">
         <div className="container mx-auto px-4">
-          <CategoryNavigation />
+          <CategoryNavigation categories={categoryNodes} />
         </div>
       </section>
 
@@ -164,14 +193,6 @@ export default async function Home() {
             </div>
             <ProductGrid
               products={featuredProducts.slice(0, 8)}
-              onAddToCart={(productId) => {
-                // TODO: Implement add to cart functionality
-                console.log('Add to cart:', productId);
-              }}
-              onToggleWishlist={(productId) => {
-                // TODO: Implement wishlist functionality
-                console.log('Toggle wishlist:', productId);
-              }}
               wishlistedProducts={new Set()}
               columns={{
                 mobile: 1,
@@ -201,14 +222,6 @@ export default async function Home() {
             </div>
             <ProductGrid
               products={newArrivals.slice(0, 8)}
-              onAddToCart={(productId) => {
-                // TODO: Implement add to cart functionality
-                console.log('Add to cart:', productId);
-              }}
-              onToggleWishlist={(productId) => {
-                // TODO: Implement wishlist functionality
-                console.log('Toggle wishlist:', productId);
-              }}
               wishlistedProducts={new Set()}
               columns={{
                 mobile: 1,
@@ -238,14 +251,6 @@ export default async function Home() {
             </div>
             <ProductGrid
               products={bestSellers.slice(0, 8)}
-              onAddToCart={(productId) => {
-                // TODO: Implement add to cart functionality
-                console.log('Add to cart:', productId);
-              }}
-              onToggleWishlist={(productId) => {
-                // TODO: Implement wishlist functionality
-                console.log('Toggle wishlist:', productId);
-              }}
               wishlistedProducts={new Set()}
               columns={{
                 mobile: 1,

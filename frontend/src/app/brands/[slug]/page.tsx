@@ -1,8 +1,11 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { getBrandBySlug, getBrandProducts } from '@/lib/api/brands';
+import { notFound } from 'next/navigation';
+import { getBrandBySlugServer, getBrandProductsServer } from '@/lib/api/server';
 import BrandDetail from '@/components/brand/BrandDetail';
 import { ProductGrid } from '@/components/product/ProductGrid';
+import { getImageUrl } from '@/lib/api/product-images';
+import { BreadcrumbNavigation, generateBrandBreadcrumbs } from '@/components/layout/BreadcrumbNavigation';
 
 interface PageProps {
   params: {
@@ -20,7 +23,14 @@ interface PageProps {
  */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
-    const brand = await getBrandBySlug(params.slug);
+    const brand = await getBrandBySlugServer(params.slug);
+
+    if (!brand) {
+      return {
+        title: 'Brand Not Found | Smart Tech',
+        description: 'The requested brand could not be found.',
+      };
+    }
 
     return {
       title: brand.metaTitle || `${brand.name} | Smart Tech`,
@@ -28,18 +38,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       keywords: brand.metaKeywords || `${brand.name}, products, Smart Tech`,
       openGraph: {
         title: brand.metaTitle || brand.name,
-        description: brand.metaDescription || brand.description,
+        description: (brand.metaDescription || brand.description) ?? undefined,
         images: brand.logoUrl ? [brand.logoUrl] : [],
         type: 'website',
       },
       twitter: {
         card: 'summary_large_image',
         title: brand.metaTitle || brand.name,
-        description: brand.metaDescription || brand.description,
+        description: (brand.metaDescription || brand.description) ?? undefined,
         images: brand.logoUrl ? [brand.logoUrl] : [],
       },
     };
   } catch (error) {
+    console.error('Error generating brand metadata:', error);
     return {
       title: 'Brand | Smart Tech',
       description: 'Browse brand products at Smart Tech',
@@ -51,6 +62,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
  * Generate structured data (JSON-LD) for SEO
  */
 function generateStructuredData(brand: any, products: any[]) {
+  if (!brand || !brand.name) {
+    return null;
+  }
+
   const brandSchema = {
     '@context': 'https://schema.org',
     '@type': 'Brand',
@@ -63,12 +78,12 @@ function generateStructuredData(brand: any, products: any[]) {
   const itemList = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    itemListElement: products.map((product, index) => ({
+    itemListElement: (products || []).map((product, index) => ({
       '@type': 'ListItem',
       position: index + 1,
       name: product.name,
       url: `https://smarttech.com/products/${product.slug}`,
-      image: product.images?.[0]?.url,
+      image: product.images?.[0] ? getImageUrl(product.images[0], 'medium') : undefined,
     })),
   };
 
@@ -77,28 +92,49 @@ function generateStructuredData(brand: any, products: any[]) {
 
 /**
  * Public Brand Detail Page
- * 
+ *
  * Public brand detail page with:
  * - BrandDetail component integration
  * - Server-side rendering for SEO
  * - Product listing
  * - Structured data (JSON-LD)
+ * - Breadcrumb navigation
  */
 export default async function BrandDetailPage({ params, searchParams }: PageProps) {
+  let brand: any = null;
+
+  try {
+    // Await params in Next.js 15+
+    const resolvedParams = await params;
+    brand = await getBrandBySlugServer(resolvedParams.slug);
+  } catch (error) {
+    console.error('Error fetching brand:', error);
+    // Return 404 if brand not found or API error
+    notFound();
+  }
+
+  // If brand is null/undefined after try-catch, show 404
+  if (!brand) {
+    notFound();
+  }
+
+  // Defensive check for brand properties
+  if (!brand.name || !brand.slug) {
+    console.error('Invalid brand data:', brand);
+    notFound();
+  }
+
   const page = parseInt(searchParams.page || '1', 10);
-  const sortBy = (searchParams.sortBy as 'price' | 'name' | 'createdAt' | 'rating') || 'createdAt';
+  const sortBy = (searchParams.sortBy as 'price' | 'name' | 'createdAt') || 'createdAt';
   const sortOrder = (searchParams.sortOrder as 'asc' | 'desc') || 'desc';
 
-  // Fetch brand data and products
-  const [brand, productsData] = await Promise.all([
-    getBrandBySlug(params.slug),
-    getBrandProducts(params.slug, {
-      page,
-      limit: 20,
-      sortBy,
-      sortOrder,
-    }),
-  ]);
+  // Fetch products using the brand ID
+  const productsData = await getBrandProductsServer(brand.id, {
+    page,
+    limit: 20,
+    sortBy,
+    sortOrder,
+  });
 
   const products = productsData.products;
   const pagination = productsData.pagination;
@@ -106,13 +142,28 @@ export default async function BrandDetailPage({ params, searchParams }: PageProp
   // Generate structured data
   const structuredData = generateStructuredData(brand, products);
 
+  // Generate breadcrumbs with defensive check
+  const breadcrumbs = generateBrandBreadcrumbs(
+    brand.name || 'Unknown Brand',
+    brand.slug || 'unknown-brand'
+  );
+
   return (
     <>
       {/* Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: structuredData }}
-      />
+      {structuredData && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: structuredData }}
+        />
+      )}
+
+      {/* Breadcrumb Navigation */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 py-4">
+          <BreadcrumbNavigation items={breadcrumbs} />
+        </div>
+      </div>
 
       {/* Brand Detail Component */}
       <BrandDetail brand={brand} />
@@ -132,7 +183,7 @@ export default async function BrandDetailPage({ params, searchParams }: PageProp
               >
                 View Brand Details
                 <svg className="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </Link>
             </div>
@@ -186,15 +237,9 @@ export default async function BrandDetailPage({ params, searchParams }: PageProp
               <>
                 <ProductGrid
                   products={products}
-                  onAddToCart={(productId) => {
-                    // TODO: Implement add to cart functionality
-                    console.log('Add to cart:', productId);
-                  }}
-                  onToggleWishlist={(productId) => {
-                    // TODO: Implement wishlist functionality
-                    console.log('Toggle wishlist:', productId);
-                  }}
-                  wishlistedProducts={new Set()}
+                  
+                  
+                  
                   columns={{
                     mobile: 1,
                     tablet: 2,

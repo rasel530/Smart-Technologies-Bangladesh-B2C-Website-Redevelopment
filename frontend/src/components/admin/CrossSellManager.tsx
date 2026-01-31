@@ -96,16 +96,25 @@ export const CrossSellManager: React.FC<CrossSellManagerProps> = ({
     }
   };
 
-  const getDisplayPrice = (regularPrice: number, salePrice: number | null) => {
-    if (salePrice && salePrice < regularPrice) {
+  const getDisplayPrice = (regularPrice: number | string, salePrice: number | string | null) => {
+    // Ensure prices are numbers before using toFixed
+    const safeRegularPrice = typeof regularPrice === 'string' 
+      ? parseFloat(regularPrice) 
+      : Number(regularPrice);
+    
+    const safeSalePrice = salePrice !== null && salePrice !== undefined
+      ? (typeof salePrice === 'string' ? parseFloat(salePrice) : Number(salePrice))
+      : null;
+    
+    if (safeSalePrice && safeSalePrice < safeRegularPrice) {
       return {
-        current: salePrice,
-        original: regularPrice,
+        current: safeSalePrice,
+        original: safeRegularPrice,
         hasDiscount: true
       };
     }
     return {
-      current: regularPrice,
+      current: safeRegularPrice,
       original: null,
       hasDiscount: false
     };

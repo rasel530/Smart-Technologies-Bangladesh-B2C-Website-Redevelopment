@@ -27,7 +27,7 @@ export const CategoryList: React.FC = () => {
         if (statusFilter !== 'all') filters.status = statusFilter;
         
         const response = await getCategories(filters);
-        setCategories(response.tree || []);
+        setCategories((response.categories as CategoryTree[]) || []);
       } catch (err: any) {
         setError(err.message || 'Failed to load categories');
       } finally {

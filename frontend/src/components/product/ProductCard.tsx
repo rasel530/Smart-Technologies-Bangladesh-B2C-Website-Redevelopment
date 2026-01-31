@@ -14,6 +14,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ProductWithRelations } from '@/types/product';
 import { ProductPrice } from './ProductPrice';
+import { getImageUrl } from '@/lib/api/product-images';
 
 interface ProductCardProps {
   product: ProductWithRelations;
@@ -42,11 +43,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
-
+  
   // Get primary image or fallback
   const primaryImage = product.images?.[0];
-  const imageUrl = primaryImage?.url || '/images/placeholder-product.png';
-  const imageAlt = primaryImage?.alt || product.name || 'Product image';
+  const imageUrl = primaryImage ? getImageUrl(primaryImage, 'medium') : '';
+  const imageAlt = primaryImage?.altTextEn || product.name || 'Product image';
 
   // Calculate discount percentage
   const discountPercentage = product.salePrice && product.regularPrice
@@ -145,7 +146,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
       {/* Product Image */}
       <div className="relative aspect-square bg-gray-100 overflow-hidden">
-        {!imageError ? (
+        {!imageError && imageUrl ? (
           <Image
             src={imageUrl}
             alt={imageAlt}

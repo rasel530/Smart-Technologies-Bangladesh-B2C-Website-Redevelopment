@@ -145,7 +145,7 @@ if (process.env.REDIS_URL) {
   }
 }
 
-// Log the final Redis configuration for debugging
+// Log final Redis configuration for debugging
 console.log(`🔧 Redis configuration: host=${redisHost}, port=${redisPort}, password=${redisPassword ? '***' : 'none'}`);
 
 // Create Redis configuration with enhanced stability
@@ -243,6 +243,17 @@ const smsConfig = {
   sender: process.env.TWILIO_PHONE_NUMBER || 'SmartTech'
 };
 
+// Elasticsearch configuration
+const elasticsearchConfig = {
+  url: process.env.ELASTICSEARCH_URL || 'http://localhost:9200',
+  username: process.env.ELASTICSEARCH_USERNAME || null,
+  password: process.env.ELASTICSEARCH_PASSWORD || null,
+  indexPrefix: process.env.ELASTICSEARCH_INDEX_PREFIX || 'smarttech_',
+  maxRetries: 3,
+  retryDelay: 5000, // 5 seconds
+  requestTimeout: 30000 // 30 seconds
+};
+
 // Server configuration
 const serverConfig = {
   port: parseInt(process.env.PORT) || 3000,
@@ -294,57 +305,62 @@ class ConfigService {
     this.cache = cacheConfig;
     this.email = emailConfig;
     this.sms = smsConfig;
+    this.elasticsearch = elasticsearchConfig;
     this.server = serverConfig;
     this.security = securityConfig;
     this.upload = uploadConfig;
     this.logging = loggingConfig;
   }
-
+  
   // Helper functions
   get(key) {
     return process.env[key];
   }
-
+  
   getDatabaseUrl() {
     return this.database.url;
   }
-
+  
   getJwtSecret() {
     return this.jwt.secret;
   }
-
+  
   getRedisConfig() {
     return redisConfig;
   }
-
+  
   getCacheConfig() {
     return this.cache;
   }
-
+  
   getEmailConfig() {
     return this.email;
   }
-
+  
   getSmsConfig() {
     return this.sms;
   }
-
+  
+  getElasticsearchConfig() {
+    return this.elasticsearch;
+  }
+  
   getServerConfig() {
     return this.server;
   }
-
+  
   getSecurityConfig() {
     return this.security;
   }
-
+  
   getUploadConfig() {
     return this.upload;
   }
-
+  
   getLoggingConfig() {
     return this.logging;
   }
-
+  
   getPasswordPolicyConfig() {
     return {
       minLength: this.security.passwordMinLength || 8,
@@ -361,7 +377,7 @@ class ConfigService {
       minStrengthScore: 2
     };
   }
-
+  
   getCORSConfig() {
     return {
       credentials: this.server.cors.credentials,
@@ -370,39 +386,39 @@ class ConfigService {
       exposedHeaders: ['X-Total-Count', 'X-Page-Count']
     };
   }
-
+  
   // Environment helpers
   isDevelopment() {
     return process.env.NODE_ENV === 'development';
   }
-
+  
   isProduction() {
     return process.env.NODE_ENV === 'production';
   }
-
+  
   isTest() {
     return process.env.NODE_ENV === 'test';
   }
-
+  
   isDocker() {
     return process.env.IS_DOCKER === 'true' ||
            process.env.REDIS_HOST === 'redis' ||
            fs.existsSync('/.dockerenv');
   }
-
+  
   // Testing and verification helpers
   isTestingMode() {
     return process.env.TESTING_MODE === 'true' || this.isTest();
   }
-
+  
   isEmailVerificationDisabled() {
     return process.env.DISABLE_EMAIL_VERIFICATION === 'true' || this.isTestingMode();
   }
-
+  
   isPhoneVerificationDisabled() {
     return process.env.DISABLE_PHONE_VERIFICATION === 'true' || this.isTestingMode();
   }
-
+  
   // Get Redis configuration with environment-specific logic
   getRedisConfigWithEnvironment() {
     const baseConfig = this.getRedisConfig();
@@ -444,7 +460,7 @@ class ConfigService {
     
     return baseConfig;
   }
-
+  
   // Validate Redis connectivity configuration
   validateRedisConfig() {
     const config = this.getRedisConfigWithEnvironment();
@@ -474,7 +490,7 @@ class ConfigService {
       }
     };
   }
-
+  
   // Configuration validation
   validateConfig() {
     const errors = [];
@@ -484,7 +500,7 @@ class ConfigService {
       errors.push('JWT_SECRET must be at least 32 characters long');
     }
     
-    // Validate Redis configuration
+    // Validate Redis configuration (support both REDIS_URL and separate variables)
     if (!process.env.REDIS_HOST) {
       errors.push('REDIS_HOST is required');
     }
@@ -493,7 +509,7 @@ class ConfigService {
       errors.push('REDIS_PORT must be a valid number');
     }
     
-    // Validate database URL
+    // Validate database URL (support both DATABASE_URL and POSTGRES_DATABASE_URL)
     if (!process.env.DATABASE_URL) {
       errors.push('DATABASE_URL is required');
     }
@@ -515,6 +531,7 @@ module.exports = {
   cache: cacheConfig,
   email: emailConfig,
   sms: smsConfig,
+  elasticsearch: elasticsearchConfig,
   server: serverConfig,
   security: securityConfig,
   upload: uploadConfig,
@@ -527,6 +544,7 @@ module.exports = {
   getCacheConfig: () => cacheConfig,
   getEmailConfig: () => emailConfig,
   getSmsConfig: () => smsConfig,
+  getElasticsearchConfig: () => elasticsearchConfig,
   getServerConfig: () => serverConfig,
   getSecurityConfig: () => securityConfig,
   getUploadConfig: () => uploadConfig,
@@ -541,7 +559,7 @@ module.exports = {
   isTestingMode: () => process.env.TESTING_MODE === 'true' || process.env.NODE_ENV === 'test',
   isEmailVerificationDisabled: () => process.env.DISABLE_EMAIL_VERIFICATION === 'true' || process.env.NODE_ENV === 'test',
   isPhoneVerificationDisabled: () => process.env.DISABLE_PHONE_VERIFICATION === 'true' || process.env.NODE_ENV === 'test',
-  
+
   // Configuration validation
   validateConfig: () => {
     const errors = [];
@@ -552,22 +570,17 @@ module.exports = {
     }
     
     // Validate Redis configuration (support both REDIS_URL and separate variables)
-    const hasRedisUrl = process.env.REDIS_URL;
-    const hasSeparateRedisVars = process.env.REDIS_HOST && process.env.REDIS_PORT && process.env.REDIS_PASSWORD;
-    
-    if (!hasRedisUrl && !hasSeparateRedisVars) {
-      errors.push('Either REDIS_URL or (REDIS_HOST, REDIS_PORT, REDIS_PASSWORD) must be provided');
+    if (!process.env.REDIS_HOST) {
+      errors.push('REDIS_HOST is required');
     }
     
-    if (hasSeparateRedisVars) {
-      if (!process.env.REDIS_PORT || isNaN(parseInt(process.env.REDIS_PORT))) {
-        errors.push('REDIS_PORT must be a valid number');
-      }
+    if (!process.env.REDIS_PORT || isNaN(parseInt(process.env.REDIS_PORT))) {
+      errors.push('REDIS_PORT must be a valid number');
     }
     
     // Validate database URL (support both DATABASE_URL and POSTGRES_DATABASE_URL)
-    if (!process.env.DATABASE_URL && !process.env.POSTGRES_DATABASE_URL) {
-      errors.push('Either DATABASE_URL or POSTGRES_DATABASE_URL is required');
+    if (!process.env.DATABASE_URL) {
+      errors.push('DATABASE_URL is required');
     }
     
     return {

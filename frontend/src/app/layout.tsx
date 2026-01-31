@@ -3,6 +3,9 @@ import { Inter } from 'next/font/google'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { AuthSessionProvider } from '@/components/providers/session-provider'
 import { ToastProvider } from '@/components/ui/Toast'
+import { CompareProvider } from '@/components/product/CompareContext'
+import { CompareBar } from '@/components/product/CompareBar'
+import Header from '@/components/layout/Header'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,7 +25,11 @@ export default function RootLayout({
         <AuthSessionProvider>
           <AuthProvider>
             <ToastProvider>
-              {children}
+              <CompareProvider>
+                <Header />
+                {children}
+                <CompareBar />
+              </CompareProvider>
             </ToastProvider>
           </AuthProvider>
         </AuthSessionProvider>

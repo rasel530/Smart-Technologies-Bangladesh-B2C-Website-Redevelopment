@@ -1,0 +1,111 @@
+{
+  "timestamp": "2026-01-28T03:58:32.181Z",
+  "summary": {
+    "totalPassed": 1,
+    "totalFailed": 8,
+    "totalTests": 9,
+    "successRate": "11.11%"
+  },
+  "issues": {
+    "issue1": {
+      "name": "Issue #1: Success message when adding product",
+      "tests": [
+        {
+          "testName": "Authentication",
+          "passed": false,
+          "message": "Could not authenticate",
+          "details": {},
+          "timestamp": "2026-01-28T03:58:32.176Z"
+        }
+      ],
+      "passed": 0,
+      "failed": 1
+    },
+    "issue2": {
+      "name": "Issue #2: Products displaying on both pages",
+      "tests": [
+        {
+          "testName": "Public products API endpoint",
+          "passed": false,
+          "message": "Error: fetch is not a function",
+          "details": {
+            "error": "fetch is not a function"
+          },
+          "timestamp": "2026-01-28T03:58:32.177Z"
+        },
+        {
+          "testName": "Products API with filters",
+          "passed": false,
+          "message": "Error: fetch is not a function",
+          "details": {
+            "error": "fetch is not a function"
+          },
+          "timestamp": "2026-01-28T03:58:32.178Z"
+        },
+        {
+          "testName": "Featured products endpoint",
+          "passed": false,
+          "message": "Error: fetch is not a function",
+          "details": {
+            "error": "fetch is not a function"
+          },
+          "timestamp": "2026-01-28T03:58:32.178Z"
+        },
+        {
+          "testName": "New arrivals endpoint",
+          "passed": false,
+          "message": "Error: fetch is not a function",
+          "details": {
+            "error": "fetch is not a function"
+          },
+          "timestamp": "2026-01-28T03:58:32.179Z"
+        },
+        {
+          "testName": "Best sellers endpoint",
+          "passed": false,
+          "message": "Error: fetch is not a function",
+          "details": {
+            "error": "fetch is not a function"
+          },
+          "timestamp": "2026-01-28T03:58:32.179Z"
+        },
+        {
+          "testName": "Error handling test",
+          "passed": false,
+          "message": "Error: fetch is not a function",
+          "details": {
+            "error": "fetch is not a function"
+          },
+          "timestamp": "2026-01-28T03:58:32.179Z"
+        },
+        {
+          "testName": "Environment variables configuration",
+          "passed": true,
+          "message": "All required API URLs are correctly configured",
+          "details": {
+            "BACKEND_API_URL": true,
+            "NEXT_PUBLIC_BACKEND_API_URL": true,
+            "NEXT_PUBLIC_API_URL": true
+          },
+          "timestamp": "2026-01-28T03:58:32.179Z"
+        }
+      ],
+      "passed": 1,
+      "failed": 6
+    },
+    "issue3": {
+      "name": "Issue #3: Product image upload",
+      "tests": [
+        {
+          "testName": "Authentication",
+          "passed": false,
+          "message": "Could not authenticate",
+          "details": {},
+          "timestamp": "2026-01-28T03:58:32.180Z"
+        }
+      ],
+      "passed": 0,
+      "failed": 1
+    }
+  }
+}

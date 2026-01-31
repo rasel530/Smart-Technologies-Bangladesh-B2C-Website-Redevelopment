@@ -54,7 +54,7 @@ export const CorporateAPI = {
     }
     
     const response = await apiClient.post<{ accountId: string; status: string }>('/corporate/register', formData);
-    return response.data;
+    return response;
   },
 
   /**
@@ -62,7 +62,7 @@ export const CorporateAPI = {
    */
   getAccountStatus: async (accountId: string): Promise<CorporateAccountStatus> => {
     const response = await apiClient.get<CorporateAccountStatus>(`/corporate/${accountId}/status`);
-    return response.data;
+    return response;
   },
 
   /**
@@ -70,7 +70,7 @@ export const CorporateAPI = {
    */
   getAccount: async (accountId: string): Promise<CorporateAccount> => {
     const response = await apiClient.get<CorporateAccount>(`/corporate/${accountId}`);
-    return response.data;
+    return response;
   },
 
   /**
@@ -78,7 +78,7 @@ export const CorporateAPI = {
    */
   getMyAccount: async (): Promise<{ id: string; account: CorporateAccount }> => {
     const response = await apiClient.get<{ id: string; account: CorporateAccount }>('/corporate/my-account');
-    return response.data;
+    return response;
   },
 
   /**
@@ -86,7 +86,7 @@ export const CorporateAPI = {
    */
   getDashboardStats: async (accountId: string): Promise<CorporateDashboardStats> => {
     const response = await apiClient.get<CorporateDashboardStats>(`/corporate/${accountId}/dashboard`);
-    return response.data;
+    return response;
   },
 };
 
@@ -107,7 +107,7 @@ export const CorporateUserAPI = {
    */
   addUser: async (accountId: string, data: { userId: string; role: string }): Promise<CorporateUser> => {
     const response = await apiClient.post<CorporateUser>(`/corporate/${accountId}/users`, data);
-    return response.data;
+    return response;
   },
 
   /**
@@ -115,7 +115,7 @@ export const CorporateUserAPI = {
    */
   updateUserRole: async (accountId: string, userId: string, role: string): Promise<CorporateUser> => {
     const response = await apiClient.put<CorporateUser>(`/corporate/${accountId}/users/${userId}`, { role });
-    return response.data;
+    return response;
   },
 
   /**
@@ -129,11 +129,11 @@ export const CorporateUserAPI = {
    * Get user activity log
    */
   getActivityLog: async (accountId: string, userId?: string): Promise<any[]> => {
-    const url = userId 
+    const url = userId
       ? `/corporate/${accountId}/users/${userId}/activity`
       : `/corporate/${accountId}/users/activity`;
     const response = await apiClient.get<any[]>(url);
-    return response.data;
+    return response;
   },
 };
 
@@ -169,7 +169,7 @@ export const CorporatePricingAPI = {
    */
   getCategories: async (): Promise<string[]> => {
     const response = await apiClient.get<string[]>('/corporate/pricing/categories');
-    return response.data;
+    return response;
   },
 };
 
@@ -204,7 +204,7 @@ export const PurchaseOrderAPI = {
    */
   getOrder: async (accountId: string, orderId: string): Promise<PurchaseOrder> => {
     const response = await apiClient.get<PurchaseOrder>(`/corporate/${accountId}/purchase-orders/${orderId}`);
-    return response.data;
+    return response;
   },
 
   /**
@@ -223,7 +223,7 @@ export const PurchaseOrderAPI = {
     }
     
     const response = await apiClient.post<PurchaseOrder>(`/corporate/${accountId}/purchase-orders`, formData);
-    return response.data;
+    return response;
   },
 
   /**
@@ -231,7 +231,7 @@ export const PurchaseOrderAPI = {
    */
   approveOrder: async (accountId: string, orderId: string): Promise<PurchaseOrder> => {
     const response = await apiClient.post<PurchaseOrder>(`/corporate/${accountId}/purchase-orders/${orderId}/approve`);
-    return response.data;
+    return response;
   },
 
   /**
@@ -239,7 +239,7 @@ export const PurchaseOrderAPI = {
    */
   rejectOrder: async (accountId: string, orderId: string, reason?: string): Promise<PurchaseOrder> => {
     const response = await apiClient.post<PurchaseOrder>(`/corporate/${accountId}/purchase-orders/${orderId}/reject`, { reason });
-    return response.data;
+    return response;
   },
 
   /**
@@ -247,7 +247,7 @@ export const PurchaseOrderAPI = {
    */
   cancelOrder: async (accountId: string, orderId: string): Promise<PurchaseOrder> => {
     const response = await apiClient.post<PurchaseOrder>(`/corporate/${accountId}/purchase-orders/${orderId}/cancel`);
-    return response.data;
+    return response;
   },
 };
 
@@ -286,7 +286,7 @@ export const InvoiceAPI = {
    */
   getInvoice: async (accountId: string, invoiceId: string): Promise<Invoice> => {
     const response = await apiClient.get<Invoice>(`/corporate/${accountId}/invoices/${invoiceId}`);
-    return response.data;
+    return response;
   },
 
   /**
@@ -319,7 +319,7 @@ export const CreditAPI = {
    */
   getCreditLimit: async (accountId: string): Promise<CreditLimit> => {
     const response = await apiClient.get<CreditLimit>(`/corporate/${accountId}/credit-limit`);
-    return response.data;
+    return response;
   },
 
   /**
@@ -327,7 +327,7 @@ export const CreditAPI = {
    */
   getCreditHistory: async (accountId: string): Promise<CreditRequest[]> => {
     const response = await apiClient.get<CreditRequest[]>(`/corporate/${accountId}/credit-history`);
-    return response.data;
+    return response;
   },
 
   /**
@@ -335,7 +335,7 @@ export const CreditAPI = {
    */
   requestCreditIncrease: async (accountId: string, data: CreateCreditRequestData): Promise<CreditRequest> => {
     const response = await apiClient.post<CreditRequest>(`/corporate/${accountId}/credit-request`, data);
-    return response.data;
+    return response;
   },
 };
 
@@ -348,7 +348,7 @@ export const NotificationAPI = {
    */
   getNotifications: async (accountId: string): Promise<Notification[]> => {
     const response = await apiClient.get<Notification[]>(`/corporate/${accountId}/notifications`);
-    return response.data;
+    return response;
   },
 
   /**

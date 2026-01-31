@@ -59,7 +59,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ language })
     if (!preferences) return;
     setPreferences({
       ...preferences,
-      [field]: !preferences[field as any],
+      [field]: !preferences[field],
     });
   };
 

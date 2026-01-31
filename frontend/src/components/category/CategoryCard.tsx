@@ -12,7 +12,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { CategoryWithRelations } from '@/types/category';
+import { CategoryWithRelations, CategoryStatus } from '@/types/category';
 
 interface CategoryCardProps {
   category: CategoryWithRelations;
@@ -38,7 +38,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   const [imageError, setImageError] = useState(false);
 
   // Get category icon or banner image
-  const imageUrl = category.bannerImage || category.iconUrl || '/images/placeholder-category.png';
+  const imageUrl = category.bannerImage || category.iconUrl || '';
 
   // Truncate description
   const truncatedDescription = category.description
@@ -57,13 +57,13 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
       className={`
         group relative bg-white rounded-lg shadow-sm hover:shadow-xl
         transition-all duration-300 overflow-hidden
-        ${!category.isActive ? 'opacity-60' : ''}
+        ${category.status !== CategoryStatus.ACTIVE ? 'opacity-60' : ''}
         ${className}
       `}
     >
       {/* Category Image/Icon */}
       <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden">
-        {!imageError ? (
+        {!imageError && imageUrl ? (
           <Image
             src={imageUrl}
             alt={category.name}
@@ -96,7 +96,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         )}
 
         {/* Inactive Badge */}
-        {!category.isActive && (
+        {category.status !== CategoryStatus.ACTIVE && (
           <div className="absolute top-2 right-2 bg-gray-500 text-white text-xs font-semibold px-2 py-1 rounded">
             Inactive
           </div>

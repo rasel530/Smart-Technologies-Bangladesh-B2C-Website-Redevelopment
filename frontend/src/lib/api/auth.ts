@@ -6,55 +6,55 @@ export const authApi = {
   // Login user
   login: async (data: LoginData): Promise<ApiResponse<{ user: User; token: string }>> => {
     const response = await apiClient.post('/auth/login', data);
-    return response.data;
+    return response;
   },
 
   // Register new user
   register: async (data: RegistrationData): Promise<ApiResponse<{ user: User; requiresVerification?: 'email' | 'phone' | 'both' }>> => {
     const response = await apiClient.post('/auth/register', data);
-    return response.data;
+    return response;
   },
 
   // Logout user
   logout: async (): Promise<ApiResponse<null>> => {
     const response = await apiClient.post('/auth/logout');
-    return response.data;
+    return response;
   },
 
   // Get current user
   getCurrentUser: async (): Promise<ApiResponse<User>> => {
     const response = await apiClient.get('/auth/me');
-    return response.data;
+    return response;
   },
 
   // Email verification
   verifyEmail: async (data: VerificationData): Promise<ApiResponse<null>> => {
     const response = await apiClient.post('/auth/verify-email', data);
-    return response.data;
+    return response;
   },
 
   // Send email verification
   sendEmailVerification: async (email: string): Promise<ApiResponse<null>> => {
     const response = await apiClient.post('/auth/send-email-verification', { email });
-    return response.data;
+    return response;
   },
 
   // Phone verification
   verifyPhone: async (data: VerificationData): Promise<ApiResponse<null>> => {
     const response = await apiClient.post('/auth/verify-phone', data);
-    return response.data;
+    return response;
   },
 
   // Send phone verification
   sendPhoneVerification: async (phone: string): Promise<ApiResponse<null>> => {
     const response = await apiClient.post('/auth/send-phone-verification', { phone });
-    return response.data;
+    return response;
   },
 
   // Forgot password
   forgotPassword: async (identifier: string): Promise<ApiResponse<null>> => {
     const response = await apiClient.post('/auth/forgot-password', { identifier });
-    return response.data;
+    return response;
   },
 
   // Reset password
@@ -64,13 +64,13 @@ export const authApi = {
       password,
       confirmPassword,
     });
-    return response.data;
+    return response;
   },
 
   // Refresh token
   refreshToken: async (): Promise<ApiResponse<{ token: string }>> => {
     const response = await apiClient.post('/auth/refresh');
-    return response.data;
+    return response;
   },
 
   // Change password
@@ -80,13 +80,13 @@ export const authApi = {
       newPassword,
       confirmPassword,
     });
-    return response.data;
+    return response;
   },
 
   // Update profile
   updateProfile: async (data: Partial<User>): Promise<ApiResponse<User>> => {
     const response = await apiClient.put('/auth/profile', data);
-    return response.data;
+    return response;
   },
 };
 

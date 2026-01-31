@@ -134,8 +134,8 @@ const CorporateInvoicesPage = () => {
   const filteredInvoices = invoices.filter(invoice => {
     const matchesSearch = invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'ALL' || invoice.status === statusFilter;
-    const matchesDateFrom = !dateFrom || new Date(invoice.invoiceDate) >= new Date(dateFrom);
-    const matchesDateTo = !dateTo || new Date(invoice.invoiceDate) <= new Date(dateTo);
+    const matchesDateFrom = !dateFrom || (invoice.invoiceDate && new Date(invoice.invoiceDate) >= new Date(dateFrom));
+    const matchesDateTo = !dateTo || (invoice.invoiceDate && new Date(invoice.invoiceDate) <= new Date(dateTo));
     return matchesSearch && matchesStatus && matchesDateFrom && matchesDateTo;
   });
 
@@ -377,7 +377,7 @@ const CorporateInvoicesPage = () => {
                         <div className="text-sm font-medium text-gray-900">{invoice.invoiceNumber}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {new Date(invoice.invoiceDate).toLocaleDateString('en-BD', { year: 'numeric', month: 'short', day: 'numeric' })}
+                        {invoice.invoiceDate ? new Date(invoice.invoiceDate).toLocaleDateString('en-BD', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         {invoice.poNumber}
@@ -466,7 +466,7 @@ const CorporateInvoicesPage = () => {
                   <div>
                     <p className="text-sm text-gray-600">{language === 'en' ? 'Invoice Date' : 'চালান তারিখ'}</p>
                     <p className="text-sm text-gray-900">
-                      {new Date(selectedInvoice.invoiceDate).toLocaleDateString('en-BD', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      {selectedInvoice.invoiceDate ? new Date(selectedInvoice.invoiceDate).toLocaleDateString('en-BD', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
                     </p>
                   </div>
                   <div>

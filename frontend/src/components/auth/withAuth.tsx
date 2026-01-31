@@ -155,9 +155,9 @@ export function useProtectedRoute(requiredRole?: string | string[]) {
     }
 
     if (requiredRole) {
-      const userRole = user.role || 'user';
+      const userRole = user?.role || 'user';
       const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
-      
+
       if (allowedRoles.includes(userRole)) {
         setIsAuthorized(true);
       } else {

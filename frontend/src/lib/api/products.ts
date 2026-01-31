@@ -14,14 +14,119 @@ import {
   SearchFilters,
   SearchResult,
   ProductSpecification,
-  ProductVariant,
-  ProductImage
+  ProductVariant
 } from '@/types/product';
+import { ProductImage } from '@/types/product-image';
+
+// API Response Types
+interface PaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
+interface ProductResponse {
+  message: string;
+  product: Product;
+}
+
+interface ProductWithRelationsResponse {
+  message: string;
+  product: ProductWithRelations;
+}
+
+interface ProductsResponse {
+  products: ProductWithRelations[];
+  total: number;
+}
+
+interface SpecificationResponse {
+  specification: ProductSpecification;
+}
+
+interface VariantResponse {
+  variant: ProductVariant;
+}
+
+interface ImageResponse {
+  image: ProductImage;
+}
+
+interface CategoryAssociation {
+  productId: string;
+  categoryId: string;
+  isPrimary: boolean;
+  createdAt: Date;
+}
+
+interface CategoryAssociationResponse {
+  association: CategoryAssociation;
+}
+
+interface CategoryAssociationsResponse {
+  associations: CategoryAssociation[];
+}
+
+interface BrandAssignmentResponse {
+  message: string;
+  product: Product;
+}
+
+interface VariantParentResponse {
+  variantId: string;
+  parentId?: string;
+}
+
+interface CrossSellProduct {
+  productId: string;
+  relatedProductId: string;
+  displayOrder: number;
+  createdAt: Date;
+}
+
+interface CrossSellResponse {
+  crossSell: CrossSellProduct;
+}
+
+interface CrossSellProductsResponse {
+  crossSellProducts: CrossSellProduct[];
+}
+
+interface UpSellProduct {
+  productId: string;
+  relatedProductId: string;
+  displayOrder: number;
+  createdAt: Date;
+}
+
+interface UpSellResponse {
+  upSell: UpSellProduct;
+}
+
+interface UpSellProductsResponse {
+  upSellProducts: UpSellProduct[];
+}
+
+interface RelatedProduct {
+  productId: string;
+  relatedProductId: string;
+  displayOrder: number;
+  createdAt: Date;
+}
+
+interface RelatedProductResponse {
+  related: RelatedProduct;
+}
+
+interface RelatedProductsResponse {
+  relatedProducts: RelatedProduct[];
+}
 
 /**
  * Build query string from filters object
  */
-const buildQueryString = (filters: Record<string, any>): string => {
+const buildQueryString = (filters: SearchFilters): string => {
   const params = new URLSearchParams();
   
   Object.entries(filters).forEach(([key, value]) => {
@@ -44,19 +149,35 @@ export const getAll = async (filters: SearchFilters = {}): Promise<SearchResult>
     const queryString = buildQueryString(filters);
     const endpoint = `/products${queryString ? `?${queryString}` : ''}`;
     
-    const response = await apiClient.get<{ products: ProductWithRelations[]; pagination: any }>(endpoint);
+    console.log('[Products API] Fetching products:', {
+      endpoint,
+      filters,
+      queryString,
+    });
+    
+    const response = await apiClient.get<{ products: ProductWithRelations[]; pagination: PaginationInfo }>(endpoint);
+    
+    console.log('[Products API] Products fetched successfully:', {
+      productsCount: response?.products?.length || 0,
+      pagination: response?.pagination,
+    });
     
     return {
-      products: response.data?.products || [],
-      pagination: response.data?.pagination || {
+      products: response?.products || [],
+      pagination: response?.pagination || {
         page: 1,
         limit: 20,
         total: 0,
         pages: 0
       }
     };
-  } catch (error) {
-    console.error('Error fetching products:', error);
+  } catch (error: unknown) {
+    console.error('[Products API] Error fetching products:', {
+      error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      status: error instanceof Error && 'status' in error ? (error as any).status : undefined,
+      data: error instanceof Error && 'data' in error ? (error as any).data : undefined,
+    });
     throw error;
   }
 };
@@ -69,8 +190,9 @@ export const getAll = async (filters: SearchFilters = {}): Promise<SearchResult>
  */
 export const getById = async (id: string): Promise<ProductWithRelations> => {
   try {
-    const response = await apiClient.get<{ product: ProductWithRelations }>(`/products/${id}`);
-    return response.data?.product;
+    const response = await apiClient.get<ProductWithRelationsResponse>(`/products/${id}`);
+    // @ts-ignore - response may not have all required properties in fallback case
+    return response?.product || response as unknown;
   } catch (error) {
     console.error(`Error fetching product ${id}:`, error);
     throw error;
@@ -85,8 +207,8 @@ export const getById = async (id: string): Promise<ProductWithRelations> => {
  */
 export const getBySlug = async (slug: string): Promise<ProductWithRelations> => {
   try {
-    const response = await apiClient.get<{ product: ProductWithRelations }>(`/products/slug/${slug}`);
-    return response.data?.product;
+    const response = await apiClient.get<ProductWithRelationsResponse>(`/products/slug/${slug}`);
+    return response?.product || null;
   } catch (error) {
     console.error(`Error fetching product with slug ${slug}:`, error);
     throw error;
@@ -101,7 +223,7 @@ export const getBySlug = async (slug: string): Promise<ProductWithRelations> => 
 export const getFeatured = async (): Promise<ProductWithRelations[]> => {
   try {
     const response = await apiClient.get<{ products: ProductWithRelations[] }>('/products/featured');
-    return response.data?.products || [];
+    return response?.products || [];
   } catch (error) {
     console.error('Error fetching featured products:', error);
     throw error;
@@ -115,15 +237,8 @@ export const getFeatured = async (): Promise<ProductWithRelations[]> => {
  */
 export const getNewArrivals = async (): Promise<ProductWithRelations[]> => {
   try {
-    const filters: SearchFilters = {
-      isNewArrival: true,
-      status: 'active',
-      sortBy: 'createdAt',
-      sortOrder: 'desc',
-      limit: 20
-    };
-    const result = await getAll(filters);
-    return result.products;
+    const response = await apiClient.get<{ products: ProductWithRelations[] }>('/products/new-arrivals');
+    return response?.products || [];
   } catch (error) {
     console.error('Error fetching new arrivals:', error);
     throw error;
@@ -137,15 +252,8 @@ export const getNewArrivals = async (): Promise<ProductWithRelations[]> => {
  */
 export const getBestSellers = async (): Promise<ProductWithRelations[]> => {
   try {
-    const filters: SearchFilters = {
-      isBestSeller: true,
-      status: 'active',
-      sortBy: 'createdAt',
-      sortOrder: 'desc',
-      limit: 20
-    };
-    const result = await getAll(filters);
-    return result.products;
+    const response = await apiClient.get<{ products: ProductWithRelations[] }>('/products/best-sellers');
+    return response?.products || [];
   } catch (error) {
     console.error('Error fetching best sellers:', error);
     throw error;
@@ -205,11 +313,11 @@ export const getOutOfStock = async (): Promise<ProductWithRelations[]> => {
  */
 export const create = async (data: CreateProductRequest): Promise<Product> => {
   try {
-    const response = await apiClient.post<{ product: Product }>(
+    const response = await apiClient.post<ProductResponse>(
       '/products',
       data
     );
-    return response.data?.product;
+    return response?.product || response as unknown;
   } catch (error) {
     console.error('Error creating product:', error);
     throw error;
@@ -228,11 +336,11 @@ export const update = async (
   data: Partial<UpdateProductRequest>
 ): Promise<Product> => {
   try {
-    const response = await apiClient.put<{ product: Product }>(
+    const response = await apiClient.put<ProductResponse>(
       `/products/${id}`,
       data
     );
-    return response.data?.product;
+    return response?.product || response as unknown;
   } catch (error) {
     console.error(`Error updating product ${id}:`, error);
     throw error;
@@ -362,7 +470,7 @@ export const createSpecification = async (
       `/products/${productId}/specifications`,
       data
     );
-    return response.data?.specification;
+    return response?.specification;
   } catch (error) {
     console.error(`Error creating specification for product ${productId}:`, error);
     throw error;
@@ -387,7 +495,7 @@ export const updateSpecification = async (
       `/products/${productId}/specifications/${specId}`,
       data
     );
-    return response.data?.specification;
+    return response?.specification;
   } catch (error) {
     console.error(`Error updating specification ${specId}:`, error);
     throw error;
@@ -440,7 +548,7 @@ export const createVariant = async (
       `/products/${productId}/variants`,
       data
     );
-    return response.data?.variant;
+    return response?.variant;
   } catch (error) {
     console.error(`Error creating variant for product ${productId}:`, error);
     throw error;
@@ -472,7 +580,7 @@ export const updateVariant = async (
       `/products/${productId}/variants/${variantId}`,
       data
     );
-    return response.data?.variant;
+    return response?.variant;
   } catch (error) {
     console.error(`Error updating variant ${variantId}:`, error);
     throw error;
@@ -530,7 +638,7 @@ export const uploadImage = async (
         },
       }
     );
-    return response.data?.image;
+    return response?.image;
   } catch (error) {
     console.error(`Error uploading image for product ${productId}:`, error);
     throw error;
@@ -565,7 +673,7 @@ export const updateImage = async (
         },
       }
     );
-    return response.data?.image;
+    return response?.image;
   } catch (error) {
     console.error(`Error updating image ${imageId}:`, error);
     throw error;
@@ -607,11 +715,11 @@ export const updateProductStatus = async (
   status: 'draft' | 'published' | 'archived' | 'active' | 'inactive' | 'out_of_stock' | 'discontinued'
 ): Promise<Product> => {
   try {
-    const response = await apiClient.patch<{ product: Product }>(
+    const response = await apiClient.patch<ProductResponse>(
       `/products/${id}/status`,
       { status }
     );
-    return response.data?.product;
+    return response?.product || response as unknown;
   } catch (error) {
     console.error(`Error updating status for product ${id}:`, error);
     throw error;
@@ -630,11 +738,11 @@ export const updateVisibility = async (
   visibility: 'public' | 'private' | 'restricted'
 ): Promise<Product> => {
   try {
-    const response = await apiClient.patch<{ product: Product }>(
+    const response = await apiClient.patch<ProductResponse>(
       `/products/${id}/visibility`,
       { visibility }
     );
-    return response.data?.product;
+    return response?.product || response as unknown;
   } catch (error) {
     console.error(`Error updating visibility for product ${id}:`, error);
     throw error;
@@ -655,11 +763,11 @@ export const updateSEO = async (
   data: { metaTitle?: string; metaDescription?: string; metaKeywords?: string }
 ): Promise<Product> => {
   try {
-    const response = await apiClient.patch<{ product: Product }>(
+    const response = await apiClient.patch<ProductResponse>(
       `/products/${id}/seo`,
       data
     );
-    return response.data?.product;
+    return response?.product || response as unknown;
   } catch (error) {
     console.error(`Error updating SEO for product ${id}:`, error);
     throw error;
@@ -684,13 +792,13 @@ export const assignProductCategories = async (
   productId: string,
   categoryIds: string[],
   primaryCategoryId?: string
-): Promise<any> => {
+): Promise<CategoryAssociation[]> => {
   try {
-    const response = await apiClient.post<{ associations: any[] }>(
+    const response = await apiClient.post<CategoryAssociationsResponse>(
       `/products/${productId}/categories`,
       { categoryIds, primaryCategoryId }
     );
-    return response.data?.associations;
+    return response?.associations;
   } catch (error) {
     console.error(`Error assigning categories to product ${productId}:`, error);
     throw error;
@@ -728,13 +836,13 @@ export const removeProductCategory = async (
 export const setPrimaryCategory = async (
   productId: string,
   categoryId: string
-): Promise<any> => {
+): Promise<CategoryAssociation> => {
   try {
-    const response = await apiClient.patch<{ association: any }>(
+    const response = await apiClient.patch<CategoryAssociationResponse>(
       `/products/${productId}/categories/${categoryId}/primary`,
       {}
     );
-    return response.data?.association;
+    return response?.association;
   } catch (error) {
     console.error(`Error setting primary category ${categoryId} for product ${productId}:`, error);
     throw error;
@@ -755,11 +863,11 @@ export const assignProductBrand = async (
   brandId: string
 ): Promise<Product> => {
   try {
-    const response = await apiClient.patch<{ product: Product }>(
+    const response = await apiClient.patch<BrandAssignmentResponse>(
       `/products/${productId}/brand`,
       { brandId }
     );
-    return response.data?.product;
+    return response?.product || response as unknown;
   } catch (error) {
     console.error(`Error assigning brand ${brandId} to product ${productId}:`, error);
     throw error;
@@ -780,13 +888,13 @@ export const setVariantParent = async (
   productId: string,
   variantId: string,
   parentId?: string
-): Promise<any> => {
+): Promise<VariantParentResponse> => {
   try {
     const response = await apiClient.patch<{ variantId: string; parentId?: string }>(
       `/products/${productId}/variants/${variantId}/parent`,
       { parentId }
     );
-    return response.data;
+    return response;
   } catch (error) {
     console.error(`Error setting parent for variant ${variantId}:`, error);
     throw error;
@@ -807,13 +915,13 @@ export const addCrossSellProduct = async (
   productId: string,
   relatedProductId: string,
   displayOrder?: number
-): Promise<any> => {
+): Promise<CrossSellProduct> => {
   try {
-    const response = await apiClient.post<{ crossSell: any }>(
+    const response = await apiClient.post<CrossSellResponse>(
       `/products/${productId}/cross-sell`,
       { relatedProductId, displayOrder }
     );
-    return response.data?.crossSell;
+    return response?.crossSell;
   } catch (error) {
     console.error(`Error adding cross-sell product ${relatedProductId} to product ${productId}:`, error);
     throw error;
@@ -851,13 +959,13 @@ export const removeCrossSellProduct = async (
 export const reorderCrossSellProducts = async (
   productId: string,
   orders: Array<{ relatedProductId: string; displayOrder: number }>
-): Promise<any[]> => {
+): Promise<CrossSellProduct[]> => {
   try {
-    const response = await apiClient.patch<{ crossSellProducts: any[] }>(
+    const response = await apiClient.patch<CrossSellProductsResponse>(
       `/products/${productId}/cross-sell/reorder`,
       { orders }
     );
-    return response.data?.crossSellProducts;
+    return response?.crossSellProducts;
   } catch (error) {
     console.error(`Error reordering cross-sell products for product ${productId}:`, error);
     throw error;
@@ -878,13 +986,13 @@ export const addUpSellProduct = async (
   productId: string,
   relatedProductId: string,
   displayOrder?: number
-): Promise<any> => {
+): Promise<UpSellProduct> => {
   try {
-    const response = await apiClient.post<{ upSell: any }>(
+    const response = await apiClient.post<UpSellResponse>(
       `/products/${productId}/up-sell`,
       { relatedProductId, displayOrder }
     );
-    return response.data?.upSell;
+    return response?.upSell;
   } catch (error) {
     console.error(`Error adding up-sell product ${relatedProductId} to product ${productId}:`, error);
     throw error;
@@ -922,13 +1030,13 @@ export const removeUpSellProduct = async (
 export const reorderUpSellProducts = async (
   productId: string,
   orders: Array<{ relatedProductId: string; displayOrder: number }>
-): Promise<any[]> => {
+): Promise<UpSellProduct[]> => {
   try {
     const response = await apiClient.patch<{ upSellProducts: any[] }>(
       `/products/${productId}/up-sell/reorder`,
       { orders }
     );
-    return response.data?.upSellProducts;
+    return response?.upSellProducts;
   } catch (error) {
     console.error(`Error reordering up-sell products for product ${productId}:`, error);
     throw error;
@@ -949,13 +1057,13 @@ export const addRelatedProduct = async (
   productId: string,
   relatedProductId: string,
   displayOrder?: number
-): Promise<any> => {
+): Promise<RelatedProduct> => {
   try {
-    const response = await apiClient.post<{ related: any }>(
+    const response = await apiClient.post<RelatedProductResponse>(
       `/products/${productId}/related`,
       { relatedProductId, displayOrder }
     );
-    return response.data?.related;
+    return response?.related;
   } catch (error) {
     console.error(`Error adding related product ${relatedProductId} to product ${productId}:`, error);
     throw error;
@@ -993,13 +1101,13 @@ export const removeRelatedProduct = async (
 export const reorderRelatedProducts = async (
   productId: string,
   orders: Array<{ relatedProductId: string; displayOrder: number }>
-): Promise<any[]> => {
+): Promise<RelatedProduct[]> => {
   try {
-    const response = await apiClient.patch<{ relatedProducts: any[] }>(
+    const response = await apiClient.patch<RelatedProductsResponse>(
       `/products/${productId}/related/reorder`,
       { orders }
     );
-    return response.data?.relatedProducts;
+    return response?.relatedProducts;
   } catch (error) {
     console.error(`Error reordering related products for product ${productId}:`, error);
     throw error;

@@ -1,3 +1,4 @@
+// @ts-ignore
 /**
  * SortControl Component
  * 
@@ -31,6 +32,7 @@ export const SortControl: React.FC<SortControlProps> = ({
   const [isOpen, setIsOpen] = useState(false);
 
   // Parse current filters from URL
+  const sortByValue = searchParams.get('sortBy');
   const filters: SearchFilters = {
     page: typeof searchParams.get('page') === 'string' ? parseInt(searchParams.get('page')!) : 1,
     limit: typeof searchParams.get('limit') === 'string' ? parseInt(searchParams.get('limit')!) : 20,
@@ -40,7 +42,7 @@ export const SortControl: React.FC<SortControlProps> = ({
     minPrice: typeof searchParams.get('minPrice') === 'string' ? parseInt(searchParams.get('minPrice')!) : undefined,
     maxPrice: typeof searchParams.get('maxPrice') === 'string' ? parseInt(searchParams.get('maxPrice')!) : undefined,
     status: (searchParams.get('status') as SearchFilters['status']) || undefined,
-    sortBy: (searchParams.get('sortBy') as SearchFilters['sortBy']) || undefined,
+    sortBy: sortByValue ? (sortByValue as SearchFilters['sortBy']) : undefined,
     sortOrder: (searchParams.get('sortOrder') as SearchFilters['sortOrder']) || undefined,
     isFeatured: searchParams.get('isFeatured') === 'true',
     isNewArrival: searchParams.get('isNewArrival') === 'true',
@@ -61,7 +63,7 @@ export const SortControl: React.FC<SortControlProps> = ({
   ) || sortOptions[0];
 
   // Handle sort by change
-  const handleSortByChange = (value: SearchFilters['sortBy']) => {
+  const handleSortByChange = (value: any) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set('sortBy', value);
     params.delete('page'); // Reset to page 1
@@ -102,7 +104,7 @@ export const SortControl: React.FC<SortControlProps> = ({
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M19 9l-7 7-7-7"
+              d="M19 9l7 7-7"
             />
           </svg>
         </button>
@@ -131,6 +133,7 @@ export const SortControl: React.FC<SortControlProps> = ({
             </ul>
           </div>
         )}
+
       </div>
 
       {/* Sort Order Toggle */}
@@ -151,7 +154,7 @@ export const SortControl: React.FC<SortControlProps> = ({
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"
+            d="M3 4h13M3 8h9m9 4h6m4 0l4 4m0 0l4 4m-4v12"
           />
         </svg>
         <span className="text-sm text-gray-700">

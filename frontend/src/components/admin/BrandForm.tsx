@@ -5,6 +5,7 @@ import { Brand, CreateBrandRequest, UpdateBrandRequest, BrandStatus } from '@/ty
 import brandsApi from '@/lib/api/brands';
 import { BrandLogoUploader } from './BrandLogoUploader';
 import { BrandSEOEditor } from './BrandSEOEditor';
+import { useShowToast } from '@/components/ui/Toast';
 
 interface BrandFormProps {
   brand?: Brand;
@@ -23,6 +24,7 @@ interface BrandFormProps {
  * - Form validation
  */
 export default function BrandForm({ brand, onSuccess, onCancel }: BrandFormProps) {
+  const toast = useShowToast();
   const [formData, setFormData] = useState<CreateBrandRequest | UpdateBrandRequest>({
     name: brand?.name || '',
     nameEn: brand?.nameEn || '',
@@ -73,14 +75,14 @@ export default function BrandForm({ brand, onSuccess, onCancel }: BrandFormProps
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
-    if (!formData.name.trim()) {
+
+    if (!formData.name?.trim()) {
       newErrors.name = 'Brand name is required';
     }
-    
-    if (!formData.slug.trim()) {
+
+    if (!formData.slug?.trim()) {
       newErrors.slug = 'Slug is required';
-    } else if (!/^[a-z0-9-]+$/.test(formData.slug)) {
+    } else if (formData.slug && !/^[a-z0-9-]+$/.test(formData.slug)) {
       newErrors.slug = 'Slug can only contain lowercase letters, numbers, and hyphens';
     }
     
@@ -98,21 +100,23 @@ export default function BrandForm({ brand, onSuccess, onCancel }: BrandFormProps
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setIsSubmitting(true);
     try {
       if (brand) {
         await brandsApi.updateBrand(brand.id, formData);
+        toast.success('Brand updated successfully!', 'Success');
       } else {
         await brandsApi.createBrand(formData as CreateBrandRequest);
+        toast.success('Brand created successfully!', 'Success');
       }
-      
+
       if (onSuccess) onSuccess();
     } catch (error: any) {
       console.error('Error saving brand:', error);
-      alert(error.message || 'Failed to save brand');
+      toast.error(error.message || 'Failed to save brand', 'Error');
     } finally {
       setIsSubmitting(false);
     }

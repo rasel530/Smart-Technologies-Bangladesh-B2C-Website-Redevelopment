@@ -80,7 +80,7 @@ router.get('/:cartId', [
 router.post('/:cartId/items', [
   param('cartId').isUUID(),
   body('productId').isUUID(),
-  body('variantId').optional().isUUID(),
+  body('variantId').optional({ checkFalsy: true }).isUUID(),
   body('quantity').isInt({ min: 1 })
 ], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
   try {

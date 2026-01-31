@@ -2,8 +2,9 @@ import { ApiResponse } from '@/types/auth';
 
 // API base configuration
 // Use BACKEND_API_URL for server-side requests, NEXT_PUBLIC_API_URL for client-side
-const API_BASE_URL = typeof window === 'undefined' 
-  ? process.env.BACKEND_API_URL || 'http://backend:3000/api/v1'
+const isServer = typeof window === 'undefined';
+const API_BASE_URL = isServer
+  ? process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3001/api/v1'
   : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
 
 // Request options interface
@@ -31,28 +32,20 @@ class ApiError extends Error {
 const getToken = (): string | null => {
     if (typeof window !== 'undefined') {
         const token = localStorage.getItem('auth_token');
-        console.log('[Token Manager] getToken called:', token ? `Token found (${token.substring(0, 20)}...)` : 'No token found');
         return token;
     }
-    console.log('[Token Manager] getToken called - window not available');
     return null;
 };
 
 const setToken = (token: string): void => {
     if (typeof window !== 'undefined') {
         localStorage.setItem('auth_token', token);
-        console.log('[Token Manager] Token stored:', token.substring(0, 20) + '...');
-    } else {
-        console.log('[Token Manager] setToken called - window not available');
     }
 };
 
 const removeToken = (): void => {
     if (typeof window !== 'undefined') {
         localStorage.removeItem('auth_token');
-        console.log('[Token Manager] Token removed');
-    } else {
-        console.log('[Token Manager] removeToken called - window not available');
     }
 };
 
@@ -116,12 +109,10 @@ const refreshAccessToken = async (): Promise<string> => {
             // Use remember me token refresh endpoint
             url = `${API_BASE_URL}/auth/refresh-from-remember-me`;
             body = { token: rememberToken };
-            console.log('[Token Manager] Using remember me token for refresh');
         } else {
             // Use regular token refresh endpoint
             url = `${API_BASE_URL}/auth/refresh`;
-            headers['Authorization'] = `Bearer ${token}`;
-            console.log('[Token Manager] Using regular token for refresh');
+            body = { token: token };
         }
 
         const response = await fetch(url, {
@@ -144,7 +135,6 @@ const refreshAccessToken = async (): Promise<string> => {
             // Remember me refresh returns data directly
             if (data.token) {
                 setToken(data.token);
-                console.log('[Token Manager] Token refreshed from remember me token');
                 return data.token;
             } else {
                 throw new ApiError('Invalid remember me refresh response');
@@ -153,7 +143,6 @@ const refreshAccessToken = async (): Promise<string> => {
             // Regular refresh returns wrapped in ApiResponse format
             if (data.success && data.data?.token) {
                 setToken(data.data.token);
-                console.log('[Token Manager] Token refreshed successfully');
                 return data.data.token;
             } else {
                 throw new ApiError('Invalid refresh response');
@@ -169,19 +158,19 @@ const refreshAccessToken = async (): Promise<string> => {
 
 // Request interceptor to add auth token
 const addAuthHeader = (headers: Record<string, string> = {}): Record<string, string> => {
-    const token = getToken();
-    console.log('[API Client] Token check:', token ? `Token found (${token.substring(0, 20)}...)` : 'No token found');
-    
-    if (token) {
-        const authHeaders = {
-            ...headers,
-            Authorization: `Bearer ${token}`,
-        };
-        console.log('[API Client] Authorization header added');
-        return authHeaders;
+    // Only try to get token on client side
+    if (typeof window !== 'undefined') {
+        const token = getToken();
+        
+        if (token) {
+            const authHeaders = {
+                ...headers,
+                Authorization: `Bearer ${token}`,
+            };
+            return authHeaders;
+        }
     }
     
-    console.log('[API Client] No Authorization header added');
     return headers;
 };
 
@@ -189,7 +178,7 @@ const addAuthHeader = (headers: Record<string, string> = {}): Record<string, str
 const handleResponse = async (
     response: Response,
     originalRequest?: { endpoint: string; options: RequestOptions }
-): Promise<ApiResponse> => {
+): Promise<any> => {
     const contentType = response.headers.get('content-type');
     const isJson = contentType?.includes('application/json');
 
@@ -197,7 +186,6 @@ const handleResponse = async (
     try {
         // Handle 304 Not Modified - return empty object or cached data
         if (response.status === 304) {
-            console.log('[API Client] Received 304 Not Modified - returning empty data');
             data = {};
         } else if (isJson) {
             data = await response.json();
@@ -262,9 +250,6 @@ const handleResponse = async (
         setToken(newToken);
     }
 
-    console.log('[API Client] Returning data:', data);
-    console.log('[API Client] Data type:', typeof data);
-    console.log('[API Client] Data structure:', JSON.stringify(data, null, 2));
     return data;
 };
 
@@ -284,7 +269,7 @@ const apiClient = {
     request: async <T = any>(
         endpoint: string,
         options: RequestOptions = {}
-    ): Promise<ApiResponse<T>> => {
+    ): Promise<T> => {
         const {
             method = 'GET',
             headers = {},
@@ -294,21 +279,15 @@ const apiClient = {
 
         const url = `${API_BASE_URL}${endpoint}`;
         
-        // Log request details with CORS diagnostics
-        console.log(`[API Client] ${method} ${url}`);
-        console.log('[API Client] Request options:', {
+        // Log API request details for debugging
+        console.log('[API Client] Making request:', {
             method,
-            hasBody: !!body,
-            timeout,
-            skipAuthRefresh: options.skipAuthRefresh,
-            'request-url': url,
-            'api-base-url': API_BASE_URL,
-            'window-origin': typeof window !== 'undefined' ? window.location.origin : 'server-side',
-            'is-localhost': url.includes('localhost'),
-            'uses-nextjs-rewrite': false, // Direct fetch, not using Next.js rewrites
-            'credentials': 'not-set' // Will be set in config below
+            url,
+            isServer,
+            API_BASE_URL,
+            hasToken: !!getToken(),
         });
-
+        
         const authHeaders = addAuthHeader(headers);
         
         // Check if body is FormData (for file uploads)
@@ -340,29 +319,24 @@ const apiClient = {
             }
         }
 
-        console.log('[API Client] Final headers:', {
-            'Content-Type': (config.headers as Record<string, string>)['Content-Type'] || 'Not set (FormData)',
-            'Authorization': (config.headers as Record<string, string>)['Authorization'] ? 'Bearer ***' : 'Not set'
-        });
-
         try {
             const response = await withTimeout(fetch(url, config), timeout);
-            console.log(`[API Client] Response status: ${response.status}`);
-            console.log('[API Client] Response headers:', {
-                'content-type': response.headers.get('content-type'),
-                'access-control-allow-origin': response.headers.get('access-control-allow-origin'),
-                'access-control-allow-credentials': response.headers.get('access-control-allow-credentials'),
-                'access-control-expose-headers': response.headers.get('access-control-expose-headers')
+            
+            // Log response for debugging
+            console.log('[API Client] Response received:', {
+                url,
+                status: response.status,
+                ok: response.ok,
+                statusText: response.statusText,
             });
+            
             return handleResponse(response, { endpoint, options });
-        } catch (error) {
-            console.error('[API Client] Request failed:', error);
-            console.error('[API Client] CORS error details:', {
-                'error-type': error.name,
-                'error-message': error.message,
-                'is-cors-error': error.message.includes('CORS') || error.message.includes('fetch'),
-                'request-url': url,
-                'request-method': method
+        } catch (error: any) {
+            console.error('[API Client] Request failed:', {
+                url,
+                error,
+                message: error?.message,
+                status: error?.status,
             });
             if (error instanceof ApiError) {
                 throw error;

@@ -3,6 +3,7 @@
 import React from 'react';
 import { Grid, Eye, ShoppingCart, Package } from 'lucide-react';
 import { RelatedProduct } from '@/types/product';
+import { getImageUrl } from '@/lib/api/product-images';
 
 interface RelatedProductsProps {
   relatedProducts: RelatedProduct[];
@@ -64,7 +65,7 @@ export const RelatedProducts: React.FC<RelatedProductsProps> = ({
           {relatedProducts.map(item => {
             const product = item.relatedProduct;
             const price = getDisplayPrice(product.regularPrice, product.salePrice);
-            const imageUrl = product.images?.[0]?.url;
+            const imageUrl = product.images?.[0] ? getImageUrl(product.images[0], 'medium') : undefined;
 
             return (
               <div

@@ -6,7 +6,6 @@ import { CreateProductRequest } from '@/types/product';
 import ProductForm from '@/components/admin/ProductForm';
 import ProductSpecificationEditor from '@/components/admin/ProductSpecificationEditor';
 import ProductVariantEditor from '@/components/admin/ProductVariantEditor';
-import ProductImageUploader from '@/components/admin/ProductImageUploader';
 import SEOFieldEditor from '@/components/admin/SEOFieldEditor';
 import productsApi from '@/lib/api/products';
 import { ProductWithRelations } from '@/types/product';
@@ -17,7 +16,6 @@ function NewProductPage() {
   const [product, setProduct] = useState<ProductWithRelations | undefined>(undefined);
   const [specifications, setSpecifications] = useState([]);
   const [variants, setVariants] = useState([]);
-  const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (data: CreateProductRequest) => {
@@ -68,12 +66,6 @@ function NewProductPage() {
           <ProductVariantEditor
             productId={product?.id || ''}
             variants={variants}
-            onUpdate={() => {}}
-          />
-
-          <ProductImageUploader
-            productId={product?.id || ''}
-            images={images}
             onUpdate={() => {}}
           />
 

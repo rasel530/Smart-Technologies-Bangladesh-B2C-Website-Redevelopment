@@ -83,7 +83,7 @@ export interface UsersByRoleResponse {
  */
 export async function getAllRoles(): Promise<{ roles: Role[]; count: number }> {
   const response = await apiClient.get<{ roles: Role[]; count: number }>('/v1/roles/list');
-  return response.data;
+  return response;
 }
 
 /**
@@ -91,7 +91,7 @@ export async function getAllRoles(): Promise<{ roles: Role[]; count: number }> {
  */
 export async function getRoleHierarchy(): Promise<{ hierarchy: RoleHierarchy }> {
   const response = await apiClient.get<{ hierarchy: RoleHierarchy }>('/v1/roles/hierarchy');
-  return response.data;
+  return response;
 }
 
 /**
@@ -100,7 +100,7 @@ export async function getRoleHierarchy(): Promise<{ hierarchy: RoleHierarchy }> 
 export async function getAllPermissions(category?: string): Promise<{ permissions: Permission[]; count: number }> {
   const endpoint = category ? `/v1/roles/permissions?category=${encodeURIComponent(category)}` : '/v1/roles/permissions';
   const response = await apiClient.get<{ permissions: Permission[]; count: number }>(endpoint);
-  return response.data;
+  return response;
 }
 
 /**
@@ -108,7 +108,7 @@ export async function getAllPermissions(category?: string): Promise<{ permission
  */
 export async function getPermissionCategories(): Promise<{ categories: PermissionCategory[] }> {
   const response = await apiClient.get<{ categories: PermissionCategory[] }>('/v1/roles/permissions/categories');
-  return response.data;
+  return response;
 }
 
 /**
@@ -116,7 +116,7 @@ export async function getPermissionCategories(): Promise<{ categories: Permissio
  */
 export async function getRolePermissions(role: string): Promise<{ role: string; permissions: Permission[]; count: number }> {
   const response = await apiClient.get<{ role: string; permissions: Permission[]; count: number }>(`/v1/roles/${role}/permissions`);
-  return response.data;
+  return response;
 }
 
 /**
@@ -124,7 +124,7 @@ export async function getRolePermissions(role: string): Promise<{ role: string; 
  */
 export async function getUserPermissions(): Promise<UserPermissionsResponse> {
   const response = await apiClient.get<UserPermissionsResponse>('/v1/roles/user/permissions');
-  return response.data;
+  return response;
 }
 
 /**
@@ -132,7 +132,7 @@ export async function getUserPermissions(): Promise<UserPermissionsResponse> {
  */
 export async function checkUserPermission(permission: string): Promise<PermissionCheckResponse> {
   const response = await apiClient.post<PermissionCheckResponse>('/v1/roles/user/check-permission', { permission });
-  return response.data;
+  return response;
 }
 
 /**
@@ -140,7 +140,7 @@ export async function checkUserPermission(permission: string): Promise<Permissio
  */
 export async function assignPermissionToRole(role: string, permissionId: string): Promise<{ message: string; rolePermission: RolePermission }> {
   const response = await apiClient.post<{ message: string; rolePermission: RolePermission }>(`/v1/roles/${role}/permissions/${permissionId}`);
-  return response.data;
+  return response;
 }
 
 /**
@@ -148,7 +148,7 @@ export async function assignPermissionToRole(role: string, permissionId: string)
  */
 export async function removePermissionFromRole(role: string, permissionId: string): Promise<{ message: string }> {
   const response = await apiClient.delete<{ message: string }>(`/v1/roles/${role}/permissions/${permissionId}`);
-  return response.data;
+  return response;
 }
 
 /**
@@ -156,7 +156,7 @@ export async function removePermissionFromRole(role: string, permissionId: strin
  */
 export async function assignPermissionsToRole(role: string, permissionIds: string[]): Promise<{ message: string; count: number; assignments: RolePermission[] }> {
   const response = await apiClient.post<{ message: string; count: number; assignments: RolePermission[] }>(`/v1/roles/${role}/permissions/bulk`, { permissionIds });
-  return response.data;
+  return response;
 }
 
 /**
@@ -164,7 +164,7 @@ export async function assignPermissionsToRole(role: string, permissionIds: strin
  */
 export async function updateUserRole(userId: string, role: string): Promise<{ message: string; user: any }> {
   const response = await apiClient.put<{ message: string; user: any }>(`/v1/roles/users/${userId}/role`, { role });
-  return response.data;
+  return response;
 }
 
 /**
@@ -172,7 +172,7 @@ export async function updateUserRole(userId: string, role: string): Promise<{ me
  */
 export async function getRoleStatistics(): Promise<{ statistics: RoleStatistics }> {
   const response = await apiClient.get<{ statistics: RoleStatistics }>('/v1/roles/statistics');
-  return response.data;
+  return response;
 }
 
 /**
@@ -181,5 +181,5 @@ export async function getRoleStatistics(): Promise<{ statistics: RoleStatistics 
 export async function getUsersByRole(role: string, page: number = 1, limit: number = 20): Promise<UsersByRoleResponse> {
   const endpoint = `/v1/roles/${role}/users?page=${page}&limit=${limit}`;
   const response = await apiClient.get<UsersByRoleResponse>(endpoint);
-  return response.data;
+  return response;
 }

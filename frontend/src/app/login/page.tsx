@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
-import { LoginData, LoginFormProps } from '@/types/auth';
+import { LoginData, LoginFormProps, LoginErrorPayload } from '@/types/auth';
 import { loginSchema } from '@/lib/validation';
 import { FormInput } from '@/components/ui/FormInput';
 import { cn } from '@/lib/utils';
@@ -125,8 +125,43 @@ function LoginPageContent() {
     
     try {
       console.log('[LoginPage DIAGNOSTIC] Step 1: Calling login function...');
-      await login(data.emailOrPhone, data.password, data.rememberMe);
-      console.log('[LoginPage DIAGNOSTIC] Step 2: Login function returned successfully');
+      const loginResult = await login(data.emailOrPhone, data.password, data.rememberMe);
+      console.log('[LoginPage DIAGNOSTIC] Step 2: Login function returned:', loginResult);
+      
+      // Check if login failed based on the result
+      if (!loginResult.success && loginResult.error) {
+        console.log('[LoginPage DIAGNOSTIC] Login failed, error from AuthContext:', loginResult.error);
+        
+        // Show error toast
+        const errorTitle = language === 'bn' ? 'লগইন ব্যর্থ' : 'Login Error';
+        const errorObj = loginResult.error;
+        let errorMessage: string;
+        
+        errorMessage = language === 'bn' 
+          ? (errorObj.messageBn || errorObj.message || 'লগইন ব্যর্থ হয়েছে')
+          : (errorObj.message || 'Login failed');
+        
+        if (errorObj.requiresVerification) {
+          const verificationTypeText = errorObj.verificationType === 'email'
+            ? (language === 'bn' ? 'ইমেল' : 'email')
+            : (language === 'bn' ? 'ফোন' : 'phone');
+          
+          const verificationMessage = language === 'bn'
+            ? `আপনার ${verificationTypeText} নম্বর যাচাই করা প্রয়োজন। ${errorMessage || ''}`
+            : `Your ${verificationTypeText} needs verification. ${errorMessage || ''}`;
+          
+          toast.error(verificationMessage, errorTitle);
+        } else {
+          toast.error(errorMessage, errorTitle);
+        }
+        
+        console.log('[LoginPage DIAGNOSTIC] === FORM SUBMIT ERROR (AuthContext error) ===');
+        setIsSubmitting(false);
+        return;
+      }
+      
+      // Login was successful
+      console.log('[LoginPage DIAGNOSTIC] Login successful, showing success toast');
       
       // Show success toast
       const successTitle = language === 'bn' ? 'লগইন সফল' : 'Login Successful';

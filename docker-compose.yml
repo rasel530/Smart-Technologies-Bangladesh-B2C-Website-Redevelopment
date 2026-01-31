@@ -15,7 +15,7 @@ services:
       - NEXT_PUBLIC_API_URL=http://localhost:3001/api/v1
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
       - NEXT_PUBLIC_BACKEND_API_URL=http://host.docker.internal:3001/api/v1
-      - BACKEND_API_URL=http://backend:3000/api/v1
+      - BACKEND_API_URL=http://host.docker.internal:3001/api/v1
       - NODE_ENV=production
       - IS_DOCKER=true
       - NEXT_PRIVATE_SKIP_SWC=1
@@ -88,8 +88,10 @@ services:
       # File Upload Configuration
       - MAX_FILE_SIZE=5242880
       - UPLOAD_PATH="./uploads"
-    # No volume mounts - container uses code built into the image
-    # This ensures updated code (including Multer error handler) is used
+      # Backend URL for constructing image URLs (must match what frontend uses)
+      - BACKEND_URL=http://host.docker.internal:3001
+    volumes:
+      - ./backend/uploads:/app/uploads
     networks:
       - smarttech_network
     depends_on:

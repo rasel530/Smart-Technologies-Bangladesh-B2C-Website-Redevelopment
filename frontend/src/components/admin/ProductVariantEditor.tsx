@@ -4,6 +4,12 @@ import React, { useState } from 'react';
 import { ProductVariant } from '@/types/product';
 import productsApi from '@/lib/api/products';
 
+const getSafePrice = (price: number | string | null | undefined, defaultValue: number = 0): number => {
+  if (price === null || price === undefined) return defaultValue;
+  const numPrice = typeof price === 'string' ? parseFloat(price) : Number(price);
+  return isNaN(numPrice) ? defaultValue : numPrice;
+};
+
 interface ProductVariantEditorProps {
   productId: string;
   variants: ProductVariant[];
@@ -256,10 +262,10 @@ const ProductVariantEditor: React.FC<ProductVariantEditorProps> = ({
                     </div>
                     <div>
                       <span className="text-sm font-medium text-gray-500">Price:</span>
-                      <p className="text-gray-900">৳{variant.price.toFixed(2)}</p>
+                      <p className="text-gray-900">৳{getSafePrice(variant.price).toFixed(2)}</p>
                       {variant.comparePrice && (
                         <p className="text-sm text-gray-500 line-through">
-                          ৳{variant.comparePrice.toFixed(2)}
+                          ৳{getSafePrice(variant.comparePrice)?.toFixed(2)}
                         </p>
                       )}
                     </div>

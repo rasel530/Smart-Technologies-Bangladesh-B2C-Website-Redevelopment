@@ -728,7 +728,7 @@ async function performPostgreSQLSearch(params) {
   // Transform to match Elasticsearch format
   const transformedProducts = products.map(product => {
     const primaryCategory = product.categories.find(cat => cat.isPrimary) || product.categories[0];
-    const thumbnail = product.images.length > 0 ? product.images[0].url : null;
+    const thumbnail = product.images.length > 0 ? product.images[0].originalUrl : null;
     const avgRating = product._count.reviews > 0 
       ? (product.reviews.reduce((sum, r) => sum + r.rating, 0) / product._count.reviews)
       : 0;
@@ -805,7 +805,7 @@ async function getPostgreSQLSuggestions(query, limit) {
 
   const suggestions = products.map(product => {
     const primaryCategory = product.categories.find(cat => cat.isPrimary) || product.categories[0];
-    const thumbnail = product.images.length > 0 ? product.images[0].url : null;
+    const thumbnail = product.images.length > 0 ? product.images[0].originalUrl : null;
 
     return {
       id: product.id,

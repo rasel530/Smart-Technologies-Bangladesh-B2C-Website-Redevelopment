@@ -1,3 +1,32 @@
+# ============================================
+# Smart Tech Ecommerce - Docker Compose Configuration
+# ============================================
+#
+# ⚠️  CRITICAL WARNING - DATA LOSS PREVENTION ⚠️
+#
+# NEVER use: docker-compose down -v
+# NEVER use: docker compose down -v
+# NEVER use: docker-compose down --volumes
+#
+# The -v flag removes ALL named volumes, including:
+#   - postgres_data (ALL database data - products, users, orders, etc.)
+#   - redis_data (all cache and session data)
+#   - es_node1_data, es_node2_data, es_node3_data (all search indices)
+#   - qdrant_data (all vector embeddings)
+#   - ollama_data (all AI models)
+#
+# To stop containers safely: docker-compose down
+# To restart containers: docker-compose up -d
+#
+# ALWAYS create a backup before major changes:
+#   docker exec -i smarttech_postgres pg_dump -U smart_dev smart_ecommerce_dev > backup.sql
+#
+# For backup and restore procedures, see:
+#   BACKUP_AND_RECOVERY_GUIDE.md
+#   scripts/automated-backup.sh
+#   scripts/pre-deployment-backup.sh
+# ============================================
+
 services:
   frontend:
     build:
@@ -14,7 +43,7 @@ services:
       - NODE_OPTIONS=--max-old-space-size=1536 --max-semi-space-size=128
       - NEXT_PUBLIC_API_URL=http://localhost:3001/api/v1
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
-      - NEXT_PUBLIC_BACKEND_API_URL=http://host.docker.internal:3001/api/v1
+      - NEXT_PUBLIC_BACKEND_API_URL=http://localhost:3001/api/v1
       - BACKEND_API_URL=http://host.docker.internal:3001/api/v1
       - NODE_ENV=production
       - IS_DOCKER=true
@@ -74,7 +103,7 @@ services:
       - REDIS_TTL=3600
       
       # External Services
-      - ELASTICSEARCH_NODE=http://elasticsearch:9200
+      - ELASTICSEARCH_URL=http://es-node1:9200
       - OLLAMA_HOST=http://ollama:11434
       
       # Testing Configuration (Disabled in Production)
@@ -89,7 +118,8 @@ services:
       - MAX_FILE_SIZE=5242880
       - UPLOAD_PATH="./uploads"
       # Backend URL for constructing image URLs (must match what frontend uses)
-      - BACKEND_URL=http://host.docker.internal:3001
+      # Use localhost so browser can access images from host machine
+      - BACKEND_URL=http://localhost:3001
     volumes:
       - ./backend/uploads:/app/uploads
     networks:
@@ -99,30 +129,148 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      elasticsearch:
+      es-node1:
         condition: service_healthy
 
-  elasticsearch:
+  es-node1:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
-    container_name: smarttech_elasticsearch
+    container_name: smarttech_es_node1
     restart: unless-stopped
     environment:
-      - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+      - cluster.name=smarttech-cluster
+      - node.name=es-node1
+      - node.roles=master,data,ingest
+      - discovery.seed_hosts=es-node2,es-node3
+      - cluster.initial_master_nodes=es-node1,es-node2,es-node3
+      - network.host=0.0.0.0
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
       - xpack.security.enabled=false
       - xpack.security.enrollment.enabled=false
+      - bootstrap.memory_lock=true
+      - path.repo=/usr/share/elasticsearch/backups
     ports:
       - "9200:9200"
       - "9300:9300"
     volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-      - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - es_node1_data:/usr/share/elasticsearch/data
+      - es_backups:/usr/share/elasticsearch/backups
       - ./elasticsearch/init:/usr/share/elasticsearch/init:ro
       - ./elasticsearch/scripts:/usr/share/elasticsearch/scripts:ro
     networks:
       - smarttech_network
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+
+  es-node2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: smarttech_es_node2
+    restart: unless-stopped
+    environment:
+      - cluster.name=smarttech-cluster
+      - node.name=es-node2
+      - node.roles=master,data,ingest
+      - discovery.seed_hosts=es-node1,es-node3
+      - cluster.initial_master_nodes=es-node1,es-node2,es-node3
+      - network.host=0.0.0.0
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+      - bootstrap.memory_lock=true
+      - path.repo=/usr/share/elasticsearch/backups
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+    volumes:
+      - es_node2_data:/usr/share/elasticsearch/data
+      - es_backups:/usr/share/elasticsearch/backups
+      - ./elasticsearch/init:/usr/share/elasticsearch/init:ro
+      - ./elasticsearch/scripts:/usr/share/elasticsearch/scripts:ro
+    networks:
+      - smarttech_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+
+  es-node3:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: smarttech_es_node3
+    restart: unless-stopped
+    environment:
+      - cluster.name=smarttech-cluster
+      - node.name=es-node3
+      - node.roles=master,data,ingest
+      - discovery.seed_hosts=es-node1,es-node2
+      - cluster.initial_master_nodes=es-node1,es-node2,es-node3
+      - network.host=0.0.0.0
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+      - bootstrap.memory_lock=true
+      - path.repo=/usr/share/elasticsearch/backups
+    ports:
+      - "9202:9200"
+      - "9302:9300"
+    volumes:
+      - es_node3_data:/usr/share/elasticsearch/data
+      - es_backups:/usr/share/elasticsearch/backups
+      - ./elasticsearch/init:/usr/share/elasticsearch/init:ro
+      - ./elasticsearch/scripts:/usr/share/elasticsearch/scripts:ro
+    networks:
+      - smarttech_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: smarttech_kibana
+    restart: unless-stopped
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es-node1:9200
+      - SERVER_NAME=kibana
+      - SERVER_HOST=0.0.0.0
+    volumes:
+      - kibana_data:/usr/share/kibana/data
+    networks:
+      - smarttech_network
+    depends_on:
+      es-node1:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -163,6 +311,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
+      # ⚠️  CRITICAL: postgres_data contains ALL database data
+      # This includes products, users, orders, categories, etc.
+      # DO NOT remove this volume unless you have a verified backup
       - postgres_data:/var/lib/postgresql/data
       - ./postgresql/init:/docker-entrypoint-initdb.d
     networks:
@@ -235,14 +386,45 @@ services:
     depends_on:
       - postgres
 
+# ============================================
+# Docker Volumes - CRITICAL DATA STORAGE
+# ============================================
+# These volumes contain ALL application data.
+# Removing any of these volumes will result in PERMANENT DATA LOSS.
+#
+# Always create backups before modifying or removing volumes:
+#   docker exec -i smarttech_postgres pg_dump -U smart_dev smart_ecommerce_dev > backup.sql
+#
+# Volume Contents:
+#   postgres_data: All PostgreSQL database data (products, users, orders, etc.)
+#   redis_data: All Redis cache and session data
+#   es_node1_data, es_node2_data, es_node3_data: All Elasticsearch indices
+#   es_backups: Elasticsearch snapshot backups
+#   qdrant_data: All Qdrant vector embeddings
+#   ollama_data: All Ollama AI models
+# ============================================
+
 volumes:
   postgres_data:
     driver: local
+    # Labels for better volume management
+    labels:
+      - "com.smarttech.description=PostgreSQL database - contains all application data"
+      - "com.smarttech.critical=true"
+      - "com.smarttech.backup-required=true"
   pgadmin_data:
     driver: local
   redis_data:
     driver: local
-  elasticsearch_data:
+  es_node1_data:
+    driver: local
+  es_node2_data:
+    driver: local
+  es_node3_data:
+    driver: local
+  es_backups:
+    driver: local
+  kibana_data:
     driver: local
   qdrant_data:
     driver: local

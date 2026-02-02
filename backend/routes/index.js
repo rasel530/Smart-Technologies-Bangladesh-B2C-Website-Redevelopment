@@ -24,6 +24,7 @@ const rbacUserRolesRoutes = require('./rbacUserRoles');
 const rbacEscalationRoutes = require('./rbacEscalation');
 const rbacAuthCheckRoutes = require('./rbacAuthCheck');
 const corporateRoutes = require('./corporate');
+const adminElasticsearchRoutes = require('./admin/elasticsearch');
 
 const router = express.Router();
 
@@ -56,6 +57,9 @@ router.use('/rbac/auth', rbacAuthCheckRoutes);
 
 // Corporate account management routes
 router.use('/v1/corporate', corporateRoutes);
+
+// Admin Elasticsearch management routes
+router.use('/v1/admin/elasticsearch', adminElasticsearchRoutes);
 
 // API documentation endpoint
 router.get('/', (req, res) => {
@@ -92,6 +96,9 @@ router.get('/', (req, res) => {
         userRoles: '/api/rbac/user-roles',
         escalationRequests: '/api/rbac/role-escalation-requests',
         auth: '/api/rbac/auth'
+      },
+      admin: {
+        elasticsearch: '/api/v1/admin/elasticsearch'
       }
     },
     documentation: '/api-docs'

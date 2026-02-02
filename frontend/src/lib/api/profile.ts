@@ -57,7 +57,11 @@ export class ProfileAPI {
     const formData = new FormData();
     formData.append('picture', file);
 
-    const response = await apiClient.post<{ user: UserProfile }>(`${this.BASE_PATH}/me/picture`, formData);
+    const response = await apiClient.post<{ user: UserProfile }>(
+      `${this.BASE_PATH}/me/picture`,
+      formData,
+      { timeout: 60000 } // 60 second timeout for profile picture upload
+    );
 
     return response.data;
   }

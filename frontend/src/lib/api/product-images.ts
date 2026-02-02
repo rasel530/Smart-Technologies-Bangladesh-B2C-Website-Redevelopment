@@ -25,8 +25,8 @@ import {
  */
 export const getProductImages = async (productId: string): Promise<ProductImage[]> => {
   try {
-    const response = await apiClient.get<{ images: ProductImage[] }>(
-      `/products/${productId}/images`
+    const response = await apiClient.get<{ images: ProductImage[]; pagination: { page: number; limit: number; total: number; pages: number } }>(
+      `/products/${productId}/images?limit=100`
     );
     return response?.images || [];
   } catch (error) {
@@ -65,7 +65,8 @@ export const uploadProductImages = async (
 
     const response = await apiClient.post<{ result: BulkUploadResult }>(
       `/products/${productId}/images`,
-      formData
+      formData,
+      { timeout: 60000 } // 60 second timeout for image uploads
     );
     return response?.result;
   } catch (error) {

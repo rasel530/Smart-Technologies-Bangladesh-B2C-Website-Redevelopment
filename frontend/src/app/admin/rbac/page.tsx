@@ -113,6 +113,9 @@ function RBACDashboardPage() {
         </ul>
       </div>
 
+      {/* Section Divider */}
+      <div className="border-t border-gray-200"></div>
+
       {/* RBAC Sections Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {rbacSections.map((section) => {
@@ -146,6 +149,9 @@ function RBACDashboardPage() {
         })}
       </div>
 
+      {/* Section Divider */}
+      <div className="border-t border-gray-200"></div>
+
       {/* Quick Stats */}
       <div className="bg-white border rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -178,6 +184,9 @@ function RBACDashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Section Divider */}
+      <div className="border-t border-gray-200"></div>
 
       {/* Security Notice */}
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">

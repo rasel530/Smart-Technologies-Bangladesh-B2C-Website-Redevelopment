@@ -197,9 +197,21 @@ export function CategoryNavigation({
     return (
       <div ref={containerRef} className={`relative ${className}`}>
         <button
+          onClick={() => {
+            // Toggle dropdown by adding/removing a special marker
+            setExpandedCategories(prev => {
+              const newSet = new Set(prev);
+              if (newSet.has('dropdown')) {
+                newSet.delete('dropdown');
+              } else {
+                newSet.add('dropdown');
+              }
+              return newSet;
+            });
+          }}
           className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
           aria-haspopup="true"
-          aria-expanded={expandedCategories.size > 0}
+          aria-expanded={expandedCategories.has('dropdown')}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -207,7 +219,7 @@ export function CategoryNavigation({
           <span>Categories</span>
         </button>
 
-        {expandedCategories.size > 0 && (
+        {expandedCategories.has('dropdown') && (
           <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
             <div className="px-3 py-2 border-b border-gray-100">
               <h3 className="font-semibold text-gray-900">Categories</h3>

@@ -62,6 +62,12 @@ const MAX_IMAGES_PER_PRODUCT = 10;
 const MAX_STORAGE_QUOTA_PER_PRODUCT = 50 * 1024 * 1024;
 
 /**
+ * Soft delete recovery period in days
+ * Images marked as deleted can be recovered within this period
+ */
+const SOFT_DELETE_RECOVERY_DAYS = 30;
+
+/**
  * Validate image MIME type
  * 
  * @param {string} mimeType - The MIME type to validate
@@ -567,5 +573,6 @@ module.exports = {
   MAX_FILE_SIZE,
   MIN_IMAGES_PER_PRODUCT,
   MAX_IMAGES_PER_PRODUCT,
-  MAX_STORAGE_QUOTA_PER_PRODUCT
+  MAX_STORAGE_QUOTA_PER_PRODUCT,
+  SOFT_DELETE_RECOVERY_DAYS
 };

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-01-28T07:34:31.330Z",
+  "timestamp": "2026-02-02T09:40:40.142Z",
   "summary": {
     "totalPassed": 0,
     "totalFailed": 1,
@@ -16,9 +16,9 @@
       "message": "Fatal error: \nInvalid `prisma.$queryRaw()` invocation:\n\n\nRaw query failed. Code: `42703`. Message: `column r.role_name does not exist`",
       "details": {
         "error": "\nInvalid `prisma.$queryRaw()` invocation:\n\n\nRaw query failed. Code: `42703`. Message: `column r.role_name does not exist`",
-        "stack": "PrismaClientKnownRequestError: \nInvalid `prisma.$queryRaw()` invocation:\n\n\nRaw query failed. Code: `42703`. Message: `column r.role_name does not exist`\n    at $n.handleRequestError (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\node_modules\\@prisma\\client\\runtime\\library.js:121:7315)\n    at $n.handleAndLogRequestError (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\node_modules\\@prisma\\client\\runtime\\library.js:121:6623)\n    at $n.request (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\node_modules\\@prisma\\client\\runtime\\library.js:121:6307)\n    at async l (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\node_modules\\@prisma\\client\\runtime\\library.js:130:9633)\n    at async testAdminOnlyMiddlewareFix (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\tests\\product-image-upload-admin-fix.test.js:219:28)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\tests\\product-image-upload-admin-fix.test.js:693:5)"
+        "stack": ""
       },
-      "timestamp": "2026-01-28T07:34:31.305Z"
+      "timestamp": "2026-02-02T09:40:38.589Z"
     }
   ]
 }

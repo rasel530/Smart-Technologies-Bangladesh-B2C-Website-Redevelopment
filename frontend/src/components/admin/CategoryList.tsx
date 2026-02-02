@@ -10,7 +10,7 @@ import { getCategories, deleteCategory, reorderCategory } from '@/lib/api/catego
  * Tree view of categories with expand/collapse functionality
  * Supports search, filter, and drag-and-drop for reordering
  */
-export const CategoryList: React.FC = () => {
+export const CategoryList: React.FC<{}> = () => {
   const [categories, setCategories] = useState<CategoryTree[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -166,8 +166,9 @@ export const CategoryList: React.FC = () => {
             <button
               type="button"
               onClick={() => onToggleExpand(category.id)}
-              className="p-1 hover:bg-gray-200 rounded transition-colors"
-              aria-label={isExpanded ? 'Collapse' : 'Expand'}
+              className="p-1 hover:bg-gray-200 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              aria-label={isExpanded ? 'Collapse category' : 'Expand category'}
+              aria-expanded={isExpanded}
             >
               <svg
                 className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
@@ -226,8 +227,8 @@ export const CategoryList: React.FC = () => {
             {/* Edit Button */}
             <a
               href={`/admin/categories/${category.id}/edit`}
-              className="p-1 hover:bg-gray-200 rounded transition-colors"
-              title="Edit"
+              className="p-1 hover:bg-gray-200 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              aria-label={`Edit ${category.name}`}
             >
               <svg
                 className="w-4 h-4 text-gray-600"
@@ -248,8 +249,8 @@ export const CategoryList: React.FC = () => {
             <button
               type="button"
               onClick={() => onDeleteCategory(category.id, category.name)}
-              className="p-1 hover:bg-red-100 rounded transition-colors"
-              title="Delete"
+              className="p-1 hover:bg-red-100 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              aria-label={`Delete ${category.name}`}
             >
               <svg
                 className="w-4 h-4 text-red-600"
@@ -275,8 +276,8 @@ export const CategoryList: React.FC = () => {
                   onReorder(category.id, parseInt(newOrder));
                 }
               }}
-              className="p-1 hover:bg-gray-200 rounded transition-colors"
-              title="Reorder"
+              className="p-1 hover:bg-gray-200 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              aria-label={`Reorder ${category.name}`}
             >
               <svg
                 className="w-4 h-4 text-gray-600"
@@ -342,9 +343,9 @@ export const CategoryList: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
+    <main>
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
+      <header className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             Categories
@@ -355,14 +356,15 @@ export const CategoryList: React.FC = () => {
         </div>
         <a
           href="/admin/categories/new"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          aria-label="Add new category"
         >
           + Add Category
         </a>
-      </div>
+      </header>
 
       {/* Search and Filter */}
-      <div className="mb-6 flex gap-4">
+      <section className="mb-6 flex gap-4" aria-label="Search and filter categories">
         <div className="flex-1">
           <input
             type="text"
@@ -381,15 +383,15 @@ export const CategoryList: React.FC = () => {
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
         </select>
-      </div>
+      </section>
 
       {/* Category Tree */}
       {filteredCategories.length > 0 ? (
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <section className="bg-white border border-gray-200 rounded-lg p-4" aria-label="Category list">
           {renderCategoryTree(filteredCategories)}
-        </div>
+        </section>
       ) : (
-        <div className="text-center py-12">
+        <section className="text-center py-12" aria-label="No categories found">
           <svg
             className="w-16 h-16 mx-auto text-gray-400 mb-4"
             fill="none"
@@ -409,8 +411,8 @@ export const CategoryList: React.FC = () => {
               ? 'Try adjusting your search query'
               : 'Click "Add Category" to create your first category'}
           </p>
-        </div>
+        </section>
       )}
-    </div>
+    </main>
   );
 };

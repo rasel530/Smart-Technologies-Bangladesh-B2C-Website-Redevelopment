@@ -636,6 +636,7 @@ export const uploadImage = async (
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        timeout: 60000 // 60 second timeout for product image upload
       }
     );
     return response?.image;
@@ -671,6 +672,7 @@ export const updateImage = async (
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        timeout: 60000 // 60 second timeout for product image update
       }
     );
     return response?.image;

@@ -337,6 +337,7 @@ export const uploadCategoryImage = async (
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        timeout: 60000 // 60 second timeout for category image upload
       }
     );
     return (response as unknown as { category: Category })?.category;
@@ -368,6 +369,7 @@ export const uploadCategoryIcon = async (
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        timeout: 60000 // 60 second timeout for category icon upload
       }
     );
     return (response as unknown as { category: Category })?.category;

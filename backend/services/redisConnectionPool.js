@@ -601,6 +601,11 @@ class RedisConnectionPool {
   getPoolSize() {
     return this.connections.size;
   }
+
+  // Get shared Redis client directly
+  getSharedClient() {
+    return this.sharedClient;
+  }
 }
 
 // Singleton instance

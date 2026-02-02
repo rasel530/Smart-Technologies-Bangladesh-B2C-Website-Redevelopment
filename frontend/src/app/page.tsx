@@ -50,7 +50,7 @@ export const metadata: Metadata = {
  */
 export default async function Home() {
   // Fetch data for home page sections with error handling
-  const [featuredProducts, newArrivals, bestSellers, brandsResponse, categoriesResponse] = await Promise.all([
+  const [featuredProducts, newArrivals, bestSellers, brandsResponse, categoriesResponse, categoryTreeResponse] = await Promise.all([
     getFeatured().catch(err => {
       console.error('Error fetching featured products:', err);
       return [];
@@ -71,10 +71,15 @@ export default async function Home() {
       console.error('Error fetching categories:', err);
       return { categories: [] };
     }),
+    categoriesApi.getCategoryTree('active').catch(err => {
+      console.error('Error fetching category tree:', err);
+      return { tree: [], total: 0 };
+    }),
   ]);
 
   const brands = brandsResponse?.brands || [];
   const categories = categoriesResponse?.categories || [];
+  const categoryTree = categoryTreeResponse?.tree || [];
 
   // Recursive function to transform Category to CategoryNode
   const transformCategoryToNode = (category: any): any => ({
@@ -87,8 +92,9 @@ export default async function Home() {
     children: category.children?.map(transformCategoryToNode) || []
   });
 
-  // Transform categories to CategoryNode format for CategoryNavigation
-  const categoryNodes = categories.map(transformCategoryToNode);
+  // Transform category tree to CategoryNode format for CategoryNavigation
+  // Use categoryTree for navigation (full hierarchy) and categories for display cards
+  const categoryNodes = categoryTree.map(transformCategoryToNode);
 
   return (
     <main className="min-h-screen">
@@ -168,12 +174,12 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Featured Brands */}
-      <section className="py-12 bg-white border-b border-gray-200">
+      {/* Featured Brands - Hidden */}
+      {/* <section className="py-12 bg-white border-b border-gray-200">
         <div className="container mx-auto px-4">
           <FeaturedBrands />
         </div>
-      </section>
+      </section> */}
 
       {/* Featured Products Section */}
       {featuredProducts.length > 0 && (

@@ -157,6 +157,11 @@ router.get('/', [
             select: { id: true, name: true, slug: true }
           },
           images: {
+            where: {
+              processingStatus: {
+                not: 'deleted'
+              }
+            },
             orderBy: { displayOrder: 'asc' }
           },
           _count: {
@@ -211,6 +216,11 @@ router.get('/featured', async (req, res) => {
           select: { id: true, name: true, slug: true }
         },
         images: {
+          where: {
+            processingStatus: {
+              not: 'deleted'
+            }
+          },
           orderBy: { displayOrder: 'asc' }
         },
         _count: {
@@ -259,6 +269,11 @@ router.get('/new-arrivals', async (req, res) => {
           select: { id: true, name: true, slug: true }
         },
         images: {
+          where: {
+            processingStatus: {
+              not: 'deleted'
+            }
+          },
           orderBy: { displayOrder: 'asc' }
         },
         _count: {
@@ -307,6 +322,11 @@ router.get('/best-sellers', async (req, res) => {
           select: { id: true, name: true, slug: true }
         },
         images: {
+          where: {
+            processingStatus: {
+              not: 'deleted'
+            }
+          },
           orderBy: { displayOrder: 'asc' }
         },
         _count: {
@@ -355,6 +375,11 @@ router.get('/slug/:slug', [
           select: { id: true, name: true, slug: true }
         },
         images: {
+          where: {
+            processingStatus: {
+              not: 'deleted'
+            }
+          },
           orderBy: { displayOrder: 'asc' }
         },
         specifications: {
@@ -383,6 +408,11 @@ router.get('/slug/:slug', [
                 salePrice: true,
                 images: {
                   take: 1,
+                  where: {
+                    processingStatus: {
+                      not: 'deleted'
+                    }
+                  },
                   orderBy: { displayOrder: 'asc' }
                 }
               }
@@ -402,6 +432,11 @@ router.get('/slug/:slug', [
                 salePrice: true,
                 images: {
                   take: 1,
+                  where: {
+                    processingStatus: {
+                      not: 'deleted'
+                    }
+                  },
                   orderBy: { displayOrder: 'asc' }
                 }
               }
@@ -421,6 +456,11 @@ router.get('/slug/:slug', [
                 salePrice: true,
                 images: {
                   take: 1,
+                  where: {
+                    processingStatus: {
+                      not: 'deleted'
+                    }
+                  },
                   orderBy: { displayOrder: 'asc' }
                 }
               }
@@ -475,6 +515,11 @@ router.get('/:id', [
           select: { id: true, name: true, slug: true }
         },
         images: {
+          where: {
+            processingStatus: {
+              not: 'deleted'
+            }
+          },
           orderBy: { displayOrder: 'asc' }
         },
         specifications: {
@@ -503,6 +548,11 @@ router.get('/:id', [
                 salePrice: true,
                 images: {
                   take: 1,
+                  where: {
+                    processingStatus: {
+                      not: 'deleted'
+                    }
+                  },
                   orderBy: { displayOrder: 'asc' }
                 }
               }
@@ -522,6 +572,11 @@ router.get('/:id', [
                 salePrice: true,
                 images: {
                   take: 1,
+                  where: {
+                    processingStatus: {
+                      not: 'deleted'
+                    }
+                  },
                   orderBy: { displayOrder: 'asc' }
                 }
               }
@@ -541,6 +596,11 @@ router.get('/:id', [
                 salePrice: true,
                 images: {
                   take: 1,
+                  where: {
+                    processingStatus: {
+                      not: 'deleted'
+                    }
+                  },
                   orderBy: { displayOrder: 'asc' }
                 }
               }
@@ -625,6 +685,21 @@ router.post('/', [
 ], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
     const productData = req.body;
+    
+    console.log('[PRODUCT CREATION] Request received:', {
+      sku: productData.sku,
+      name: productData.name,
+      nameEn: productData.nameEn,
+      slug: productData.slug,
+      categories: productData.categories,
+      brandId: productData.brandId,
+      regularPrice: productData.regularPrice,
+      salePrice: productData.salePrice,
+      costPrice: productData.costPrice,
+      stockQuantity: productData.stockQuantity,
+      status: productData.status,
+      visibility: productData.visibility
+    });
 
     // Check if SKU already exists
     const existingSku = await prisma.product.findUnique({
@@ -632,6 +707,7 @@ router.post('/', [
     });
 
     if (existingSku) {
+      console.log('[PRODUCT CREATION] SKU already exists:', productData.sku);
       return res.status(409).json({
         error: 'Product with this SKU already exists'
       });
@@ -643,6 +719,7 @@ router.post('/', [
     });
 
     if (existingSlug) {
+      console.log('[PRODUCT CREATION] Slug already exists:', productData.slug);
       return res.status(409).json({
         error: 'Product with this slug already exists'
       });
@@ -650,78 +727,118 @@ router.post('/', [
 
     // Validate categories array
     if (!productData.categories || productData.categories.length === 0) {
+      console.log('[PRODUCT CREATION] Categories validation failed: empty or missing');
       return res.status(400).json({
         error: 'At least one category is required'
       });
     }
 
     // Check if all categories exist
+    console.log('[PRODUCT CREATION] Checking categories:', productData.categories);
     const categories = await prisma.category.findMany({
       where: { id: { in: productData.categories } }
     });
 
+    console.log('[PRODUCT CREATION] Found categories:', categories.length, 'out of', productData.categories.length);
+
     if (categories.length !== productData.categories.length) {
+      console.log('[PRODUCT CREATION] Categories not found:', productData.categories.filter(id => !categories.find(c => c.id === id)));
       return res.status(404).json({
         error: 'One or more categories not found'
       });
     }
 
     // Check if brand exists
+    console.log('[PRODUCT CREATION] Checking brand:', productData.brandId);
     const brand = await prisma.brand.findUnique({
       where: { id: productData.brandId }
     });
 
     if (!brand) {
+      console.log('[PRODUCT CREATION] Brand not found:', productData.brandId);
       return res.status(404).json({
         error: 'Brand not found'
       });
     }
 
-    // Create product with categories
-    const product = await prisma.product.create({
-      data: {
-        sku: productData.sku,
-        name: productData.name,
-        nameEn: productData.nameEn,
-        nameBn: productData.nameBn || null,
-        slug: productData.slug,
-        shortDescription: productData.shortDescription || null,
-        description: productData.description || null,
-        brandId: productData.brandId,
-        regularPrice: parseFloat(productData.regularPrice),
-        salePrice: productData.salePrice ? parseFloat(productData.salePrice) : null,
-        costPrice: parseFloat(productData.costPrice),
-        taxRate: productData.taxRate ? parseFloat(productData.taxRate) : 0,
-        stockQuantity: productData.stockQuantity || 0,
-        lowStockThreshold: productData.lowStockThreshold || 10,
-        status: productData.status || 'active',
-        visibility: productData.visibility || 'public',
-        metaTitle: productData.metaTitle || null,
-        metaDescription: productData.metaDescription || null,
-        metaKeywords: productData.metaKeywords || null,
-        isFeatured: productData.isFeatured || false,
-        isNewArrival: productData.isNewArrival || false,
-        isBestSeller: productData.isBestSeller || false,
-        warrantyPeriod: productData.warrantyPeriod || null,
-        warrantyType: productData.warrantyType || null,
-        publishedAt: productData.status === 'published' ? new Date() : null,
-        categories: {
-          create: productData.categories.map((categoryId, index) => ({
-            categoryId,
-            isPrimary: index === 0 // First category is primary
-          }))
-        }
-      },
-      include: {
-        categories: {
-          include: {
-            category: true
+    console.log('[PRODUCT CREATION] All validations passed, creating product...');
+
+    try {
+      // Create product with categories
+      const product = await prisma.product.create({
+        data: {
+          sku: productData.sku,
+          name: productData.name,
+          nameEn: productData.nameEn,
+          nameBn: productData.nameBn || null,
+          slug: productData.slug,
+          shortDescription: productData.shortDescription || null,
+          description: productData.description || null,
+          brandId: productData.brandId,
+          regularPrice: parseFloat(productData.regularPrice),
+          salePrice: productData.salePrice ? parseFloat(productData.salePrice) : null,
+          costPrice: parseFloat(productData.costPrice),
+          taxRate: productData.taxRate ? parseFloat(productData.taxRate) : 0,
+          stockQuantity: productData.stockQuantity || 0,
+          lowStockThreshold: productData.lowStockThreshold || 10,
+          status: productData.status || 'active',
+          visibility: productData.visibility || 'public',
+          metaTitle: productData.metaTitle || null,
+          metaDescription: productData.metaDescription || null,
+          metaKeywords: productData.metaKeywords || null,
+          isFeatured: productData.isFeatured || false,
+          isNewArrival: productData.isNewArrival || false,
+          isBestSeller: productData.isBestSeller || false,
+          warrantyPeriod: productData.warrantyPeriod || null,
+          warrantyType: productData.warrantyType || null,
+          publishedAt: productData.status === 'published' ? new Date() : null,
+          categories: {
+            create: productData.categories.map((categoryId, index) => ({
+              categoryId,
+              isPrimary: index === 0 // First category is primary
+            }))
           }
         },
-        brand: true,
-        images: true
+        include: {
+          categories: {
+            include: {
+              category: true
+            }
+          },
+          brand: true,
+          images: true
+        }
+      });
+
+      console.log('[PRODUCT CREATION] Product created successfully:', product.id);
+
+      // Index product in Elasticsearch (non-blocking)
+      if (elasticsearchConfig.isAvailable()) {
+        productIndexingService.indexProduct(product.id)
+          .catch(error => {
+            console.error('[PRODUCT CREATION] Failed to index product in Elasticsearch:', error);
+          });
       }
-    });
+
+      res.status(201).json({
+        message: 'Product created successfully',
+        product
+      });
+
+    } catch (error) {
+      console.error('[PRODUCT CREATION] ERROR:', error);
+      console.error('[PRODUCT CREATION] Error details:', {
+        message: error.message,
+        code: error.code,
+        meta: error.meta,
+        stack: error.stack
+      });
+
+      res.status(500).json({
+        error: 'Failed to create product',
+        message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      });
+    }
 
     // Index product in Elasticsearch (non-blocking)
     if (elasticsearchConfig.isAvailable()) {
@@ -2439,6 +2556,11 @@ router.post('/:id/cross-sell', [
             salePrice: true,
             images: {
               take: 1,
+              where: {
+                processingStatus: {
+                  not: 'deleted'
+                }
+              },
               orderBy: { displayOrder: 'asc' }
             }
           }
@@ -2556,6 +2678,11 @@ router.patch('/:id/cross-sell/reorder', [
             salePrice: true,
             images: {
               take: 1,
+              where: {
+                processingStatus: {
+                  not: 'deleted'
+                }
+              },
               orderBy: { displayOrder: 'asc' }
             }
           }
@@ -2665,6 +2792,11 @@ router.post('/:id/up-sell', [
             salePrice: true,
             images: {
               take: 1,
+              where: {
+                processingStatus: {
+                  not: 'deleted'
+                }
+              },
               orderBy: { displayOrder: 'asc' }
             }
           }
@@ -2782,6 +2914,11 @@ router.patch('/:id/up-sell/reorder', [
             salePrice: true,
             images: {
               take: 1,
+              where: {
+                processingStatus: {
+                  not: 'deleted'
+                }
+              },
               orderBy: { displayOrder: 'asc' }
             }
           }
@@ -3741,6 +3878,11 @@ router.post('/:id/related', [
             salePrice: true,
             images: {
               take: 1,
+              where: {
+                processingStatus: {
+                  not: 'deleted'
+                }
+              },
               orderBy: { displayOrder: 'asc' }
             }
           }
@@ -3858,6 +4000,11 @@ router.patch('/:id/reorder-related', [
             salePrice: true,
             images: {
               take: 1,
+              where: {
+                processingStatus: {
+                  not: 'deleted'
+                }
+              },
               orderBy: { displayOrder: 'asc' }
             }
           }

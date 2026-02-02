@@ -53,7 +53,11 @@ export const CorporateAPI = {
       formData.append('vatCertificate', data.documents.vatCertificate);
     }
     
-    const response = await apiClient.post<{ accountId: string; status: string }>('/corporate/register', formData);
+    const response = await apiClient.post<{ accountId: string; status: string }>(
+      '/corporate/register',
+      formData,
+      { timeout: 60000 } // 60 second timeout for corporate registration with documents
+    );
     return response;
   },
 
@@ -222,7 +226,11 @@ export const PurchaseOrderAPI = {
       formData.append('document', data.document);
     }
     
-    const response = await apiClient.post<PurchaseOrder>(`/corporate/${accountId}/purchase-orders`, formData);
+    const response = await apiClient.post<PurchaseOrder>(
+      `/corporate/${accountId}/purchase-orders`,
+      formData,
+      { timeout: 60000 } // 60 second timeout for purchase order with document
+    );
     return response;
   },
 

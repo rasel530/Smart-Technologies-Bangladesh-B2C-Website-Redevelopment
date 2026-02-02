@@ -1,31 +1,41 @@
 module.exports = {
+  preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node',
   testMatch: [
     '**/__tests__/**/*.test.js',
     '**/__tests__/**/*.test.ts',
-    '**/?(*.)+(spec|test).js'
+    '**/tests/**/*.test.js',
+    '**/tests/**/*.test.ts',
+    '**/?(*.)+(spec|test).js',
+    '**/?(*.)+(spec|test).ts'
   ],
   collectCoverageFrom: [
     'routes/**/*.js',
     'services/**/*.js',
-    'middleware/**/*.js',
+    'services/**/*.ts',
+    'controllers/**/*.js',
     '!**/node_modules/**',
-    '!**/coverage/**'
+    '!**/coverage/**',
+    '!**/types/**'
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
   verbose: true,
   testTimeout: 30000,
-  setupFilesAfterEnv: ['<rootDir>/__tests__/setup.js'],
   testPathIgnorePatterns: [
     '/node_modules/',
     '/coverage/',
     '/dist/'
   ],
   transform: {
-    '^.+\\.js$': 'babel-jest'
+    '^.+\\.tsx?$': ['ts-jest', {
+      tsconfig: {
+        esModuleInterop: true,
+        allowSyntheticDefaultImports: true
+      }
+    }]
   },
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/../frontend/src/$1'
   }
 };

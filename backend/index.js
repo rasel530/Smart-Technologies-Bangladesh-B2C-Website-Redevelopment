@@ -140,11 +140,31 @@ const rbacEscalationRoutes = require('./routes/rbacEscalation');
 const rbacAuthCheckRoutes = require('./routes/rbacAuthCheck');
 
 const corporateRoutes = require('./routes/corporate');
+const elasticsearchRoutes = require('./routes/admin/elasticsearch');
 const productImagesRoutes = require('./routes/product-images');
 const adminProductImagesRoutes = require('./routes/admin-product-images');
+const imagesRoutes = require('./routes/images');
+const { router: searchRoutes, initializeSearchController } = require('./routes/searchRoutes');
+const { router: adminSearchRoutes, initializeAdminSearchController } = require('./routes/adminSearchRoutes');
 
 const app = express();
 const PORT = configService.get('PORT');
+
+// Initialize SearchService and controllers
+const { SearchService } = require('./services/searchService');
+const { elasticsearchClientService } = require('./services/elasticsearch/client');
+const { PrismaClient } = require('@prisma/client');
+
+// Create search service instance
+const searchService = new SearchService(
+  elasticsearchClientService.getClient(),
+  new PrismaClient(),
+  redisConnectionPool.getClient()
+);
+
+// Initialize search controllers
+initializeSearchController(searchService);
+initializeAdminSearchController(searchService);
 
 // Enhanced CORS configuration with strict origin validation
 const corsConfig = configService.getCORSConfig();
@@ -395,8 +415,20 @@ app.use('/api/v1/rbac/auth', rbacAuthCheckRoutes);
 // Corporate account management routes
 app.use('/api/v1/corporate', corporateRoutes);
 
+// Elasticsearch admin routes
+app.use('/api/v1/admin/elasticsearch', elasticsearchRoutes);
+
 // Product image management routes
 app.use('/api/v1/products', productImagesRoutes);
+
+// Image management routes (individual image operations)
+app.use('/api/v1/images', imagesRoutes);
+
+// Search routes
+app.use('/api/search', searchRoutes);
+
+// Admin search routes
+app.use('/api/admin/search', adminSearchRoutes);
 
 // Admin product image management routes
 app.use('/api/v1/admin/products', adminProductImagesRoutes);
@@ -738,6 +770,17 @@ app.use((req, res) => {
         escalation: '/api/v1/rbac/role-escalation-requests',
         auth: '/api/v1/rbac/auth'
       },
+      search: {
+        products: '/api/search/products',
+        autocomplete: '/api/search/autocomplete',
+        suggestions: '/api/search/suggestions',
+        popular: '/api/search/popular'
+      },
+      adminSearch: {
+        analytics: '/api/admin/search/analytics',
+        popular: '/api/admin/search/popular',
+        performance: '/api/admin/search/performance'
+      },
       corporate: '/api/v1/corporate',
       productImages: {
         upload: '/api/v1/products/:id/images',
@@ -868,6 +911,18 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
     loggerService.info('✅ Login security service initialized successfully');
   } catch (error) {
     loggerService.error('❌ Login security service initialization failed', {
+      error: error.message,
+      stack: error.stack
+    });
+  }
+
+  // Initialize search service
+  loggerService.info('🔄 Starting search service initialization...');
+  try {
+    await searchService.initialize();
+    loggerService.info('✅ Search service initialized successfully');
+  } catch (error) {
+    loggerService.error('❌ Search service initialization failed', {
       error: error.message,
       stack: error.stack
     });

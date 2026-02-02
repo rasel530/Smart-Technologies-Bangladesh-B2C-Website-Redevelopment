@@ -1,0 +1,86 @@
+{
+  "total": 13,
+  "passed": 0,
+  "failed": 4,
+  "skipped": 9,
+  "tests": [
+    {
+      "name": "Admin login endpoint accessible",
+      "passed": false,
+      "message": "Status: 400",
+      "timestamp": "2026-01-31T16:19:41.997Z"
+    },
+    {
+      "name": "Authentication token received",
+      "passed": false,
+      "message": "No token received",
+      "timestamp": "2026-01-31T16:19:41.998Z"
+    },
+    {
+      "name": "API endpoint tests",
+      "passed": null,
+      "message": "Skipped: Authentication failed",
+      "timestamp": "2026-01-31T16:19:41.998Z"
+    },
+    {
+      "name": "Cluster health endpoints",
+      "passed": null,
+      "message": "Skipped: No authentication token",
+      "timestamp": "2026-01-31T16:19:41.999Z"
+    },
+    {
+      "name": "Index management endpoints",
+      "passed": null,
+      "message": "Skipped: No authentication token",
+      "timestamp": "2026-01-31T16:19:41.999Z"
+    },
+    {
+      "name": "Backup management endpoints",
+      "passed": null,
+      "message": "Skipped: No authentication token",
+      "timestamp": "2026-01-31T16:19:41.999Z"
+    },
+    {
+      "name": "Performance monitoring endpoints",
+      "passed": null,
+      "message": "Skipped: No authentication token",
+      "timestamp": "2026-01-31T16:19:42.000Z"
+    },
+    {
+      "name": "Cache management endpoints",
+      "passed": null,
+      "message": "Skipped: No authentication token",
+      "timestamp": "2026-01-31T16:19:42.000Z"
+    },
+    {
+      "name": "Synonym management endpoints",
+      "passed": null,
+      "message": "Skipped: No authentication token",
+      "timestamp": "2026-01-31T16:19:42.000Z"
+    },
+    {
+      "name": "GET /health - Requires authentication",
+      "passed": false,
+      "message": "Status: 404 (expected 401/403)",
+      "timestamp": "2026-01-31T16:19:42.015Z"
+    },
+    {
+      "name": "GET /health - Rejects invalid token",
+      "passed": false,
+      "message": "Status: 404 (expected 401/403)",
+      "timestamp": "2026-01-31T16:19:42.026Z"
+    },
+    {
+      "name": "Error handling tests",
+      "passed": null,
+      "message": "Skipped: No authentication token",
+      "timestamp": "2026-01-31T16:19:42.026Z"
+    },
+    {
+      "name": "Response format tests",
+      "passed": null,
+      "message": "Skipped: No authentication token",
+      "timestamp": "2026-01-31T16:19:42.027Z"
+    }
+  ]
+}

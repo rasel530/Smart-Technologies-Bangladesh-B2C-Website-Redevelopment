@@ -39,8 +39,8 @@ export default function CategoriesPage() {
       try {
         setLoading(true);
         const [categoriesData, treeData] = await Promise.all([
-          getCategories({ tree: true }),
-          getCategoryTree(),
+          getCategories({ status: 'active' }),
+          getCategoryTree('active'),
         ]);
         setCategories((categoriesData.categories as CategoryWithRelations[]) || []);
         setFilteredCategories((categoriesData.categories as CategoryWithRelations[]) || []);

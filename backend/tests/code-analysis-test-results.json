@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-01-28T04:00:59.283Z",
+  "timestamp": "2026-02-02T09:40:30.258Z",
   "summary": {
-    "totalPassed": 11,
-    "totalFailed": 1,
+    "totalPassed": 7,
+    "totalFailed": 5,
     "totalTests": 12,
-    "successRate": "91.67%"
+    "successRate": "58.33%"
   },
   "issues": {
     "issue1": {
@@ -20,7 +20,7 @@
             "errorToast": true,
             "successMessage": true
           },
-          "timestamp": "2026-01-28T04:00:59.268Z"
+          "timestamp": "2026-02-02T09:40:29.846Z"
         },
         {
           "testName": "Success message in handleSubmit",
@@ -32,7 +32,7 @@
             "toastErrorInCatch": true,
             "onSubmitHandler": true
           },
-          "timestamp": "2026-01-28T04:00:59.269Z"
+          "timestamp": "2026-02-02T09:40:29.850Z"
         },
         {
           "testName": "Error message handling",
@@ -43,7 +43,7 @@
             "errorTitle": true,
             "consoleError": true
           },
-          "timestamp": "2026-01-28T04:00:59.270Z"
+          "timestamp": "2026-02-02T09:40:29.853Z"
         }
       ],
       "passed": 3,
@@ -61,7 +61,7 @@
             "NEXT_PUBLIC_BACKEND_API_URL": true,
             "NEXT_PUBLIC_API_URL": true
           },
-          "timestamp": "2026-01-28T04:00:59.271Z"
+          "timestamp": "2026-02-02T09:40:29.881Z"
         },
         {
           "testName": "ProductList error handling",
@@ -76,20 +76,20 @@
             "serverErrorHandling": true,
             "consoleLogging": true
           },
-          "timestamp": "2026-01-28T04:00:59.272Z"
+          "timestamp": "2026-02-02T09:40:29.902Z"
         },
         {
           "testName": "Products page error handling",
           "passed": false,
           "message": "Error handling is incomplete",
           "details": {
-            "errorState": true,
+            "errorState": false,
             "tryCatch": false,
-            "errorDisplay": true,
+            "errorDisplay": false,
             "consoleLogging": true,
-            "defaultValues": true
+            "defaultValues": false
           },
-          "timestamp": "2026-01-28T04:00:59.272Z"
+          "timestamp": "2026-02-02T09:40:29.912Z"
         },
         {
           "testName": "API client enhanced logging",
@@ -101,42 +101,42 @@
             "errorLogging": true,
             "detailedErrorInfo": true
           },
-          "timestamp": "2026-01-28T04:00:59.275Z"
+          "timestamp": "2026-02-02T09:40:29.968Z"
         },
         {
           "testName": "Products API enhanced logging",
-          "passed": true,
-          "message": "Enhanced logging is implemented",
+          "passed": false,
+          "message": "Enhanced logging is incomplete",
           "details": {
             "fetchLogging": true,
             "successLogging": true,
             "errorLogging": true,
-            "detailedErrorInfo": true
+            "detailedErrorInfo": false
           },
-          "timestamp": "2026-01-28T04:00:59.276Z"
+          "timestamp": "2026-02-02T09:40:29.977Z"
         }
       ],
-      "passed": 4,
-      "failed": 1
+      "passed": 3,
+      "failed": 2
     },
     "issue3": {
       "name": "Issue #3: Product image upload",
       "tests": [
         {
           "testName": "Backend comprehensive error handling",
-          "passed": true,
-          "message": "Comprehensive error handling and logging is implemented",
+          "passed": false,
+          "message": "Some error handling features are missing",
           "details": {
-            "comprehensiveLogging": true,
+            "comprehensiveLogging": false,
             "errorHandling": true,
             "fileCleanup": true,
             "detailedErrors": true,
-            "prismaErrorHandling": true,
-            "bilingualMessages": true,
-            "statusCodeHandling": true,
-            "errorDetails": true
+            "prismaErrorHandling": false,
+            "bilingualMessages": false,
+            "statusCodeHandling": false,
+            "errorDetails": false
           },
-          "timestamp": "2026-01-28T04:00:59.278Z"
+          "timestamp": "2026-02-02T09:40:29.999Z"
         },
         {
           "testName": "File validation implementation",
@@ -151,36 +151,36 @@
             "fileSizeLimit": true,
             "errorCallback": true
           },
-          "timestamp": "2026-01-28T04:00:59.279Z"
+          "timestamp": "2026-02-02T09:40:30.050Z"
         },
         {
           "testName": "File cleanup on error",
-          "passed": true,
-          "message": "File cleanup on error is implemented",
+          "passed": false,
+          "message": "File cleanup on error is incomplete",
           "details": {
-            "cleanupBlock": true,
+            "cleanupBlock": false,
             "fsUnlink": true,
-            "cleanupErrorHandling": true,
-            "cleanupLogging": true
+            "cleanupErrorHandling": false,
+            "cleanupLogging": false
           },
-          "timestamp": "2026-01-28T04:00:59.280Z"
+          "timestamp": "2026-02-02T09:40:30.054Z"
         },
         {
           "testName": "Detailed error logging",
-          "passed": true,
-          "message": "Detailed error logging is implemented",
+          "passed": false,
+          "message": "Detailed error logging is incomplete",
           "details": {
-            "errorNameLogging": true,
-            "errorMessageLogging": true,
-            "errorCodeLogging": true,
-            "errorMetaLogging": true,
-            "errorStackLogging": true
+            "errorNameLogging": false,
+            "errorMessageLogging": false,
+            "errorCodeLogging": false,
+            "errorMetaLogging": false,
+            "errorStackLogging": false
           },
-          "timestamp": "2026-01-28T04:00:59.281Z"
+          "timestamp": "2026-02-02T09:40:30.061Z"
         }
       ],
-      "passed": 4,
-      "failed": 0
+      "passed": 1,
+      "failed": 3
     }
   }
 }

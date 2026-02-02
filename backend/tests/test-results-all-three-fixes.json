@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-01-28T03:58:32.181Z",
+  "timestamp": "2026-02-02T09:40:59.117Z",
   "summary": {
-    "totalPassed": 1,
-    "totalFailed": 8,
+    "totalPassed": 7,
+    "totalFailed": 2,
     "totalTests": 9,
-    "successRate": "11.11%"
+    "successRate": "77.78%"
   },
   "issues": {
     "issue1": {
@@ -15,7 +15,7 @@
           "passed": false,
           "message": "Could not authenticate",
           "details": {},
-          "timestamp": "2026-01-28T03:58:32.176Z"
+          "timestamp": "2026-02-02T09:40:46.382Z"
         }
       ],
       "passed": 0,
@@ -26,57 +26,77 @@
       "tests": [
         {
           "testName": "Public products API endpoint",
-          "passed": false,
-          "message": "Error: fetch is not a function",
+          "passed": true,
+          "message": "Successfully fetched 1 products",
           "details": {
-            "error": "fetch is not a function"
+            "productsCount": 1,
+            "pagination": {
+              "page": 1,
+              "limit": 20,
+              "total": 1,
+              "pages": 1
+            }
           },
-          "timestamp": "2026-01-28T03:58:32.177Z"
+          "timestamp": "2026-02-02T09:40:55.958Z"
         },
         {
           "testName": "Products API with filters",
-          "passed": false,
-          "message": "Error: fetch is not a function",
+          "passed": true,
+          "message": "Successfully fetched 1 filtered products",
           "details": {
-            "error": "fetch is not a function"
+            "productsCount": 1,
+            "filters": {
+              "status": "active",
+              "visibility": "public"
+            }
           },
-          "timestamp": "2026-01-28T03:58:32.178Z"
+          "timestamp": "2026-02-02T09:40:57.838Z"
         },
         {
           "testName": "Featured products endpoint",
-          "passed": false,
-          "message": "Error: fetch is not a function",
+          "passed": true,
+          "message": "Successfully fetched 1 featured products",
           "details": {
-            "error": "fetch is not a function"
+            "productsCount": 1
           },
-          "timestamp": "2026-01-28T03:58:32.178Z"
+          "timestamp": "2026-02-02T09:40:57.969Z"
         },
         {
           "testName": "New arrivals endpoint",
-          "passed": false,
-          "message": "Error: fetch is not a function",
+          "passed": true,
+          "message": "Successfully fetched 1 new arrival products",
           "details": {
-            "error": "fetch is not a function"
+            "productsCount": 1
           },
-          "timestamp": "2026-01-28T03:58:32.179Z"
+          "timestamp": "2026-02-02T09:40:58.044Z"
         },
         {
           "testName": "Best sellers endpoint",
-          "passed": false,
-          "message": "Error: fetch is not a function",
+          "passed": true,
+          "message": "Successfully fetched 1 best seller products",
           "details": {
-            "error": "fetch is not a function"
+            "productsCount": 1
           },
-          "timestamp": "2026-01-28T03:58:32.179Z"
+          "timestamp": "2026-02-02T09:40:58.100Z"
         },
         {
-          "testName": "Error handling test",
-          "passed": false,
-          "message": "Error: fetch is not a function",
+          "testName": "Error handling for invalid filter",
+          "passed": true,
+          "message": "Proper error returned for invalid filter value",
           "details": {
-            "error": "fetch is not a function"
+            "status": 400,
+            "error": "Validation failed",
+            "details": [
+              {
+                "type": "field",
+                "value": "invalid-status",
+                "msg": "Invalid value",
+                "path": "status",
+                "location": "query"
+              }
+            ]
           },
-          "timestamp": "2026-01-28T03:58:32.179Z"
+          "timestamp": "2026-02-02T09:40:58.121Z"
         },
         {
           "testName": "Environment variables configuration",
@@ -87,11 +107,11 @@
             "NEXT_PUBLIC_BACKEND_API_URL": true,
             "NEXT_PUBLIC_API_URL": true
           },
-          "timestamp": "2026-01-28T03:58:32.179Z"
+          "timestamp": "2026-02-02T09:40:58.132Z"
         }
       ],
-      "passed": 1,
-      "failed": 6
+      "passed": 7,
+      "failed": 0
     },
     "issue3": {
       "name": "Issue #3: Product image upload",
@@ -101,7 +121,7 @@
           "passed": false,
           "message": "Could not authenticate",
           "details": {},
-          "timestamp": "2026-01-28T03:58:32.180Z"
+          "timestamp": "2026-02-02T09:40:58.245Z"
         }
       ],
       "passed": 0,

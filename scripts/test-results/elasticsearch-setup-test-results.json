@@ -1,0 +1,770 @@
+{
+  "total": 44,
+  "passed": 32,
+  "failed": 11,
+  "skipped": 1,
+  "tests": [
+    {
+      "name": "Environment variable ELASTICSEARCH_NODE is set",
+      "passed": true,
+      "message": "Value: http://elasticsearch:9200",
+      "timestamp": "2026-01-31T16:11:20.201Z"
+    },
+    {
+      "name": "Environment variable REDIS_HOST is set",
+      "passed": true,
+      "message": "Value: redis",
+      "timestamp": "2026-01-31T16:11:20.201Z"
+    },
+    {
+      "name": "Environment variable REDIS_PORT is set",
+      "passed": true,
+      "message": "Value: 6379",
+      "timestamp": "2026-01-31T16:11:20.201Z"
+    },
+    {
+      "name": "Environment variable REDIS_PASSWORD is set",
+      "passed": true,
+      "message": "Value: redis_smarttech_2024",
+      "timestamp": "2026-01-31T16:11:20.201Z"
+    },
+    {
+      "name": "Environment variable ELASTICSEARCH_NODE has valid URL format",
+      "passed": true,
+      "message": "URL: http://elasticsearch:9200",
+      "timestamp": "2026-01-31T16:11:20.201Z"
+    },
+    {
+      "name": "Environment variable DATABASE_URL has valid URL format",
+      "passed": false,
+      "message": "Invalid URL format",
+      "timestamp": "2026-01-31T16:11:20.201Z"
+    },
+    {
+      "name": "Elasticsearch client initialized",
+      "passed": true,
+      "message": "Client instance created successfully",
+      "timestamp": "2026-01-31T16:11:21.043Z"
+    },
+    {
+      "name": "Elasticsearch cluster health check",
+      "passed": false,
+      "message": "Error: getaddrinfo ENOTFOUND elasticsearch",
+      "timestamp": "2026-01-31T16:11:37.680Z"
+    },
+    {
+      "name": "Elasticsearch connection status",
+      "passed": false,
+      "message": "Not connected",
+      "timestamp": "2026-01-31T16:11:37.680Z"
+    },
+    {
+      "name": "Elasticsearch ping",
+      "passed": false,
+      "message": "Ping failed",
+      "timestamp": "2026-01-31T16:11:54.881Z"
+    },
+    {
+      "name": "Elasticsearch cluster information",
+      "passed": false,
+      "message": "Error: getaddrinfo ENOTFOUND elasticsearch",
+      "timestamp": "2026-01-31T16:12:12.075Z"
+    },
+    {
+      "name": "Product index mapping exists",
+      "passed": {
+        "properties": {
+          "id": {
+            "type": "keyword"
+          },
+          "sku": {
+            "type": "keyword"
+          },
+          "name": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              },
+              "autocomplete": {
+                "type": "text",
+                "analyzer": "autocomplete"
+              },
+              "english": {
+                "type": "text",
+                "analyzer": "english"
+              },
+              "bengali": {
+                "type": "text",
+                "analyzer": "bengali"
+              }
+            }
+          },
+          "nameEn": {
+            "type": "text",
+            "analyzer": "english",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "nameBn": {
+            "type": "text",
+            "analyzer": "bengali",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "description": {
+            "type": "text",
+            "fields": {
+              "english": {
+                "type": "text",
+                "analyzer": "english"
+              },
+              "bengali": {
+                "type": "text",
+                "analyzer": "bengali"
+              }
+            }
+          },
+          "shortDescription": {
+            "type": "text"
+          },
+          "price": {
+            "type": "float"
+          },
+          "stockQuantity": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "keyword"
+          },
+          "category": {
+            "properties": {
+              "id": {
+                "type": "keyword"
+              },
+              "name": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "ignore_above": 256
+                  }
+                }
+              }
+            }
+          },
+          "brand": {
+            "properties": {
+              "id": {
+                "type": "keyword"
+              },
+              "name": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "ignore_above": 256
+                  }
+                }
+              }
+            }
+          },
+          "specifications": {
+            "type": "object",
+            "enabled": false
+          },
+          "images": {
+            "type": "keyword"
+          },
+          "createdAt": {
+            "type": "date",
+            "format": "strict_date_optional_time||epoch_millis"
+          },
+          "updatedAt": {
+            "type": "date",
+            "format": "strict_date_optional_time||epoch_millis"
+          }
+        }
+      },
+      "message": "Product mapping has required structure",
+      "timestamp": "2026-01-31T16:12:12.076Z"
+    },
+    {
+      "name": "Category index mapping exists",
+      "passed": {
+        "properties": {
+          "id": {
+            "type": "keyword"
+          },
+          "name": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              },
+              "autocomplete": {
+                "type": "text",
+                "analyzer": "autocomplete"
+              },
+              "english": {
+                "type": "text",
+                "analyzer": "english"
+              },
+              "bengali": {
+                "type": "text",
+                "analyzer": "bengali"
+              }
+            }
+          },
+          "nameEn": {
+            "type": "text",
+            "analyzer": "english",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "nameBn": {
+            "type": "text",
+            "analyzer": "bengali",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "slug": {
+            "type": "keyword"
+          },
+          "description": {
+            "type": "text",
+            "fields": {
+              "english": {
+                "type": "text",
+                "analyzer": "english"
+              },
+              "bengali": {
+                "type": "text",
+                "analyzer": "bengali"
+              }
+            }
+          },
+          "parentId": {
+            "type": "keyword"
+          },
+          "level": {
+            "type": "integer"
+          },
+          "sortOrder": {
+            "type": "integer"
+          },
+          "imageUrl": {
+            "type": "keyword"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "date",
+            "format": "strict_date_optional_time||epoch_millis"
+          },
+          "updatedAt": {
+            "type": "date",
+            "format": "strict_date_optional_time||epoch_millis"
+          }
+        }
+      },
+      "message": "Category mapping has required structure",
+      "timestamp": "2026-01-31T16:12:12.076Z"
+    },
+    {
+      "name": "Brand index mapping exists",
+      "passed": {
+        "properties": {
+          "id": {
+            "type": "keyword"
+          },
+          "name": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              },
+              "autocomplete": {
+                "type": "text",
+                "analyzer": "autocomplete"
+              },
+              "english": {
+                "type": "text",
+                "analyzer": "english"
+              },
+              "bengali": {
+                "type": "text",
+                "analyzer": "bengali"
+              }
+            }
+          },
+          "nameEn": {
+            "type": "text",
+            "analyzer": "english",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "nameBn": {
+            "type": "text",
+            "analyzer": "bengali",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "slug": {
+            "type": "keyword"
+          },
+          "description": {
+            "type": "text",
+            "fields": {
+              "english": {
+                "type": "text",
+                "analyzer": "english"
+              },
+              "bengali": {
+                "type": "text",
+                "analyzer": "bengali"
+              }
+            }
+          },
+          "logoUrl": {
+            "type": "keyword"
+          },
+          "websiteUrl": {
+            "type": "keyword"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "sortOrder": {
+            "type": "integer"
+          },
+          "createdAt": {
+            "type": "date",
+            "format": "strict_date_optional_time||epoch_millis"
+          },
+          "updatedAt": {
+            "type": "date",
+            "format": "strict_date_optional_time||epoch_millis"
+          }
+        }
+      },
+      "message": "Brand mapping has required structure",
+      "timestamp": "2026-01-31T16:12:12.077Z"
+    },
+    {
+      "name": "getMapping(\"product\") returns valid mapping",
+      "passed": {
+        "properties": {
+          "id": {
+            "type": "keyword"
+          },
+          "sku": {
+            "type": "keyword"
+          },
+          "name": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              },
+              "autocomplete": {
+                "type": "text",
+                "analyzer": "autocomplete"
+              },
+              "english": {
+                "type": "text",
+                "analyzer": "english"
+              },
+              "bengali": {
+                "type": "text",
+                "analyzer": "bengali"
+              }
+            }
+          },
+          "nameEn": {
+            "type": "text",
+            "analyzer": "english",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "nameBn": {
+            "type": "text",
+            "analyzer": "bengali",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "description": {
+            "type": "text",
+            "fields": {
+              "english": {
+                "type": "text",
+                "analyzer": "english"
+              },
+              "bengali": {
+                "type": "text",
+                "analyzer": "bengali"
+              }
+            }
+          },
+          "shortDescription": {
+            "type": "text"
+          },
+          "price": {
+            "type": "float"
+          },
+          "stockQuantity": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "keyword"
+          },
+          "category": {
+            "properties": {
+              "id": {
+                "type": "keyword"
+              },
+              "name": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "ignore_above": 256
+                  }
+                }
+              }
+            }
+          },
+          "brand": {
+            "properties": {
+              "id": {
+                "type": "keyword"
+              },
+              "name": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "ignore_above": 256
+                  }
+                }
+              }
+            }
+          },
+          "specifications": {
+            "type": "object",
+            "enabled": false
+          },
+          "images": {
+            "type": "keyword"
+          },
+          "createdAt": {
+            "type": "date",
+            "format": "strict_date_optional_time||epoch_millis"
+          },
+          "updatedAt": {
+            "type": "date",
+            "format": "strict_date_optional_time||epoch_millis"
+          }
+        }
+      },
+      "message": "Product mapping retrieved successfully",
+      "timestamp": "2026-01-31T16:12:12.077Z"
+    },
+    {
+      "name": "getAllMappings returns all mappings",
+      "passed": {
+        "mappings": {
+          "properties": {
+            "id": {
+              "type": "keyword"
+            },
+            "name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                },
+                "autocomplete": {
+                  "type": "text",
+                  "analyzer": "autocomplete"
+                },
+                "english": {
+                  "type": "text",
+                  "analyzer": "english"
+                },
+                "bengali": {
+                  "type": "text",
+                  "analyzer": "bengali"
+                }
+              }
+            },
+            "nameEn": {
+              "type": "text",
+              "analyzer": "english",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "nameBn": {
+              "type": "text",
+              "analyzer": "bengali",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "slug": {
+              "type": "keyword"
+            },
+            "description": {
+              "type": "text",
+              "fields": {
+                "english": {
+                  "type": "text",
+                  "analyzer": "english"
+                },
+                "bengali": {
+                  "type": "text",
+                  "analyzer": "bengali"
+                }
+              }
+            },
+            "logoUrl": {
+              "type": "keyword"
+            },
+            "websiteUrl": {
+              "type": "keyword"
+            },
+            "isActive": {
+              "type": "boolean"
+            },
+            "sortOrder": {
+              "type": "integer"
+            },
+            "createdAt": {
+              "type": "date",
+              "format": "strict_date_optional_time||epoch_millis"
+            },
+            "updatedAt": {
+              "type": "date",
+              "format": "strict_date_optional_time||epoch_millis"
+            }
+          }
+        }
+      },
+      "message": "All three mappings retrieved successfully",
+      "timestamp": "2026-01-31T16:12:12.077Z"
+    },
+    {
+      "name": "validateMapping validates mapping structure",
+      "passed": true,
+      "message": "Mapping structure is valid",
+      "timestamp": "2026-01-31T16:12:12.077Z"
+    },
+    {
+      "name": "validateMapping rejects invalid mapping",
+      "passed": true,
+      "message": "Invalid mapping correctly rejected",
+      "timestamp": "2026-01-31T16:12:12.077Z"
+    },
+    {
+      "name": "getIndexName(\"product\") returns correct index name",
+      "passed": true,
+      "message": "Expected: smarttech-products, Got: smarttech-products",
+      "timestamp": "2026-01-31T16:12:12.079Z"
+    },
+    {
+      "name": "getAliasName(\"product\") returns correct alias name",
+      "passed": true,
+      "message": "Expected: smarttech-products-alias, Got: smarttech-products-alias",
+      "timestamp": "2026-01-31T16:12:12.079Z"
+    },
+    {
+      "name": "getAllIndices retrieves indices",
+      "passed": false,
+      "message": "Error: getaddrinfo ENOTFOUND elasticsearch",
+      "timestamp": "2026-01-31T16:12:29.073Z"
+    },
+    {
+      "name": "checkIndexExists(\"smarttech-products\")",
+      "passed": false,
+      "message": "Error: getaddrinfo ENOTFOUND elasticsearch",
+      "timestamp": "2026-01-31T16:12:46.504Z"
+    },
+    {
+      "name": "getIndexStats(\"smarttech-products\")",
+      "passed": null,
+      "message": "Skipped: Index does not exist",
+      "timestamp": "2026-01-31T16:12:46.504Z"
+    },
+    {
+      "name": "getAllSynonyms returns array of synonyms",
+      "passed": true,
+      "message": "Found 98 synonym rules",
+      "timestamp": "2026-01-31T16:12:46.505Z"
+    },
+    {
+      "name": "getAllCategories returns array of categories",
+      "passed": true,
+      "message": "Found 10 categories",
+      "timestamp": "2026-01-31T16:12:46.505Z"
+    },
+    {
+      "name": "getCategorySynonyms(\"computing\") returns synonyms",
+      "passed": true,
+      "message": "Found 12 computing synonyms",
+      "timestamp": "2026-01-31T16:12:46.505Z"
+    },
+    {
+      "name": "searchSynonyms(\"laptop\") finds matching rules",
+      "passed": true,
+      "message": "Found 1 matching rules",
+      "timestamp": "2026-01-31T16:12:46.505Z"
+    },
+    {
+      "name": "validateSynonymRule validates correct rule",
+      "passed": true,
+      "message": "Valid synonym rule accepted",
+      "timestamp": "2026-01-31T16:12:46.505Z"
+    },
+    {
+      "name": "validateSynonymRule rejects invalid rule",
+      "passed": true,
+      "message": "Invalid synonym rule rejected",
+      "timestamp": "2026-01-31T16:12:46.505Z"
+    },
+    {
+      "name": "addSynonym adds new synonym rule",
+      "passed": true,
+      "message": "Rule added, total: 13",
+      "timestamp": "2026-01-31T16:12:46.505Z"
+    },
+    {
+      "name": "removeSynonym removes synonym rule",
+      "passed": true,
+      "message": "Rule removed, total: 12",
+      "timestamp": "2026-01-31T16:12:46.505Z"
+    },
+    {
+      "name": "exportSynonymsToFile exports synonyms",
+      "passed": true,
+      "message": "Exported 98 lines",
+      "timestamp": "2026-01-31T16:12:46.505Z"
+    },
+    {
+      "name": "importSynonymsFromFile imports synonyms",
+      "passed": true,
+      "message": "Imported 2 rules",
+      "timestamp": "2026-01-31T16:12:46.506Z"
+    },
+    {
+      "name": "getSynonymStatistics returns statistics",
+      "passed": true,
+      "message": "Total rules: 100, Categories: 11",
+      "timestamp": "2026-01-31T16:12:46.506Z"
+    },
+    {
+      "name": "Cache service tests",
+      "passed": false,
+      "message": "Failed to test cache service: Cannot find module '../backend/config/redis'\nRequire stack:\n- e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\scripts\\test-elasticsearch-setup.js",
+      "timestamp": "2026-01-31T16:12:46.506Z"
+    },
+    {
+      "name": "Performance monitor service tests",
+      "passed": false,
+      "message": "Failed to test performance monitor: Cannot find module '../backend/config/redis'\nRequire stack:\n- e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\scripts\\test-elasticsearch-setup.js",
+      "timestamp": "2026-01-31T16:12:46.506Z"
+    },
+    {
+      "name": "Elasticsearch client service initializes",
+      "passed": true,
+      "message": "Client service initialized successfully",
+      "timestamp": "2026-01-31T16:13:03.874Z"
+    },
+    {
+      "name": "Client service checks health",
+      "passed": false,
+      "message": "Error: getaddrinfo ENOTFOUND elasticsearch",
+      "timestamp": "2026-01-31T16:13:19.893Z"
+    },
+    {
+      "name": "Client service checks connection status",
+      "passed": true,
+      "message": "Connected: false",
+      "timestamp": "2026-01-31T16:13:36.034Z"
+    },
+    {
+      "name": "Client service gets cluster info",
+      "passed": false,
+      "message": "Error: getaddrinfo ENOTFOUND elasticsearch",
+      "timestamp": "2026-01-31T16:13:52.875Z"
+    },
+    {
+      "name": "Client service gets service status",
+      "passed": true,
+      "message": "Service status retrieved successfully",
+      "timestamp": "2026-01-31T16:14:44.005Z"
+    },
+    {
+      "name": "Client service gets health status",
+      "passed": true,
+      "message": "Health status: unhealthy",
+      "timestamp": "2026-01-31T16:14:44.005Z"
+    },
+    {
+      "name": "Client service gets client instance",
+      "passed": true,
+      "message": "Client instance retrieved successfully",
+      "timestamp": "2026-01-31T16:14:44.005Z"
+    },
+    {
+      "name": "Client service shuts down",
+      "passed": true,
+      "message": "Client service shut down successfully",
+      "timestamp": "2026-01-31T16:14:44.007Z"
+    }
+  ]
+}

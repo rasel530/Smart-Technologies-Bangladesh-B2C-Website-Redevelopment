@@ -34,8 +34,8 @@ class ProductIndexingService {
     const categoryPath = primaryCategory ? this.buildCategoryPath(primaryCategory.category) : [];
 
     // Get thumbnail image
-    const thumbnail = product.images.length > 0 
-      ? product.images.find(img => img.sortOrder === 0)?.url || product.images[0].url 
+    const thumbnail = product.images.length > 0
+      ? product.images.find(img => img.displayOrder === 0)?.originalUrl || product.images[0].originalUrl
       : null;
 
     // Calculate average rating
@@ -91,7 +91,7 @@ class ProductIndexingService {
       lowStockThreshold: product.lowStockThreshold,
       inStock: product.stockQuantity > 0,
       thumbnail: thumbnail,
-      images: product.images.map(img => img.url),
+      images: product.images.map(img => img.originalUrl),
       warrantyPeriod: product.warrantyPeriod,
       warrantyType: product.warrantyType,
       metaTitle: product.metaTitle,

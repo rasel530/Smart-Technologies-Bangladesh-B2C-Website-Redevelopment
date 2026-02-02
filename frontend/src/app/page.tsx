@@ -98,6 +98,13 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen">
+      {/* Category Navigation */}
+      <section className="py-8 bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4">
+          <CategoryNavigation categories={categoryNodes} />
+        </div>
+      </section>
+
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-primary-600 to-primary-800 text-white">
         <div className="container mx-auto px-4 py-16 md:py-24">
@@ -164,13 +171,6 @@ export default async function Home() {
               </p>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Category Navigation */}
-      <section className="py-12 bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4">
-          <CategoryNavigation categories={categoryNodes} />
         </div>
       </section>
 

@@ -930,7 +930,7 @@ router.get('/:id/products', [
     
     // Build where clause using ProductCategory junction table
     const where = {
-      productCategories: {
+      categories: {
         some: {
           categoryId: id
         }
@@ -965,12 +965,12 @@ router.get('/:id/products', [
             select: { id: true, name: true, slug: true }
           },
           images: {
-            where: { sortOrder: 0 },
+            where: { displayOrder: 0 },
             take: 1,
-            select: { id: true, url: true, alt: true }
+            select: { id: true, originalUrl: true, altTextEn: true }
           },
           _count: {
-            reviews: true
+            select: { reviews: true }
           }
         },
         orderBy: { [sortBy]: sortOrder }
@@ -979,7 +979,7 @@ router.get('/:id/products', [
     ]);
 
     // Serialize Decimal values to numbers
-    products = products.map(serializeProduct);
+    const serializedProducts = products.map(serializeProduct);
 
     res.json({
       category: {
@@ -988,7 +988,7 @@ router.get('/:id/products', [
         slug: category.slug,
         imageUrl: category.imageUrl
       },
-      products,
+      products: serializedProducts,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),

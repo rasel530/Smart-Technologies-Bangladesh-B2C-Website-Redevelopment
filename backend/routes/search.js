@@ -713,7 +713,7 @@ async function performPostgreSQLSearch(params) {
           select: { id: true, name: true, slug: true }
         },
         images: {
-          orderBy: { sortOrder: 'asc' },
+          orderBy: { displayOrder: 'asc' },
           take: 1
         },
         _count: {

@@ -99,7 +99,7 @@ router.get('/:id', [
           select: { id: true, name: true, sku: true },
           include: {
             images: {
-              where: { sortOrder: 0 },
+              where: { displayOrder: 0 },
               take: 1,
               select: { id: true, url: true, alt: true }
             }

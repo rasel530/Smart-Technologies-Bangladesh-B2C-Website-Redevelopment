@@ -1,0 +1,108 @@
+{
+  "timestamp": "2026-02-02T12:31:31.795Z",
+  "databaseConnection": {
+    "status": "connected",
+    "error": null
+  },
+  "categories": {
+    "total": 16,
+    "active": 16,
+    "inactive": 0,
+    "sample": [
+      {
+        "id": "384f8b71-756d-48ca-9406-b173284926f1",
+        "name": "Acer Laptop",
+        "slug": "acer-laptop",
+        "status": "active",
+        "hasParent": true
+      },
+      {
+        "id": "676bf4dd-047b-470c-acbc-2d8f01c76858",
+        "name": "Bulk Category 1",
+        "slug": "bulk-category-1-1770025255391-0xiyzd6we",
+        "status": "active",
+        "hasParent": false
+      },
+      {
+        "id": "4e26aa1d-9c06-4b0e-9c89-ad9ddfe6e8d5",
+        "name": "Bulk Category 1",
+        "slug": "bulk-category-1-1769497756966-2jd1zb4n3",
+        "status": "active",
+        "hasParent": false
+      },
+      {
+        "id": "5a362576-493f-4245-b11a-cf05629aaa4b",
+        "name": "Bulk Category 2",
+        "slug": "bulk-category-2-1770025255391-fp9543hw4",
+        "status": "active",
+        "hasParent": false
+      },
+      {
+        "id": "e458be27-0d0f-4ec1-8daa-8ba2de520be5",
+        "name": "Bulk Category 2",
+        "slug": "bulk-category-2-1769497756966-t4z224zc9",
+        "status": "active",
+        "hasParent": false
+      }
+    ],
+    "issues": []
+  },
+  "brands": {
+    "total": 36,
+    "active": 36,
+    "inactive": 0,
+    "sample": [
+      {
+        "id": "14907a1d-2cac-421f-864e-603f51751fbb",
+        "name": "Acer",
+        "slug": "acer",
+        "status": "active"
+      },
+      {
+        "id": "10594c15-4df7-4acd-b2c4-771f35a584df",
+        "name": "Apple",
+        "slug": "apple",
+        "status": "active"
+      },
+      {
+        "id": "35204bf1-840f-4925-82c4-92698a64329b",
+        "name": "Bulk Brand 1",
+        "slug": "bulk-brand-1-1769497884205-38qju3v99",
+        "status": "active"
+      },
+      {
+        "id": "8d218ec8-6224-4134-82c3-612ee20f3425",
+        "name": "Bulk Brand 1",
+        "slug": "bulk-brand-1-1769497865519-wz4yr7tdr",
+        "status": "active"
+      },
+      {
+        "id": "c75c9e48-efe8-49d0-95ba-1e35c3a8bbe8",
+        "name": "Bulk Brand 1",
+        "slug": "bulk-brand-1-1769497259702-di5w4enf2",
+        "status": "active"
+      }
+    ],
+    "issues": []
+  },
+  "productCategoryAssociations": {
+    "total": 1,
+    "productsWithCategories": 1,
+    "productsWithoutCategories": 0,
+    "orphanedAssociations": 0
+  },
+  "productBrandAssociations": {
+    "total": 0,
+    "productsWithBrands": 0,
+    "productsWithoutBrands": 1,
+    "orphanedBrands": 0
+  },
+  "summary": {
+    "issues": [
+      "1 products without valid brand associations"
+    ],
+    "recommendations": [
+      "Assign valid brands to products that are missing them"
+    ]
+  }
+}

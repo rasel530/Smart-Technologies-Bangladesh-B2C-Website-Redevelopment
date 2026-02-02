@@ -626,19 +626,24 @@ router.get('/:id/products', [
         skip: parseInt(skip),
         take: parseInt(limit),
         include: {
-          category: {
-            select: { id: true, name: true, slug: true }
+          categories: {
+            select: {
+              category: {
+                select: { id: true, name: true, slug: true }
+              }
+            },
+            orderBy: {
+              isPrimary: 'desc'
+            },
+            take: 1
           },
           brand: {
             select: { id: true, name: true, slug: true }
           },
           images: {
-            where: { sortOrder: 0 },
+            where: { displayOrder: 0 },
             take: 1,
-            select: { id: true, url: true, alt: true }
-          },
-          _count: {
-            reviews: true
+            select: { id: true, originalUrl: true, altTextEn: true }
           }
         },
         orderBy: { [sortBy]: sortOrder }
@@ -647,7 +652,7 @@ router.get('/:id/products', [
     ]);
 
     // Serialize Decimal values to numbers
-    products = products.map(serializeProduct);
+    const serializedProducts = products.map(serializeProduct);
 
     res.json({
       brand: {
@@ -656,7 +661,7 @@ router.get('/:id/products', [
         slug: brand.slug,
         logoUrl: brand.logoUrl
       },
-      products,
+      products: serializedProducts,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),

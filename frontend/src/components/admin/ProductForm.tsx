@@ -15,6 +15,7 @@ import { ProductVariantRelationships } from './ProductVariantRelationships';
 import { CrossSellManager } from './CrossSellManager';
 import { UpSellManager } from './UpSellManager';
 import { RelatedProductsManager } from './RelatedProductsManager';
+import { Folder, FolderOpen, Check, Search, Star, ChevronDown, ChevronRight } from 'lucide-react';
 
 interface ProductFormProps {
   product?: ProductWithRelations;
@@ -70,6 +71,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [loadingBrands, setLoadingBrands] = useState(false);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [categorySearchQuery, setCategorySearchQuery] = useState('');
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   // Fetch categories and brands on component mount
   useEffect(() => {
@@ -372,6 +375,193 @@ const ProductForm: React.FC<ProductFormProps> = ({
     }
   };
 
+  // Category management functions
+  const toggleCategoryExpansion = (categoryId: string) => {
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId);
+      } else {
+        newSet.add(categoryId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleCategoryToggle = (categoryId: string) => {
+    const isSelected = formData.categories.includes(categoryId);
+    let newCategories: string[];
+
+    if (isSelected) {
+      newCategories = formData.categories.filter(id => id !== categoryId);
+    } else {
+      newCategories = [...formData.categories, categoryId];
+    }
+
+    handleChange('categories', newCategories);
+  };
+
+  const handleSetPrimaryCategory = (categoryId: string) => {
+    if (!formData.categories.includes(categoryId)) {
+      return;
+    }
+
+    const newCategories = [
+      categoryId,
+      ...formData.categories.filter(id => id !== categoryId)
+    ];
+
+    handleChange('categories', newCategories);
+  };
+
+  const getFilteredCategories = (): Category[] => {
+    if (!categorySearchQuery) {
+      return availableCategories;
+    }
+
+    const query = categorySearchQuery.toLowerCase();
+    const matchingCategories: Category[] = [];
+    const matchedIds = new Set<string>();
+
+    // Find all matching categories and their parents
+    const findMatching = (categories: Category[], parents: Category[] = []): void => {
+      categories.forEach(category => {
+        const matches =
+          category.name.toLowerCase().includes(query) ||
+          category.nameEn?.toLowerCase().includes(query) ||
+          category.nameBn?.includes(query);
+
+        if (matches) {
+          matchedIds.add(category.id);
+          // Add all parents
+          parents.forEach(parent => {
+            if (!matchedIds.has(parent.id)) {
+              matchingCategories.push(parent);
+              matchedIds.add(parent.id);
+            }
+          });
+        }
+
+        if (category.children && category.children.length > 0) {
+          findMatching(category.children, [...parents, category]);
+        }
+      });
+    };
+
+    findMatching(availableCategories);
+
+    // Now build the filtered tree structure
+    const buildFilteredTree = (categories: Category[]): Category[] => {
+      const result: Category[] = [];
+      
+      for (const category of categories) {
+        const filteredChildren = category.children
+          ? buildFilteredTree(category.children)
+          : [];
+
+        if (matchedIds.has(category.id) || filteredChildren.length > 0) {
+          result.push({
+            ...category,
+            children: filteredChildren.length > 0 ? filteredChildren : undefined
+          });
+        }
+      }
+      
+      return result;
+    };
+
+    return buildFilteredTree(availableCategories);
+  };
+
+  const renderCategory = (category: Category, level: number = 0): React.ReactNode => {
+    const isSelected = formData.categories.includes(category.id);
+    const isPrimary = formData.categories.length > 0 && formData.categories[0] === category.id;
+    const hasChildren = category.children && category.children.length > 0;
+    const isExpanded = expandedCategories.has(category.id);
+
+    return (
+      <div key={category.id} className="select-none">
+        <div
+          className={`flex items-center gap-2 py-2 px-3 hover:bg-gray-50 cursor-pointer transition-colors rounded`}
+          style={{ paddingLeft: `${level * 16 + 12}px` }}
+        >
+          {hasChildren && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleCategoryExpansion(category.id);
+              }}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              {isExpanded ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronRight className="w-4 h-4" />
+              )}
+            </button>
+          )}
+
+          {!hasChildren && <div className="w-4" />}
+
+          {hasChildren && (
+            <div className="text-gray-400">
+              {isExpanded ? (
+                <FolderOpen className="w-4 h-4" />
+              ) : (
+                <Folder className="w-4 h-4" />
+              )}
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => handleCategoryToggle(category.id)}
+            className={`flex-1 flex items-center gap-2 text-left ${
+              isSelected ? 'text-blue-600 font-medium' : 'text-gray-700'
+            }`}
+          >
+            <div className={`w-5 h-5 border-2 rounded flex items-center justify-center transition-colors ${
+              isSelected ? 'border-blue-500 bg-blue-500' : 'border-gray-300 hover:border-blue-400'
+            }`}>
+              {isSelected ? <Check className="w-3 h-3 text-white" /> : null}
+            </div>
+            <span className="flex-1">{category.name}</span>
+            {category.nameEn && (
+              <span className="text-sm text-gray-400">{category.nameEn}</span>
+            )}
+          </button>
+
+          {isSelected && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSetPrimaryCategory(category.id);
+              }}
+              className={`flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                isPrimary
+                  ? 'bg-purple-100 text-purple-700 border border-purple-300'
+                  : 'bg-gray-100 text-gray-600 hover:bg-purple-50 hover:text-purple-600 border border-gray-200'
+              }`}
+            >
+              {isPrimary ? (
+                <>
+                  <Star className="w-3 h-3 fill-current" />
+                  Primary
+                </>
+              ) : (
+                'Set Primary'
+              )}
+            </button>
+          )}
+        </div>
+
+        {hasChildren && isExpanded && category.children?.map(child => renderCategory(child, level + 1))}
+      </div>
+    );
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Basic Information */}
@@ -459,28 +649,63 @@ const ProductForm: React.FC<ProductFormProps> = ({
             {errors.slug && <p className="text-red-500 text-sm mt-1">{errors.slug}</p>}
           </div>
 
-          <div>
+          <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Primary Category *
+              Categories *
             </label>
-            <select
-              value={formData.categories[0] || ''}
-              onChange={(e) => {
-                const newCategories = e.target.value ? [e.target.value] : [];
-                handleChange('categories', newCategories);
-              }}
-              disabled={loadingCategories}
-              className={`w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 ${
-                errors.categories ? 'border-red-500' : 'border-gray-300'
-              } ${loadingCategories ? 'opacity-50' : ''}`}
-            >
-              <option value="">{loadingCategories ? 'Loading categories...' : 'Select Category'}</option>
-              {availableCategories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+            <div className={`border rounded-lg ${errors.categories ? 'border-red-500' : 'border-gray-300'}`}>
+              {/* Search Bar */}
+              <div className="p-3 border-b border-gray-200 bg-gray-50">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search categories..."
+                    value={categorySearchQuery}
+                    onChange={(e) => setCategorySearchQuery(e.target.value)}
+                    disabled={loadingCategories}
+                    className={`w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      loadingCategories ? 'opacity-50' : ''
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {/* Category List */}
+              <div className="max-h-80 overflow-y-auto p-2">
+                {loadingCategories ? (
+                  <div className="p-8 text-center text-gray-500">
+                    Loading categories...
+                  </div>
+                ) : getFilteredCategories().length === 0 ? (
+                  <div className="p-8 text-center text-gray-500">
+                    No categories found matching "{categorySearchQuery}"
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    {getFilteredCategories().map(category => renderCategory(category))}
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="p-3 border-t border-gray-200 bg-gray-50">
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-4 text-gray-600">
+                    <div className="flex items-center gap-1">
+                      <Check className="w-4 h-4 text-blue-600" />
+                      <span>Selected: {formData.categories.length}</span>
+                    </div>
+                    {formData.categories.length > 0 && (
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 text-purple-600 fill-current" />
+                        <span>Primary: {availableCategories.find(c => c.id === formData.categories[0])?.name || 'None'}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
             {errors.categories && <p className="text-red-500 text-sm mt-1">{errors.categories}</p>}
           </div>
 

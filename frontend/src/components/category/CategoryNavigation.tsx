@@ -251,9 +251,21 @@ export function CategoryNavigation({
   return (
     <div ref={containerRef} className={`relative ${className}`}>
       <button
+        onClick={() => {
+          // Toggle mega menu
+          setExpandedCategories(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has('mega-menu')) {
+              newSet.delete('mega-menu');
+            } else {
+              newSet.add('mega-menu');
+            }
+            return newSet;
+          });
+        }}
         className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
         aria-haspopup="true"
-        aria-expanded={expandedCategories.size > 0}
+        aria-expanded={expandedCategories.has('mega-menu')}
       >
         <span>Shop by Category</span>
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -261,50 +273,92 @@ export function CategoryNavigation({
         </svg>
       </button>
 
-      {expandedCategories.size > 0 && (
+      {expandedCategories.has('mega-menu') && (
         <div className="absolute top-full left-0 w-full mt-2 bg-white rounded-lg shadow-xl border border-gray-200 p-6 z-50">
           <div className="grid grid-cols-4 gap-6">
-            {categories.map(category => (
-              <div key={category.id}>
-                <Link
-                  href={`/categories/${category.slug}`}
-                  className="block font-semibold text-gray-900 hover:text-blue-600 mb-3"
-                  onClick={() => onCategoryClick?.(category)}
-                >
-                  {category.name}
-                </Link>
-                {category.children && category.children.length > 0 && (
-                  <ul className="space-y-2">
-                    {category.children.map(child => (
-                      <li key={child.id}>
-                        <Link
-                          href={`/categories/${child.slug}`}
-                          className="text-sm text-gray-600 hover:text-blue-600"
-                          onClick={() => onCategoryClick?.(child)}
-                        >
-                          {child.name}
-                        </Link>
-                        {child.children && child.children.length > 0 && (
-                          <ul className="mt-2 ml-3 space-y-1 border-l-2 border-gray-100 pl-3">
-                            {child.children.map(grandchild => (
-                              <li key={grandchild.id}>
-                                <Link
-                                  href={`/categories/${grandchild.slug}`}
-                                  className="text-sm text-gray-500 hover:text-blue-600"
-                                  onClick={() => onCategoryClick?.(grandchild)}
-                                >
-                                  {grandchild.name}
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
+            {categories.map(category => {
+              const hasChildren = category.children && category.children.length > 0;
+              return (
+                <div key={category.id}>
+                  {hasChildren ? (
+                    // Parent category: render as button/div, not Link
+                    <button
+                      onClick={() => toggleCategory(category.id)}
+                      className="block font-semibold text-gray-900 hover:text-blue-600 mb-3 text-left w-full"
+                    >
+                      {category.name}
+                    </button>
+                  ) : (
+                    // Leaf category: render as Link
+                    <Link
+                      href={`/categories/${category.slug}`}
+                      className="block font-semibold text-gray-900 hover:text-blue-600 mb-3"
+                      onClick={() => onCategoryClick?.(category)}
+                    >
+                      {category.name}
+                    </Link>
+                  )}
+                  {hasChildren && expandedCategories.has(category.id) && (
+                    <ul className="space-y-2">
+                      {category.children!.map(child => {
+                        const childHasChildren = child.children && child.children.length > 0;
+                        return (
+                          <li key={child.id}>
+                            {childHasChildren ? (
+                              // Parent category: render as button/div, not Link
+                              <button
+                                onClick={() => toggleCategory(child.id)}
+                                className="text-sm text-gray-600 hover:text-blue-600 text-left w-full"
+                              >
+                                {child.name}
+                              </button>
+                            ) : (
+                              // Leaf category: render as Link
+                              <Link
+                                href={`/categories/${child.slug}`}
+                                className="text-sm text-gray-600 hover:text-blue-600"
+                                onClick={() => onCategoryClick?.(child)}
+                              >
+                                {child.name}
+                              </Link>
+                            )}
+                            {childHasChildren && expandedCategories.has(child.id) && (
+                              <ul className="mt-2 ml-3 space-y-1 border-l-2 border-gray-100 pl-3">
+                                {child.children!.map(grandchild => {
+                                  const grandchildHasChildren = grandchild.children && grandchild.children.length > 0;
+                                  return (
+                                    <li key={grandchild.id}>
+                                      {grandchildHasChildren ? (
+                                        // Parent category: render as button/div, not Link
+                                        <button
+                                          onClick={() => toggleCategory(grandchild.id)}
+                                          className="text-sm text-gray-500 hover:text-blue-600 text-left w-full"
+                                        >
+                                          {grandchild.name}
+                                        </button>
+                                      ) : (
+                                        // Leaf category: render as Link
+                                        <Link
+                                          href={`/categories/${grandchild.slug}`}
+                                          className="text-sm text-gray-500 hover:text-blue-600"
+                                          onClick={() => onCategoryClick?.(grandchild)}
+                                        >
+                                          {grandchild.name}
+                                        </Link>
+                                      )}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

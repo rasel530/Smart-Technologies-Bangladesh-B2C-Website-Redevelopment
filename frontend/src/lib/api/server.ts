@@ -171,6 +171,51 @@ export async function getCategoriesServer(params: {
 }
 
 /**
+ * Get category products (Server-Side)
+ * 
+ * @param id - Category ID
+ * @param params - Query parameters
+ * @returns Promise with category products
+ */
+export async function getCategoryProductsServer(
+  id: string,
+  params: {
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: string;
+    brandId?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    visibility?: string;
+  } = {}
+): Promise<{
+  category: { id: string; name: string; slug: string; imageUrl?: string };
+  products: any[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}> {
+  try {
+    const queryString = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryString.append(key, String(value));
+      }
+    });
+
+    const endpoint = `/categories/${id}/products${queryString.toString() ? `?${queryString.toString()}` : ''}`;
+    return await fetchAPI(endpoint);
+  } catch (error) {
+    console.error(`[Server API] Error fetching products for category ${id}:`, error);
+    throw error;
+  }
+}
+
+/**
  * Get brands (Server-Side)
  * 
  * @param params - Query parameters

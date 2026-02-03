@@ -183,6 +183,64 @@ export const getAll = async (filters: SearchFilters = {}): Promise<SearchResult>
 };
 
 /**
+ * Get products by category ID with pagination, filtering, and sorting
+ * 
+ * This function uses the dedicated category products endpoint which is optimized
+ * for fetching products within a specific category.
+ * 
+ * @param categoryId - Category ID to fetch products for
+ * @param filters - Search filters including pagination, sorting, and filtering options
+ * @returns Promise with search result containing products and pagination info
+ */
+export const getByCategory = async (
+  categoryId: string,
+  filters: Omit<SearchFilters, 'categoryId' | 'category'> = {}
+): Promise<SearchResult> => {
+  try {
+    const queryString = buildQueryString(filters);
+    const endpoint = `/categories/${categoryId}/products${queryString ? `?${queryString}` : ''}`;
+    
+    console.log('[Products API] Fetching products by category:', {
+      endpoint,
+      categoryId,
+      filters,
+      queryString,
+    });
+    
+    const response = await apiClient.get<{ 
+      category: { id: string; name: string; slug: string; imageUrl?: string };
+      products: ProductWithRelations[]; 
+      pagination: PaginationInfo 
+    }>(endpoint);
+    
+    console.log('[Products API] Products fetched successfully by category:', {
+      categoryId,
+      productsCount: response?.products?.length || 0,
+      pagination: response?.pagination,
+    });
+    
+    return {
+      products: response?.products || [],
+      pagination: response?.pagination || {
+        page: 1,
+        limit: 20,
+        total: 0,
+        pages: 0
+      }
+    };
+  } catch (error: unknown) {
+    console.error('[Products API] Error fetching products by category:', {
+      categoryId,
+      error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      status: error instanceof Error && 'status' in error ? (error as any).status : undefined,
+      data: error instanceof Error && 'data' in error ? (error as any).data : undefined,
+    });
+    throw error;
+  }
+};
+
+/**
  * Get product by ID with full details
  * 
  * @param id - Product ID
@@ -1119,6 +1177,7 @@ export const reorderRelatedProducts = async (
 // Export all functions as a named object for convenience
 const productsApi = {
   getAll,
+  getByCategory,
   getById,
   getBySlug,
   getFeatured,

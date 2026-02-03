@@ -1,0 +1,680 @@
+{
+  "testRun": {
+    "timestamp": "2026-02-03T04:29:07.515Z",
+    "backendUrl": "http://localhost:3001",
+    "frontendUrl": "http://localhost:3000",
+    "totalTests": 47,
+    "passed": 39,
+    "failed": 2,
+    "skipped": 6
+  },
+  "results": {
+    "passed": [
+      {
+        "testName": "Database: ProductCategory table exists",
+        "passed": true,
+        "message": "Table found in database",
+        "timestamp": "2026-02-03T04:29:07.411Z"
+      },
+      {
+        "testName": "Database: isPrimary column exists in ProductCategory",
+        "passed": true,
+        "message": "Column found in table",
+        "timestamp": "2026-02-03T04:29:07.423Z"
+      },
+      {
+        "testName": "Database: ProductCategory has productId index",
+        "passed": true,
+        "message": "Index found",
+        "timestamp": "2026-02-03T04:29:07.428Z"
+      },
+      {
+        "testName": "Database: ProductCategory has categoryId index",
+        "passed": true,
+        "message": "Index found",
+        "timestamp": "2026-02-03T04:29:07.429Z"
+      },
+      {
+        "testName": "Database: ProductCategory has isPrimary index",
+        "passed": true,
+        "message": "Index found",
+        "timestamp": "2026-02-03T04:29:07.429Z"
+      },
+      {
+        "testName": "Database: Products with categories exist",
+        "passed": true,
+        "message": "Found 1 product-category associations",
+        "timestamp": "2026-02-03T04:29:07.437Z"
+      },
+      {
+        "testName": "Database: Products with primary category exist",
+        "passed": true,
+        "message": "Found 1 primary category assignments",
+        "timestamp": "2026-02-03T04:29:07.439Z"
+      },
+      {
+        "testName": "API: GET /api/v1/categories returns categories",
+        "passed": [
+          {
+            "id": "4912ab61-ebc8-42fb-aa0f-10330d7f8ddb",
+            "name": "New Category",
+            "slug": "new-category-1769496967579-f192nx8ji",
+            "description": null,
+            "parentId": null,
+            "sortOrder": 0,
+            "createdAt": "2026-01-27T06:56:07.580Z",
+            "displayOrder": 0,
+            "iconUrl": null,
+            "imageUrl": null,
+            "metaDescription": null,
+            "metaKeywords": null,
+            "metaTitle": null,
+            "nameBn": null,
+            "nameEn": null,
+            "status": "active",
+            "updatedAt": "2026-01-27T06:56:07.580Z",
+            "parent": null,
+            "children": []
+          },
+          {
+            "id": "cfb57bbe-21fa-40eb-bd61-284396060e13",
+            "name": "Bulk Category 2",
+            "slug": "bulk-category-2-1769497884057-i9ajwvfg7",
+            "description": null,
+            "parentId": null,
+            "sortOrder": 0,
+            "createdAt": "2026-01-27T07:11:24.059Z",
+            "displayOrder": 0,
+            "iconUrl": null,
+            "imageUrl": null,
+            "metaDescription": null,
+            "metaKeywords": null,
+            "metaTitle": null,
+            "nameBn": null,
+            "nameEn": "Bulk Category 2",
+            "status": "active",
+            "updatedAt": "2026-01-27T07:11:24.059Z",
+            "parent": null,
+            "children": []
+          },
+          {
+            "id": "4e26aa1d-9c06-4b0e-9c89-ad9ddfe6e8d5",
+            "name": "Bulk Category 1",
+            "slug": "bulk-category-1-1769497756966-2jd1zb4n3",
+            "description": null,
+            "parentId": null,
+            "sortOrder": 0,
+            "createdAt": "2026-01-27T07:09:16.968Z",
+            "displayOrder": 0,
+            "iconUrl": null,
+            "imageUrl": null,
+            "metaDescription": null,
+            "metaKeywords": null,
+            "metaTitle": null,
+            "nameBn": null,
+            "nameEn": "Bulk Category 1",
+            "status": "active",
+            "updatedAt": "2026-01-27T07:09:16.968Z",
+            "parent": null,
+            "children": []
+          },
+          {
+            "id": "e458be27-0d0f-4ec1-8daa-8ba2de520be5",
+            "name": "Bulk Category 2",
+            "slug": "bulk-category-2-1769497756966-t4z224zc9",
+            "description": null,
+            "parentId": null,
+            "sortOrder": 0,
+            "createdAt": "2026-01-27T07:09:16.968Z",
+            "displayOrder": 0,
+            "iconUrl": null,
+            "imageUrl": null,
+            "metaDescription": null,
+            "metaKeywords": null,
+            "metaTitle": null,
+            "nameBn": null,
+            "nameEn": "Bulk Category 2",
+            "status": "active",
+            "updatedAt": "2026-01-27T07:09:16.968Z",
+            "parent": null,
+            "children": []
+          },
+          {
+            "id": "56bc820c-e6d2-4711-a844-bc8cc714279c",
+            "name": "New Category",
+            "slug": "new-category-1769497884884-3h1viwyaj",
+            "description": null,
+            "parentId": null,
+            "sortOrder": 0,
+            "createdAt": "2026-01-27T07:11:24.886Z",
+            "displayOrder": 0,
+            "iconUrl": null,
+            "imageUrl": null,
+            "metaDescription": null,
+            "metaKeywords": null,
+            "metaTitle": null,
+            "nameBn": null,
+            "nameEn": null,
+            "status": "active",
+            "updatedAt": "2026-01-27T07:11:24.886Z",
+            "parent": null,
+            "children": []
+          },
+          {
+            "id": "72bc45e3-a484-4ef6-aa9d-e892f42062a3",
+            "name": "New Category",
+            "slug": "new-category-1769497757546-0tva2ada4",
+            "description": null,
+            "parentId": null,
+            "sortOrder": 0,
+            "createdAt": "2026-01-27T07:09:17.547Z",
+            "displayOrder": 0,
+            "iconUrl": null,
+            "imageUrl": null,
+            "metaDescription": null,
+            "metaKeywords": null,
+            "metaTitle": null,
+            "nameBn": null,
+            "nameEn": null,
+            "status": "active",
+            "updatedAt": "2026-01-27T07:09:17.547Z",
+            "parent": null,
+            "children": []
+          },
+          {
+            "id": "2829f167-4aa0-4ac9-9fc9-a88812e98ef2",
+            "name": "Laptops",
+            "slug": "laptops",
+            "description": "Laptops",
+            "parentId": null,
+            "sortOrder": 0,
+            "createdAt": "2026-02-01T03:52:52.520Z",
+            "displayOrder": 0,
+            "iconUrl": null,
+            "imageUrl": null,
+            "metaDescription": "Laptops",
+            "metaKeywords": "Laptops",
+            "metaTitle": "Laptops",
+            "nameBn": "Laptops",
+            "nameEn": "Laptops",
+            "status": "active",
+            "updatedAt": "2026-02-01T03:52:52.520Z",
+            "parent": null,
+            "children": [
+              {
+                "id": "1cd82d6b-d04b-4a3d-836e-7f2fe4d07b34",
+                "name": "HP Laptop",
+                "slug": "hp-laptop"
+              },
+              {
+                "id": "d4317da1-c477-49f0-8d8d-1f383ff19688",
+                "name": "Dell Laptop",
+                "slug": "dell-laptop"
+              },
+              {
+                "id": "384f8b71-756d-48ca-9406-b173284926f1",
+                "name": "Acer Laptop",
+                "slug": "acer-laptop"
+              }
+            ]
+          },
+          {
+            "id": "1cd82d6b-d04b-4a3d-836e-7f2fe4d07b34",
+            "name": "HP Laptop",
+            "slug": "hp-laptop",
+            "description": "HP Laptop",
+            "parentId": "2829f167-4aa0-4ac9-9fc9-a88812e98ef2",
+            "sortOrder": 0,
+            "createdAt": "2026-02-01T03:56:08.996Z",
+            "displayOrder": 0,
+            "iconUrl": null,
+            "imageUrl": null,
+            "metaDescription": "HP Laptop",
+            "metaKeywords": "HP Laptop",
+            "metaTitle": "HP Laptop",
+            "nameBn": "HP Laptop",
+            "nameEn": "HP Laptop",
+            "status": "active",
+            "updatedAt": "2026-02-01T03:56:08.996Z",
+            "parent": {
+              "id": "2829f167-4aa0-4ac9-9fc9-a88812e98ef2",
+              "name": "Laptops",
+              "slug": "laptops"
+            },
+            "children": []
+          },
+          {
+            "id": "676bf4dd-047b-470c-acbc-2d8f01c76858",
+            "name": "Bulk Category 1",
+            "slug": "bulk-category-1-1770025255391-0xiyzd6we",
+            "description": null,
+            "parentId": null,
+            "sortOrder": 0,
+            "createdAt": "2026-02-02T09:40:55.403Z",
+            "displayOrder": 0,
+            "iconUrl": null,
+            "imageUrl": null,
+            "metaDescription": null,
+            "metaKeywords": null,
+            "metaTitle": null,
+            "nameBn": null,
+            "nameEn": "Bulk Category 1",
+            "status": "active",
+            "updatedAt": "2026-02-02T09:40:55.403Z",
+            "parent": null,
+            "children": []
+          },
+          {
+            "id": "5a362576-493f-4245-b11a-cf05629aaa4b",
+            "name": "Bulk Category 2",
+            "slug": "bulk-category-2-1770025255391-fp9543hw4",
+            "description": null,
+            "parentId": null,
+            "sortOrder": 0,
+            "createdAt": "2026-02-02T09:40:55.403Z",
+            "displayOrder": 0,
+            "iconUrl": null,
+            "imageUrl": null,
+            "metaDescription": null,
+            "metaKeywords": null,
+            "metaTitle": null,
+            "nameBn": null,
+            "nameEn": "Bulk Category 2",
+            "status": "active",
+            "updatedAt": "2026-02-02T09:40:55.403Z",
+            "parent": null,
+            "children": []
+          },
+          {
+            "id": "738c15fd-1e9c-4afa-902c-3e43cfe4f128",
+            "name": "New Category",
+            "slug": "new-category-1770025259881-y4n94h2rx",
+            "description": null,
+            "parentId": null,
+            "sortOrder": 0,
+            "createdAt": "2026-02-02T09:40:59.883Z",
+            "displayOrder": 0,
+            "iconUrl": null,
+            "imageUrl": null,
+            "metaDescription": null,
+            "metaKeywords": null,
+            "metaTitle": null,
+            "nameBn": null,
+            "nameEn": null,
+            "status": "active",
+            "updatedAt": "2026-02-02T09:40:59.883Z",
+            "parent": null,
+            "children": []
+          },
+          {
+            "id": "0474b1f2-c49b-4166-aabc-9042d2397087",
+            "name": "Lenovo Tablet",
+            "slug": "lenovo-tablet",
+            "description": "Lenovo Tablet",
+            "parentId": "8308aa41-41a6-4651-8efb-12fda926ba7e",
+            "sortOrder": 0,
+            "createdAt": "2026-02-01T04:01:47.304Z",
+            "displayOrder": 0,
+            "iconUrl": null,
+            "imageUrl": null,
+            "metaDescription": "Lenovo Tablet",
+            "metaKeywords": "Lenovo Tablet",
+            "metaTitle": "Lenovo Tablet",
+            "nameBn": "Lenovo Tablet",
+            "nameEn": "Lenovo Tablet",
+            "status": "active",
+            "updatedAt": "2026-02-01T04:01:47.304Z",
+            "parent": {
+              "id": "8308aa41-41a6-4651-8efb-12fda926ba7e",
+              "name": "Tablets",
+              "slug": "tablets"
+            },
+            "children": [
+              {
+                "id": "a492016b-a0e1-47ba-8566-c5342a14f381",
+                "name": "Lenovo Tablet 1",
+                "slug": "lenovo-tablet-1"
+              }
+            ]
+          },
+          {
+            "id": "a492016b-a0e1-47ba-8566-c5342a14f381",
+            "name": "Lenovo Tablet 1",
+            "slug": "lenovo-tablet-1",
+            "description": "Lenovo Tablet 1",
+            "parentId": "0474b1f2-c49b-4166-aabc-9042d2397087",
+            "sortOrder": 0,
+            "createdAt": "2026-02-01T04:02:31.817Z",
+            "displayOrder": 0,
+            "iconUrl": null,
+            "imageUrl": null,
+            "metaDescription": "Lenovo Tablet 1",
+            "metaKeywords": "Lenovo Tablet 1",
+            "metaTitle": "Lenovo Tablet 1",
+            "nameBn": "Lenovo Tablet 1",
+            "nameEn": "Lenovo Tablet 1",
+            "status": "active",
+            "updatedAt": "2026-02-01T04:02:31.817Z",
+            "parent": {
+              "id": "0474b1f2-c49b-4166-aabc-9042d2397087",
+              "name": "Lenovo Tablet",
+              "slug": "lenovo-tablet"
+            },
+            "children": []
+          },
+          {
+            "id": "d4317da1-c477-49f0-8d8d-1f383ff19688",
+            "name": "Dell Laptop",
+            "slug": "dell-laptop",
+            "description": "Dell Laptop",
+            "parentId": "2829f167-4aa0-4ac9-9fc9-a88812e98ef2",
+            "sortOrder": 0,
+            "createdAt": "2026-02-01T03:57:09.008Z",
+            "displayOrder": 1,
+            "iconUrl": null,
+            "imageUrl": null,
+            "metaDescription": "Dell Laptop",
+            "metaKeywords": "Dell Laptop",
+            "metaTitle": "Dell Laptop",
+            "nameBn": "Dell Laptop",
+            "nameEn": "Dell Laptop",
+            "status": "active",
+            "updatedAt": "2026-02-01T03:57:09.008Z",
+            "parent": {
+              "id": "2829f167-4aa0-4ac9-9fc9-a88812e98ef2",
+              "name": "Laptops",
+              "slug": "laptops"
+            },
+            "children": []
+          },
+          {
+            "id": "8308aa41-41a6-4651-8efb-12fda926ba7e",
+            "name": "Tablets",
+            "slug": "tablets",
+            "description": "Tablets",
+            "parentId": null,
+            "sortOrder": 0,
+            "createdAt": "2026-02-01T03:59:25.372Z",
+            "displayOrder": 1,
+            "iconUrl": null,
+            "imageUrl": null,
+            "metaDescription": "Tablets",
+            "metaKeywords": "Tablets",
+            "metaTitle": "Tablets",
+            "nameBn": "Tablets",
+            "nameEn": "Tablets",
+            "status": "active",
+            "updatedAt": "2026-02-01T03:59:25.372Z",
+            "parent": null,
+            "children": [
+              {
+                "id": "0474b1f2-c49b-4166-aabc-9042d2397087",
+                "name": "Lenovo Tablet",
+                "slug": "lenovo-tablet"
+              }
+            ]
+          },
+          {
+            "id": "384f8b71-756d-48ca-9406-b173284926f1",
+            "name": "Acer Laptop",
+            "slug": "acer-laptop",
+            "description": "Acer Laptop",
+            "parentId": "2829f167-4aa0-4ac9-9fc9-a88812e98ef2",
+            "sortOrder": 0,
+            "createdAt": "2026-02-01T03:58:12.694Z",
+            "displayOrder": 2,
+            "iconUrl": null,
+            "imageUrl": null,
+            "metaDescription": "Acer Laptop",
+            "metaKeywords": "Acer Laptop",
+            "metaTitle": "Acer Laptop",
+            "nameBn": "Acer Laptop",
+            "nameEn": "Acer Laptop",
+            "status": "active",
+            "updatedAt": "2026-02-01T03:58:12.694Z",
+            "parent": {
+              "id": "2829f167-4aa0-4ac9-9fc9-a88812e98ef2",
+              "name": "Laptops",
+              "slug": "laptops"
+            },
+            "children": []
+          }
+        ],
+        "message": "Returned 16 categories",
+        "timestamp": "2026-02-03T04:29:07.478Z"
+      },
+      {
+        "testName": "API: Categories have hierarchical structure (children)",
+        "passed": true,
+        "message": "Hierarchy structure confirmed",
+        "timestamp": "2026-02-03T04:29:07.500Z"
+      },
+      {
+        "testName": "Frontend: ProductForm.tsx component exists",
+        "passed": true,
+        "message": "Component file found",
+        "timestamp": "2026-02-03T04:29:07.513Z"
+      },
+      {
+        "testName": "Frontend: ProductForm imports Check icon",
+        "passed": true,
+        "message": "Check icon imported",
+        "timestamp": "2026-02-03T04:29:07.513Z"
+      },
+      {
+        "testName": "Frontend: ProductForm imports Search icon",
+        "passed": true,
+        "message": "Search icon imported",
+        "timestamp": "2026-02-03T04:29:07.513Z"
+      },
+      {
+        "testName": "Frontend: ProductForm imports Star icon",
+        "passed": true,
+        "message": "Star icon imported",
+        "timestamp": "2026-02-03T04:29:07.513Z"
+      },
+      {
+        "testName": "Frontend: ProductForm imports Folder icons",
+        "passed": true,
+        "message": "Folder icons imported",
+        "timestamp": "2026-02-03T04:29:07.513Z"
+      },
+      {
+        "testName": "Frontend: ProductForm imports Chevron icons",
+        "passed": true,
+        "message": "Chevron icons imported",
+        "timestamp": "2026-02-03T04:29:07.513Z"
+      },
+      {
+        "testName": "Frontend: ProductForm has categories state",
+        "passed": true,
+        "message": "Categories state found",
+        "timestamp": "2026-02-03T04:29:07.513Z"
+      },
+      {
+        "testName": "Frontend: ProductForm has categorySearchQuery state",
+        "passed": true,
+        "message": "Search query state found",
+        "timestamp": "2026-02-03T04:29:07.513Z"
+      },
+      {
+        "testName": "Frontend: ProductForm has expandedCategories state",
+        "passed": true,
+        "message": "Expanded categories state found",
+        "timestamp": "2026-02-03T04:29:07.513Z"
+      },
+      {
+        "testName": "Frontend: ProductForm has handleCategoryToggle function",
+        "passed": true,
+        "message": "Toggle handler found",
+        "timestamp": "2026-02-03T04:29:07.514Z"
+      },
+      {
+        "testName": "Frontend: ProductForm has handleSetPrimaryCategory function",
+        "passed": true,
+        "message": "Primary category handler found",
+        "timestamp": "2026-02-03T04:29:07.514Z"
+      },
+      {
+        "testName": "Frontend: ProductForm has toggleCategoryExpansion function",
+        "passed": true,
+        "message": "Expansion handler found",
+        "timestamp": "2026-02-03T04:29:07.514Z"
+      },
+      {
+        "testName": "Frontend: ProductForm has getFilteredCategories function",
+        "passed": true,
+        "message": "Filter function found",
+        "timestamp": "2026-02-03T04:29:07.514Z"
+      },
+      {
+        "testName": "Frontend: ProductForm has renderCategory function",
+        "passed": true,
+        "message": "Render function found",
+        "timestamp": "2026-02-03T04:29:07.514Z"
+      },
+      {
+        "testName": "Frontend: ProductForm validates category selection",
+        "passed": true,
+        "message": "Category validation found",
+        "timestamp": "2026-02-03T04:29:07.514Z"
+      },
+      {
+        "testName": "Feature: Multi-select with checkboxes implemented",
+        "passed": true,
+        "message": "Checkbox UI found",
+        "timestamp": "2026-02-03T04:29:07.514Z"
+      },
+      {
+        "testName": "Feature: Hierarchical display with 16px indentation",
+        "passed": true,
+        "message": "Indentation logic found",
+        "timestamp": "2026-02-03T04:29:07.514Z"
+      },
+      {
+        "testName": "Feature: Search input for categories",
+        "passed": true,
+        "message": "Search input found",
+        "timestamp": "2026-02-03T04:29:07.514Z"
+      },
+      {
+        "testName": "Feature: Primary category designation with star icon",
+        "passed": true,
+        "message": "Primary category UI found",
+        "timestamp": "2026-02-03T04:29:07.514Z"
+      },
+      {
+        "testName": "Feature: Collapsible/expandable categories with chevron",
+        "passed": true,
+        "message": "Chevron icons found",
+        "timestamp": "2026-02-03T04:29:07.514Z"
+      },
+      {
+        "testName": "Feature: Folder icons for parent categories",
+        "passed": true,
+        "message": "Folder icons found",
+        "timestamp": "2026-02-03T04:29:07.514Z"
+      },
+      {
+        "testName": "Feature: Bilingual search (English and Bangla)",
+        "passed": true,
+        "message": "Bilingual search logic found",
+        "timestamp": "2026-02-03T04:29:07.514Z"
+      },
+      {
+        "testName": "Feature: Selected categories count display",
+        "passed": true,
+        "message": "Selected count display found",
+        "timestamp": "2026-02-03T04:29:07.514Z"
+      },
+      {
+        "testName": "Feature: Primary category name display",
+        "passed": true,
+        "message": "Primary category display found",
+        "timestamp": "2026-02-03T04:29:07.514Z"
+      },
+      {
+        "testName": "Feature: Scrollable category list area",
+        "passed": true,
+        "message": "Scrollable area found",
+        "timestamp": "2026-02-03T04:29:07.514Z"
+      },
+      {
+        "testName": "UX: Empty search result message",
+        "passed": true,
+        "message": "Empty state message found",
+        "timestamp": "2026-02-03T04:29:07.515Z"
+      },
+      {
+        "testName": "UX: Loading state for categories",
+        "passed": true,
+        "message": "Loading state found",
+        "timestamp": "2026-02-03T04:29:07.515Z"
+      },
+      {
+        "testName": "UX: Error state for category validation",
+        "passed": true,
+        "message": "Error handling found",
+        "timestamp": "2026-02-03T04:29:07.515Z"
+      },
+      {
+        "testName": "Accessibility: Button elements with proper types",
+        "passed": true,
+        "message": "Button elements found",
+        "timestamp": "2026-02-03T04:29:07.515Z"
+      },
+      {
+        "testName": "UX: Responsive design classes",
+        "passed": true,
+        "message": "Responsive classes found",
+        "timestamp": "2026-02-03T04:29:07.515Z"
+      }
+    ],
+    "failed": [
+      {
+        "testName": "Database: Unique constraint on (productId, categoryId)",
+        "passed": false,
+        "message": "Constraint not found",
+        "timestamp": "2026-02-03T04:29:07.432Z"
+      },
+      {
+        "testName": "API: Categories have nameEn field",
+        "passed": false,
+        "message": "Some categories missing nameEn",
+        "timestamp": "2026-02-03T04:29:07.512Z"
+      }
+    ],
+    "skipped": [
+      {
+        "testName": "Integration: Create product with multiple categories",
+        "reason": "Requires manual browser testing. Navigate to http://localhost:3000/admin/products/new",
+        "timestamp": "2026-02-03T04:29:07.515Z"
+      },
+      {
+        "testName": "Integration: Edit product and modify categories",
+        "reason": "Requires manual browser testing. Navigate to product edit page",
+        "timestamp": "2026-02-03T04:29:07.515Z"
+      },
+      {
+        "testName": "Integration: Change primary category",
+        "reason": "Requires manual browser testing. Click \"Set Primary\" on a selected category",
+        "timestamp": "2026-02-03T04:29:07.515Z"
+      },
+      {
+        "testName": "Integration: Search and filter categories",
+        "reason": "Requires manual browser testing. Use search input in category selector",
+        "timestamp": "2026-02-03T04:29:07.515Z"
+      },
+      {
+        "testName": "Integration: Expand/collapse category hierarchy",
+        "reason": "Requires manual browser testing. Click chevron icons on parent categories",
+        "timestamp": "2026-02-03T04:29:07.515Z"
+      },
+      {
+        "testName": "Integration: Form validation without categories",
+        "reason": "Requires manual browser testing. Try to submit form without selecting categories",
+        "timestamp": "2026-02-03T04:29:07.515Z"
+      }
+    ]
+  }
+}

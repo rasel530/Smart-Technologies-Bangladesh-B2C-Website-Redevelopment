@@ -15,15 +15,14 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { getAll } from '@/lib/api/products';
-import { getCategoryBySlugServer, getCategoriesServer } from '@/lib/api/server';
+import { getCategoryBySlugServer, getCategoriesServer, getCategoryProductsServer } from '@/lib/api/server';
 import { getBrandsServer } from '@/lib/api/server';
 import { ProductGrid } from '@/components/product/ProductGrid';
 import { FilterSidebar } from '@/components/product/FilterSidebar';
 import { SortDropdown } from '@/components/product/SortDropdown';
-import { BreadcrumbNavigation, generateCategoryBreadcrumbs } from '@/components/layout/BreadcrumbNavigation';
+import { BreadcrumbNavigation } from '@/components/layout/BreadcrumbNavigation';
+import { generateCategoryBreadcrumbs } from '@/lib/utils/breadcrumbs';
 import Image from 'next/image';
-import { getImageUrl } from '@/lib/api/product-images';
 
 /**
  * Generate metadata for SEO
@@ -109,10 +108,10 @@ export default async function CategoryPage({
     brandsResponse = brandsData;
 
     // Then fetch products using category ID
-    productsData = await getAll({
+    // Use dedicated category products endpoint for better performance and reliability
+    productsData = await getCategoryProductsServer(category.category.id, {
       page,
       limit,
-      categoryId: category.category.id,
       sortBy,
       sortOrder,
       brandId: brand,
@@ -224,11 +223,11 @@ export default async function CategoryPage({
         </div>
       )}
 
-      {/* Subcategories */}
+      {/* Subcategories - Always show if available, even when no products */}
       {subcategories.length > 0 && (
         <div className="bg-white border-b border-gray-200">
           <div className="container mx-auto px-4 py-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
               Browse by Subcategory
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
@@ -238,19 +237,25 @@ export default async function CategoryPage({
                   href={`/categories/${subcategory.slug}`}
                   className="group"
                 >
-                  <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
-                    {subcategory.iconUrl && (
-                      <div className="w-12 h-12 mx-auto mb-2">
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 hover:shadow-lg hover:scale-105 transition-all duration-200 border border-blue-100">
+                    {subcategory.iconUrl ? (
+                      <div className="w-16 h-16 mx-auto mb-3">
                         <Image
                           src={subcategory.iconUrl}
                           alt={subcategory.name}
-                          width={48}
-                          height={48}
+                          width={64}
+                          height={64}
                           className="object-contain"
                         />
                       </div>
+                    ) : (
+                      <div className="w-16 h-16 mx-auto mb-3 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                      </div>
                     )}
-                    <h3 className="text-sm font-medium text-gray-900 text-center group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-sm font-semibold text-gray-900 text-center group-hover:text-blue-600 transition-colors">
                       {subcategory.name}
                     </h3>
                   </div>
@@ -279,7 +284,7 @@ export default async function CategoryPage({
                     {product.images?.[0] && (
                       <div className="relative aspect-square">
                         <Image
-                          src={getImageUrl(product.images[0], 'medium')}
+                          src={product.images[0].originalUrl || ''}
                           alt={product.name}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform"
@@ -354,18 +359,93 @@ export default async function CategoryPage({
               </div>
             </div>
 
-            {/* Products Grid */}
-            <Suspense fallback={<ProductGrid products={[]} loading />}>
-              <ProductGrid
-                products={productsData.products}
-                
-                columns={{
-                  mobile: 1,
-                  tablet: 2,
-                  desktop: 3,
-                }}
-              />
-            </Suspense>
+            {/* Products Grid or Empty State */}
+            {productsData.pagination.total > 0 ? (
+              <Suspense fallback={<ProductGrid products={[]} loading />}>
+                <ProductGrid
+                  products={productsData.products}
+                  columns={{
+                    mobile: 1,
+                    tablet: 2,
+                    desktop: 3,
+                  }}
+                />
+              </Suspense>
+            ) : (
+              /* Empty State */
+              <div className="bg-white rounded-lg p-8 text-center">
+                {subcategories.length > 0 ? (
+                  /* Has subcategories but no products */
+                  <div>
+                    <div className="w-20 h-20 mx-auto mb-6 bg-blue-100 rounded-full flex items-center justify-center">
+                      <svg className="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                      Browse Subcategories
+                    </h3>
+                    <p className="text-gray-600 mb-6 max-w-lg mx-auto">
+                      This category doesn't have any products yet, but you can explore its subcategories above to find what you're looking for.
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-3">
+                      {subcategories.slice(0, 3).map((subcategory) => (
+                        <Link
+                          key={subcategory.id}
+                          href={`/categories/${subcategory.slug}`}
+                          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                        >
+                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                          {subcategory.name}
+                        </Link>
+                      ))}
+                      {subcategories.length > 3 && (
+                        <span className="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-600 rounded-lg font-medium">
+                          +{subcategories.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  /* Truly empty - no products and no subcategories */
+                  <div>
+                    <div className="w-20 h-20 mx-auto mb-6 bg-amber-100 rounded-full flex items-center justify-center">
+                      <svg className="w-10 h-10 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                      Coming Soon
+                    </h3>
+                    <p className="text-gray-600 mb-6 max-w-lg mx-auto">
+                      We're working hard to bring you the best {category.category.name} products. Check back soon for new arrivals!
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-3">
+                      <Link
+                        href="/categories"
+                        className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                      >
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        Browse All Categories
+                      </Link>
+                      <Link
+                        href="/products"
+                        className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                      >
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Search Products
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </main>
         </div>
       </div>

@@ -9,6 +9,11 @@
 const { elasticsearchQueryBuilder } = require('./elasticsearchQueryBuilder');
 const { loggerService } = require('./logger');
 const { PrismaClient } = require('@prisma/client');
+const { SearchAnalyticsService } = require('./searchAnalytics.service');
+const { SearchPerformanceService } = require('./searchPerformance.service');
+const { SearchOptimizationService } = require('./searchOptimization.service');
+const { SearchPersonalizationService } = require('./searchPersonalization.service');
+const { SearchTrendingService } = require('./searchTrending.service');
 
 /**
  * Default search service configuration
@@ -43,6 +48,13 @@ class SearchService {
       const { SearchCacheService } = require('./searchCacheService');
       this.cacheService = new SearchCacheService(redisClient);
     }
+    
+    // Initialize new search analytics and optimization services
+    this.searchAnalyticsService = new SearchAnalyticsService(prisma);
+    this.searchPerformanceService = new SearchPerformanceService(prisma);
+    this.searchOptimizationService = new SearchOptimizationService(prisma, elasticsearchClient);
+    this.searchPersonalizationService = new SearchPersonalizationService(prisma, elasticsearchClient);
+    this.searchTrendingService = new SearchTrendingService(prisma);
   }
 
   /**
@@ -89,12 +101,17 @@ class SearchService {
       };
 
       // Check cache if enabled
+      let cached = null;
       if (this.cacheService && this.config.enableCaching) {
         const cacheKey = this.cacheService.generateCacheKey(query);
-        const cached = await this.cacheService.get(cacheKey);
+        cached = await this.cacheService.get(cacheKey);
 
         if (cached) {
           const executionTime = Date.now() - startTime;
+          
+          // Track performance metrics for cached results
+          this.searchPerformanceService.trackQuery(executionTime, true, cached.total || 0);
+          
           loggerService.info('Search results retrieved from cache', {
             query: query.query,
             executionTime,
@@ -109,8 +126,39 @@ class SearchService {
         }
       }
 
+      // Optimize query if enabled
+      let optimizedQuery = query.query;
+      if (this.config.enableQueryOptimization) {
+        const optimization = await this.searchOptimizationService.optimizeQuery(query.query, userId);
+        optimizedQuery = optimization.optimizedQuery;
+      }
+
+      // Apply personalization if userId provided
+      let personalizedFilters = {};
+      if (userId && this.config.enableQueryOptimization) {
+        const preferences = await this.searchPersonalizationService.getUserPreferences(userId);
+        if (preferences.preferredCategories && preferences.preferredCategories.length > 0) {
+          personalizedFilters.categoryIds = preferences.preferredCategories;
+        }
+        if (preferences.preferredBrands && preferences.preferredBrands.length > 0) {
+          personalizedFilters.brandIds = preferences.preferredBrands;
+        }
+        if (preferences.priceRangeMin !== null || preferences.priceRangeMax !== null) {
+          personalizedFilters.priceRange = {
+            min: preferences.priceRangeMin,
+            max: preferences.priceRangeMax
+          };
+        }
+      }
+
+      // Merge personalized filters with query filters
+      const mergedFilters = {
+        ...query,
+        ...personalizedFilters
+      };
+
       // Build Elasticsearch query
-      const esQuery = this.queryBuilder.buildSearchQuery(query);
+      const esQuery = this.queryBuilder.buildSearchQuery(mergedFilters);
 
       // Execute search
       const indexName = this.buildIndexName('product');
@@ -122,48 +170,62 @@ class SearchService {
       const executionTime = Date.now() - startTime;
 
       // Process results
-      const result = this.processSearchResults(response, query);
+      const result = this.processSearchResults(response, mergedFilters);
 
       // Cache results if enabled
       if (this.cacheService && this.config.enableCaching) {
-        const cacheKey = this.cacheService.generateCacheKey(query);
+        const cacheKey = this.cacheService.generateCacheKey(mergedFilters);
         await this.cacheService.set(cacheKey, result, this.config.cacheTTL);
       }
 
-      // Log analytics if enabled
-      if (this.config.enableAnalytics) {
-        await this.logSearchAnalytics({
-          query: query.query,
-          userId,
-          resultsCount: result.total,
-          executionTime,
-          filters: {
-            categoryIds: query.categoryIds,
-            brandIds: query.brandIds,
-            priceRange: query.priceRange,
-            specifications: query.specifications,
-            inStockOnly: query.inStockOnly,
-            featuredOnly: query.featuredOnly
-          },
-          sort: query.sort,
-          page: query.page,
+      // Track search analytics
+      const sessionId = searchQuery.sessionId || `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const searchAnalytics = await this.searchAnalyticsService.trackSearch(
+        userId,
+        sessionId,
+        query.query,
+        result.total,
+        executionTime,
+        {
+          categoryIds: mergedFilters.categoryIds,
+          brandIds: mergedFilters.brandIds,
+          priceRange: mergedFilters.priceRange,
+          specifications: mergedFilters.specifications,
+          inStockOnly: mergedFilters.inStockOnly,
+          featuredOnly: mergedFilters.featuredOnly
+        },
+        mergedFilters.sort,
+        {
           ipAddress,
           userAgent,
-          timestamp: new Date()
-        });
+          deviceType: searchQuery.deviceType
+        }
+      );
+
+      // Track performance metrics for non-cached results
+      this.searchPerformanceService.trackQuery(executionTime, false, result.total);
+
+      // Record search for trending
+      await this.searchTrendingService.recordSearch(query.query, mergedFilters.categoryIds?.[0]);
+
+      // Add to user search history if userId provided
+      if (userId) {
+        await this.searchPersonalizationService.addToSearchHistory(userId, query.query);
       }
 
       loggerService.info('Advanced search completed', {
         query: query.query,
         total: result.total,
         executionTime,
-        cached: false
+        cached: false,
+        searchAnalyticsId: searchAnalytics.id
       });
 
       return {
         ...result,
         executionTime,
-        cached: false
+        cached: false,
+        searchAnalyticsId: searchAnalytics.id
       };
     } catch (error) {
       const executionTime = Date.now() - startTime;
@@ -814,6 +876,110 @@ class SearchService {
         enabled: this.config.enableQueryOptimization
       }
     };
+  }
+
+  /**
+   * Track a click on a search result
+   * 
+   * @param {string} searchAnalyticsId - ID of search analytics record
+   * @param {string} productId - ID of clicked product
+   * @param {number} position - Position of result (1-based)
+   * @returns {Promise<object>} Created click tracking record
+   */
+  async trackClick(searchAnalyticsId, productId, position) {
+    try {
+      return await this.searchAnalyticsService.trackClick(searchAnalyticsId, productId, position);
+    } catch (error) {
+      loggerService.error('Failed to track click', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        searchAnalyticsId,
+        productId
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Track a conversion from search
+   * 
+   * @param {string} searchAnalyticsId - ID of search analytics record
+   * @param {string} conversionType - Type of conversion (click, add_to_cart, purchase)
+   * @param {string} productId - ID of product (optional)
+   * @returns {Promise<object>} Updated search analytics record
+   */
+  async trackConversion(searchAnalyticsId, conversionType, productId = null) {
+    try {
+      return await this.searchAnalyticsService.trackConversion(searchAnalyticsId, conversionType, productId);
+    } catch (error) {
+      loggerService.error('Failed to track conversion', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        searchAnalyticsId,
+        conversionType
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Get personalized search results
+   * 
+   * @param {string} query - Search query
+   * @param {string} userId - User ID
+   * @returns {Promise<object>} Personalized search results
+   */
+  async getPersonalizedResults(query, userId) {
+    try {
+      return await this.searchPersonalizationService.getPersonalizedResults(query, userId);
+    } catch (error) {
+      loggerService.error('Failed to get personalized results', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        query,
+        userId
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Get optimized search results with A/B testing support
+   * 
+   * @param {string} query - Search query
+   * @param {object} filters - Search filters
+   * @param {string} sortBy - Sort order
+   * @param {string} userId - User ID
+   * @param {string} experimentVariant - A/B test variant (optional)
+   * @returns {Promise<object>} Optimized search results
+   */
+  async getOptimizedResults(query, filters = {}, sortBy = 'relevance', userId = null, experimentVariant = null) {
+    try {
+      return await this.searchOptimizationService.getOptimizedResults(query, filters, sortBy, userId, experimentVariant);
+    } catch (error) {
+      loggerService.error('Failed to get optimized results', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        query,
+        userId
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Update dwell time for a click
+   * 
+   * @param {string} clickTrackingId - ID of click tracking record
+   * @param {number} dwellTime - Time spent on product page in milliseconds
+   * @returns {Promise<object>} Updated click tracking record
+   */
+  async updateDwellTime(clickTrackingId, dwellTime) {
+    try {
+      return await this.searchAnalyticsService.updateDwellTime(clickTrackingId, dwellTime);
+    } catch (error) {
+      loggerService.error('Failed to update dwell time', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        clickTrackingId
+      });
+      throw error;
+    }
   }
 
   /**

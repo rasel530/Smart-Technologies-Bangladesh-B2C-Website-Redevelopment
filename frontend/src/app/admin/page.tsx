@@ -1,18 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { withAuth } from '@/components/auth/withAuth';
-import { Button, ButtonGhost, ButtonSecondary, ButtonDanger } from '@/components/design-system';
-import { PageWrapper, StatsGrid } from '@/components/design-system';
+import { StatsGrid } from '@/components/design-system';
 import { Badge } from '@/components/design-system';
 
 function AdminDashboard() {
-  const { user, logout } = useAuth();
-  const router = useRouter();
-
   const adminFeatures = [
     {
       title: 'RBAC Management',
@@ -90,23 +84,13 @@ function AdminDashboard() {
   ];
 
   return (
-    <PageWrapper
-      title="Admin Dashboard"
-      description="Welcome to administration panel"
-      actions={
-        <div className="flex items-center gap-3">
-          <ButtonDanger size="md" leftIcon={<LogOut className="w-4 h-4" />} onClick={logout}>
-            Logout
-          </ButtonDanger>
-          <Link
-            href="/"
-            className="inline-flex items-center px-4 py-2 text-sm font-medium text-primary-600 hover:bg-primary-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-          >
-            ← Back to Home
-          </Link>
-        </div>
-      }
-    >
+    <>
+      {/* Page Title */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
+        <p className="text-gray-600 mt-2">Welcome to the administration panel. Manage your system from here.</p>
+      </div>
+
       {/* Quick Stats */}
       <StatsGrid stats={stats.map(stat => ({
         title: stat.title,
@@ -116,11 +100,11 @@ function AdminDashboard() {
       }))} />
 
       {/* Section Divider */}
-      <div className="border-t border-neutral-200 my-8"></div>
+      <div className="border-t border-gray-200 my-8"></div>
 
       {/* Admin Features Grid */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-neutral-900 mb-6">Admin Features</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Admin Features</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {adminFeatures.map((feature) => (
             <Link
@@ -128,8 +112,8 @@ function AdminDashboard() {
               href={feature.href}
               className={`relative group p-6 rounded-xl border-2 transition-all duration-200 ${
                 feature.disabled
-                  ? 'bg-neutral-100 border-neutral-300 cursor-not-allowed opacity-60'
-                  : 'bg-white border-neutral-200 hover:border-primary-200 hover:shadow-md'
+                  ? 'bg-gray-100 border-gray-300 cursor-not-allowed opacity-60'
+                  : 'bg-white border-gray-200 hover:border-primary-200 hover:shadow-md'
               }`}
             >
               <div className="flex items-start">
@@ -137,10 +121,10 @@ function AdminDashboard() {
                   {feature.icon}
                 </div>
                 <div className="ml-4 flex-1">
-                  <h3 className="text-lg font-semibold text-neutral-900 mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
                     {feature.title}
                   </h3>
-                  <p className="text-sm text-neutral-600">
+                  <p className="text-sm text-gray-600">
                     {feature.description}
                   </p>
                   {feature.disabled && (
@@ -152,7 +136,7 @@ function AdminDashboard() {
               </div>
               {!feature.disabled && (
                 <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <ChevronRight className="h-5 w-5 text-neutral-400" />
+                  <ChevronRight className="h-5 w-5 text-gray-400" />
                 </div>
               )}
             </Link>
@@ -161,11 +145,11 @@ function AdminDashboard() {
       </div>
 
       {/* Section Divider */}
-      <div className="border-t border-neutral-200 my-8"></div>
+      <div className="border-t border-gray-200 my-8"></div>
 
       {/* Quick Actions */}
       <div className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-xl font-bold text-neutral-900 mb-4">Quick Actions</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
             href="/admin/rbac"
@@ -173,15 +157,21 @@ function AdminDashboard() {
           >
             RBAC Management
           </Link>
-          <ButtonSecondary size="md" disabled>
+          <button
+            disabled
+            className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-400 bg-gray-50 cursor-not-allowed"
+          >
             View Reports
-          </ButtonSecondary>
-          <ButtonSecondary size="md" disabled>
+          </button>
+          <button
+            disabled
+            className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-400 bg-gray-50 cursor-not-allowed"
+          >
             System Logs
-          </ButtonSecondary>
+          </button>
         </div>
       </div>
-    </PageWrapper>
+    </>
   );
 }
 

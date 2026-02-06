@@ -106,8 +106,8 @@ jest.mock('jsonwebtoken', () => ({
 }));
 
 // Mock Prisma
-jest.mock('@prisma/client', () => ({
-  PrismaClient: jest.fn(() => ({
+jest.mock('@prisma/client', () => {
+  const mockPrismaClient = jest.fn(() => ({
     $connect: jest.fn().mockResolvedValue(),
     $disconnect: jest.fn().mockResolvedValue(),
     $use: jest.fn(),
@@ -146,9 +146,69 @@ jest.mock('@prisma/client', () => ({
       create: jest.fn(),
       update: jest.fn(),
       delete: jest.fn()
+    },
+    // Search Analytics and Optimization Models
+    searchAnalytics: {
+      create: jest.fn(),
+      update: jest.fn(),
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      groupBy: jest.fn(),
+      delete: jest.fn(),
+      deleteMany: jest.fn()
+    },
+    searchClickTracking: {
+      create: jest.fn(),
+      update: jest.fn(),
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      delete: jest.fn()
+    },
+    searchPerformance: {
+      create: jest.fn(),
+      update: jest.fn(),
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      groupBy: jest.fn(),
+      delete: jest.fn(),
+      deleteMany: jest.fn()
+    },
+    searchOptimization: {
+      create: jest.fn(),
+      update: jest.fn(),
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      delete: jest.fn(),
+      deleteMany: jest.fn()
+    },
+    searchPersonalization: {
+      create: jest.fn(),
+      update: jest.fn(),
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      delete: jest.fn(),
+      deleteMany: jest.fn()
+    },
+    searchTrending: {
+      create: jest.fn(),
+      update: jest.fn(),
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      delete: jest.fn(),
+      deleteMany: jest.fn()
+    },
+    searchPersonalizationProfile: {
+      create: jest.fn(),
+      update: jest.fn(),
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      delete: jest.fn(),
+      deleteMany: jest.fn()
     }
-  }))
-}));
+  }));
+
+  return { PrismaClient: mockPrismaClient };
+});
 
 // Global test utilities
 global.testUtils = {

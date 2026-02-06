@@ -7,13 +7,25 @@
 
 /**
  * Product Image Interface
+ * FIXED: Updated to match Prisma schema (originalUrl, altTextEn, displayOrder)
  */
 export interface ProductImage {
   id: string;
   productId: string;
-  url: string;
-  alt: string | null;
-  sortOrder: number;
+  originalUrl: string;
+  optimizedUrl: string | null;
+  thumbnailUrl: string | null;
+  altTextBn: string | null;
+  altTextEn: string | null;
+  displayOrder: number;
+  isPrimary: boolean;
+  fileSizeBytes: number | null;
+  mimeType: string | null;
+  width: number | null;
+  height: number | null;
+  processingStatus: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /**
@@ -77,8 +89,37 @@ export interface Product {
 
 /**
  * Product with Relations Interface
+ * FIXED: Updated to use correct field names from Prisma schema
  */
 export interface ProductWithRelations {
+  id: string;
+  sku: string;
+  name: string;
+  nameEn: string;
+  nameBn: string | null;
+  slug: string;
+  shortDescription: string | null;
+  description: string | null;
+  brandId: string;
+  regularPrice: any;
+  salePrice: any | null;
+  costPrice: any;
+  taxRate: any;
+  stockQuantity: number;
+  lowStockThreshold: number;
+  status: 'active' | 'inactive' | 'out_of_stock' | 'discontinued';
+  metaTitle: string | null;
+  metaDescription: string | null;
+  metaKeywords: string | null;
+  isFeatured: boolean;
+  isNewArrival: boolean;
+  isBestSeller: boolean;
+  warrantyPeriod: number | null;
+  warrantyType: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date | null;
+  visibility: 'public' | 'private' | 'restricted';
   category: {
     id: string;
     name: string;
@@ -91,15 +132,42 @@ export interface ProductWithRelations {
   };
   images: Array<{
     id: string;
-    url: string;
-    alt: string | null;
-    sortOrder: number;
+    productId: string;
+    originalUrl: string;
+    optimizedUrl: string | null;
+    thumbnailUrl: string | null;
+    altTextBn: string | null;
+    altTextEn: string | null;
+    displayOrder: number;
+    isPrimary: boolean;
+    fileSizeBytes: number | null;
+    mimeType: string | null;
+    width: number | null;
+    height: number | null;
+    processingStatus: string;
+    createdAt: Date;
+    updatedAt: Date;
   }>;
   specifications: ProductSpecification[];
   variants: ProductVariant[];
   reviews?: ProductReview[];
+  categories: Array<{
+    id: string;
+    productId: string;
+    categoryId: string;
+    isPrimary: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    category: {
+      id: string;
+      name: string;
+      slug: string;
+    };
+  }>;
   _count?: {
     reviews: number;
+    cartItems: number;
+    orderItems: number;
   };
   avgRating?: number;
 }
@@ -190,20 +258,31 @@ export interface UpdateProductRequest {
 
 /**
  * Create Product Image Request Interface
+ * FIXED: Updated to match Prisma schema (originalUrl, altTextEn, displayOrder)
  */
 export interface CreateProductImageRequest {
-  url: string;
-  alt?: string | null;
-  sortOrder?: number;
+  originalUrl: string;
+  optimizedUrl?: string | null;
+  thumbnailUrl?: string | null;
+  altTextBn?: string | null;
+  altTextEn?: string | null;
+  displayOrder?: number;
+  isPrimary?: boolean;
 }
 
 /**
  * Update Product Image Request Interface
+ * FIXED: Updated to match Prisma schema (originalUrl, altTextEn, displayOrder)
  */
 export interface UpdateProductImageRequest {
-  url?: string;
-  alt?: string | null;
-  sortOrder?: number;
+  originalUrl?: string;
+  optimizedUrl?: string | null;
+  thumbnailUrl?: string | null;
+  altTextBn?: string | null;
+  altTextEn?: string | null;
+  displayOrder?: number;
+  isPrimary?: boolean;
+  processingStatus?: string;
 }
 
 /**

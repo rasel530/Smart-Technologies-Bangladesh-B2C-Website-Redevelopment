@@ -16,6 +16,7 @@ import {
   Search
 } from 'lucide-react';
 import Link from 'next/link';
+import { ButtonDanger } from '@/components/design-system';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -62,12 +63,17 @@ function AdminLayout({ children }: AdminLayoutProps) {
     },
     {
       href: '/admin/rbac',
-      label: 'RBAC',
+      label: 'RBAC Management',
       icon: Shield,
     },
     {
       href: '/admin/elasticsearch',
       label: 'Elasticsearch',
+      icon: Search,
+    },
+    {
+      href: '/admin/search',
+      label: 'Search Analytics',
       icon: Search,
     },
     {
@@ -88,10 +94,10 @@ function AdminLayout({ children }: AdminLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <aside
-        className="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-lg lg:translate-x-0"
+        className="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-lg lg:translate-x-0 lg:flex-shrink-0"
       >
         <div className="flex flex-col h-full">
           {/* Sidebar Header */}
@@ -131,8 +137,8 @@ function AdminLayout({ children }: AdminLayoutProps) {
             </ul>
           </nav>
 
-          {/* User Info */}
-          <div className="p-4 border-t border-gray-200">
+          {/* User Info & Logout */}
+          <div className="p-4 border-t border-gray-200 space-y-3">
             {user ? (
               <div className="space-y-1">
                 <p className="text-sm font-medium text-gray-900 truncate">
@@ -151,12 +157,20 @@ function AdminLayout({ children }: AdminLayoutProps) {
                 <p className="text-xs text-gray-300">Please wait</p>
               </div>
             )}
+            <ButtonDanger
+              size="sm"
+              leftIcon={<LogOut className="w-4 h-4" />}
+              onClick={handleLogout}
+              className="w-full"
+            >
+              Logout
+            </ButtonDanger>
           </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="lg:ml-64 min-h-screen">
+      <main className="flex-1 min-h-screen overflow-auto">
         {/* Desktop Header */}
         <div className="hidden lg:block bg-white shadow-sm border-b border-gray-200">
           <div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-8 py-4">

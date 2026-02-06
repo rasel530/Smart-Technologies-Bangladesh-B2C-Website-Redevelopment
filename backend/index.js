@@ -146,6 +146,11 @@ const adminProductImagesRoutes = require('./routes/admin-product-images');
 const imagesRoutes = require('./routes/images');
 const { router: searchRoutes, initializeSearchController } = require('./routes/searchRoutes');
 const { router: adminSearchRoutes, initializeAdminSearchController } = require('./routes/adminSearchRoutes');
+const { router: searchAnalyticsRoutes, initializeSearchAnalyticsController } = require('./routes/searchAnalytics');
+const { router: searchPerformanceRoutes, initializeSearchPerformanceController } = require('./routes/searchPerformance');
+const { router: searchOptimizationRoutes, initializeSearchOptimizationController } = require('./routes/searchOptimization');
+const { router: searchPersonalizationRoutes, initializeSearchPersonalizationController } = require('./routes/searchPersonalization');
+const { router: searchTrendingRoutes, initializeSearchTrendingController } = require('./routes/searchTrending');
 
 const app = express();
 const PORT = configService.get('PORT');
@@ -165,6 +170,19 @@ const searchService = new SearchService(
 // Initialize search controllers
 initializeSearchController(searchService);
 initializeAdminSearchController(searchService);
+
+// Initialize search analytics, performance, and optimization controllers
+const { SearchAnalyticsService } = require('./services/searchAnalytics.service');
+const { SearchPerformanceService } = require('./services/searchPerformance.service');
+const { SearchOptimizationService } = require('./services/searchOptimization.service');
+const { SearchPersonalizationService } = require('./services/searchPersonalization.service');
+const { SearchTrendingService } = require('./services/searchTrending.service');
+
+initializeSearchAnalyticsController({ searchAnalyticsService: new SearchAnalyticsService() });
+initializeSearchPerformanceController({ searchPerformanceService: new SearchPerformanceService() });
+initializeSearchOptimizationController({ searchOptimizationService: new SearchOptimizationService() });
+initializeSearchPersonalizationController({ searchPersonalizationService: new SearchPersonalizationService() });
+initializeSearchTrendingController({ searchTrendingService: new SearchTrendingService() });
 
 // Enhanced CORS configuration with strict origin validation
 const corsConfig = configService.getCORSConfig();
@@ -428,10 +446,17 @@ app.use('/api/v1/images', imagesRoutes);
 app.use('/api/search', searchRoutes);
 
 // Admin search routes
-app.use('/api/admin/search', adminSearchRoutes);
+app.use('/api/v1/admin/search', adminSearchRoutes);
 
 // Admin product image management routes
 app.use('/api/v1/admin/products', adminProductImagesRoutes);
+
+// Search analytics, performance, optimization, personalization, and trending routes
+app.use('/api/v1/search-analytics', searchAnalyticsRoutes);
+app.use('/api/v1/search-performance', searchPerformanceRoutes);
+app.use('/api/v1/search-optimization', searchOptimizationRoutes);
+app.use('/api/v1/search-personalization', searchPersonalizationRoutes);
+app.use('/api/v1/search-trending', searchTrendingRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

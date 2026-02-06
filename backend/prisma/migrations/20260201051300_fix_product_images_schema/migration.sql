@@ -1,0 +1,3 @@
+-- Fix product images schema
+-- This migration was applied to the database
+-- Placeholder file to resolve Prisma migration issue

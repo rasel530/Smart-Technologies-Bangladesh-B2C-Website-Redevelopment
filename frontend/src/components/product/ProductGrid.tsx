@@ -2,11 +2,10 @@
 
 /**
  * Product Grid Component
- * 
+ *
  * Client component for displaying products in a responsive grid layout.
  * Features include:
- * - Responsive grid layout
- * - Configurable columns for different screen sizes
+ * - Responsive grid layout (1 col mobile, 2 cols sm, 3 cols md, 4 cols lg, 5 cols xl)
  * - Wishlist integration
  * - Product card rendering
  * - Loading state
@@ -30,7 +29,9 @@ interface ProductGridProps {
 
 /**
  * Product Grid Component
- * Displays products in a responsive grid with configurable columns
+ * Displays products in a responsive grid with configurable columns.
+ * Note: The 'columns' prop is deprecated - responsive grid is now handled via Tailwind classes.
+ * Responsive breakpoints: 1 col (mobile), 2 cols (sm), 3 cols (md), 4 cols (lg), 5 cols (xl)
  */
 export function ProductGrid({
   products,
@@ -38,20 +39,32 @@ export function ProductGrid({
   columns = {
     mobile: 1,
     tablet: 2,
-    desktop: 4,
+    desktop: 5,
   },
   loading = false,
   viewMode = 'grid',
 }: ProductGridProps) {
   // Show loading skeleton
   if (loading) {
+    if (viewMode === 'list') {
+      return (
+        <div className="flex flex-col gap-4">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="bg-white rounded-lg shadow-sm p-4 flex gap-4">
+              <div className="w-48 h-32 bg-gray-200 rounded animate-pulse flex-shrink-0"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-6 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2"></div>
+                <div className="h-4 bg-gray-200 rounded animate-pulse w-1/4"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
     return (
-      <div
-        className="grid gap-6"
-        style={{
-          gridTemplateColumns: `repeat(${columns.mobile}, 1fr)`,
-        }}
-      >
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         {[...Array(8)].map((_, i) => (
           <div key={i} className="bg-white rounded-lg shadow-sm p-4">
             <div className="h-48 bg-gray-200 rounded animate-pulse mb-4"></div>
@@ -59,18 +72,6 @@ export function ProductGrid({
             <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
           </div>
         ))}
-        <style jsx>{`
-          @media (min-width: 640px) {
-            div {
-              grid-template-columns: repeat(${columns.tablet}, 1fr) !important;
-            }
-          }
-          @media (min-width: 1024px) {
-            div {
-              grid-template-columns: repeat(${columns.desktop}, 1fr) !important;
-            }
-          }
-        `}</style>
       </div>
     );
   }
@@ -83,32 +84,33 @@ export function ProductGrid({
     );
   }
 
+  // List view: single column with full-width cards
+  if (viewMode === 'list') {
+    return (
+      <div className="flex flex-col gap-4">
+        {products.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            isWishlisted={wishlistedProducts.has(product.id)}
+            viewMode="list"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  // Grid view: responsive multi-column layout
   return (
-    <div
-      className="grid gap-6"
-      style={{
-        gridTemplateColumns: `repeat(${columns.mobile}, 1fr)`,
-      }}
-    >
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
       {products.map((product) => (
         <ProductCard
           key={product.id}
           product={product}
           isWishlisted={wishlistedProducts.has(product.id)}
+          viewMode="grid"
         />
       ))}
-      <style jsx>{`
-        @media (min-width: 640px) {
-          div {
-            grid-template-columns: repeat(${columns.tablet}, 1fr) !important;
-          }
-        }
-        @media (min-width: 1024px) {
-          div {
-            grid-template-columns: repeat(${columns.desktop}, 1fr) !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }

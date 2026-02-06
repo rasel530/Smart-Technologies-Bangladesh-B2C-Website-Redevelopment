@@ -4,69 +4,69 @@
     "passed": true,
     "details": "Status: 201",
     "error": null,
-    "timestamp": "2026-01-10T14:13:59.746Z"
+    "timestamp": "2026-02-04T18:17:35.572Z"
   },
   {
     "test": "Login",
     "passed": true,
     "details": "Status: 200",
     "error": null,
-    "timestamp": "2026-01-10T14:14:00.037Z"
+    "timestamp": "2026-02-04T18:17:36.527Z"
   },
   {
     "test": "GET notifications",
     "passed": true,
     "details": "Status: 200, Has preferences: true",
     "error": null,
-    "timestamp": "2026-01-10T14:14:00.135Z"
+    "timestamp": "2026-02-04T18:17:36.596Z"
   },
   {
     "test": "PUT notifications",
     "passed": true,
     "details": "Status: 200, Has preferences: true, No extra message: true",
     "error": null,
-    "timestamp": "2026-01-10T14:14:00.152Z"
+    "timestamp": "2026-02-04T18:17:36.708Z"
   },
   {
     "test": "GET communication",
     "passed": true,
     "details": "Status: 200, Has preferences: true",
     "error": null,
-    "timestamp": "2026-01-10T14:14:00.166Z"
+    "timestamp": "2026-02-04T18:17:36.763Z"
   },
   {
     "test": "PUT communication",
     "passed": true,
     "details": "Status: 200, Has preferences: true, No extra message: true",
     "error": null,
-    "timestamp": "2026-01-10T14:14:00.181Z"
+    "timestamp": "2026-02-04T18:17:36.819Z"
   },
   {
     "test": "GET privacy",
     "passed": true,
     "details": "Status: 200, Has settings: true, Uses correct format: true",
     "error": null,
-    "timestamp": "2026-01-10T14:14:00.233Z"
+    "timestamp": "2026-02-04T18:17:36.902Z"
   },
   {
     "test": "PUT privacy",
-    "passed": true,
-    "details": "Status: 200, Has settings: true, Uses correct format: true",
-    "error": null,
-    "timestamp": "2026-01-10T14:14:00.250Z"
+    "passed": false,
+    "details": "Status: 400, Has settings: false, Uses correct format: true",
+    "error": "{\"error\":\"Validation failed\",\"details\":[{\"type\":\"field\",\"value\":\"PUBLIC\",\"msg\":\"Invalid profile visibility value. Must be: public, private, or friends_only\",\"path\":\"profileVisibility\",\"location\":\"body\"}]}",
+    "timestamp": "2026-02-04T18:17:36.921Z"
   },
   {
     "test": "Old privacy route returns 404",
     "passed": true,
     "details": "Status: 404",
     "error": null,
-    "timestamp": "2026-01-10T14:14:00.256Z"
+    "timestamp": "2026-02-04T18:17:36.943Z"
   },
   {
     "test": "Authentication required (401/403)",
     "passed": true,
     "details": "Status: 401",
     "error": null,
-    "timestamp": "2026-01-10T14:14:00.260Z"
+    "timestamp": "2026-02-04T18:17:36.961Z"
   }
 ]

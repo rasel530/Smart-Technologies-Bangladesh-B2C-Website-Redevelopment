@@ -34,15 +34,16 @@ export class ProductImageServiceError extends Error {
 export class ProductImageService {
   /**
    * Get all images for a product
-   * 
+   *
    * @param productId - The product ID
-   * @returns Array of product images ordered by sortOrder
+   * @returns Array of product images ordered by displayOrder
+   * FIXED: Updated to use displayOrder instead of sortOrder
    */
   async getProductImages(productId: string): Promise<ProductImage[]> {
     try {
       const images = await prisma.productImage.findMany({
         where: { productId },
-        orderBy: { sortOrder: 'asc' }
+        orderBy: { displayOrder: 'asc' }
       });
 
       return images;
@@ -79,10 +80,11 @@ export class ProductImageService {
 
   /**
    * Create a new product image
-   * 
+   *
    * @param productId - The product ID
    * @param imageData - The image data
    * @returns Created product image
+   * FIXED: Updated to use correct field names (originalUrl, altTextEn, displayOrder)
    */
   async createProductImage(
     productId: string,
@@ -103,24 +105,24 @@ export class ProductImageService {
       }
 
       // Validate image URL
-      this.validateImageUrl(imageData.url);
+      this.validateImageUrl(imageData.originalUrl);
 
       // Validate alt text length
-      if (imageData.alt && imageData.alt.length > 255) {
+      if (imageData.altTextEn && imageData.altTextEn.length > 255) {
         throw new ProductImageServiceError(
           'Alt text cannot exceed 255 characters',
           400,
-          'alt'
+          'altTextEn'
         );
       }
 
-      // Validate sortOrder
-      const sortOrder = imageData.sortOrder !== undefined ? imageData.sortOrder : 0;
-      if (sortOrder < 0) {
+      // Validate displayOrder
+      const displayOrder = imageData.displayOrder !== undefined ? imageData.displayOrder : 0;
+      if (displayOrder < 0) {
         throw new ProductImageServiceError(
-          'Sort order must be a non-negative number',
+          'Display order must be a non-negative number',
           400,
-          'sortOrder'
+          'displayOrder'
         );
       }
 
@@ -128,9 +130,13 @@ export class ProductImageService {
       const image = await prisma.productImage.create({
         data: {
           productId,
-          url: imageData.url,
-          alt: imageData.alt,
-          sortOrder
+          originalUrl: imageData.originalUrl,
+          optimizedUrl: imageData.optimizedUrl,
+          thumbnailUrl: imageData.thumbnailUrl,
+          altTextBn: imageData.altTextBn,
+          altTextEn: imageData.altTextEn,
+          displayOrder,
+          isPrimary: imageData.isPrimary || false
         }
       });
 
@@ -149,10 +155,11 @@ export class ProductImageService {
 
   /**
    * Update a product image
-   * 
+   *
    * @param imageId - The image ID
    * @param imageData - The image data to update
    * @returns Updated product image
+   * FIXED: Updated to use correct field names (originalUrl, altTextEn, displayOrder)
    */
   async updateProductImage(
     imageId: string,
@@ -172,25 +179,25 @@ export class ProductImageService {
       }
 
       // Validate image URL if provided
-      if (imageData.url) {
-        this.validateImageUrl(imageData.url);
+      if (imageData.originalUrl) {
+        this.validateImageUrl(imageData.originalUrl);
       }
 
       // Validate alt text length if provided
-      if (imageData.alt && imageData.alt.length > 255) {
+      if (imageData.altTextEn && imageData.altTextEn.length > 255) {
         throw new ProductImageServiceError(
           'Alt text cannot exceed 255 characters',
           400,
-          'alt'
+          'altTextEn'
         );
       }
 
-      // Validate sortOrder if provided
-      if (imageData.sortOrder !== undefined && imageData.sortOrder < 0) {
+      // Validate displayOrder if provided
+      if (imageData.displayOrder !== undefined && imageData.displayOrder < 0) {
         throw new ProductImageServiceError(
-          'Sort order must be a non-negative number',
+          'Display order must be a non-negative number',
           400,
-          'sortOrder'
+          'displayOrder'
         );
       }
 
@@ -252,10 +259,11 @@ export class ProductImageService {
   }
 
   /**
-   * Set image as default (sortOrder = 0)
-   * 
+   * Set image as default (displayOrder = 0)
+   *
    * @param imageId - The image ID
    * @returns Updated product image
+   * FIXED: Updated to use displayOrder instead of sortOrder
    */
   async setDefaultImage(imageId: string): Promise<ProductImage> {
     try {
@@ -271,21 +279,21 @@ export class ProductImageService {
         );
       }
 
-      // Update all other images for this product to have sortOrder > 0
+      // Update all other images for this product to have displayOrder > 0
       await prisma.productImage.updateMany({
         where: {
           productId: existingImage.productId,
           NOT: { id: imageId }
         },
         data: {
-          sortOrder: { increment: 1 }
+          displayOrder: { increment: 1 }
         }
       });
 
       // Set this image as default
       const image = await prisma.productImage.update({
         where: { id: imageId },
-        data: { sortOrder: 0 }
+        data: { displayOrder: 0, isPrimary: true }
       });
 
       return image;
@@ -303,14 +311,15 @@ export class ProductImageService {
 
   /**
    * Reorder product images
-   * 
+   *
    * @param productId - The product ID
-   * @param imageOrders - Array of image IDs with their new sort orders
+   * @param imageOrders - Array of image IDs with their new display orders
    * @returns Updated product images
+   * FIXED: Updated to use displayOrder instead of sortOrder
    */
   async reorderProductImages(
     productId: string,
-    imageOrders: Array<{ imageId: string; sortOrder: number }>
+    imageOrders: Array<{ imageId: string; displayOrder: number }>
   ): Promise<ProductImage[]> {
     try {
       // Validate product exists
@@ -340,12 +349,12 @@ export class ProductImageService {
         );
       }
 
-      // Update sort orders in a transaction
+      // Update display orders in a transaction
       const updatedImages = await prisma.$transaction(
-        imageOrders.map(({ imageId, sortOrder }) =>
+        imageOrders.map(({ imageId, displayOrder }) =>
           prisma.productImage.update({
             where: { id: imageId },
-            data: { sortOrder }
+            data: { displayOrder }
           })
         )
       );
@@ -387,15 +396,16 @@ export class ProductImageService {
 
   /**
    * Get default image for a product
-   * 
+   *
    * @param productId - The product ID
    * @returns Default product image or null if not found
+   * FIXED: Updated to use displayOrder instead of sortOrder
    */
   async getDefaultProductImage(productId: string): Promise<ProductImage | null> {
     try {
       const image = await prisma.productImage.findFirst({
         where: { productId },
-        orderBy: { sortOrder: 'asc' }
+        orderBy: { displayOrder: 'asc' }
       });
 
       return image;
@@ -450,10 +460,11 @@ export class ProductImageService {
 
   /**
    * Bulk create product images
-   * 
+   *
    * @param productId - The product ID
    * @param imagesData - Array of image data
    * @returns Created product images
+   * FIXED: Updated to use correct field names (originalUrl, altTextEn, displayOrder)
    */
   async bulkCreateProductImages(
     productId: string,
@@ -475,12 +486,12 @@ export class ProductImageService {
 
       // Validate all images
       imagesData.forEach((imageData, index) => {
-        this.validateImageUrl(imageData.url);
-        if (imageData.alt && imageData.alt.length > 255) {
+        this.validateImageUrl(imageData.originalUrl);
+        if (imageData.altTextEn && imageData.altTextEn.length > 255) {
           throw new ProductImageServiceError(
             `Alt text for image ${index + 1} cannot exceed 255 characters`,
             400,
-            'alt'
+            'altTextEn'
           );
         }
       });
@@ -491,9 +502,13 @@ export class ProductImageService {
           prisma.productImage.create({
             data: {
               productId,
-              url: imageData.url,
-              alt: imageData.alt,
-              sortOrder: imageData.sortOrder !== undefined ? imageData.sortOrder : 0
+              originalUrl: imageData.originalUrl,
+              optimizedUrl: imageData.optimizedUrl,
+              thumbnailUrl: imageData.thumbnailUrl,
+              altTextBn: imageData.altTextBn,
+              altTextEn: imageData.altTextEn,
+              displayOrder: imageData.displayOrder !== undefined ? imageData.displayOrder : 0,
+              isPrimary: imageData.isPrimary || false
             }
           })
         )

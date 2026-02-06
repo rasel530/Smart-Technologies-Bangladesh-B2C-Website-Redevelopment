@@ -336,7 +336,7 @@ async function performElasticsearchSearch(params) {
         ],
         type: 'best_fields',
         fuzziness: 'AUTO',
-        operator: 'and'
+        operator: 'or'
       }
     });
   }
@@ -663,15 +663,18 @@ async function performPostgreSQLSearch(params) {
 
   const where = {};
 
-  // Add text search
+  // Add text search - split query into individual words for multi-word support
   if (query && query.trim()) {
-    where.OR = [
-      { name: { contains: query, mode: 'insensitive' } },
-      { nameEn: { contains: query, mode: 'insensitive' } },
-      { nameBn: { contains: query, mode: 'insensitive' } },
-      { shortDescription: { contains: query, mode: 'insensitive' } },
-      { sku: { contains: query, mode: 'insensitive' } }
-    ];
+    const searchTerms = query.trim().split(/\s+/);
+    
+    // Create OR conditions for each search term across all searchable fields
+    where.OR = searchTerms.flatMap(term => [
+      { name: { contains: term, mode: 'insensitive' } },
+      { nameEn: { contains: term, mode: 'insensitive' } },
+      { nameBn: { contains: term, mode: 'insensitive' } },
+      { shortDescription: { contains: term, mode: 'insensitive' } },
+      { sku: { contains: term, mode: 'insensitive' } }
+    ]);
   }
 
   // Add filters

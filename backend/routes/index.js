@@ -25,6 +25,9 @@ const rbacEscalationRoutes = require('./rbacEscalation');
 const rbacAuthCheckRoutes = require('./rbacAuthCheck');
 const corporateRoutes = require('./corporate');
 const adminElasticsearchRoutes = require('./admin/elasticsearch');
+const comparisonsRoutes = require('./comparisons');
+const comparisonsGuestRoutes = require('./comparisons-guest');
+const adminComparisonsRoutes = require('./admin/comparisons');
 
 const router = express.Router();
 
@@ -60,6 +63,11 @@ router.use('/v1/corporate', corporateRoutes);
 
 // Admin Elasticsearch management routes
 router.use('/v1/admin/elasticsearch', adminElasticsearchRoutes);
+
+// Product comparison routes
+router.use('/v1/comparisons', comparisonsRoutes);
+router.use('/v1/comparisons', comparisonsGuestRoutes);
+router.use('/v1/admin/comparisons', adminComparisonsRoutes);
 
 // API documentation endpoint
 router.get('/', (req, res) => {
@@ -98,7 +106,12 @@ router.get('/', (req, res) => {
         auth: '/api/rbac/auth'
       },
       admin: {
-        elasticsearch: '/api/v1/admin/elasticsearch'
+        elasticsearch: '/api/v1/admin/elasticsearch',
+        comparisons: '/api/v1/admin/comparisons'
+      },
+      comparisons: {
+        comparisons: '/api/v1/comparisons',
+        guest: '/api/v1/comparisons/guest'
       }
     },
     documentation: '/api-docs'

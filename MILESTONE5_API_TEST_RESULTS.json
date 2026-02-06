@@ -1,0 +1,3204 @@
+{
+  "timestamp": "2026-02-04T20:01:57.819Z",
+  "expectedEndpoints": [
+    {
+      "method": "GET",
+      "path": "/api/admin/search/analytics",
+      "description": "Comprehensive analytics dashboard",
+      "category": "analytics",
+      "authRequired": "admin",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 8,
+      "notes": "Endpoint does not exist",
+      "data": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/search/performance",
+      "description": "Performance metrics",
+      "category": "analytics",
+      "authRequired": "admin",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 11,
+      "notes": "Endpoint does not exist",
+      "data": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/search/optimization/experiments",
+      "description": "List experiments",
+      "category": "optimization",
+      "authRequired": "admin",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 7,
+      "notes": "Endpoint does not exist",
+      "data": null
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/search/optimization/experiments",
+      "description": "Create experiment",
+      "category": "optimization",
+      "authRequired": "admin",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 38,
+      "notes": "Endpoint does not exist",
+      "data": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/search/optimization/experiments/:id",
+      "description": "Get experiment details",
+      "category": "optimization",
+      "authRequired": "admin",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 15,
+      "notes": "Endpoint does not exist",
+      "data": null
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/search/optimization/experiments/:id/results",
+      "description": "Get results",
+      "category": "optimization",
+      "authRequired": "admin",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 7,
+      "notes": "Endpoint does not exist",
+      "data": null
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/search/optimization/recommendations",
+      "description": "Get optimization recommendations",
+      "category": "optimization",
+      "authRequired": "admin",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 103,
+      "notes": "Endpoint does not exist",
+      "data": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/personalization/preferences",
+      "description": "Get user preferences",
+      "category": "personalization",
+      "authRequired": "user",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 20,
+      "notes": "Endpoint does not exist",
+      "data": null
+    },
+    {
+      "method": "PUT",
+      "path": "/api/search/personalization/preferences",
+      "description": "Update preferences",
+      "category": "personalization",
+      "authRequired": "user",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 10,
+      "notes": "Endpoint does not exist",
+      "data": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/personalization/recommendations",
+      "description": "Get personalized recommendations",
+      "category": "personalization",
+      "authRequired": "user",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 6,
+      "notes": "Endpoint does not exist",
+      "data": null
+    },
+    {
+      "method": "POST",
+      "path": "/api/search/personalization/track",
+      "description": "Track user behavior",
+      "category": "personalization",
+      "authRequired": "user",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 12,
+      "notes": "Endpoint does not exist",
+      "data": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/trending",
+      "description": "Get trending searches",
+      "category": "trending",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 5,
+      "notes": "Endpoint does not exist",
+      "data": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/search/trending",
+      "description": "Detailed trending data",
+      "category": "trending",
+      "authRequired": "admin",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 4,
+      "notes": "Endpoint does not exist",
+      "data": null
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/search/trending/recalculate",
+      "description": "Recalculate trends",
+      "category": "trending",
+      "authRequired": "admin",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 4,
+      "notes": "Endpoint does not exist",
+      "data": null
+    }
+  ],
+  "implementedEndpoints": [
+    {
+      "method": "POST",
+      "path": "/api/search/analytics/track",
+      "description": "Track search event",
+      "category": "analytics",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 5,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/search/analytics/track was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/search/analytics/track পাওয়া যায়নি",
+        "path": "/api/search/analytics/track",
+        "method": "POST",
+        "timestamp": "2026-02-04T20:01:58.230Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/search/analytics/click",
+      "description": "Track result click",
+      "category": "analytics",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 8,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/search/analytics/click was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/search/analytics/click পাওয়া যায়নি",
+        "path": "/api/search/analytics/click",
+        "method": "POST",
+        "timestamp": "2026-02-04T20:01:58.239Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/search/analytics/conversion",
+      "description": "Track conversion",
+      "category": "analytics",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 4,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/search/analytics/conversion was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/search/analytics/conversion পাওয়া যায়নি",
+        "path": "/api/search/analytics/conversion",
+        "method": "POST",
+        "timestamp": "2026-02-04T20:01:58.243Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/analytics/history",
+      "description": "Get user search history",
+      "category": "analytics",
+      "authRequired": "user",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 6,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/search/analytics/history?limit=10 was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/search/analytics/history?limit=10 পাওয়া যায়নি",
+        "path": "/api/search/analytics/history?limit=10",
+        "method": "GET",
+        "timestamp": "2026-02-04T20:01:58.249Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/analytics/popular",
+      "description": "Get popular searches",
+      "category": "analytics",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 4,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/search/analytics/popular?limit=10 was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/search/analytics/popular?limit=10 পাওয়া যায়নি",
+        "path": "/api/search/analytics/popular?limit=10",
+        "method": "GET",
+        "timestamp": "2026-02-04T20:01:58.253Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/analytics/metrics",
+      "description": "Get analytics metrics",
+      "category": "analytics",
+      "authRequired": "admin",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 4,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/search/analytics/metrics?startDate=2026-01-28T20:01:58.254Z was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/search/analytics/metrics?startDate=2026-01-28T20:01:58.254Z পাওয়া যায়নি",
+        "path": "/api/search/analytics/metrics?startDate=2026-01-28T20:01:58.254Z",
+        "method": "GET",
+        "timestamp": "2026-02-04T20:01:58.256Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/search/analytics/dwell-time",
+      "description": "Update dwell time",
+      "category": "analytics",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 5,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/search/analytics/dwell-time was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/search/analytics/dwell-time পাওয়া যায়নি",
+        "path": "/api/search/analytics/dwell-time",
+        "method": "POST",
+        "timestamp": "2026-02-04T20:01:58.262Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/analytics/session",
+      "description": "Get search analytics by session",
+      "category": "analytics",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 7,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/search/analytics/session?sessionId=test-session-123 was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/search/analytics/session?sessionId=test-session-123 পাওয়া যায়নি",
+        "path": "/api/search/analytics/session?sessionId=test-session-123",
+        "method": "GET",
+        "timestamp": "2026-02-04T20:01:58.270Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/optimization/patterns",
+      "description": "Get query patterns analysis",
+      "category": "optimization",
+      "authRequired": "admin",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 5,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/search/optimization/patterns?timeRange=week was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/search/optimization/patterns?timeRange=week পাওয়া যায়নি",
+        "path": "/api/search/optimization/patterns?timeRange=week",
+        "method": "GET",
+        "timestamp": "2026-02-04T20:01:58.274Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/search/optimization/optimize",
+      "description": "Optimize a search query",
+      "category": "optimization",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 5,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/search/optimization/optimize was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/search/optimization/optimize পাওয়া যায়নি",
+        "path": "/api/search/optimization/optimize",
+        "method": "POST",
+        "timestamp": "2026-02-04T20:01:58.279Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/search/optimization/experiment",
+      "description": "Create A/B test experiment",
+      "category": "optimization",
+      "authRequired": "admin",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 6,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/search/optimization/experiment was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/search/optimization/experiment পাওয়া যায়নি",
+        "path": "/api/search/optimization/experiment",
+        "method": "POST",
+        "timestamp": "2026-02-04T20:01:58.284Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/optimization/experiment/:id",
+      "description": "Get experiment results",
+      "category": "optimization",
+      "authRequired": "admin",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 4,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/search/optimization/experiment/:id was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/search/optimization/experiment/:id পাওয়া যায়নি",
+        "path": "/api/search/optimization/experiment/:id",
+        "method": "GET",
+        "timestamp": "2026-02-04T20:01:58.289Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/optimization/experiments",
+      "description": "List all experiments",
+      "category": "optimization",
+      "authRequired": "admin",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 4,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/search/optimization/experiments?activeOnly=false was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/search/optimization/experiments?activeOnly=false পাওয়া যায়নি",
+        "path": "/api/search/optimization/experiments?activeOnly=false",
+        "method": "GET",
+        "timestamp": "2026-02-04T20:01:58.293Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/search/optimization/assign",
+      "description": "Assign user to experiment",
+      "category": "optimization",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 5,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/search/optimization/assign was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/search/optimization/assign পাওয়া যায়নি",
+        "path": "/api/search/optimization/assign",
+        "method": "POST",
+        "timestamp": "2026-02-04T20:01:58.298Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/search/optimization/results",
+      "description": "Get optimized search results",
+      "category": "optimization",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 4,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/search/optimization/results was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/search/optimization/results পাওয়া যায়নি",
+        "path": "/api/search/optimization/results",
+        "method": "POST",
+        "timestamp": "2026-02-04T20:01:58.302Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/search/optimization/metrics",
+      "description": "Update experiment metrics",
+      "category": "optimization",
+      "authRequired": "admin",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 4,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/search/optimization/metrics was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/search/optimization/metrics পাওয়া যায়নি",
+        "path": "/api/search/optimization/metrics",
+        "method": "POST",
+        "timestamp": "2026-02-04T20:01:58.306Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/search/optimization/cache",
+      "description": "Clear query optimization cache",
+      "category": "optimization",
+      "authRequired": "admin",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 3,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route DELETE /api/search/optimization/cache was not found",
+        "messageBn": "অনুরোধকৃত রুট DELETE /api/search/optimization/cache পাওয়া যায়নি",
+        "path": "/api/search/optimization/cache",
+        "method": "DELETE",
+        "timestamp": "2026-02-04T20:01:58.309Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/personalization/preferences",
+      "description": "Get user preferences",
+      "category": "personalization",
+      "authRequired": "user",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 3,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/search/personalization/preferences was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/search/personalization/preferences পাওয়া যায়নি",
+        "path": "/api/search/personalization/preferences",
+        "method": "GET",
+        "timestamp": "2026-02-04T20:01:58.312Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/api/search/personalization/preferences",
+      "description": "Update user preferences",
+      "category": "personalization",
+      "authRequired": "user",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 9,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route PUT /api/search/personalization/preferences was not found",
+        "messageBn": "অনুরোধকৃত রুট PUT /api/search/personalization/preferences পাওয়া যায়নি",
+        "path": "/api/search/personalization/preferences",
+        "method": "PUT",
+        "timestamp": "2026-02-04T20:01:58.322Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/personalization/results",
+      "description": "Get personalized search results",
+      "category": "personalization",
+      "authRequired": "user",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 5,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/search/personalization/results?query=laptop was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/search/personalization/results?query=laptop পাওয়া যায়নি",
+        "path": "/api/search/personalization/results?query=laptop",
+        "method": "GET",
+        "timestamp": "2026-02-04T20:01:58.326Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/personalization/suggestions",
+      "description": "Get personalized suggestions",
+      "category": "personalization",
+      "authRequired": "user",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 5,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/search/personalization/suggestions was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/search/personalization/suggestions পাওয়া যায়নি",
+        "path": "/api/search/personalization/suggestions",
+        "method": "GET",
+        "timestamp": "2026-02-04T20:01:58.332Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/personalization/recommendations",
+      "description": "Get recommendations",
+      "category": "personalization",
+      "authRequired": "user",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 4,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/search/personalization/recommendations?type=personalized was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/search/personalization/recommendations?type=personalized পাওয়া যায়নি",
+        "path": "/api/search/personalization/recommendations?type=personalized",
+        "method": "GET",
+        "timestamp": "2026-02-04T20:01:58.336Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/search/personalization/recommendation/click",
+      "description": "Track recommendation click",
+      "category": "personalization",
+      "authRequired": "user",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 4,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/search/personalization/recommendation/click was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/search/personalization/recommendation/click পাওয়া যায়নি",
+        "path": "/api/search/personalization/recommendation/click",
+        "method": "POST",
+        "timestamp": "2026-02-04T20:01:58.340Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/search/personalization/recommendation/conversion",
+      "description": "Track recommendation conversion",
+      "category": "personalization",
+      "authRequired": "user",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 18,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/search/personalization/recommendation/conversion was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/search/personalization/recommendation/conversion পাওয়া যায়নি",
+        "path": "/api/search/personalization/recommendation/conversion",
+        "method": "POST",
+        "timestamp": "2026-02-04T20:01:58.358Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/search/personalization/history",
+      "description": "Add search to history",
+      "category": "personalization",
+      "authRequired": "user",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 6,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/search/personalization/history was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/search/personalization/history পাওয়া যায়নি",
+        "path": "/api/search/personalization/history",
+        "method": "POST",
+        "timestamp": "2026-02-04T20:01:58.364Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/personalization/history",
+      "description": "Get search history",
+      "category": "personalization",
+      "authRequired": "user",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 4,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/search/personalization/history?limit=10 was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/search/personalization/history?limit=10 পাওয়া যায়নি",
+        "path": "/api/search/personalization/history?limit=10",
+        "method": "GET",
+        "timestamp": "2026-02-04T20:01:58.368Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/search/personalization/history",
+      "description": "Clear search history",
+      "category": "personalization",
+      "authRequired": "user",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 4,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route DELETE /api/search/personalization/history was not found",
+        "messageBn": "অনুরোধকৃত রুট DELETE /api/search/personalization/history পাওয়া যায়নি",
+        "path": "/api/search/personalization/history",
+        "method": "DELETE",
+        "timestamp": "2026-02-04T20:01:58.372Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/trending/",
+      "description": "Get trending searches",
+      "category": "trending",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 4,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/search/trending/?limit=10 was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/search/trending/?limit=10 পাওয়া যায়নি",
+        "path": "/api/search/trending/?limit=10",
+        "method": "GET",
+        "timestamp": "2026-02-04T20:01:58.376Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/trending/products",
+      "description": "Get trending products",
+      "category": "trending",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 4,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/search/trending/products?limit=10 was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/search/trending/products?limit=10 পাওয়া যায়নি",
+        "path": "/api/search/trending/products?limit=10",
+        "method": "GET",
+        "timestamp": "2026-02-04T20:01:58.380Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/search/trending/record",
+      "description": "Record search for trending",
+      "category": "trending",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 3,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/search/trending/record was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/search/trending/record পাওয়া যায়নি",
+        "path": "/api/search/trending/record",
+        "method": "POST",
+        "timestamp": "2026-02-04T20:01:58.383Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/search/trending/calculate",
+      "description": "Calculate trend scores",
+      "category": "trending",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 4,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route POST /api/search/trending/calculate was not found",
+        "messageBn": "অনুরোধকৃত রুট POST /api/search/trending/calculate পাওয়া যায়নি",
+        "path": "/api/search/trending/calculate",
+        "method": "POST",
+        "timestamp": "2026-02-04T20:01:58.387Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/trending/category/:category",
+      "description": "Get trending searches by category",
+      "category": "trending",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 3,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/search/trending/category/:category?limit=10 was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/search/trending/category/:category?limit=10 পাওয়া যায়নি",
+        "path": "/api/search/trending/category/:category?limit=10",
+        "method": "GET",
+        "timestamp": "2026-02-04T20:01:58.391Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/trending/rising",
+      "description": "Get rising searches",
+      "category": "trending",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 4,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/search/trending/rising?limit=10 was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/search/trending/rising?limit=10 পাওয়া যায়নি",
+        "path": "/api/search/trending/rising?limit=10",
+        "method": "GET",
+        "timestamp": "2026-02-04T20:01:58.395Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/search/trending/statistics",
+      "description": "Get trending statistics",
+      "category": "trending",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 5,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route GET /api/search/trending/statistics?limit=10 was not found",
+        "messageBn": "অনুরোধকৃত রুট GET /api/search/trending/statistics?limit=10 পাওয়া যায়নি",
+        "path": "/api/search/trending/statistics?limit=10",
+        "method": "GET",
+        "timestamp": "2026-02-04T20:01:58.400Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/search/trending/old",
+      "description": "Clear old trending data",
+      "category": "trending",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 10,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route DELETE /api/search/trending/old was not found",
+        "messageBn": "অনুরোধকৃত রুট DELETE /api/search/trending/old পাওয়া যায়নি",
+        "path": "/api/search/trending/old",
+        "method": "DELETE",
+        "timestamp": "2026-02-04T20:01:58.410Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/api/search/trending/threshold",
+      "description": "Update trend threshold",
+      "category": "trending",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 5,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route PUT /api/search/trending/threshold was not found",
+        "messageBn": "অনুরোধকৃত রুট PUT /api/search/trending/threshold পাওয়া যায়নি",
+        "path": "/api/search/trending/threshold",
+        "method": "PUT",
+        "timestamp": "2026-02-04T20:01:58.416Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/api/search/trending/decay",
+      "description": "Update trend decay factor",
+      "category": "trending",
+      "authRequired": "public",
+      "status": "NOT_FOUND",
+      "httpStatus": 404,
+      "responseTime": 6,
+      "notes": "Endpoint does not exist",
+      "data": null,
+      "error": {
+        "error": "Route not found",
+        "message": "The requested route PUT /api/search/trending/decay was not found",
+        "messageBn": "অনুরোধকৃত রুট PUT /api/search/trending/decay পাওয়া যায়নি",
+        "path": "/api/search/trending/decay",
+        "method": "PUT",
+        "timestamp": "2026-02-04T20:01:58.422Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs"
+        }
+      }
+    }
+  ],
+  "authTests": [
+    {
+      "test": "Admin endpoint without auth",
+      "endpoint": "GET /api/search/analytics/metrics",
+      "status": "FAIL",
+      "httpStatus": 404,
+      "notes": "Expected 401, got 404"
+    },
+    {
+      "test": "Admin endpoint without auth",
+      "endpoint": "GET /api/search/optimization/patterns",
+      "status": "FAIL",
+      "httpStatus": 404,
+      "notes": "Expected 401, got 404"
+    },
+    {
+      "test": "Admin endpoint without auth",
+      "endpoint": "GET /api/search/optimization/experiments",
+      "status": "FAIL",
+      "httpStatus": 404,
+      "notes": "Expected 401, got 404"
+    },
+    {
+      "test": "User endpoint without auth",
+      "endpoint": "GET /api/search/personalization/preferences",
+      "status": "FAIL",
+      "httpStatus": 404,
+      "notes": "Expected 401, got 404"
+    },
+    {
+      "test": "User endpoint without auth",
+      "endpoint": "GET /api/search/personalization/recommendations",
+      "status": "FAIL",
+      "httpStatus": 404,
+      "notes": "Expected 401, got 404"
+    },
+    {
+      "test": "Public endpoint without auth",
+      "endpoint": "GET /api/search/analytics/popular",
+      "status": "FAIL",
+      "httpStatus": 404,
+      "notes": "HTTP 404: Not Found"
+    },
+    {
+      "test": "Public endpoint without auth",
+      "endpoint": "GET /api/search/trending/",
+      "status": "FAIL",
+      "httpStatus": 404,
+      "notes": "HTTP 404: Not Found"
+    },
+    {
+      "test": "Public endpoint without auth",
+      "endpoint": "GET /api/search/trending/statistics",
+      "status": "FAIL",
+      "httpStatus": 404,
+      "notes": "HTTP 404: Not Found"
+    }
+  ],
+  "summary": {
+    "totalExpected": 15,
+    "totalImplemented": 37,
+    "expectedPassed": 0,
+    "expectedFailed": 0,
+    "expectedNotFound": 14,
+    "implementedPassed": 0,
+    "implementedFailed": 37,
+    "authTestsPassed": 0,
+    "authTestsFailed": 8
+  }
+}

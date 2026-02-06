@@ -33,6 +33,7 @@ model User {
   accountDeletionRequests                                         AccountDeletionRequests[]
   addresses                                                       Address[]
   cart                                                            Cart?
+  comparisonHistory                                               ComparisonHistory[]
   corporate_accounts_corporate_accounts_account_manager_idTousers CorporateAccount[]            @relation("corporate_accounts_account_manager_idTousers")
   corporate_accounts_corporate_accounts_user_idTousers            CorporateAccount?             @relation("corporate_accounts_user_idTousers")
   corporate_users                                                 CorporateUser[]
@@ -40,14 +41,18 @@ model User {
   orders                                                          Order[]
   passwordHistory                                                 PasswordHistory[]
   phoneOTPs                                                       PhoneOTP[]
+  comparisons                                                     ProductComparison[]
   reviews                                                         Review[]
   role_escalation_requests                                        role_escalation_requests[]
+  searchAnalytics                                                 SearchAnalytics[]             @relation("SearchAnalyticsUser")
   searchLogs                                                      SearchLog[]                   @relation("SearchLogUser")
+  searchRecommendations                                           SearchRecommendations[]       @relation("SearchRecommendationsUser")
   communicationPreferences                                        UserCommunicationPreferences?
   userDataExports                                                 UserDataExports[]
   notificationPreferences                                         UserNotificationPreferences?
   privacySettings                                                 UserPrivacySettings?
   user_roles                                                      user_roles[]
+  userSearchPreferences                                           UserSearchPreferences?        @relation("UserSearchPreferencesUser")
   userSessions                                                    UserSession[]
   socialAccounts                                                  UserSocialAccount[]
   wishlist                                                        Wishlist?
@@ -123,6 +128,8 @@ model Brand {
 
   @@index([status])
   @@index([isFeatured])
+  @@index([isFeatured], map: "idx_brands_is_featured")
+  @@index([status], map: "idx_brands_status")
   @@map("brands")
 }
 
@@ -150,55 +157,60 @@ model Category {
 
   @@index([status])
   @@index([parentId])
+  @@index([parentId], map: "idx_categories_parent_id")
+  @@index([status], map: "idx_categories_status")
   @@map("categories")
 }
 
 model Product {
-  id                String                 @id @default(uuid())
-  sku               String                 @unique
-  name              String
-  nameEn            String
-  nameBn            String?
-  slug              String                 @unique
-  shortDescription  String?
-  description       String?
-  brandId           String
-  regularPrice      Decimal                @db.Decimal(12, 2)
-  salePrice         Decimal?               @db.Decimal(12, 2)
-  costPrice         Decimal                @db.Decimal(12, 2)
-  taxRate           Decimal                @default(0) @db.Decimal(5, 2)
-  stockQuantity     Int                    @default(0)
-  lowStockThreshold Int                    @default(10)
-  status            ProductStatus          @default(active)
-  metaTitle         String?
-  metaDescription   String?
-  metaKeywords      String?
-  isFeatured        Boolean                @default(false)
-  isNewArrival      Boolean                @default(false)
-  isBestSeller      Boolean                @default(false)
-  warrantyPeriod    Int?
-  warrantyType      String?
-  createdAt         DateTime               @default(now())
-  updatedAt         DateTime               @updatedAt
-  publishedAt       DateTime?
-  visibility        ProductVisibility      @default(public)
-  cartItems         CartItem[]
-  corporate_pricing CorporatePricing[]
-  crossSellProducts CrossSellProduct[]     @relation("CrossSellSource")
-  crossSellFor      CrossSellProduct[]     @relation("CrossSellTarget")
-  orderItems        OrderItem[]
-  categories        ProductCategory[]
-  images            ProductImage[]
-  specifications    ProductSpecification[]
-  variants          ProductVariant[]
-  brand             Brand                  @relation(fields: [brandId], references: [id])
-  relatedProducts   RelatedProduct[]       @relation("RelatedSource")
-  relatedFor        RelatedProduct[]       @relation("RelatedTarget")
-  reviews           Review[]
-  upSellProducts    UpSellProduct[]        @relation("UpSellSource")
-  upSellFor         UpSellProduct[]        @relation("UpSellTarget")
-  variantTypes      VariantType[]
-  wishlistItems     WishlistItem[]
+  id                    String                  @id @default(uuid())
+  sku                   String                  @unique
+  name                  String
+  nameEn                String
+  nameBn                String?
+  slug                  String                  @unique
+  shortDescription      String?
+  description           String?
+  brandId               String
+  regularPrice          Decimal                 @db.Decimal(12, 2)
+  salePrice             Decimal?                @db.Decimal(12, 2)
+  costPrice             Decimal                 @db.Decimal(12, 2)
+  taxRate               Decimal                 @default(0) @db.Decimal(5, 2)
+  stockQuantity         Int                     @default(0)
+  lowStockThreshold     Int                     @default(10)
+  status                ProductStatus           @default(active)
+  metaTitle             String?
+  metaDescription       String?
+  metaKeywords          String?
+  isFeatured            Boolean                 @default(false)
+  isNewArrival          Boolean                 @default(false)
+  isBestSeller          Boolean                 @default(false)
+  warrantyPeriod        Int?
+  warrantyType          String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  publishedAt           DateTime?
+  visibility            ProductVisibility       @default(public)
+  cartItems             CartItem[]
+  corporate_pricing     CorporatePricing[]
+  crossSellProducts     CrossSellProduct[]      @relation("CrossSellSource")
+  crossSellFor          CrossSellProduct[]      @relation("CrossSellTarget")
+  orderItems            OrderItem[]
+  categories            ProductCategory[]
+  comparisonItems       ProductComparisonItem[]
+  images                ProductImage[]
+  specifications        ProductSpecification[]
+  variants              ProductVariant[]
+  brand                 Brand                   @relation(fields: [brandId], references: [id])
+  relatedProducts       RelatedProduct[]        @relation("RelatedSource")
+  relatedFor            RelatedProduct[]        @relation("RelatedTarget")
+  reviews               Review[]
+  searchClickTrackings  SearchClickTracking[]   @relation("ProductSearchClickTrackings")
+  searchRecommendations SearchRecommendations[] @relation("ProductSearchRecommendations")
+  upSellProducts        UpSellProduct[]         @relation("UpSellSource")
+  upSellFor             UpSellProduct[]         @relation("UpSellTarget")
+  variantTypes          VariantType[]
+  wishlistItems         WishlistItem[]
 
   @@index([status])
   @@index([visibility])
@@ -207,18 +219,25 @@ model Product {
   @@index([brandId])
   @@index([createdAt])
   @@index([updatedAt])
+  @@index([brandId], map: "idx_products_brand_id")
+  @@index([createdAt], map: "idx_products_created_at")
+  @@index([regularPrice], map: "idx_products_regular_price")
+  @@index([salePrice], map: "idx_products_sale_price")
+  @@index([status], map: "idx_products_status")
+  @@index([updatedAt], map: "idx_products_updated_at")
+  @@index([visibility], map: "idx_products_visibility")
   @@map("products")
 }
 
 model ProductImage {
   id               String   @id @default(uuid()) @map("id")
   productId        String   @map("product_id")
+  displayOrder     Int      @default(0) @map("display_order")
   originalUrl      String   @map("original_url")
   optimizedUrl     String?  @map("optimized_url")
   thumbnailUrl     String?  @map("thumbnail_url")
   altTextBn        String?  @map("alt_text_bn") @db.VarChar(250)
   altTextEn        String?  @map("alt_text_en") @db.VarChar(250)
-  displayOrder     Int      @default(0) @map("display_order")
   isPrimary        Boolean  @default(false) @map("is_primary")
   fileSizeBytes    Int?     @map("file_size_bytes")
   mimeType         String?  @map("mime_type") @db.VarChar(50)
@@ -300,6 +319,9 @@ model ProductCategory {
   @@index([productId])
   @@index([categoryId])
   @@index([isPrimary])
+  @@index([categoryId], map: "idx_product_categories_category_id")
+  @@index([isPrimary], map: "idx_product_categories_is_primary")
+  @@index([productId], map: "idx_product_categories_product_id")
   @@map("product_categories")
 }
 
@@ -814,7 +836,194 @@ model SearchLog {
   @@index([userId])
   @@index([timestamp])
   @@index([query])
+  @@index([query], map: "idx_search_logs_query")
+  @@index([timestamp], map: "idx_search_logs_timestamp")
   @@map("search_logs")
+}
+
+model ProductComparison {
+  id                      String                  @id @default(uuid())
+  userId                  String?
+  sessionId               String?
+  name                    String?
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  expiresAt               DateTime?
+  comparison_share_tokens ComparisonShareToken[]
+  items                   ProductComparisonItem[]
+  user                    User?                   @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([expiresAt])
+  @@map("product_comparisons")
+}
+
+model ProductComparisonItem {
+  id           String            @id @default(uuid())
+  comparisonId String
+  productId    String
+  addedAt      DateTime          @default(now())
+  notes        String?
+  comparison   ProductComparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  product      Product           @relation(fields: [productId], references: [id])
+
+  @@unique([comparisonId, productId])
+  @@index([comparisonId])
+  @@index([productId])
+  @@map("product_comparison_items")
+}
+
+model ComparisonHistory {
+  id           String   @id @default(uuid())
+  userId       String
+  comparisonId String
+  action       String
+  metadata     Json?
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([comparisonId])
+  @@index([createdAt])
+  @@map("comparison_history")
+}
+
+model ComparisonShareToken {
+  id                  String            @id @default(dbgenerated("gen_random_uuid()"))
+  comparison_id       String
+  token               String            @unique
+  expires_at          DateTime
+  created_at          DateTime          @default(now())
+  product_comparisons ProductComparison @relation(fields: [comparison_id], references: [id], onDelete: Cascade)
+
+  @@index([comparison_id])
+  @@index([expires_at])
+  @@map("comparison_share_tokens")
+}
+
+model SearchAnalytics {
+  id             String                @id @default(uuid())
+  userId         String?
+  sessionId      String
+  query          String
+  resultsCount   Int                   @default(0)
+  responseTime   Int                   @default(0)
+  clickedResults Json                  @default("[]")
+  filtersApplied Json                  @default("{}")
+  sortBy         String?
+  timestamp      DateTime              @default(now())
+  ipAddress      String?
+  userAgent      String?
+  deviceType     String?
+  conversionType String?
+  productId      String?
+  user           User?                 @relation("SearchAnalyticsUser", fields: [userId], references: [id])
+  clickTrackings SearchClickTracking[]
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([query])
+  @@index([timestamp])
+  @@map("search_analytics")
+}
+
+model SearchPerformanceMetrics {
+  id                String   @id @default(uuid())
+  timestamp         DateTime @default(now())
+  queryCount        Int      @default(0)
+  avgResponseTime   Int      @default(0)
+  p95ResponseTime   Int      @default(0)
+  p99ResponseTime   Int      @default(0)
+  cacheHitRate      Float    @default(0)
+  zeroResultQueries Int      @default(0)
+
+  @@index([timestamp])
+  @@map("search_performance_metrics")
+}
+
+model SearchTrending {
+  id             String   @id @default(uuid())
+  query          String   @unique
+  searchCount    Int      @default(0)
+  trendScore     Float    @default(0)
+  lastSearchedAt DateTime @default(now())
+  category       String?
+  isTrending     Boolean  @default(false)
+
+  @@index([query])
+  @@index([isTrending])
+  @@index([trendScore])
+  @@index([lastSearchedAt])
+  @@map("search_trending")
+}
+
+model SearchOptimizationExperiments {
+  id               String    @id @default(uuid())
+  name             String
+  description      String?
+  algorithmVariant String
+  startDate        DateTime
+  endDate          DateTime?
+  isActive         Boolean   @default(true)
+  metrics          Json      @default("{}")
+  sampleSize       Int       @default(0)
+
+  @@index([isActive])
+  @@index([startDate])
+  @@index([algorithmVariant])
+  @@map("search_optimization_experiments")
+}
+
+model UserSearchPreferences {
+  id                  String @id @default(uuid())
+  userId              String @unique
+  preferredCategories Json   @default("[]")
+  preferredBrands     Json   @default("[]")
+  priceRangeMin       Int?
+  priceRangeMax       Int?
+  searchHistory       Json   @default("[]")
+  user                User   @relation("UserSearchPreferencesUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_search_preferences")
+}
+
+model SearchRecommendations {
+  id                 String   @id @default(uuid())
+  userId             String
+  productId          String
+  recommendationType String
+  score              Float    @default(0)
+  reason             String?
+  createdAt          DateTime @default(now())
+  clicked            Boolean  @default(false)
+  converted          Boolean  @default(false)
+  product            Product  @relation("ProductSearchRecommendations", fields: [productId], references: [id], onDelete: Cascade)
+  user               User     @relation("SearchRecommendationsUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([productId])
+  @@index([recommendationType])
+  @@index([score])
+  @@index([createdAt])
+  @@map("search_recommendations")
+}
+
+model SearchClickTracking {
+  id                String          @id @default(uuid())
+  searchAnalyticsId String
+  productId         String
+  position          Int
+  clickedAt         DateTime        @default(now())
+  dwellTime         Int             @default(0)
+  product           Product         @relation("ProductSearchClickTrackings", fields: [productId], references: [id], onDelete: Cascade)
+  searchAnalytics   SearchAnalytics @relation(fields: [searchAnalyticsId], references: [id], onDelete: Cascade)
+
+  @@index([searchAnalyticsId])
+  @@index([productId])
+  @@index([clickedAt])
+  @@map("search_click_tracking")
 }
 
 enum BrandStatus {

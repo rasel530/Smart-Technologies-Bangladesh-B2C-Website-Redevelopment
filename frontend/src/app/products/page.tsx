@@ -353,8 +353,8 @@ function ProductsPageContent() {
 
                 {/* View Toggle */}
                 <ViewToggle
-                  currentView={viewMode}
-                  onViewChange={handleViewChange}
+                  viewMode={viewMode}
+                  onViewModeChange={handleViewChange}
                 />
 
                 {/* Sort Dropdown */}

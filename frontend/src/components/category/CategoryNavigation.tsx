@@ -113,80 +113,60 @@ export function CategoryNavigation({
 
     const displayHasChildren = depth < maxDepth && hasChildren;
 
-    const itemContent = (
-      <div
-        className={`
-          flex items-center justify-between py-2 px-3 rounded-lg transition-colors
-          ${isActive ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-100 text-gray-700'}
-        `}
-        style={{ paddingLeft: `${8 + indent}px` }}
-      >
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          {category.image && (
-            <img
-              src={category.image}
-              alt={category.name}
-              className="w-5 h-5 object-contain flex-shrink-0"
-            />
-          )}
-          <span className="font-medium truncate">{category.name}</span>
-          {category.itemCount !== undefined && (
-            <span className="text-xs text-gray-400 ml-1">({category.itemCount})</span>
-          )}
-        </div>
-
-        {hasChildren && (
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              toggleCategory(category.id);
-            }}
-            className="p-1 hover:bg-gray-200 rounded transition-colors"
-            aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${category.name}`}
-          >
-            <svg
-              className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        )}
-      </div>
-    );
-
     return (
       <div key={category.id} className="relative">
-        {displayHasChildren ? (
-          <>
-            <div
-              onClick={() => {
-                if (variant === 'sidebar' || variant === 'mega-menu') {
-                  toggleCategory(category.id);
-                }
-              }}
-              className="cursor-pointer"
-            >
-              {itemContent}
-            </div>
-
-            {isExpanded && (
-              <div className="mt-1">
-                {category.children!.map(child => renderCategory(child, depth + 1))}
-              </div>
+        {/* Category name as Link for navigation */}
+        <Link
+          href={`/categories/${category.slug}`}
+          onClick={() => onCategoryClick?.(category)}
+          className={`
+            flex items-center justify-between py-2 px-3 rounded-lg transition-colors
+            ${isActive ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-100 text-gray-700'}
+          `}
+          style={{ paddingLeft: `${8 + indent}px` }}
+        >
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {category.image && (
+              <img
+                src={category.image}
+                alt={category.name}
+                className="w-5 h-5 object-contain flex-shrink-0"
+              />
             )}
-          </>
-        ) : (
-          <Link
-            href={`/categories/${category.slug}`}
-            onClick={() => onCategoryClick?.(category)}
-            className="block"
-          >
-            {itemContent}
-          </Link>
+            <span className="font-medium truncate">{category.name}</span>
+            {category.itemCount !== undefined && (
+              <span className="text-xs text-gray-400 ml-1">({category.itemCount})</span>
+            )}
+          </div>
+
+          {/* Expand/collapse button for categories with children */}
+          {hasChildren && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleCategory(category.id);
+              }}
+              className="p-1 hover:bg-gray-200 rounded transition-colors flex-shrink-0"
+              aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${category.name}`}
+            >
+              <svg
+                className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          )}
+        </Link>
+
+        {/* Render children if expanded */}
+        {displayHasChildren && isExpanded && (
+          <div className="mt-1">
+            {category.children!.map(child => renderCategory(child, depth + 1))}
+          </div>
         )}
       </div>
     );
@@ -278,74 +258,116 @@ export function CategoryNavigation({
           <div className="grid grid-cols-4 gap-6">
             {categories.map(category => {
               const hasChildren = category.children && category.children.length > 0;
+              const isExpanded = expandedCategories.has(category.id);
               return (
                 <div key={category.id}>
-                  {hasChildren ? (
-                    // Parent category: render as button/div, not Link
-                    <button
-                      onClick={() => toggleCategory(category.id)}
-                      className="block font-semibold text-gray-900 hover:text-blue-600 mb-3 text-left w-full"
-                    >
-                      {category.name}
-                    </button>
-                  ) : (
-                    // Leaf category: render as Link
+                  <div className="flex items-center gap-2 mb-3">
+                    {/* Category name as Link for navigation */}
                     <Link
                       href={`/categories/${category.slug}`}
-                      className="block font-semibold text-gray-900 hover:text-blue-600 mb-3"
+                      className="font-semibold text-gray-900 hover:text-blue-600 flex-1"
                       onClick={() => onCategoryClick?.(category)}
                     >
                       {category.name}
                     </Link>
-                  )}
-                  {hasChildren && expandedCategories.has(category.id) && (
+                    {/* Expand/collapse button for categories with children */}
+                    {hasChildren && (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleCategory(category.id);
+                        }}
+                        className="p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                        aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${category.name}`}
+                      >
+                        <svg
+                          className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                  {hasChildren && isExpanded && (
                     <ul className="space-y-2">
                       {category.children!.map(child => {
                         const childHasChildren = child.children && child.children.length > 0;
+                        const childIsExpanded = expandedCategories.has(child.id);
                         return (
                           <li key={child.id}>
-                            {childHasChildren ? (
-                              // Parent category: render as button/div, not Link
-                              <button
-                                onClick={() => toggleCategory(child.id)}
-                                className="text-sm text-gray-600 hover:text-blue-600 text-left w-full"
-                              >
-                                {child.name}
-                              </button>
-                            ) : (
-                              // Leaf category: render as Link
+                            <div className="flex items-center gap-2">
+                              {/* Category name as Link for navigation */}
                               <Link
                                 href={`/categories/${child.slug}`}
-                                className="text-sm text-gray-600 hover:text-blue-600"
+                                className="text-sm text-gray-600 hover:text-blue-600 flex-1"
                                 onClick={() => onCategoryClick?.(child)}
                               >
                                 {child.name}
                               </Link>
-                            )}
-                            {childHasChildren && expandedCategories.has(child.id) && (
+                              {/* Expand/collapse button for categories with children */}
+                              {childHasChildren && (
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    toggleCategory(child.id);
+                                  }}
+                                  className="p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                                  aria-label={`${childIsExpanded ? 'Collapse' : 'Expand'} ${child.name}`}
+                                >
+                                  <svg
+                                    className={`w-3 h-3 transition-transform ${childIsExpanded ? 'rotate-90' : ''}`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                  </svg>
+                                </button>
+                              )}
+                            </div>
+                            {childHasChildren && childIsExpanded && (
                               <ul className="mt-2 ml-3 space-y-1 border-l-2 border-gray-100 pl-3">
                                 {child.children!.map(grandchild => {
                                   const grandchildHasChildren = grandchild.children && grandchild.children.length > 0;
+                                  const grandchildIsExpanded = expandedCategories.has(grandchild.id);
                                   return (
                                     <li key={grandchild.id}>
-                                      {grandchildHasChildren ? (
-                                        // Parent category: render as button/div, not Link
-                                        <button
-                                          onClick={() => toggleCategory(grandchild.id)}
-                                          className="text-sm text-gray-500 hover:text-blue-600 text-left w-full"
-                                        >
-                                          {grandchild.name}
-                                        </button>
-                                      ) : (
-                                        // Leaf category: render as Link
+                                      <div className="flex items-center gap-2">
+                                        {/* Category name as Link for navigation */}
                                         <Link
                                           href={`/categories/${grandchild.slug}`}
-                                          className="text-sm text-gray-500 hover:text-blue-600"
+                                          className="text-sm text-gray-500 hover:text-blue-600 flex-1"
                                           onClick={() => onCategoryClick?.(grandchild)}
                                         >
                                           {grandchild.name}
                                         </Link>
-                                      )}
+                                        {/* Expand/collapse button for categories with children */}
+                                        {grandchildHasChildren && (
+                                          <button
+                                            onClick={(e) => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                              toggleCategory(grandchild.id);
+                                            }}
+                                            className="p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                                            aria-label={`${grandchildIsExpanded ? 'Collapse' : 'Expand'} ${grandchild.name}`}
+                                          >
+                                            <svg
+                                              className={`w-3 h-3 transition-transform ${grandchildIsExpanded ? 'rotate-90' : ''}`}
+                                              fill="none"
+                                              stroke="currentColor"
+                                              viewBox="0 0 24 24"
+                                            >
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                          </button>
+                                        )}
+                                      </div>
                                     </li>
                                   );
                                 })}

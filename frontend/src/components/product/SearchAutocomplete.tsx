@@ -15,6 +15,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { searchSuggestions } from '@/lib/api/search';
 
 interface Suggestion {
@@ -53,6 +54,7 @@ export function SearchAutocomplete({
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [totalProducts, setTotalProducts] = useState(0);
   
+  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
@@ -149,7 +151,7 @@ export function SearchAutocomplete({
     const q = searchQuery || query;
     if (q.trim()) {
       addToHistory(q.trim());
-      onSearch?.(q.trim());
+      router.push(`/search?q=${encodeURIComponent(q.trim())}`);
       setIsOpen(false);
       setQuery('');
       setSuggestions([]);

@@ -89,6 +89,8 @@ router.get('/', [
   query('sortBy').optional().isIn(['price', 'name', 'createdAt', 'rating', 'popularity']),
   query('sortOrder').optional().isIn(['asc', 'desc'])
 ], handleValidationErrors, async (req, res) => {
+  const startTime = Date.now();
+  
   try {
     const {
       page = 1,
@@ -124,12 +126,16 @@ router.get('/', [
     if (isBestSeller !== undefined) where.isBestSeller = isBestSeller === 'true';
 
     if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { nameEn: { contains: search, mode: 'insensitive' } },
-        { nameBn: { contains: search, mode: 'insensitive' } },
-        { shortDescription: { contains: search, mode: 'insensitive' } }
-      ];
+      // Split search query into individual words for multi-word support
+      const searchTerms = search.trim().split(/\s+/);
+      
+      // Create OR conditions for each search term across all searchable fields
+      where.OR = searchTerms.flatMap(term => [
+        { name: { contains: term, mode: 'insensitive' } },
+        { nameEn: { contains: term, mode: 'insensitive' } },
+        { nameBn: { contains: term, mode: 'insensitive' } },
+        { shortDescription: { contains: term, mode: 'insensitive' } }
+      ]);
     }
 
     if (minPrice !== undefined || maxPrice !== undefined) {
@@ -139,6 +145,18 @@ router.get('/', [
     }
 
     const skip = (page - 1) * limit;
+
+    // Create field mapping for sorting
+    const sortFieldMapping = {
+      'price': 'regularPrice',
+      'name': 'name',
+      'createdAt': 'createdAt',
+      'rating': 'rating',
+      'popularity': 'popularity'
+    };
+
+    // Use mapped field name, fallback to original if not in mapping
+    const actualSortField = sortFieldMapping[sortBy] || sortBy;
 
     let [products, total] = await Promise.all([
       prisma.product.findMany({
@@ -168,7 +186,7 @@ router.get('/', [
             select: { reviews: true }
           }
         },
-        orderBy: { [sortBy]: sortOrder }
+        orderBy: { [actualSortField]: sortOrder }
       }),
       prisma.product.count({ where })
     ]);
@@ -183,6 +201,11 @@ router.get('/', [
         limit: parseInt(limit),
         total,
         pages: Math.ceil(total / limit)
+      },
+      metadata: {
+        query: search || '',
+        executionTime: Date.now() - startTime,
+        searchEngine: 'postgresql'
       }
     });
 

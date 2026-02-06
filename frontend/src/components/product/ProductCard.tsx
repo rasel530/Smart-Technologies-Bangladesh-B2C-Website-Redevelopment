@@ -24,6 +24,7 @@ interface ProductCardProps {
   showAddToCart?: boolean;
   showWishlist?: boolean;
   className?: string;
+  viewMode?: 'grid' | 'list';
 }
 
 /**
@@ -39,7 +40,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   isWishlisted = false,
   showAddToCart = true,
   showWishlist = true,
-  className = ''
+  className = '',
+  viewMode = 'grid'
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -91,6 +93,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         group relative bg-white rounded-lg shadow-sm hover:shadow-xl
         transition-all duration-300 overflow-hidden
         ${isOutOfStock ? 'opacity-75' : ''}
+        ${viewMode === 'list' ? 'flex' : ''}
         ${className}
       `}
       onMouseEnter={() => setIsHovered(true)}
@@ -145,7 +148,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       )}
 
       {/* Product Image */}
-      <div className="relative aspect-square bg-gray-100 overflow-hidden">
+      <div className={`
+        relative bg-gray-100 overflow-hidden
+        ${viewMode === 'list' ? 'w-48 h-32 flex-shrink-0' : 'aspect-square'}
+      `}>
         {!imageError && imageUrl ? (
           <Image
             src={imageUrl}
@@ -196,7 +202,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       </div>
 
       {/* Product Info */}
-      <div className="p-4">
+      <div className={`
+        ${viewMode === 'list' ? 'flex-1 p-6 flex flex-col justify-center' : 'p-4'}
+      `}>
         {/* Brand Name */}
         {product.brand && (
           <p className="text-xs text-gray-500 mb-1">{product.brand.name}</p>

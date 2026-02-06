@@ -157,7 +157,7 @@ export async function search(filters: SearchFilters = {}): Promise<SearchResult>
   if (filters.isNewArrival !== undefined) params.set('isNewArrival', String(filters.isNewArrival));
   if (filters.isBestSeller !== undefined) params.set('isBestSeller', String(filters.isBestSeller));
 
-  return client.get<SearchResult>(`/api/v1/products?${params.toString()}`);
+  return client.get<SearchResult>(`/products?${params.toString()}`);
 }
 
 /**
@@ -179,7 +179,7 @@ export async function searchSuggestions(
 
   try {
     // Use the products endpoint for search suggestions
-    const response = await client.get<{ products: any[]; pagination: any }>(`/api/v1/products?${params.toString()}`);
+    const response = await client.get<{ products: any[]; pagination: any }>(`/products?${params.toString()}`);
     
     const suggestions: SearchSuggestion[] = (response.products || []).map((product: any) => ({
       id: product.id,

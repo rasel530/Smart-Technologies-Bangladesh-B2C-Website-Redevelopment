@@ -1,0 +1,156 @@
+{
+  "passed": 4,
+  "failed": 11,
+  "skipped": 0,
+  "tests": [
+    {
+      "name": "API Response: Backend returns metadata field with query, executionTime, and searchEngine",
+      "status": "FAIL",
+      "message": "Missing required metadata properties",
+      "details": {},
+      "timestamp": "2026-02-05T19:00:43.945Z"
+    },
+    {
+      "name": "API Response: Response structure matches SearchResult interface",
+      "status": "FAIL",
+      "message": "Response structure does not match SearchResult interface",
+      "details": {
+        "hasProducts": true,
+        "hasPagination": true,
+        "bodyKeys": [
+          "products",
+          "pagination"
+        ]
+      },
+      "timestamp": "2026-02-05T19:00:43.965Z"
+    },
+    {
+      "name": "API Response: Metadata query value matches search query",
+      "status": "FAIL",
+      "message": "Response missing metadata or invalid status code",
+      "details": {
+        "statusCode": 200,
+        "hasMetadata": false
+      },
+      "timestamp": "2026-02-05T19:00:43.983Z"
+    },
+    {
+      "name": "API Response: Execution time is a reasonable number",
+      "status": "FAIL",
+      "message": "Response missing metadata or invalid status code",
+      "details": {
+        "statusCode": 200,
+        "hasMetadata": false
+      },
+      "timestamp": "2026-02-05T19:00:43.993Z"
+    },
+    {
+      "name": "Search Functionality: Searching for \"hp laptop\" returns results",
+      "status": "FAIL",
+      "message": "No products found for \"hp laptop\"",
+      "details": {
+        "productsCount": 0,
+        "totalResults": 0
+      },
+      "timestamp": "2026-02-05T19:00:44.006Z"
+    },
+    {
+      "name": "Search Functionality: Search results contain HP laptop products",
+      "status": "FAIL",
+      "message": "No HP laptop products found in results",
+      "details": {
+        "productsCount": 0,
+        "products": []
+      },
+      "timestamp": "2026-02-05T19:00:44.021Z"
+    },
+    {
+      "name": "Search Functionality: Search returns 200 OK status",
+      "status": "PASS",
+      "message": "Backend returned 200 OK status",
+      "details": {
+        "statusCode": 200
+      },
+      "timestamp": "2026-02-05T19:00:44.032Z"
+    },
+    {
+      "name": "Search Functionality: No Server Components render error (digest 2885939275)",
+      "status": "PASS",
+      "message": "No Server Components render error detected",
+      "details": {
+        "statusCode": 200,
+        "hasDigestError": false
+      },
+      "timestamp": "2026-02-05T19:00:44.043Z"
+    },
+    {
+      "name": "Search Results Page: Page loads without errors",
+      "status": "PASS",
+      "message": "Search results page loaded successfully",
+      "details": {
+        "statusCode": 200,
+        "hasError": false
+      },
+      "timestamp": "2026-02-05T19:00:44.054Z"
+    },
+    {
+      "name": "Search Results Page: Pagination works correctly",
+      "status": "PASS",
+      "message": "Page 1 has 0 products, Page 2 has 0 products",
+      "details": {
+        "page1": {
+          "page": 1,
+          "productsCount": 0
+        },
+        "page2": {
+          "page": 2,
+          "productsCount": 0
+        }
+      },
+      "timestamp": "2026-02-05T19:00:44.082Z"
+    },
+    {
+      "name": "Search Results Page: Metadata information is properly included in response",
+      "status": "FAIL",
+      "message": "Response missing metadata or invalid status code",
+      "details": {
+        "statusCode": 200,
+        "hasMetadata": false
+      },
+      "timestamp": "2026-02-05T19:00:44.093Z"
+    },
+    {
+      "name": "Edge Cases: Empty search query handled correctly",
+      "status": "FAIL",
+      "message": "Empty query response missing metadata or query is not empty string",
+      "details": {},
+      "timestamp": "2026-02-05T19:00:44.156Z"
+    },
+    {
+      "name": "Edge Cases: Special characters in search query handled correctly",
+      "status": "FAIL",
+      "message": "Special characters response missing metadata or query mismatch",
+      "details": {},
+      "timestamp": "2026-02-05T19:00:44.168Z"
+    },
+    {
+      "name": "Edge Cases: Very long search query handled correctly",
+      "status": "FAIL",
+      "message": "Long query response missing metadata or query mismatch",
+      "details": {
+        "queryLength": 0
+      },
+      "timestamp": "2026-02-05T19:00:44.188Z"
+    },
+    {
+      "name": "Edge Cases: Non-existent search query handled correctly",
+      "status": "FAIL",
+      "message": "Non-existent query response issue",
+      "details": {
+        "noResults": true,
+        "totalResults": 0
+      },
+      "timestamp": "2026-02-05T19:00:44.198Z"
+    }
+  ]
+}

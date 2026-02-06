@@ -1,0 +1,102 @@
+{
+  "timestamp": "2026-02-04T18:17:02.469Z",
+  "tests": [
+    {
+      "name": "Frontend login page accessible",
+      "passed": true,
+      "details": "Status: 200, Not 404: true",
+      "error": null,
+      "timestamp": "2026-02-04T18:17:14.877Z"
+    },
+    {
+      "name": "NextAuth configured pages accessible",
+      "passed": false,
+      "details": "All configured pages should be accessible",
+      "error": "Some configured pages are not accessible",
+      "timestamp": "2026-02-04T18:17:27.746Z"
+    },
+    {
+      "name": "NextAuth error route accessible",
+      "passed": false,
+      "details": "Route not accessible",
+      "error": "read ECONNRESET",
+      "timestamp": "2026-02-04T18:17:27.909Z"
+    },
+    {
+      "name": "NextAuth sign-in endpoint accessible",
+      "passed": true,
+      "details": "Status: 302, Not 404: true",
+      "error": null,
+      "timestamp": "2026-02-04T18:17:28.300Z"
+    },
+    {
+      "name": "NextAuth credentials callback not returning 404",
+      "passed": true,
+      "details": "Status: 302, Not 404: true",
+      "error": null,
+      "timestamp": "2026-02-04T18:17:28.426Z"
+    },
+    {
+      "name": "Login with wrong password",
+      "passed": true,
+      "details": "Status: 401, Expected: 401",
+      "error": null,
+      "timestamp": "2026-02-04T18:17:35.104Z"
+    },
+    {
+      "name": "Login with non-existent user",
+      "passed": true,
+      "details": "Status: 401, Expected: 401",
+      "error": null,
+      "timestamp": "2026-02-04T18:17:35.241Z"
+    },
+    {
+      "name": "Login with valid credentials",
+      "passed": false,
+      "details": "Status: 401, Has token: false",
+      "error": "Login failed or no token returned",
+      "timestamp": "2026-02-04T18:17:35.341Z"
+    },
+    {
+      "name": "Login with phone number",
+      "passed": false,
+      "details": "Status: 401, Has token: false",
+      "error": "Login with phone failed or no token returned",
+      "timestamp": "2026-02-04T18:17:35.389Z"
+    },
+    {
+      "name": "Logout functionality",
+      "passed": false,
+      "details": "No token available for logout test",
+      "error": "No token from previous login test",
+      "timestamp": "2026-02-04T18:17:35.410Z"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "passed": 5,
+    "failed": 5,
+    "errors": [
+      {
+        "test": "NextAuth configured pages accessible",
+        "error": "Some configured pages are not accessible"
+      },
+      {
+        "test": "NextAuth error route accessible",
+        "error": "read ECONNRESET"
+      },
+      {
+        "test": "Login with valid credentials",
+        "error": "Login failed or no token returned"
+      },
+      {
+        "test": "Login with phone number",
+        "error": "Login with phone failed or no token returned"
+      },
+      {
+        "test": "Logout functionality",
+        "error": "No token from previous login test"
+      }
+    ]
+  }
+}

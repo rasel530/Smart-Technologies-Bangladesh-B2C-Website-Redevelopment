@@ -50,7 +50,7 @@ export interface OAuthProvidersResponse {
  * Get enabled OAuth providers
  */
 export async function getOAuthProviders(): Promise<OAuthProvidersResponse> {
-  const response = await apiClient.get('/api/v1/oauth/providers');
+  const response = await apiClient.get('/oauth/providers');
   return response;
 }
 
@@ -61,7 +61,7 @@ export async function handleOAuthCallback(
   provider: string,
   profile: OAuthProfile
 ): Promise<OAuthCallbackResponse> {
-  const response = await apiClient.post(`/api/v1/oauth/callback/${provider}`, {
+  const response = await apiClient.post(`/oauth/callback/${provider}`, {
     profile
   });
   return response;
@@ -74,7 +74,7 @@ export async function linkSocialAccount(
   provider: string,
   profile: OAuthProfile
 ): Promise<{ message: string; messageBn: string; provider: string }> {
-  const response = await apiClient.post(`/api/v1/oauth/link/${provider}`, {
+  const response = await apiClient.post(`/oauth/link/${provider}`, {
     profile
   });
   return response;
@@ -86,7 +86,7 @@ export async function linkSocialAccount(
 export async function unlinkSocialAccount(
   provider: string
 ): Promise<{ message: string; messageBn: string; provider: string }> {
-  const response = await apiClient.delete(`/api/v1/oauth/unlink/${provider}`);
+  const response = await apiClient.delete(`/oauth/unlink/${provider}`);
   return response;
 }
 
@@ -98,7 +98,7 @@ export async function getSocialAccounts(): Promise<{
   message: string;
   messageBn: string;
 }> {
-  const response = await apiClient.get('/api/v1/oauth/accounts');
+  const response = await apiClient.get('/oauth/accounts');
   return response;
 }
 
@@ -109,7 +109,7 @@ export async function validateOAuthToken(
   provider: string,
   accessToken: string
 ): Promise<{ valid: boolean; message: string; messageBn: string }> {
-  const response = await apiClient.post(`/api/v1/oauth/validate/${provider}`, {
+  const response = await apiClient.post(`/oauth/validate/${provider}`, {
     accessToken
   });
   return response;

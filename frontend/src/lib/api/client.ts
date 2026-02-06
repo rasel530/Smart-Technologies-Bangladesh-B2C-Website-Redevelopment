@@ -243,13 +243,18 @@ const handleResponse = async (
         const message = data?.message || data?.error || response.statusText || 'Request failed';
         throw new ApiError(message, response.status, data);
     }
-
+    
     // Handle token refresh from response headers
     const newToken = response.headers.get('x-new-token');
     if (newToken) {
         setToken(newToken);
     }
-
+    
+    // Unwrap data from ApiResponse format { success: true, data: {...} }
+    if (data?.success && typeof data.data !== 'undefined') {
+        return data.data;
+    }
+    
     return data;
 };
 

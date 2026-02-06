@@ -11,13 +11,16 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install build dependencies for sharp and other native modules
-RUN apk add --no-cache openssl curl \
+RUN apk add --no-cache --force-overwrite openssl curl \
   vips-dev \
   pkgconfig \
   gcc \
   g++ \
   make \
   python3
+
+# Fix gdk-pixbuf trigger issue
+RUN rm -rf /var/cache/apk/* && apk add --no-cache gdk-pixbuf 2>/dev/null || true
 
 # Install all dependencies (including dev dependencies for Prisma generate)
 # Ensure sharp is properly compiled

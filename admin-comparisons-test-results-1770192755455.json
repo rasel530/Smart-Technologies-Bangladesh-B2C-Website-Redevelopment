@@ -1,0 +1,89 @@
+{
+  "testDate": "2026-02-04T08:12:35.455Z",
+  "baseUrl": "http://localhost:3001/api/v1/admin/comparisons",
+  "summary": {
+    "total": 7,
+    "passed": 0,
+    "failed": 7,
+    "successRate": "0.00%"
+  },
+  "results": [
+    {
+      "test": "GET /stats?period=all",
+      "url": "http://localhost:3001/api/v1/admin/comparisons/stats?period=all",
+      "statusCode": 401,
+      "success": false,
+      "data": {
+        "error": "Authentication failed",
+        "message": "Invalid token"
+      },
+      "hasValidationError": false
+    },
+    {
+      "test": "GET /stats?period=today",
+      "url": "http://localhost:3001/api/v1/admin/comparisons/stats?period=today",
+      "statusCode": 401,
+      "success": false,
+      "data": {
+        "error": "Authentication failed",
+        "message": "Invalid token"
+      },
+      "hasValidationError": false
+    },
+    {
+      "test": "GET /stats?period=week",
+      "url": "http://localhost:3001/api/v1/admin/comparisons/stats?period=week",
+      "statusCode": 401,
+      "success": false,
+      "data": {
+        "error": "Authentication failed",
+        "message": "Invalid token"
+      },
+      "hasValidationError": false
+    },
+    {
+      "test": "GET /stats?period=month",
+      "url": "http://localhost:3001/api/v1/admin/comparisons/stats?period=month",
+      "statusCode": 401,
+      "success": false,
+      "data": {
+        "error": "Authentication failed",
+        "message": "Invalid token"
+      },
+      "hasValidationError": false
+    },
+    {
+      "test": "GET /analytics?period=all&groupBy=day",
+      "url": "http://localhost:3001/api/v1/admin/comparisons/analytics?period=all&groupBy=day",
+      "statusCode": 401,
+      "success": false,
+      "data": {
+        "error": "Authentication failed",
+        "message": "Invalid token"
+      },
+      "hasValidationError": false
+    },
+    {
+      "test": "GET /analytics?period=week&groupBy=day",
+      "url": "http://localhost:3001/api/v1/admin/comparisons/analytics?period=week&groupBy=day",
+      "statusCode": 401,
+      "success": false,
+      "data": {
+        "error": "Authentication failed",
+        "message": "Invalid token"
+      },
+      "hasValidationError": false
+    },
+    {
+      "test": "GET /analytics?period=month&groupBy=week",
+      "url": "http://localhost:3001/api/v1/admin/comparisons/analytics?period=month&groupBy=week",
+      "statusCode": 401,
+      "success": false,
+      "data": {
+        "error": "Authentication failed",
+        "message": "Invalid token"
+      },
+      "hasValidationError": false
+    }
+  ]
+}

@@ -17,11 +17,9 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { getCategoryBySlugServer, getCategoriesServer, getCategoryProductsServer } from '@/lib/api/server';
 import { getBrandsServer } from '@/lib/api/server';
-import { ProductGrid } from '@/components/product/ProductGrid';
-import { FilterSidebar } from '@/components/product/FilterSidebar';
-import { SortDropdown } from '@/components/product/SortDropdown';
 import { BreadcrumbNavigation } from '@/components/layout/BreadcrumbNavigation';
 import { generateCategoryBreadcrumbs } from '@/lib/utils/breadcrumbs';
+import { CategoryPageClient } from './CategoryPageClient';
 import Image from 'next/image';
 
 /**
@@ -143,8 +141,8 @@ export default async function CategoryPage({
     cat => cat.parentId === category?.category?.id
   );
 
-  // Get featured products in category
-  const featuredProducts = productsData.products.filter(p => p.isFeatured).slice(0, 4);
+  // Get featured products in category - DISABLED
+  // const featuredProducts = productsData.products.filter(p => p.isFeatured).slice(0, 4);
 
   // If category not found, show 404
   if (!category || !category.category) {
@@ -266,8 +264,8 @@ export default async function CategoryPage({
         </div>
       )}
 
-      {/* Featured Products */}
-      {featuredProducts.length > 0 && (
+      {/* Featured Products - DISABLED */}
+      {/* {featuredProducts.length > 0 && (
         <div className="bg-white border-b border-gray-200">
           <div className="container mx-auto px-4 py-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
@@ -305,150 +303,110 @@ export default async function CategoryPage({
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar - Desktop */}
-          <aside className="hidden lg:block w-64 flex-shrink-0">
-            <FilterSidebar
-              categories={categoriesResponse.categories.map(cat => ({
-                id: cat.id,
-                name: cat.name,
-                slug: cat.slug,
-              }))}
-              brands={brandsResponse.brands.map(brand => ({
-                id: brand.id,
-                name: brand.name,
-                slug: brand.slug,
-              }))}
-            />
-          </aside>
-
-          {/* Products Grid */}
-          <main className="flex-1">
-            {/* Sort Control and Mobile Filter Toggle */}
-            <div className="flex items-center justify-between mb-6">
-              <p className="text-sm text-gray-600">
-                {fetchError ? (
-                  <span className="text-red-600">{fetchError}</span>
-                ) : productsData.pagination.total > 0 ? (
-                  `Showing ${((page - 1) * limit) + 1}-${Math.min(page * limit, productsData.pagination.total)} of ${productsData.pagination.total} products`
-                ) : (
-                  'No products found'
-                )}
-              </p>
-              <div className="flex items-center gap-3">
-                {/* Mobile Filter Toggle */}
-                <button
-                  className="lg:hidden flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  aria-label="Toggle filters"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                    />
+      {productsData.pagination.total > 0 ? (
+        <CategoryPageClient
+          categoryId={category.category.id}
+          initialProducts={productsData.products}
+          initialPagination={productsData.pagination}
+          categories={categoriesResponse.categories.map(cat => ({
+            id: cat.id,
+            name: cat.name,
+            slug: cat.slug,
+          }))}
+          brands={brandsResponse.brands.map(brand => ({
+            id: brand.id,
+            name: brand.name,
+            slug: brand.slug,
+          }))}
+          initialPage={page}
+          initialLimit={limit}
+          initialSortBy={sortBy}
+          initialSortOrder={sortOrder}
+          initialBrand={brand}
+          initialMinPrice={minPrice}
+          initialMaxPrice={maxPrice}
+          initialRating={rating}
+        />
+      ) : (
+        /* Empty State */
+        <div className="container mx-auto px-4 py-8">
+          <div className="bg-white rounded-lg p-8 text-center">
+            {subcategories.length > 0 ? (
+              /* Has subcategories but no products */
+              <div>
+                <div className="w-20 h-20 mx-auto mb-6 bg-blue-100 rounded-full flex items-center justify-center">
+                  <svg className="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                   </svg>
-                  <span>Filters</span>
-                </button>
-                <SortDropdown />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                  Browse Subcategories
+                </h3>
+                <p className="text-gray-600 mb-6 max-w-lg mx-auto">
+                  This category doesn't have any products yet, but you can explore its subcategories above to find what you're looking for.
+                </p>
+                <div className="flex flex-wrap justify-center gap-3">
+                  {subcategories.slice(0, 3).map((subcategory) => (
+                    <Link
+                      key={subcategory.id}
+                      href={`/categories/${subcategory.slug}`}
+                      className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                      {subcategory.name}
+                    </Link>
+                  ))}
+                  {subcategories.length > 3 && (
+                    <span className="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-600 rounded-lg font-medium">
+                      +{subcategories.length - 3} more
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-
-            {/* Products Grid or Empty State */}
-            {productsData.pagination.total > 0 ? (
-              <Suspense fallback={<ProductGrid products={[]} loading />}>
-                <ProductGrid
-                  products={productsData.products}
-                  columns={{
-                    mobile: 1,
-                    tablet: 2,
-                    desktop: 3,
-                  }}
-                />
-              </Suspense>
             ) : (
-              /* Empty State */
-              <div className="bg-white rounded-lg p-8 text-center">
-                {subcategories.length > 0 ? (
-                  /* Has subcategories but no products */
-                  <div>
-                    <div className="w-20 h-20 mx-auto mb-6 bg-blue-100 rounded-full flex items-center justify-center">
-                      <svg className="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                      </svg>
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                      Browse Subcategories
-                    </h3>
-                    <p className="text-gray-600 mb-6 max-w-lg mx-auto">
-                      This category doesn't have any products yet, but you can explore its subcategories above to find what you're looking for.
-                    </p>
-                    <div className="flex flex-wrap justify-center gap-3">
-                      {subcategories.slice(0, 3).map((subcategory) => (
-                        <Link
-                          key={subcategory.id}
-                          href={`/categories/${subcategory.slug}`}
-                          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                        >
-                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                          {subcategory.name}
-                        </Link>
-                      ))}
-                      {subcategories.length > 3 && (
-                        <span className="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-600 rounded-lg font-medium">
-                          +{subcategories.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  /* Truly empty - no products and no subcategories */
-                  <div>
-                    <div className="w-20 h-20 mx-auto mb-6 bg-amber-100 rounded-full flex items-center justify-center">
-                      <svg className="w-10 h-10 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                      Coming Soon
-                    </h3>
-                    <p className="text-gray-600 mb-6 max-w-lg mx-auto">
-                      We're working hard to bring you the best {category.category.name} products. Check back soon for new arrivals!
-                    </p>
-                    <div className="flex flex-wrap justify-center gap-3">
-                      <Link
-                        href="/categories"
-                        className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                      >
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                        Browse All Categories
-                      </Link>
-                      <Link
-                        href="/products"
-                        className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-                      >
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        Search Products
-                      </Link>
-                    </div>
-                  </div>
-                )}
+              /* Truly empty - no products and no subcategories */
+              <div>
+                <div className="w-20 h-20 mx-auto mb-6 bg-amber-100 rounded-full flex items-center justify-center">
+                  <svg className="w-10 h-10 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                  Coming Soon
+                </h3>
+                <p className="text-gray-600 mb-6 max-w-lg mx-auto">
+                  We're working hard to bring you the best {category.category.name} products. Check back soon for new arrivals!
+                </p>
+                <div className="flex flex-wrap justify-center gap-3">
+                  <Link
+                    href="/categories"
+                    className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    Browse All Categories
+                  </Link>
+                  <Link
+                    href="/products"
+                    className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    Search Products
+                  </Link>
+                </div>
               </div>
             )}
-          </main>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Category Description at Bottom */}
       {category.category.description && (
@@ -464,43 +422,6 @@ export default async function CategoryPage({
         </div>
       )}
 
-      {/* Mobile Filter Drawer */}
-      <div className="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true">
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl">
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
-            <button
-              className="p-2 text-gray-400 hover:text-gray-500"
-              aria-label="Close filters"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-          <div className="p-4 overflow-y-auto h-[calc(100%-64px)]">
-            <FilterSidebar
-              isMobile={true}
-              categories={categoriesResponse.categories.map(cat => ({
-                id: cat.id,
-                name: cat.name,
-                slug: cat.slug,
-              }))}
-              brands={brandsResponse.brands.map(brand => ({
-                id: brand.id,
-                name: brand.name,
-                slug: brand.slug,
-              }))}
-            />
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

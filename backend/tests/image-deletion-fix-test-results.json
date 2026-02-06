@@ -1,6 +1,6 @@
 {
   "testSuite": "Image Deletion Fix - Comprehensive Test",
-  "executedAt": "2026-02-02T09:40:35.825Z",
+  "executedAt": "2026-02-04T18:16:41.546Z",
   "apiBaseUrl": "http://localhost:5000",
   "summary": {
     "total": 2,
@@ -12,22 +12,22 @@
     {
       "testName": "Server Health Check",
       "status": "FAIL",
-      "timestamp": "2026-02-02T09:40:34.148Z",
+      "timestamp": "2026-02-04T18:16:40.947Z",
       "details": {
         "error": "Connection failed"
       },
       "error": "",
-      "stack": "AggregateError: \n    at internalConnectMultiple (node:net:1122:18)\n    at afterConnectMultiple (node:net:1689:7)\n    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)"
+      "stack": "AggregateError: \n    at internalConnectMultiple (node:net:1122:18)\n    at afterConnectMultiple (node:net:1689:7)"
     },
     {
       "testName": "Admin Login",
       "status": "FAIL",
-      "timestamp": "2026-02-02T09:40:35.670Z",
+      "timestamp": "2026-02-04T18:16:41.483Z",
       "details": {
         "error": "Login request failed"
       },
       "error": "",
-      "stack": "AggregateError: \n    at internalConnectMultiple (node:net:1122:18)\n    at afterConnectMultiple (node:net:1689:7)\n    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)"
+      "stack": "AggregateError: \n    at internalConnectMultiple (node:net:1122:18)\n    at afterConnectMultiple (node:net:1689:7)"
     }
   ],
   "conclusions": []

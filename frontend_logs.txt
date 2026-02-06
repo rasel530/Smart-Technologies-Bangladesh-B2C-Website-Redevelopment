@@ -1,0 +1,200 @@
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/products/featured',
+smarttech_frontend  |   isServer: true,
+smarttech_frontend  |   API_BASE_URL: 'http://host.docker.internal:3001/api/v1',
+smarttech_frontend  |   hasToken: false
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Making request: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/products/new-arrivals',
+smarttech_frontend  |   isServer: true,
+smarttech_frontend  |   API_BASE_URL: 'http://host.docker.internal:3001/api/v1',
+smarttech_frontend  |   hasToken: false
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Making request: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/products/best-sellers',
+smarttech_frontend  |   isServer: true,
+smarttech_frontend  |   API_BASE_URL: 'http://host.docker.internal:3001/api/v1',
+smarttech_frontend  |   hasToken: false
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Making request: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/brands?status=active&limit=6',
+smarttech_frontend  |   isServer: true,
+smarttech_frontend  |   API_BASE_URL: 'http://host.docker.internal:3001/api/v1',
+smarttech_frontend  |   hasToken: false
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Making request: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/categories?status=active&limit=8',
+smarttech_frontend  |   isServer: true,
+smarttech_frontend  |   API_BASE_URL: 'http://host.docker.internal:3001/api/v1',
+smarttech_frontend  |   hasToken: false
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Making request: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/categories/tree?status=active',
+smarttech_frontend  |   isServer: true,
+smarttech_frontend  |   API_BASE_URL: 'http://host.docker.internal:3001/api/v1',
+smarttech_frontend  |   hasToken: false
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Response received: {
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/products/featured',
+smarttech_frontend  |   status: 200,
+smarttech_frontend  |   ok: true,
+smarttech_frontend  |   statusText: ''
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Response received: {
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/products/new-arrivals',
+smarttech_frontend  |   status: 200,
+smarttech_frontend  |   ok: true,
+smarttech_frontend  |   statusText: ''
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Response received: {
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/products/best-sellers',
+smarttech_frontend  |   status: 200,
+smarttech_frontend  |   ok: true,
+smarttech_frontend  |   statusText: ''
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Response received: {
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/brands?status=active&limit=6',
+smarttech_frontend  |   status: 200,
+smarttech_frontend  |   ok: true,
+smarttech_frontend  |   statusText: ''
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Response received: {
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/categories?status=active&limit=8',
+smarttech_frontend  |   status: 200,
+smarttech_frontend  |   ok: true,
+smarttech_frontend  |   statusText: ''
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Response received: {
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/categories/tree?status=active',
+smarttech_frontend  |   status: 200,
+smarttech_frontend  |   ok: true,
+smarttech_frontend  |   statusText: ''
+smarttech_frontend  | }
+smarttech_frontend  | [NextAuth] Redirect callback: { url: 'http://localhost:3000', baseUrl: 'http://localhost:3000' }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [API Client] Making request: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/products/featured',
+smarttech_frontend  |   isServer: true,
+smarttech_frontend  |   API_BASE_URL: 'http://host.docker.internal:3001/api/v1',
+smarttech_frontend  |   hasToken: false
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Making request: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/products/new-arrivals',
+smarttech_frontend  |   isServer: true,
+smarttech_frontend  |   API_BASE_URL: 'http://host.docker.internal:3001/api/v1',
+smarttech_frontend  |   hasToken: false
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Making request: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/products/best-sellers',
+smarttech_frontend  |   isServer: true,
+smarttech_frontend  |   API_BASE_URL: 'http://host.docker.internal:3001/api/v1',
+smarttech_frontend  |   hasToken: false
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Making request: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/brands?status=active&limit=6',
+smarttech_frontend  |   isServer: true,
+smarttech_frontend  |   API_BASE_URL: 'http://host.docker.internal:3001/api/v1',
+smarttech_frontend  |   hasToken: false
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Making request: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/categories?status=active&limit=8',
+smarttech_frontend  |   isServer: true,
+smarttech_frontend  |   API_BASE_URL: 'http://host.docker.internal:3001/api/v1',
+smarttech_frontend  |   hasToken: false
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Making request: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/categories/tree?status=active',
+smarttech_frontend  |   isServer: true,
+smarttech_frontend  |   API_BASE_URL: 'http://host.docker.internal:3001/api/v1',
+smarttech_frontend  |   hasToken: false
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Response received: {
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/products/featured',
+smarttech_frontend  |   status: 200,
+smarttech_frontend  |   ok: true,
+smarttech_frontend  |   statusText: ''
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Response received: {
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/products/new-arrivals',
+smarttech_frontend  |   status: 200,
+smarttech_frontend  |   ok: true,
+smarttech_frontend  |   statusText: ''
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Response received: {
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/products/best-sellers',
+smarttech_frontend  |   status: 200,
+smarttech_frontend  |   ok: true,
+smarttech_frontend  |   statusText: ''
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Response received: {
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/brands?status=active&limit=6',
+smarttech_frontend  |   status: 200,
+smarttech_frontend  |   ok: true,
+smarttech_frontend  |   statusText: ''
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Response received: {
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/categories?status=active&limit=8',
+smarttech_frontend  |   status: 200,
+smarttech_frontend  |   ok: true,
+smarttech_frontend  |   statusText: ''
+smarttech_frontend  | }
+smarttech_frontend  | [API Client] Response received: {
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/categories/tree?status=active',
+smarttech_frontend  |   status: 200,
+smarttech_frontend  |   ok: true,
+smarttech_frontend  |   statusText: ''
+smarttech_frontend  | }
+smarttech_frontend  | [NextAuth] Redirect callback: { url: 'http://localhost:3000', baseUrl: 'http://localhost:3000' }
+smarttech_frontend  | [NextAuth] Returning baseUrl to prevent redirect loop: http://localhost:3000
+smarttech_frontend  | [Server API] Making request: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/products?search=hp+laptop&page=1&limit=20'
+smarttech_frontend  | }
+smarttech_frontend  | [Server API] Making request: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/categories?status=active'
+smarttech_frontend  | }
+smarttech_frontend  | [Server API] Making request: {
+smarttech_frontend  |   method: 'GET',
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/brands?status=active'
+smarttech_frontend  | }
+smarttech_frontend  | [Server API] Response received: {
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/categories?status=active',
+smarttech_frontend  |   status: 200
+smarttech_frontend  | }
+smarttech_frontend  | [Server API] Response received: {
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/brands?status=active',
+smarttech_frontend  |   status: 200
+smarttech_frontend  | }
+smarttech_frontend  | [Server API] Response received: {
+smarttech_frontend  |   url: 'http://host.docker.internal:3001/api/v1/products?search=hp+laptop&page=1&limit=20',
+smarttech_frontend  |   status: 200
+smarttech_frontend  | }
+smarttech_frontend  | [Server] Search tracked: {
+smarttech_frontend  |   query: 'hp laptop',
+smarttech_frontend  |   resultsCount: 2,
+smarttech_frontend  |   filters: {
+smarttech_frontend  |     categories: undefined,
+smarttech_frontend  |     brands: undefined,
+smarttech_frontend  |     minPrice: undefined,
+smarttech_frontend  |     maxPrice: undefined,
+smarttech_frontend  |     rating: undefined,
+smarttech_frontend  |     specifications: undefined
+smarttech_frontend  |   }
+smarttech_frontend  | }
+smarttech_frontend  | TypeError: (0 , d.Es) is not a function
+smarttech_frontend  |     at v (/app/.next/server/app/search/page.js:1:26927)
+smarttech_frontend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+smarttech_frontend  |   digest: '2845967246'
+smarttech_frontend  | }

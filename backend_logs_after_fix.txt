@@ -1,0 +1,50 @@
+  contentType: 'multipart/form-data; boundary=------------------------4NKbWnXQQo2NOT7ILiYgVy',
+  hasBody: true,
+  hasFiles: false
+}
+{"environment":"production","error":"File too large","instanceId":"default","ip":"172.18.0.1","level":"error","message":"Unhandled error","method":"POST","service":"smart-ecommerce-api","stack":"MulterError: File too large\n    at abortWithCode (/app/node_modules/multer/lib/make-middleware.js:73:22)\n    at FileStream.<anonymous> (/app/node_modules/multer/lib/make-middleware.js:136:11)\n    at FileStream.emit (node:events:524:28)\n    at SBMH.ssCb [as _cb] (/app/node_modules/busboy/lib/types/multipart.js:479:32)\n    at feed (/app/node_modules/streamsearch/lib/sbmh.js:248:10)\n    at SBMH.push (/app/node_modules/streamsearch/lib/sbmh.js:104:16)\n    at Multipart._write (/app/node_modules/busboy/lib/types/multipart.js:567:19)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)","timestamp":"2026-02-07T09:31:51.173Z","url":"/api/v1/categories/2829f167-4aa0-4ac9-9fc9-a88812e98ef2/image","userAgent":"curl/8.13.0","version":"1.0.0"}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-07T09:32:11.723Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-07T09:32:11.723Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1770455831723
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-07T09:32:11.726Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-07T09:32:11.727Z
+}

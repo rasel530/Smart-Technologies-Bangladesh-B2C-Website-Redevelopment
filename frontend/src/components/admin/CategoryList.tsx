@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { CategoryTree, CategoryListResponse } from '@/types/category';
 import { getCategories, deleteCategory, reorderCategory } from '@/lib/api/categories';
+import { getImageUrl } from '@/lib/utils/image';
 
 /**
  * CategoryList Component
@@ -189,7 +190,7 @@ export const CategoryList: React.FC<{}> = () => {
           {/* Category Icon */}
           {category.iconUrl && (
             <img
-              src={category.iconUrl}
+              src={getImageUrl(category.iconUrl) || ''}
               alt={category.name}
               className="w-6 h-6 object-contain"
             />

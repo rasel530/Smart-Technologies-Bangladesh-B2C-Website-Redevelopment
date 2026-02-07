@@ -4,16 +4,13 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { User } from '@/types/auth';
-import {
-  ShoppingCart,
-  Search as SearchIcon,
-  Menu,
-  X,
-  ChevronDown,
-  User as UserIcon
-} from 'lucide-react';
+import { CategoryTree } from '@/types/category';
 import { cn } from '@/lib/utils';
-import { SearchAutocomplete } from '@/components/product/SearchAutocomplete';
+import { getCategoryTree } from '@/lib/api/categories';
+import UtilityBar from './UtilityBar';
+import MainHeaderRow from './MainHeaderRow';
+import NavigationBar from './NavigationBar';
+import MobileDrawer from './MobileDrawer';
 
 interface HeaderProps {
   className?: string;
@@ -23,8 +20,11 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
   const { user, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
+  const [cartCount, setCartCount] = useState<number>(0);
+  const [categoryTree, setCategoryTree] = useState<CategoryTree[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
 
   useEffect(() => {
     // Load language preference from localStorage
@@ -32,6 +32,49 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
     if (savedLanguage && ['en', 'bn'].includes(savedLanguage)) {
       setLanguage(savedLanguage as 'en' | 'bn');
     }
+  }, []);
+
+  useEffect(() => {
+    // Load cart count from localStorage
+    const loadCartCount = () => {
+      try {
+        const savedCart = localStorage.getItem('smart_tech_cart');
+        if (savedCart) {
+          const cartData = JSON.parse(savedCart);
+          setCartCount(cartData.items?.length || 0);
+        }
+      } catch (e) {
+        console.error('Error loading cart:', e);
+      }
+    };
+
+    loadCartCount();
+
+    // Listen for cart changes
+    const handleCartChange = () => {
+      loadCartCount();
+    };
+
+    window.addEventListener('cart-updated', handleCartChange);
+    return () => window.removeEventListener('cart-updated', handleCartChange);
+  }, []);
+
+  // Fetch category tree for navigation dropdown with multi-level hierarchy
+  useEffect(() => {
+    const fetchCategoryTree = async () => {
+      try {
+        const response = await getCategoryTree('active');
+        if (response && response.tree) {
+          setCategoryTree(response.tree);
+        }
+      } catch (error) {
+        console.error('Error fetching category tree for navigation:', error);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    fetchCategoryTree();
   }, []);
 
   const handleLogout = async () => {
@@ -48,214 +91,49 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
     localStorage.setItem('preferredLanguage', lang);
   };
 
-  const isActive = (path: string) => {
-    return pathname === path || pathname.startsWith(path);
+  const handleMobileMenuToggle = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const navigationItems = [
-    {
-      href: '/',
-      label: language === 'bn' ? 'হোম' : 'Home',
-      icon: UserIcon,
-    },
-    {
-      href: '/products',
-      label: language === 'bn' ? 'পণ্য়ার' : 'Products',
-      icon: SearchIcon,
-    },
-    {
-      href: '/account',
-      label: language === 'bn' ? 'অ্যাকাউন্ট' : 'Account',
-      icon: UserIcon,
-      protected: true,
-    },
-    {
-      href: '/orders',
-      label: language === 'bn' ? 'অর্ডার' : 'Orders',
-      icon: ShoppingCart,
-      protected: true,
-    },
-    {
-      href: '/wishlist',
-      label: language === 'bn' ? 'ইচ্ছা' : 'Wishlist',
-      icon: UserIcon,
-      protected: true,
-    },
-    {
-      href: '/cart',
-      label: language === 'bn' ? 'কার্ট' : 'Cart',
-      icon: ShoppingCart,
-      protected: true,
-    },
-  ];
-
   return (
-    <div className={cn('bg-white shadow-sm sticky top-0 z-50', className)}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div className="flex items-center">
-            <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">ST</span>
-            </div>
-            <div className="ml-3">
-              <h1 className="text-xl font-bold text-gray-900">
-                {language === 'bn' ? 'স্মার্ট টেকনোব্স' : 'Smart Tech'}
-              </h1>
-              <p className="text-sm text-gray-600">
-                {language === 'bn' ? 'বাংলাদেশ প্রক্ষর' : 'Technologies Bangladesh'}
-              </p>
-            </div>
-          </div>
+    <div className={cn('sticky top-0 z-50 bg-white shadow-sm', className)}>
+      {/* Row 1: Utility Bar (32px) */}
+      <UtilityBar
+        language={language}
+        onLanguageChange={handleLanguageChange}
+      />
 
-          {/* Search Autocomplete */}
-          <div className="hidden md:block flex-1 max-w-md mx-8">
-            <SearchAutocomplete />
-            <span className="ml-2 text-xs text-gray-400 hidden sm:inline-block">
-              Press <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-gray-600">Ctrl</kbd> + <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-gray-600">K</kbd> to search
-            </span>
-          </div>
+      {/* Row 2: Main Header Row (80px) */}
+      <MainHeaderRow
+        user={user}
+        language={language}
+        cartCount={cartCount}
+        onLogout={handleLogout}
+      />
 
-          {/* Navigation */}
-          <div className="hidden md:flex md:items-center md:space-x-6">
-            <div className="flex-1 md:hidden">
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2 rounded-md text-gray-600 hover:bg-gray-100"
-              >
-                <Menu className="h-6 w-6" />
-              </button>
-            </div>
+      {/* Row 3: Navigation Bar (44px) */}
+      <NavigationBar
+        user={user}
+        language={language}
+        pathname={pathname}
+        onMobileMenuToggle={handleMobileMenuToggle}
+        isMobileMenuOpen={isMobileMenuOpen}
+        categoryTree={categoryTree}
+        categoriesLoading={categoriesLoading}
+      />
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex md:items-center md:space-x-6">
-              {navigationItems.map((item) => {
-                const Icon = item.icon;
-                // Skip protected routes for non-authenticated users
-                if (item.protected && !user) {
-                  return null;
-                }
-
-                return (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      'flex items-center px-3 py-2 text-sm font-medium transition-colors',
-                      {
-                        'text-gray-700 hover:text-primary-700': !isActive(item.href),
-                        'text-primary-700': isActive(item.href)
-                      }
-                    )}
-                  >
-                    <Icon className="h-5 w-5" />
-                    <span className="ml-2">{item.label}</span>
-                  </a>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* User Menu */}
-          {user && (
-            <div className="relative">
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="flex items-center space-x-2 p-2 rounded-md text-gray-600 hover:bg-gray-100 md:hidden"
-              >
-                <UserIcon className="h-6 w-6" />
-                <ChevronDown className="h-4 w-4" />
-              </button>
-
-              {/* Language Toggle */}
-              <div className="hidden md:flex md:items-center md:space-x-2">
-                <span className="text-sm text-gray-600 mr-2">
-                  {language === 'bn' ? 'ভাষা:' : 'Language:'}
-                </span>
-                <button
-                  onClick={() => handleLanguageChange('en')}
-                  className={cn(
-                    'px-3 py-1 rounded-md text-sm font-medium transition-colors',
-                    {
-                      'bg-primary-600 text-white': language === 'en',
-                      'bg-gray-200 text-gray-700 hover:bg-gray-300': language !== 'en'
-                    }
-                  )}
-                >
-                  English
-                </button>
-                <button
-                  onClick={() => handleLanguageChange('bn')}
-                  className={cn(
-                    'px-3 py-1 rounded-md text-sm font-medium transition-colors',
-                    {
-                      'bg-primary-600 text-white': language === 'bn',
-                      'bg-gray-200 text-gray-700 hover:bg-gray-300': language !== 'bn'
-                    }
-                  )}
-                >
-                  বাংলা
-                </button>
-              </div>
-
-              {/* Logout Button */}
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100"
-              >
-                <X className="h-5 w-5" />
-                <span className="hidden md:inline">{language === 'bn' ? 'লগ আউট' : 'Logout'}</span>
-              </button>
-            </div>
-          )}
-
-          {/* Mobile Menu */}
-          {isMenuOpen && (
-            <div className="absolute top-16 right-4 w-64 bg-white rounded-lg shadow-lg z-50 md:hidden">
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-medium text-gray-900">
-                    {language === 'bn' ? 'মেনু' : 'Menu'}
-                  </h2>
-                  <button
-                    onClick={() => setIsMenuOpen(false)}
-                    className="p-1 rounded-md text-gray-600 hover:bg-gray-100"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-
-                <div className="space-y-2">
-                  {navigationItems.map((item) => {
-                    const Icon = item.icon;
-                    // Skip protected routes for non-authenticated users
-                    if (item.protected && !user) {
-                      return null;
-                    }
-
-                    return (
-                      <a
-                        key={item.href}
-                        href={item.href}
-                        className={cn(
-                          'flex items-center px-3 py-2 text-sm font-medium transition-colors block w-full',
-                          {
-                            'text-gray-700 hover:text-primary-700': !isActive(item.href),
-                            'text-primary-700': isActive(item.href)
-                          }
-                        )}
-                      >
-                        <Icon className="h-5 w-5" />
-                        <span className="ml-2">{item.label}</span>
-                      </a>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      {/* Mobile Drawer */}
+      <MobileDrawer
+        isOpen={isMobileMenuOpen}
+        user={user}
+        language={language}
+        pathname={pathname}
+        onClose={() => setIsMobileMenuOpen(false)}
+        onLogout={handleLogout}
+        cartCount={cartCount}
+        categoryTree={categoryTree}
+        categoriesLoading={categoriesLoading}
+      />
     </div>
   );
 };

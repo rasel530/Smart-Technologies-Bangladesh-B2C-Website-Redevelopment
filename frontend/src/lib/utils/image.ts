@@ -17,19 +17,13 @@ export const getImageUrl = (imagePath: string | null | undefined): string | null
     return imagePath;
   }
   
-  // For /uploads paths, use relative URL to leverage Next.js rewrites
-  // This avoids CORS issues by proxying through the frontend
-  if (imagePath.startsWith('/uploads/')) {
-    // Add cache-busting timestamp to prevent browser caching
-    const timestamp = Date.now();
-    return `${imagePath}?t=${timestamp}`;
-  }
-  
-  // For other paths, construct full URL from backend base URL
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+  // Get backend base URL from environment variable
+  // Use NEXT_PUBLIC_BACKEND_API_URL as specified in the task
+  const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3001/api/v1';
   const BASE_URL = API_BASE_URL.replace('/api/v1', '');
   
-  // Add cache-busting timestamp to prevent browser caching
+  // Construct full URL using backend base URL
+  // This ensures /uploads/ paths are requested from backend (port 3001) not frontend (port 3000)
   const timestamp = Date.now();
   return `${BASE_URL}${imagePath}?t=${timestamp}`;
 };

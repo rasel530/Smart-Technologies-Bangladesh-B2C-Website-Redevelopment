@@ -20,6 +20,9 @@ module.exports = {
           800: '#1e40af',
           900: '#1e3a8a',
           950: '#172554',
+          blue: '#0055a5',
+          dark: '#003d75',
+          light: '#0066cc',
         },
         secondary: {
           50: '#f8fafc',
@@ -67,6 +70,20 @@ module.exports = {
           800: '#262626',
           900: '#171717',
           950: '#0a0a0a',
+        },
+        dark: {
+          gray: '#1a1a1a',
+        },
+        medium: {
+          gray: '#666666',
+        },
+        light: {
+          gray: '#f5f5f5',
+        },
+        orange: {
+          accent: '#ff6600',
+          hover: '#e65c00',
+          light: '#fff0e6',
         },
       },
       fontFamily: {

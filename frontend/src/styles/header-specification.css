@@ -1,0 +1,1064 @@
+/**
+ * ============================================
+ * SMART TECH HEADER CSS STYLING SPECIFICATION
+ * ============================================
+ * Newegg.com Style 3-Row Layout
+ * 
+ * This document provides comprehensive CSS styling specifications
+ * for the Smart Tech header using Tailwind CSS.
+ * 
+ * Contents:
+ * 1. CSS Custom Properties (Variables)
+ * 2. Tailwind Configuration
+ * 3. Component Styling Specifications
+ * 4. Responsive Breakpoints
+ * 5. Hover, Focus, and Active States
+ * 6. Animation & Transition Effects
+ * 7. Accessibility Styling Requirements
+ * 8. Custom CSS Utilities
+ * ============================================
+ */
+
+/* ============================================
+ * 1. CSS CUSTOM PROPERTIES (VARIABLES)
+ * ============================================ */
+
+:root {
+  /* ----------------------------------------
+   * 1.1 COLOR PALETTE
+   * ---------------------------------------- */
+  
+  /* Primary Colors */
+  --color-primary-blue: #0055a5;      /* Newegg primary blue */
+  --color-primary-dark: #003d75;      /* Darker blue for hover */
+  --color-primary-light: #0066cc;      /* Lighter blue for accents */
+  
+  /* Text Colors */
+  --color-text-primary: #1a1a1a;      /* Dark gray for primary text */
+  --color-text-secondary: #666666;    /* Medium gray for secondary text */
+  --color-text-muted: #999999;        /* Light gray for muted text */
+  --color-text-inverse: #ffffff;       /* White text */
+  
+  /* Background Colors */
+  --color-bg-primary: #ffffff;        /* White background */
+  --color-bg-secondary: #f5f5f5;     /* Light gray background */
+  --color-bg-tertiary: #e5e5e5;       /* Border gray */
+  --color-bg-hover: #f0f0f0;          /* Hover background */
+  
+  /* Accent Colors */
+  --color-accent-orange: #ff6600;     /* Orange for CTAs and highlights */
+  --color-accent-orange-hover: #e65c00; /* Darker orange for hover */
+  --color-accent-orange-light: #fff0e6; /* Light orange background */
+  
+  /* Status Colors */
+  --color-success: #28a745;           /* Success messages */
+  --color-error: #dc3545;             /* Error messages */
+  --color-warning: #ffc107;           /* Warning messages */
+  --color-info: #17a2b8;              /* Info messages */
+  
+  /* Border Colors */
+  --color-border-light: #e5e5e5;      /* Light border */
+  --color-border-medium: #cccccc;     /* Medium border */
+  --color-border-dark: #1a1a1a;        /* Dark border */
+  
+  /* Shadow Colors */
+  --shadow-sm: rgba(0, 0, 0, 0.05);   /* Small shadow */
+  --shadow-md: rgba(0, 0, 0, 0.1);    /* Medium shadow */
+  --shadow-lg: rgba(0, 0, 0, 0.15);   /* Large shadow */
+  --shadow-xl: rgba(0, 0, 0, 0.2);    /* Extra large shadow */
+  
+  /* Overlay Colors */
+  --overlay-dark: rgba(0, 0, 0, 0.5); /* Dark overlay */
+  --overlay-light: rgba(255, 255, 255, 0.9); /* Light overlay */
+  
+  /* ----------------------------------------
+   * 1.2 SPACING VARIABLES
+   * ---------------------------------------- */
+  
+  /* Header Row Heights */
+  --header-utility-height: 32px;       /* Utility bar height */
+  --header-main-height: 80px;         /* Main header height */
+  --header-nav-height: 44px;          /* Navigation bar height */
+  --header-total-height: 156px;       /* Total header height */
+  
+  /* Spacing Scale */
+  --space-xs: 4px;                    /* Extra small spacing */
+  --space-sm: 8px;                    /* Small spacing */
+  --space-md: 16px;                   /* Medium spacing */
+  --space-lg: 24px;                   /* Large spacing */
+  --space-xl: 32px;                   /* Extra large spacing */
+  --space-2xl: 48px;                  /* 2x extra large spacing */
+  
+  /* Container Padding */
+  --container-padding-mobile: 16px;   /* Mobile container padding */
+  --container-padding-tablet: 24px;   /* Tablet container padding */
+  --container-padding-desktop: 32px;  /* Desktop container padding */
+  
+  /* Component Spacing */
+  --nav-item-spacing: 4px;            /* Navigation item spacing */
+  --button-padding-x: 12px;           /* Button horizontal padding */
+  --button-padding-y: 8px;            /* Button vertical padding */
+  --link-spacing: 24px;               /* Link spacing */
+  
+  /* ----------------------------------------
+   * 1.3 TYPOGRAPHY VARIABLES
+   * ---------------------------------------- */
+  
+  /* Font Families */
+  --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-monospace: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  
+  /* Font Sizes */
+  --text-xs: 12px;                    /* Extra small text */
+  --text-sm: 14px;                    /* Small text */
+  --text-base: 16px;                  /* Base text */
+  --text-lg: 18px;                    /* Large text */
+  --text-xl: 20px;                    /* Extra large text */
+  --text-2xl: 24px;                   /* 2x extra large text */
+  --text-3xl: 30px;                   /* 3x extra large text */
+  
+  /* Font Weights */
+  --font-normal: 400;                 /* Normal weight */
+  --font-medium: 500;                 /* Medium weight */
+  --font-semibold: 600;               /* Semibold weight */
+  --font-bold: 700;                   /* Bold weight */
+  
+  /* Line Heights */
+  --leading-tight: 1.25;              /* Tight line height */
+  --leading-normal: 1.5;              /* Normal line height */
+  --leading-relaxed: 1.75;            /* Relaxed line height */
+  
+  /* Letter Spacing */
+  --tracking-tight: -0.02em;          /* Tight letter spacing */
+  --tracking-normal: 0;               /* Normal letter spacing */
+  --tracking-wide: 0.02em;            /* Wide letter spacing */
+  
+  /* ----------------------------------------
+   * 1.4 TRANSITION & ANIMATION VARIABLES
+   * ---------------------------------------- */
+  
+  /* Transition Durations */
+  --duration-fast: 150ms;             /* Fast transition */
+  --duration-normal: 200ms;           /* Normal transition */
+  --duration-slow: 300ms;             /* Slow transition */
+  --duration-slower: 400ms;           /* Slower transition */
+  
+  /* Transition Easings */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);         /* Ease in */
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);        /* Ease out */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);   /* Ease in-out */
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Spring easing */
+}
+
+/* ============================================
+ * 2. TAILWIND CONFIGURATION REFERENCE
+ * ============================================
+ * 
+ * Add these extensions to tailwind.config.ts:
+ * 
+ * theme: {
+ *   extend: {
+ *     colors: {
+ *       primary: {
+ *         blue: '#0055a5',
+ *         dark: '#003d75',
+ *         light: '#0066cc',
+ *       },
+ *       dark: {
+ *         gray: '#1a1a1a',
+ *       },
+ *       medium: {
+ *         gray: '#666666',
+ *       },
+ *       light: {
+ *         gray: '#f5f5f5',
+ *       },
+ *       orange: {
+ *         accent: '#ff6600',
+ *         hover: '#e65c00',
+ *         light: '#fff0e6',
+ *       },
+ *     },
+ *     height: {
+ *       '8': '32px',           // Utility bar
+ *       '11': '44px',          // Navigation bar
+ *       '20': '80px',          // Main header
+ *       'header-utility': '32px',
+ *       'header-main': '80px',
+ *       'header-nav': '44px',
+ *     },
+ *     transitionDuration: {
+ *       '150': '150ms',
+ *       '200': '200ms',
+ *       '300': '300ms',
+ *       '400': '400ms',
+ *     },
+ *     transitionTimingFunction: {
+ *       'spring': 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+ *     },
+ *   },
+ * }
+ * ============================================ */
+
+/* ============================================
+ * 3. COMPONENT STYLING SPECIFICATIONS
+ * ============================================ */
+
+/* ----------------------------------------
+ * 3.1 MAIN HEADER CONTAINER
+ * ----------------------------------------
+ * 
+ * Tailwind Classes:
+ * className="sticky top-0 z-50 bg-white shadow-sm"
+ * 
+ * Responsive Behavior:
+ * | Property      | Mobile (<768px) | Tablet (768-1199px) | Desktop (1200px+) |
+ * |---------------|----------------|---------------------|-------------------|
+ * | Position      | sticky         | sticky              | sticky            |
+ * | Top           | 0              | 0                   | 0                 |
+ * | Z-index       | 50             | 50                  | 50                |
+ * | Background    | white          | white               | white             |
+ * | Shadow        | shadow-sm      | shadow-sm           | shadow-sm         |
+ * ---------------------------------------- */
+
+/* ----------------------------------------
+ * 3.2 UTILITY BAR (Row 1 - 32px)
+ * ----------------------------------------
+ * 
+ * Tailwind Classes:
+ * <div className="h-8 bg-gray-100 border-b border-gray-200">
+ *   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+ *     <div className="flex items-center justify-between h-full">
+ * 
+ * Container Padding:
+ * | Breakpoint | Tailwind Class | Value |
+ * |------------|----------------|-------|
+ * | Mobile     | px-4           | 16px  |
+ * | Tablet     | sm:px-6        | 24px  |
+ * | Desktop    | lg:px-8        | 32px  |
+ * ---------------------------------------- */
+
+/* ----------------------------------------
+ * 3.3 UTILITY LINKS
+ * ----------------------------------------
+ * 
+ * Tailwind Classes:
+ * className="text-xs text-gray-600 hover:text-primary-blue transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 rounded"
+ * 
+ * State Specifications:
+ * | State    | Text Color       | Background | Transition |
+ * |----------|------------------|------------|------------|
+ * | Default  | #666666 (gray-600) | transparent | 150ms      |
+ * | Hover    | #0055a5 (primary-blue) | transparent | 150ms  |
+ * | Focus    | #0055a5 (primary-blue) | transparent | 150ms  |
+ * ---------------------------------------- */
+
+/* ----------------------------------------
+ * 3.4 LANGUAGE TOGGLE
+ * ----------------------------------------
+ * 
+ * Tailwind Classes (Unselected):
+ * className="px-2 py-0.5 rounded text-xs font-medium transition-colors bg-white text-gray-600 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
+ * 
+ * Tailwind Classes (Selected):
+ * className="px-2 py-0.5 rounded text-xs font-medium transition-colors bg-primary-blue text-white focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
+ * 
+ * State Specifications:
+ * | State              | Text Color       | Background      | Border Radius |
+ * |--------------------|------------------|-----------------|---------------|
+ * | Default (unselected) | #666666 (gray-600) | white           | 4px           |
+ * | Hover (unselected)   | #1a1a1a (dark-gray) | #f0f0f0 (gray-200) | 4px        |
+ * | Selected             | #ffffff (white)      | #0055a5 (primary-blue) | 4px    |
+ * ---------------------------------------- */
+
+/* ----------------------------------------
+ * 3.5 LOGO SECTION
+ * ----------------------------------------
+ * 
+ * Tailwind Classes:
+ * Logo Box: "w-10 h-10 md:w-12 md:h-12 bg-primary-blue rounded-lg flex items-center justify-center shadow-sm"
+ * Logo Text: "text-white font-bold text-xl md:text-2xl"
+ * Brand Name: "text-lg md:text-xl font-bold text-dark-gray leading-tight"
+ * Tagline: "text-xs text-gray-600"
+ * 
+ * Responsive Specifications:
+ * | Element     | Mobile (<768px) | Tablet (768px+) | Desktop (1200px+) |
+ * |-------------|----------------|-----------------|-------------------|
+ * | Logo Box    | 40x40px        | 48x48px         | 48x48px           |
+ * | Logo Text   | text-xl (20px) | text-2xl (24px) | text-2xl (24px)   |
+ * | Brand Name  | text-lg (18px) | text-xl (20px)  | text-xl (20px)    |
+ * | Tagline     | text-xs (12px)  | text-xs (12px)  | text-xs (12px)    |
+ * ---------------------------------------- */
+
+/* ----------------------------------------
+ * 3.6 SEARCH SECTION
+ * ----------------------------------------
+ * 
+ * Tailwind Classes:
+ * Container: "hidden md:flex flex-1 max-w-xl lg:max-w-2xl mx-4 lg:mx-8"
+ * Search Hint: "hidden sm:block mt-1"
+ * Kbd: "px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-gray-600 text-xs font-mono"
+ * 
+ * Responsive Specifications:
+ * | Element      | Mobile (<768px) | Tablet (768-1199px) | Desktop (1200px+) |
+ * |--------------|----------------|---------------------|-------------------|
+ * | Visibility   | Hidden (drawer) | Visible             | Visible           |
+ * | Max Width    | N/A            | 100% (512px)        | 100% (512px)      |
+ * | Margin       | N/A            | mx-4 (16px)         | mx-8 (32px)       |
+ * | Search Hint  | Hidden         | Hidden              | Visible           |
+ * ---------------------------------------- */
+
+/* ----------------------------------------
+ * 3.7 USER ACTIONS SECTION
+ * ----------------------------------------
+ * 
+ * Tailwind Classes:
+ * Container: "flex items-center space-x-4"
+ * User Name: "text-sm font-medium hidden sm:inline"
+ * Cart Text: "text-sm font-medium hidden sm:inline"
+ * 
+ * Responsive Specifications:
+ * | Element      | Mobile (<768px) | Tablet (768px+) | Desktop (1200px+) |
+ * |--------------|----------------|-----------------|-------------------|
+ * | User Name    | Hidden         | Visible         | Visible           |
+ * | Cart Text    | Hidden         | Visible         | Visible           |
+ * | Login/Register | Hidden (drawer) | Visible       | Visible           |
+ * ---------------------------------------- */
+
+/* ----------------------------------------
+ * 3.8 CART BADGE
+ * ----------------------------------------
+ * 
+ * Tailwind Classes:
+ * className="absolute -top-1 -right-1 bg-orange-accent text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
+ * 
+ * Specifications:
+ * | Property      | Value                      |
+ * |---------------|----------------------------|
+ * | Position      | absolute -top-1 -right-1   |
+ * | Background    | #ff6600 (orange-accent)    |
+ * | Text Color    | white                      |
+ * | Size          | 20px (h-5 w-5)            |
+ * | Border Radius | full (50%)                 |
+ * | Font Size     | text-xs (12px)             |
+ * | Font Weight   | bold                       |
+ * ---------------------------------------- */
+
+/* ----------------------------------------
+ * 3.9 NAVIGATION BAR (Row 3 - 44px)
+ * ----------------------------------------
+ * 
+ * Tailwind Classes:
+ * Container: "h-11 bg-primary-blue"
+ * Nav Container: "hidden md:flex items-center space-x-1"
+ * 
+ * Nav Item Base:
+ * className="flex items-center space-x-2 px-4 py-2 text-sm font-medium transition-colors rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-blue"
+ * 
+ * Nav Item Default:
+ * className="text-white hover:bg-primary-dark"
+ * 
+ * Nav Item Active:
+ * className="bg-orange-accent text-white"
+ * 
+ * State Specifications:
+ * | State    | Text Color | Background       | Padding    |
+ * |----------|-----------|------------------|------------|
+ * | Default  | white     | transparent      | px-4 py-2  |
+ * | Hover    | white     | #003d75 (primary-dark) | px-4 py-2 |
+ * | Active   | white     | #ff6600 (orange-accent) | px-4 py-2 |
+ * ---------------------------------------- */
+
+/* ----------------------------------------
+ * 3.10 MOBILE MENU BUTTON
+ * ----------------------------------------
+ * 
+ * Tailwind Classes:
+ * className="md:hidden flex items-center space-x-2 px-3 py-2 rounded-md text-white hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-blue"
+ * 
+ * State Specifications:
+ * | State    | Text Color | Background       | Icon       |
+ * |----------|-----------|------------------|------------|
+ * | Default  | white     | transparent      | Menu icon  |
+ * | Hover    | white     | #003d75 (primary-dark) | Menu icon |
+ * ---------------------------------------- */
+
+/* ----------------------------------------
+ * 3.11 MOBILE DRAWER
+ * ----------------------------------------
+ * 
+ * Backdrop Tailwind Classes:
+ * className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden"
+ * 
+ * Drawer Panel Specifications:
+ * | Property      | Value                      |
+ * |---------------|----------------------------|
+ * | Position      | fixed top-0 right-0        |
+ * | Width         | 320px (w-80)               |
+ * | Height        | full (100vh)               |
+ * | Background    | white                      |
+ * | Shadow        | shadow-xl                  |
+ * | Z-index       | 50                         |
+ * 
+ * Drawer Panel Tailwind Classes:
+ * className="fixed top-0 right-0 h-full w-80 bg-white shadow-xl z-50 md:hidden transform transition-transform duration-300 ease-in-out"
+ * 
+ * Drawer Header Classes:
+ * className="flex items-center justify-between p-4 border-b border-gray-200"
+ * 
+ * Drawer Content Classes:
+ * className="p-4 overflow-y-auto h-full pb-20"
+ * 
+ * User Section Classes:
+ * className="mb-6 p-4 bg-gray-50 rounded-lg"
+ * 
+ * User Avatar Classes:
+ * className="w-10 h-10 bg-primary-blue rounded-full flex items-center justify-center"
+ * 
+ * Mobile Nav Link Classes:
+ * className="flex items-center space-x-3 px-4 py-3 text-sm font-medium transition-colors rounded-md focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
+ * 
+ * Mobile Nav Link Default:
+ * className="text-gray-700 hover:bg-gray-100"
+ * 
+ * Mobile Nav Link Active:
+ * className="bg-primary-blue text-white"
+ * 
+ * Utility Section Classes:
+ * className="mt-6 pt-6 border-t border-gray-200"
+ * 
+ * Logout Button Classes:
+ * className="w-full flex items-center justify-center space-x-2 px-4 py-3 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+ * ---------------------------------------- */
+
+/* ----------------------------------------
+ * 3.12 USER DROPDOWN MENU
+ * ----------------------------------------
+ * 
+ * Container Classes:
+ * className="relative group"
+ * 
+ * Trigger Button Classes:
+ * className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
+ * 
+ * Dropdown Menu Classes:
+ * className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right"
+ * 
+ * Dropdown Item Classes:
+ * className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
+ * 
+ * Logout Button Classes:
+ * className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+ * 
+ * State Specifications:
+ * | State    | Opacity | Visibility | Transform     |
+ * |----------|---------|------------|---------------|
+ * | Default  | 0       | invisible  | translate-y-2 |
+ * | Hover    | 100     | visible    | translate-y-0 |
+ * ---------------------------------------- */
+
+/* ----------------------------------------
+ * 3.13 AUTHENTICATION BUTTONS
+ * ----------------------------------------
+ * 
+ * Sign In Button Classes:
+ * className="text-sm font-medium text-gray-600 hover:text-primary-blue transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
+ * 
+ * Register Button Classes:
+ * className="px-4 py-2 bg-orange-accent text-white text-sm font-medium rounded-md hover:bg-orange-hover transition-colors focus:outline-none focus:ring-2 focus:ring-orange-accent focus:ring-offset-2"
+ * 
+ * Register Button State Specifications:
+ * | State    | Background           | Text Color | Transition |
+ * |----------|----------------------|------------|------------|
+ * | Default  | #ff6600 (orange-accent) | white     | 150ms      |
+ * | Hover    | #e65c00 (orange-hover)   | white     | 150ms      |
+ * | Focus    | #e65c00 (orange-hover)   | white     | 150ms      |
+ * ---------------------------------------- */
+
+/* ============================================
+ * 4. RESPONSIVE BREAKPOINTS
+ * ============================================
+ * 
+ * Tailwind Default Breakpoints:
+ * | Breakpoint | Prefix | Min Width | Target Devices               |
+ * |------------|--------|-----------|------------------------------|
+ * | Mobile     | Default| 0px       | Smartphones (< 768px)        |
+ * | Tablet     | sm     | 640px     | Small tablets                |
+ * | Tablet     | md     | 768px     | Large tablets                |
+ * | Desktop    | lg     | 1024px    | Small laptops                |
+ * | Desktop    | xl     | 1280px    | Standard desktops            |
+ * | Desktop    | 2xl    | 1536px    | Large screens                |
+ * 
+ * Custom Header Breakpoints:
+ * Mobile: < 768px
+ * Tablet: 768px - 1199px
+ * Desktop: 1200px+
+ * ============================================ */
+
+/* ============================================
+ * 5. HOVER, FOCUS, AND ACTIVE STATES
+ * ============================================ */
+
+/* ----------------------------------------
+ * 5.1 LINK HOVER STATES
+ * ----------------------------------------
+ * 
+ * Utility Links:
+ * Default: text-gray-600
+ * Hover: hover:text-primary-blue
+ * Focus: focus:ring-2 focus:ring-primary-blue focus:ring-offset-2
+ * 
+ * Navigation Links:
+ * Default: text-white
+ * Hover: hover:bg-primary-dark
+ * Active: bg-orange-accent text-white
+ * Focus: focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-blue
+ * ---------------------------------------- */
+
+/* ----------------------------------------
+ * 5.2 BUTTON HOVER STATES
+ * ----------------------------------------
+ * 
+ * Primary Buttons (Register):
+ * Default: bg-orange-accent text-white
+ * Hover: hover:bg-orange-hover
+ * Focus: focus:ring-2 focus:ring-orange-accent focus:ring-offset-2
+ * 
+ * Secondary Buttons:
+ * Default: bg-white text-gray-600
+ * Hover: hover:bg-gray-100
+ * Focus: focus:ring-2 focus:ring-primary-blue focus:ring-offset-2
+ * ---------------------------------------- */
+
+/* ----------------------------------------
+ * 5.3 DROPDOWN MENU STATES
+ * ----------------------------------------
+ * 
+ * Dropdown Menu:
+ * Default: opacity-0 invisible translate-y-2
+ * Hover: group-hover:opacity-100 group-hover:visible translate-y-0
+ * Transition: transition-all duration-200
+ * 
+ * Dropdown Items:
+ * Default: text-gray-700
+ * Hover: hover:bg-gray-100
+ * Focus: focus:ring-2 focus:ring-primary-blue focus:ring-offset-2
+ * ---------------------------------------- */
+
+/* ============================================
+ * 6. ANIMATION & TRANSITION EFFECTS
+ * ============================================ */
+
+/* ----------------------------------------
+ * 6.1 KEYFRAME ANIMATIONS
+ * ---------------------------------------- */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ----------------------------------------
+ * 6.2 TRANSITION UTILITIES
+ * ----------------------------------------
+ * 
+ * Color Transitions:
+ * className="transition-colors"
+ * - Duration: 150ms
+ * - Easing: ease-out
+ * 
+ * Opacity Transitions:
+ * className="transition-opacity"
+ * - Duration: 200ms
+ * - Easing: ease-out
+ * 
+ * Transform Transitions:
+ * className="transition-transform"
+ * - Duration: 200ms
+ * - Easing: ease-out
+ * 
+ * All Transitions:
+ * className="transition-all"
+ * - Duration: 200ms
+ * - Easing: ease-out
+ * 
+ * Spring Transitions:
+ * className="transition-spring"
+ * - Duration: 400ms
+ * - Easing: spring (cubic-bezier(0.175, 0.885, 0.32, 1.275))
+ * ---------------------------------------- */
+
+/* ----------------------------------------
+ * 6.3 DRAWER ANIMATION
+ * ----------------------------------------
+ * 
+ * Open State:
+ * className="translate-x-0"
+ * 
+ * Closed State:
+ * className="translate-x-full"
+ * 
+ * Animation Classes:
+ * className="transform transition-transform duration-300 ease-in-out"
+ * ---------------------------------------- */
+
+/* ----------------------------------------
+ * 6.4 DROPDOWN ANIMATION
+ * ----------------------------------------
+ * 
+ * Open State:
+ * className="opacity-100 visible translate-y-0"
+ * 
+ * Closed State:
+ * className="opacity-0 invisible translate-y-2"
+ * 
+ * Animation Classes:
+ * className="transition-all duration-200 transform origin-top-right"
+ * ---------------------------------------- */
+
+/* ============================================
+ * 7. ACCESSIBILITY STYLING REQUIREMENTS
+ * ============================================ */
+
+/* ----------------------------------------
+ * 7.1 FOCUS INDICATORS
+ * ---------------------------------------- */
+
+/* Visible focus indicator for all interactive elements */
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #0055a5;
+}
+
+/* Skip link styling */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #0055a5;
+  color: #ffffff;
+  padding: 8px 16px;
+  z-index: 100;
+  transition: top 150ms ease-out;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ----------------------------------------
+ * 7.2 SCREEN READER ONLY CONTENT
+ * ---------------------------------------- */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* ----------------------------------------
+ * 7.3 REDUCED MOTION
+ * ---------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ----------------------------------------
+ * 7.4 HIGH CONTRAST MODE
+ * ---------------------------------------- */
+
+@media (prefers-contrast: high) {
+  .header-utility-bar {
+    background-color: #ffffff;
+    border-bottom: 2px solid #000000;
+  }
+  
+  .header-main {
+    border-bottom: 2px solid #000000;
+  }
+  
+  .nav-link {
+    border: 1px solid transparent;
+  }
+  
+  .nav-link:hover {
+    border: 1px solid #ffffff;
+  }
+  
+  .btn-primary {
+    border: 2px solid #000000;
+  }
+}
+
+/* ----------------------------------------
+ * 7.5 FOCUS RING UTILITIES
+ * ----------------------------------------
+ * 
+ * Primary Focus Ring:
+ * className="focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
+ * 
+ * White Focus Ring (for dark backgrounds):
+ * className="focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-blue"
+ * 
+ * Orange Focus Ring:
+ * className="focus:outline-none focus:ring-2 focus:ring-orange-accent focus:ring-offset-2"
+ * 
+ * Red Focus Ring (for logout/error):
+ * className="focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+ * ---------------------------------------- */
+
+/* ============================================
+ * 8. CUSTOM CSS UTILITIES
+ * ============================================ */
+
+/* ----------------------------------------
+ * 8.1 HEADER-SPECIFIC UTILITIES
+ * ---------------------------------------- */
+
+.header-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.header-shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Row height utilities */
+.h-header-utility {
+  height: 32px;
+}
+
+.h-header-main {
+  height: 80px;
+}
+
+.h-header-nav {
+  height: 44px;
+}
+
+/* Logo utilities */
+.logo-box {
+  background-color: #0055a5;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.logo-text {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* Nav utilities */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.nav-item-default {
+  color: #ffffff;
+}
+
+.nav-item-default:hover {
+  background-color: #003d75;
+}
+
+.nav-item-active {
+  background-color: #ff6600;
+  color: #ffffff;
+}
+
+/* Drawer utilities */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 50;
+}
+
+.drawer-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 20rem;
+  background-color: #ffffff;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  z-index: 50;
+}
+
+/* Badge utilities */
+.cart-badge {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  background-color: #ff6600;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  height: 1.25rem;
+  width: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Language toggle utilities */
+.lang-btn {
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.lang-btn-selected {
+  background-color: #0055a5;
+  color: #ffffff;
+}
+
+.lang-btn-unselected {
+  background-color: #ffffff;
+  color: #666666;
+}
+
+.lang-btn-unselected:hover {
+  background-color: #f0f0f0;
+}
+
+/* ----------------------------------------
+ * 8.2 ANIMATION UTILITIES
+ * ---------------------------------------- */
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 200ms ease-out forwards;
+}
+
+.fade-out {
+  opacity: 1;
+  animation: fadeOut 200ms ease-out forwards;
+}
+
+.slide-in-right {
+  transform: translateX(100%);
+  animation: slideInRight 300ms ease-out forwards;
+}
+
+.slide-out-right {
+  transform: translateX(0);
+  animation: slideOutRight 300ms ease-out forwards;
+}
+
+.slide-in-down {
+  transform: translateY(-10px);
+  animation: slideDown 200ms ease-out forwards;
+}
+
+.slide-out-up {
+  transform: translateY(0);
+  animation: slideUp 200ms ease-out forwards;
+}
+
+.scale-in {
+  transform: scale(0.95);
+  animation: scaleIn 200ms ease-out forwards;
+}
+
+/* Hover lift effect */
+.hover-lift {
+  transition: transform 200ms ease-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* ----------------------------------------
+ * 8.3 RESPONSIVE UTILITIES
+ * ---------------------------------------- */
+
+/* Hide/show utilities */
+@media (max-width: 767px) {
+  .hide-mobile {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .show-mobile-only {
+    display: none;
+  }
+  
+  .hide-mobile {
+    display: block;
+  }
+}
+
+/* ----------------------------------------
+ * 8.4 PRINT STYLES
+ * ---------------------------------------- */
+
+@media print {
+  .header-utility-bar,
+  .header-nav,
+  .mobile-drawer {
+    display: none !important;
+  }
+  
+  .header-main {
+    height: auto;
+    padding: 16px 0;
+    border-bottom: 1px solid #000;
+  }
+  
+  .logo-text {
+    color: #000;
+  }
+  
+  .brand-name {
+    color: #000;
+  }
+  
+  .tagline {
+    color: #666;
+  }
+}
+
+/* ============================================
+ * SUMMARY
+ * ============================================
+ * 
+ * This CSS styling specification provides comprehensive Tailwind CSS
+ * classes and custom CSS utilities for implementing the Smart Tech
+ * header with a Newegg.com-inspired 3-row layout.
+ * 
+ * Key Features:
+ * 1. CSS Custom Properties for colors, spacing, typography, and animations
+ * 2. Tailwind Configuration with custom theme extensions
+ * 3. Component Styling for all header elements with responsive variants
+ * 4. State Specifications for hover, focus, and active states
+ * 5. Animation & Transition definitions with keyframes and utility classes
+ * 6. Accessibility Requirements including focus indicators, ARIA styling, and motion preferences
+ * 7. Custom CSS Utilities for header-specific functionality
+ * 
+ * All styling follows React best practices, uses semantic HTML, and
+ * prioritizes accessibility, responsive design, and performance.
+ * ============================================ */

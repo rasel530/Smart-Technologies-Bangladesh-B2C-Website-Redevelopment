@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrandWithRelations } from '@/types/brand';
 import brandsApi from '@/lib/api/brands';
+import { getImageUrl } from '@/lib/utils/image';
 
 interface BrandFilterProps {
   onBrandChange?: (brandId: string | null) => void;
@@ -133,7 +134,7 @@ export default function BrandFilter({
               <>
                 {selectedBrand.logoUrl && (
                   <img
-                    src={selectedBrand.logoUrl}
+                    src={getImageUrl(selectedBrand.logoUrl) || ''}
                     alt={selectedBrand.name}
                     className="w-8 h-8 object-contain mr-3 flex-shrink-0"
                   />
@@ -232,7 +233,7 @@ export default function BrandFilter({
                       >
                         {brand.logoUrl && (
                           <img
-                            src={brand.logoUrl}
+                            src={getImageUrl(brand.logoUrl) || ''}
                             alt={brand.name}
                             className="w-8 h-8 object-contain mr-3 flex-shrink-0"
                           />
@@ -259,7 +260,7 @@ export default function BrandFilter({
           <div className="flex items-start">
             {selectedBrand.logoUrl && (
               <img
-                src={selectedBrand.logoUrl}
+                src={getImageUrl(selectedBrand.logoUrl) || ''}
                 alt={selectedBrand.name}
                 className="w-12 h-12 object-contain mr-3 flex-shrink-0"
               />

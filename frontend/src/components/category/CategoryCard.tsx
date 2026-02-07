@@ -13,6 +13,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { CategoryWithRelations, CategoryStatus } from '@/types/category';
+import { getImageUrl } from '@/lib/utils/image';
 
 interface CategoryCardProps {
   category: CategoryWithRelations;
@@ -37,8 +38,8 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
 }) => {
   const [imageError, setImageError] = useState(false);
 
-  // Get category icon or banner image
-  const imageUrl = category.bannerImage || category.iconUrl || '';
+  // Get category icon or banner image using getImageUrl to ensure correct backend URL
+  const imageUrl = getImageUrl(category.bannerImage || category.iconUrl) || '';
 
   // Truncate description
   const truncatedDescription = category.description

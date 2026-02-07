@@ -23,6 +23,7 @@ import PersonalizedSuggestions from './PersonalizedSuggestions';
 import { FilterSidebar } from '@/components/product/FilterSidebar';
 import { SortDropdown } from '@/components/product/SortDropdown';
 import type { SearchFilters, ProductWithRelations } from '@/types/product';
+import { getImageUrl } from '@/lib/utils/image';
 
 export interface SearchPageContentEnhancedProps {
   query: string;
@@ -329,7 +330,7 @@ export default function SearchPageContentEnhanced({
                         {product.images && product.images.length > 0 && (
                           <div className="aspect-square relative">
                             <img
-                              src={product.images[0].optimizedUrl || product.images[0].originalUrl}
+                              src={getImageUrl(product.images[0].optimizedUrl || product.images[0].originalUrl) || ''}
                               alt={product.name}
                               className="w-full h-full object-cover"
                             />

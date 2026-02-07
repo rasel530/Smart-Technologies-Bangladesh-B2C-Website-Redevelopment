@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Category } from '@/types/category';
 import { Brand } from '@/types/brand';
+import { getImageUrl } from '@/lib/utils/image';
 
 interface CategoryFilterProps {
   category: Category;
@@ -131,7 +132,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
                     >
                       {child.iconUrl && (
                         <img
-                          src={child.iconUrl}
+                          src={getImageUrl(child.iconUrl) || ''}
                           alt={child.name}
                           className="w-5 h-5 object-contain"
                         />
@@ -211,7 +212,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
                   >
                     {brand.logoUrl && (
                       <img
-                        src={brand.logoUrl}
+                        src={getImageUrl(brand.logoUrl) || ''}
                         alt={brand.name}
                         className="w-5 h-5 object-contain"
                       />

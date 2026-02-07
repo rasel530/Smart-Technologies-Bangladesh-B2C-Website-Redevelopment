@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { BrandWithRelations, BrandListFilter } from '@/types/brand';
 import brandsApi from '@/lib/api/brands';
+import { getImageUrl } from '@/lib/utils/image';
 
 interface BrandListProps {
   initialBrands?: BrandWithRelations[];
@@ -236,7 +237,7 @@ export default function BrandList({
               <div className="aspect-square bg-gray-50 flex items-center justify-center p-4">
                 {brand.logoUrl ? (
                   <Image
-                    src={brand.logoUrl}
+                    src={getImageUrl(brand.logoUrl) || ''}
                     alt={brand.name}
                     width={200}
                     height={200}

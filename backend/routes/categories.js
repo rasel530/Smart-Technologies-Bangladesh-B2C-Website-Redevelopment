@@ -25,10 +25,44 @@ const serializeProduct = (product) => {
 // Multer configuration for category image upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '..', process.env.UPLOAD_PATH || 'uploads', 'categories');
+    // Get upload path from environment or use default
+    const uploadPathEnv = process.env.UPLOAD_PATH || 'uploads';
+    
+    // Normalize the path to remove any leading ./ or trailing slashes
+    const normalizedUploadPath = uploadPathEnv.replace(/^\.\//, '').replace(/\/$/, '');
+    
+    // Construct the full upload directory path
+    const uploadDir = path.join(__dirname, '..', normalizedUploadPath, 'categories');
+    
+    // Diagnostic logging
+    console.log('[CATEGORY IMAGE UPLOAD] Path construction:', {
+      __dirname,
+      uploadPathEnv,
+      normalizedUploadPath,
+      constructedPath: uploadDir,
+      pathExists: fs.existsSync(uploadDir),
+      cwd: process.cwd()
+    });
+    
+    // Create directory if it doesn't exist with error handling
     if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+      try {
+        fs.mkdirSync(uploadDir, { recursive: true });
+        console.log('[CATEGORY IMAGE UPLOAD] Directory created successfully:', uploadDir);
+      } catch (mkdirError) {
+        console.error('[CATEGORY IMAGE UPLOAD] Directory creation failed:', {
+          path: uploadDir,
+          error: mkdirError.message,
+          stack: mkdirError.stack,
+          code: mkdirError.code,
+          errno: mkdirError.errno
+        });
+        return cb(mkdirError);
+      }
+    } else {
+      console.log('[CATEGORY IMAGE UPLOAD] Directory already exists:', uploadDir);
     }
+    
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
@@ -51,7 +85,10 @@ const upload = multer({
     if (extname && mimetype) {
       return cb(null, true);
     } else {
-      cb(new Error('Only image files are allowed!'));
+      const error = new multer.MulterError('INVALID_FILE_TYPE');
+      error.message = 'Only image files are allowed!';
+      error.fieldName = file.fieldname;
+      cb(error);
     }
   }
 });
@@ -1011,17 +1048,17 @@ router.get('/:id/products', [
 // ============================================
 
 // POST /api/v1/categories/:id/image - Upload category image
-router.post('/:id/image', [
+router.post('/:id/image', upload.single('image'), [
   param('id').isUUID()
-], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), upload.single('image'), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
-    // Check for multer errors
-    if (req.multerError) {
-      return res.status(400).json({
-        error: 'File upload failed',
-        details: req.multerError.message
-      });
-    }
+    // Add diagnostic logging
+    console.log('[CATEGORY IMAGE UPLOAD] Request received:', {
+      categoryId: req.params.id,
+      hasFile: !!req.file,
+      fileName: req.file?.filename,
+      fileSize: req.file?.size
+    });
 
     const { id } = req.params;
 
@@ -1051,6 +1088,24 @@ router.post('/:id/image', [
     }
 
     const imageUrl = `/uploads/categories/${req.file.filename}`;
+    
+    // Verify file was actually saved to disk
+    const actualFilePath = path.join(__dirname, '..', imageUrl);
+    const fileExists = fs.existsSync(actualFilePath);
+    const fileStats = fileExists ? fs.statSync(actualFilePath) : null;
+    
+    console.log('[CATEGORY IMAGE UPLOAD] File save verification:', {
+      imageUrl,
+      actualFilePath,
+      fileExists,
+      fileStats: fileStats ? {
+        size: fileStats.size,
+        isFile: fileStats.isFile()
+      } : null,
+      uploadDirContents: fs.existsSync(path.join(__dirname, '..', 'uploads', 'categories')) 
+        ? fs.readdirSync(path.join(__dirname, '..', 'uploads', 'categories'))
+        : 'Directory does not exist'
+    });
 
     const updatedCategory = await prisma.category.update({
       where: { id },
@@ -1072,17 +1127,17 @@ router.post('/:id/image', [
 });
 
 // POST /api/v1/categories/:id/icon - Upload category icon
-router.post('/:id/icon', [
+router.post('/:id/icon', upload.single('icon'), [
   param('id').isUUID()
-], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), upload.single('icon'), async (req, res) => {
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
   try {
-    // Check for multer errors
-    if (req.multerError) {
-      return res.status(400).json({
-        error: 'File upload failed',
-        details: req.multerError.message
-      });
-    }
+    // Add diagnostic logging
+    console.log('[CATEGORY ICON UPLOAD] Request received:', {
+      categoryId: req.params.id,
+      hasFile: !!req.file,
+      fileName: req.file?.filename,
+      fileSize: req.file?.size
+    });
 
     const { id } = req.params;
 
@@ -1112,6 +1167,24 @@ router.post('/:id/icon', [
     }
 
     const iconUrl = `/uploads/categories/${req.file.filename}`;
+    
+    // Verify file was actually saved to disk
+    const actualFilePath = path.join(__dirname, '..', iconUrl);
+    const fileExists = fs.existsSync(actualFilePath);
+    const fileStats = fileExists ? fs.statSync(actualFilePath) : null;
+    
+    console.log('[CATEGORY ICON UPLOAD] File save verification:', {
+      iconUrl,
+      actualFilePath,
+      fileExists,
+      fileStats: fileStats ? {
+        size: fileStats.size,
+        isFile: fileStats.isFile()
+      } : null,
+      uploadDirContents: fs.existsSync(path.join(__dirname, '..', 'uploads', 'categories')) 
+        ? fs.readdirSync(path.join(__dirname, '..', 'uploads', 'categories'))
+        : 'Directory does not exist'
+    });
 
     const updatedCategory = await prisma.category.update({
       where: { id },

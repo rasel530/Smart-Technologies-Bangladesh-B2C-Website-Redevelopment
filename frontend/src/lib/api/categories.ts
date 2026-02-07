@@ -330,13 +330,12 @@ export const uploadCategoryImage = async (
     const formData = new FormData();
     formData.append('image', file);
 
+    // Note: Do not set Content-Type header manually for FormData
+    // The browser will automatically set it with the correct boundary
     const response = await apiClient.post<{ category: Category }>(
       `/categories/${id}/image`,
       formData,
       {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
         timeout: 60000 // 60 second timeout for category image upload
       }
     );
@@ -362,13 +361,12 @@ export const uploadCategoryIcon = async (
     const formData = new FormData();
     formData.append('icon', file);
 
+    // Note: Do not set Content-Type header manually for FormData
+    // The browser will automatically set it with the correct boundary
     const response = await apiClient.post<{ category: Category }>(
       `/categories/${id}/icon`,
       formData,
       {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
         timeout: 60000 // 60 second timeout for category icon upload
       }
     );

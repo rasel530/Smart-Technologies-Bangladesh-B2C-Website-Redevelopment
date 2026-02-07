@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-02-07T09:52:30.463Z",
+  "config": {
+    "brandId": "14907a1d-2cac-421f-864e-603f51751fbb",
+    "backendUrl": "http://localhost:3001",
+    "apiEndpoint": "/api/v1/brands",
+    "testImageName": "test-brand-logo.png",
+    "testImageSize": 1024
+  },
+  "summary": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0,
+    "successRate": "100.0"
+  },
+  "tests": [
+    {
+      "name": "Brand exists",
+      "passed": true,
+      "message": "Condition met",
+      "timestamp": "2026-02-07T09:52:30.443Z"
+    },
+    {
+      "name": "No authentication returns 401",
+      "passed": true,
+      "message": "Expected: 401, Got: 401",
+      "timestamp": "2026-02-07T09:52:30.462Z"
+    },
+    {
+      "name": "Response contains error message",
+      "passed": true,
+      "message": "Condition met",
+      "timestamp": "2026-02-07T09:52:30.462Z"
+    }
+  ]
+}

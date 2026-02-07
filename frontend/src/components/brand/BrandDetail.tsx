@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { BrandWithRelations, BrandProductFilter } from '@/types/brand';
 import brandsApi from '@/lib/api/brands';
 import ProductCard from '../product/ProductCard';
+import { getImageUrl } from '@/lib/utils/image';
 
 interface BrandDetailProps {
   brand: BrandWithRelations;
@@ -84,7 +85,7 @@ export default function BrandDetail({ brand, initialProducts }: BrandDetailProps
           <div className="md:w-1/3 bg-gradient-to-br from-blue-50 to-indigo-50 p-8 flex items-center justify-center">
             {brand.logoUrl ? (
               <Image
-                src={brand.logoUrl}
+                src={getImageUrl(brand.logoUrl) || ''}
                 alt={brand.name}
                 width={300}
                 height={300}

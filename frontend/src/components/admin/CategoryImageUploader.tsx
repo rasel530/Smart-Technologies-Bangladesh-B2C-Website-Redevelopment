@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Category } from '@/types/category';
 import { uploadCategoryImage, uploadCategoryIcon, deleteCategoryImage, deleteCategoryIcon, getCategoryById } from '@/lib/api/categories';
+import { getImageUrl } from '@/lib/utils/image';
 
 interface CategoryImageUploaderProps {
   categoryId: string;
@@ -24,8 +25,8 @@ export const CategoryImageUploader: React.FC<CategoryImageUploaderProps> = ({
       try {
         const response = await getCategoryById(categoryId);
         setCategory(response.category);
-        setImagePreview(response.category.imageUrl || null);
-        setIconPreview(response.category.iconUrl || null);
+        setImagePreview(getImageUrl(response.category.imageUrl) || null);
+        setIconPreview(getImageUrl(response.category.iconUrl) || null);
       } catch (err: any) {
         console.error('Failed to load category:', err);
       }
@@ -52,7 +53,7 @@ export const CategoryImageUploader: React.FC<CategoryImageUploaderProps> = ({
       setIsUploadingImage(true);
       const updatedCategory = await uploadCategoryImage(categoryId, file);
       setCategory(updatedCategory);
-      setImagePreview(updatedCategory.imageUrl || null);
+      setImagePreview(getImageUrl(updatedCategory.imageUrl) || null);
       onSuccess?.(updatedCategory);
     } catch (err: any) {
       alert(`Failed to upload image: ${err.message}`);
@@ -81,7 +82,7 @@ export const CategoryImageUploader: React.FC<CategoryImageUploaderProps> = ({
       setIsUploadingIcon(true);
       const updatedCategory = await uploadCategoryIcon(categoryId, file);
       setCategory(updatedCategory);
-      setIconPreview(updatedCategory.iconUrl || null);
+      setIconPreview(getImageUrl(updatedCategory.iconUrl) || null);
       onSuccess?.(updatedCategory);
     } catch (err: any) {
       alert(`Failed to upload icon: ${err.message}`);

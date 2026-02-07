@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { BrandWithRelations } from '@/types/brand';
 import brandsApi from '@/lib/api/brands';
+import { getImageUrl } from '@/lib/utils/image';
 
 interface FeaturedBrandsProps {
   limit?: number;
@@ -188,7 +189,7 @@ export default function FeaturedBrands({
                     <div className="aspect-square flex items-center justify-center mb-4">
                       {brand.logoUrl ? (
                         <Image
-                          src={brand.logoUrl}
+                          src={getImageUrl(brand.logoUrl) || ''}
                           alt={brand.name}
                           width={200}
                           height={200}

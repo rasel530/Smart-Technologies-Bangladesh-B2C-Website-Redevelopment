@@ -21,6 +21,7 @@ import { BreadcrumbNavigation } from '@/components/layout/BreadcrumbNavigation';
 import { generateCategoryBreadcrumbs } from '@/lib/utils/breadcrumbs';
 import { CategoryPageClient } from './CategoryPageClient';
 import Image from 'next/image';
+import { getImageUrl } from '@/lib/utils/image';
 
 /**
  * Generate metadata for SEO
@@ -199,7 +200,7 @@ export default async function CategoryPage({
         <div className="relative h-48 md:h-64 bg-gray-900">
           {category.category.imageUrl && (
             <Image
-              src={category.category.imageUrl}
+              src={getImageUrl(category.category.imageUrl) || ''}
               alt={category.category.name}
               fill
               className="object-cover opacity-50"
@@ -239,7 +240,7 @@ export default async function CategoryPage({
                     {subcategory.iconUrl ? (
                       <div className="w-16 h-16 mx-auto mb-3">
                         <Image
-                          src={subcategory.iconUrl}
+                          src={getImageUrl(subcategory.iconUrl) || ''}
                           alt={subcategory.name}
                           width={64}
                           height={64}

@@ -39,7 +39,7 @@ export class ProfileAPI {
    */
   static async getProfile(): Promise<{ user: UserProfile }> {
     const response = await apiClient.get<{ user: UserProfile }>(`${this.BASE_PATH}/me`);
-    return response.data; // Return only the data, not the full response
+    return response;
   }
 
   /**
@@ -47,7 +47,7 @@ export class ProfileAPI {
    */
   static async updateProfile(data: ProfileUpdateData): Promise<{ user: UserProfile }> {
     const response = await apiClient.put<{ user: UserProfile }>(`${this.BASE_PATH}/me`, data);
-    return response.data;
+    return response;
   }
 
   /**
@@ -63,7 +63,7 @@ export class ProfileAPI {
       { timeout: 60000 } // 60 second timeout for profile picture upload
     );
 
-    return response.data;
+    return response;
   }
 
   /**
@@ -71,7 +71,7 @@ export class ProfileAPI {
    */
   static async deleteProfilePicture(): Promise<{ user: UserProfile }> {
     const response = await apiClient.delete<{ user: UserProfile }>(`${this.BASE_PATH}/me/picture`);
-    return response.data;
+    return response;
   }
 
   /**
@@ -87,7 +87,7 @@ export class ProfileAPI {
       requiresVerification: boolean;
       verificationToken?: string;
     }>(`${this.BASE_PATH}/me/email/change`, { newEmail });
-    return response.data;
+    return response;
   }
 
   /**
@@ -104,7 +104,7 @@ export class ProfileAPI {
       newEmail,
       token,
     });
-    return response.data;
+    return response;
   }
 
   /**
@@ -120,7 +120,7 @@ export class ProfileAPI {
       requiresVerification: boolean;
       otp?: string;
     }>(`${this.BASE_PATH}/me/phone/change`, { newPhone });
-    return response.data;
+    return response;
   }
 
   /**
@@ -137,7 +137,7 @@ export class ProfileAPI {
       newPhone,
       otp,
     });
-    return response.data;
+    return response;
   }
 
   /**
@@ -155,7 +155,7 @@ export class ProfileAPI {
       deletionToken?: string;
       expiresAt: Date;
     }>(`${this.BASE_PATH}/me/delete`, { password });
-    return response.data;
+    return response;
   }
 }
 
@@ -317,7 +317,7 @@ export class AccountDeletionAPI {
         deletedAt: Date;
       };
     }>(`${this.BASE_PATH}/account`, { method: 'DELETE', body: { password } });
-    return response.data;
+    return response;
   }
 
   /**
@@ -331,7 +331,7 @@ export class AccountDeletionAPI {
       success: boolean;
       data: AccountDeletionStatus;
     }>(`${this.BASE_PATH}/account/deletion-status`);
-    return response.data;
+    return response;
   }
 }
 

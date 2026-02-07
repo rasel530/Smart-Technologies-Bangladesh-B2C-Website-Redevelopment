@@ -116,7 +116,7 @@ services:
       
       # File Upload Configuration
       - MAX_FILE_SIZE=5242880
-      - UPLOAD_PATH="./uploads"
+      - UPLOAD_PATH=uploads
       # Backend URL for constructing image URLs (must match what frontend uses)
       # Use localhost so browser can access images from host machine
       - BACKEND_URL=http://localhost:3001

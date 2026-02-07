@@ -14,6 +14,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { getImageUrl } from '@/lib/utils/image';
 
 export interface CategoryNode {
   id: string;
@@ -128,7 +129,7 @@ export function CategoryNavigation({
           <div className="flex items-center gap-2 flex-1 min-w-0">
             {category.image && (
               <img
-                src={category.image}
+                src={getImageUrl(category.image) || ''}
                 alt={category.name}
                 className="w-5 h-5 object-contain flex-shrink-0"
               />

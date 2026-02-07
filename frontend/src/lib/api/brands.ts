@@ -303,9 +303,6 @@ export const uploadBrandLogo = async (
       `/brands/${id}/logo`,
       formData,
       {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
         timeout: 60000 // 60 second timeout for brand logo upload
       }
     ) as unknown as { brand: Brand };

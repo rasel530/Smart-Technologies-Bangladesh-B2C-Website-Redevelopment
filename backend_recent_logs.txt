@@ -1,0 +1,100 @@
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-07T09:26:33.444Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-07T09:26:33.444Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-07T09:27:03.514Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-07T09:27:03.514Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1770455523515
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-07T09:27:03.528Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-07T09:27:03.528Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-07T09:27:33.588Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-07T09:27:33.588Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1770455553589
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-07T09:27:33.602Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-07T09:27:33.602Z
+}

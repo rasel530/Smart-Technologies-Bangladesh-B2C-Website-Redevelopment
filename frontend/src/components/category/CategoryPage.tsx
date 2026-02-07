@@ -6,6 +6,7 @@ import { getCategoryBySlug, getCategoryProducts } from '@/lib/api/categories';
 import { CategoryBreadcrumb } from './CategoryBreadcrumb';
 import { CategoryFilter } from './CategoryFilter';
 import { CategorySort } from './CategorySort';
+import { getImageUrl } from '@/lib/utils/image';
 
 interface CategoryPageProps {
   slug: string;
@@ -142,7 +143,7 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({ slug }) => {
         {category.category.imageUrl && (
           <div className="relative h-48 md:h-64 rounded-lg overflow-hidden mb-6">
             <img
-              src={category.category.imageUrl}
+              src={getImageUrl(category.category.imageUrl) || ''}
               alt={category.category.name}
               className="w-full h-full object-cover"
             />
@@ -182,7 +183,7 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({ slug }) => {
                 >
                   {child.iconUrl && (
                     <img
-                      src={child.iconUrl}
+                      src={getImageUrl(child.iconUrl) || ''}
                       alt={child.name}
                       className="w-10 h-10 object-contain"
                     />

@@ -274,11 +274,20 @@ app.use(helmet({
 
 app.use(morgan('combined', { stream: loggerService.stream() }));
 
-// Enhanced JSON parsing with error handling - MUST be before routes
-app.use(express.json({
-  limit: '10mb',
-  strict: false
-}));
+// Enhanced JSON parsing with error handling - MUST be before routes, but skip for multipart requests
+app.use((req, res, next) => {
+  const contentType = req.get('Content-Type');
+  
+  // Skip body parsing for multipart/form-data requests (file uploads)
+  if (contentType && contentType.includes('multipart/form-data')) {
+    return next();
+  }
+  
+  express.json({
+    limit: '10mb',
+    strict: false
+  })(req, res, next);
+});
 
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
@@ -292,7 +301,16 @@ app.use((err, req, res, next) => {
   next();
 });
 
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use((req, res, next) => {
+  const contentType = req.get('Content-Type');
+  
+  // Skip URL-encoded parsing for multipart/form-data requests (file uploads)
+  if (contentType && contentType.includes('multipart/form-data')) {
+    return next();
+  }
+  
+  express.urlencoded({ extended: true, limit: '10mb' })(req, res, next);
+});
 
 // Serve static files from uploads directory with CORS and CORP headers
 app.use('/uploads', (req, res, next) => {

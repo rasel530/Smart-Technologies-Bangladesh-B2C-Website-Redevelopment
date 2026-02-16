@@ -57,6 +57,9 @@ declare module 'next-auth' {
     rememberMe?: boolean;
     rememberToken?: string;
     oauthProvider?: string;
+    tokenVersion?: number; // Track token version to ensure freshness
+    createdAt?: string; // Session creation timestamp
+    updatedAt?: string; // Session update timestamp
   }
 }
 
@@ -80,6 +83,9 @@ declare module 'next-auth/jwt' {
     rememberToken?: string;
     oauthProvider?: string;
     oauthAccessToken?: string;
+    tokenVersion?: number; // Track token version to ensure freshness
+    createdAt?: string; // Token creation timestamp
+    updatedAt?: string; // Token update timestamp
   }
 }
 

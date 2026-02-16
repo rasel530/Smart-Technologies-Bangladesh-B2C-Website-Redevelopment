@@ -1,97 +1,148 @@
 /**
  * Wishlist API Client
- *
- * BUG-MED-003: Mock data in AddToWishlist.tsx - Created API client for wishlist functionality
  * 
- * This file contains all API client functions for wishlist operations.
- * All functions are type-safe with proper error handling.
+ * API client for wishlist operations
+ * Following Milestone 2 specifications
  */
 
 import apiClient from './client';
+import type {
+  Wishlist,
+  WishlistItemWithProduct,
+  CreateWishlistRequest,
+  UpdateWishlistRequest,
+  GetWishlistsParams,
+  ShareWishlistResponse,
+  MoveToCartResponse,
+  ExportOptions,
+} from '@/types/wishlist';
 
 /**
- * Wishlist Interface
+ * Wishlist API client
  */
-export interface Wishlist {
-  id: string;
-  name: string;
-  itemCount: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export const wishlistApi = {
+  /**
+   * Get all wishlists for the current user
+   */
+  getWishlists: async (params?: GetWishlistsParams) => {
+    const queryParams = new URLSearchParams();
+    if (params?.includeItems) queryParams.set('includeItems', 'true');
+    if (params?.page) queryParams.set('page', params.page.toString());
+    if (params?.limit) queryParams.set('limit', params.limit.toString());
+    
+    const endpoint = `/wishlist${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    return apiClient.get<{ wishlists: Wishlist[] }>(endpoint);
+  },
 
-/**
- * Create Wishlist Request Interface
- */
-export interface CreateWishlistRequest {
-  name: string;
-  productIds?: string[];
-}
+  /**
+   * Get a specific wishlist by ID
+   */
+  getWishlistById: async (id: string, shareToken?: string) => {
+    const queryParams = new URLSearchParams();
+    if (shareToken) queryParams.set('shareToken', shareToken);
+    
+    const endpoint = `/wishlist/${id}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    return apiClient.get<{ wishlist: Wishlist; items: WishlistItemWithProduct[] }>(endpoint);
+  },
 
-/**
- * Get all wishlists for current user
- *
- * @returns Promise with wishlist list
- */
-export const getWishlists = async (): Promise<{ wishlists: Wishlist[] }> => {
-  try {
-    const response = await apiClient.get<{ wishlists: Wishlist[] }>('/wishlists');
-    return response;
-  } catch (error) {
-    console.error('Error fetching wishlists:', error);
-    throw error;
-  }
-};
+  /**
+   * Create a new wishlist
+   */
+  createWishlist: async (data: CreateWishlistRequest) => {
+    const response = await apiClient.post<{ wishlist: Wishlist }>('/wishlist', data);
+    return response.wishlist;
+  },
 
-/**
- * Create a new wishlist
- *
- * @param data - Create wishlist request data
- * @returns Promise with created wishlist
- */
-export const createWishlist = async (
-  data: CreateWishlistRequest
-): Promise<{ wishlist: Wishlist }> => {
-  try {
-    const response = await apiClient.post<{ wishlist: Wishlist }>(
-      '/wishlists',
-      data
+  /**
+   * Update a wishlist
+   */
+  updateWishlist: async (id: string, data: UpdateWishlistRequest) => {
+    const response = await apiClient.put<{ wishlist: Wishlist }>(`/wishlist/${id}`, data);
+    return response.wishlist;
+  },
+
+  /**
+   * Delete a wishlist
+   */
+  deleteWishlist: async (id: string) => {
+    return apiClient.delete<{ success: boolean }>(`/wishlist/${id}`);
+  },
+
+  /**
+   * Add an item to a wishlist
+   */
+  addItemToWishlist: async (wishlistId: string, productId: string) => {
+    return apiClient.post<{ item: WishlistItemWithProduct }>(
+      `/wishlist/${wishlistId}/items`,
+      { productId }
+    );
+  },
+
+  /**
+   * Remove an item from a wishlist
+   */
+  removeItemFromWishlist: async (wishlistId: string, itemId: string) => {
+    return apiClient.delete<{ success: boolean }>(
+      `/wishlist/${wishlistId}/items/${itemId}`
+    );
+  },
+
+  /**
+   * Move items from wishlist to cart with stock validation
+   */
+  moveItemsToCart: async (wishlistId: string, itemIds: string[]) => {
+    return apiClient.post<MoveToCartResponse>(
+      `/wishlist/${wishlistId}/items/move-to-cart`,
+      { itemIds }
+    );
+  },
+
+  /**
+   * Share a wishlist and generate share token
+   */
+  shareWishlist: async (wishlistId: string): Promise<ShareWishlistResponse> => {
+    const response = await apiClient.post<ShareWishlistResponse>(
+      `/wishlist/${wishlistId}/share`,
+      {}
     );
     return response;
-  } catch (error) {
-    console.error('Error creating wishlist:', error);
-    throw error;
-  }
-};
+  },
 
-/**
- * Add products to existing wishlist
- *
- * @param wishlistId - Wishlist ID
- * @param productIds - Array of product IDs to add
- * @returns Promise with success message
- */
-export const addProductsToWishlist = async (
-  wishlistId: string,
-  productIds: string[]
-): Promise<{ message: string }> => {
-  try {
-    const response = await apiClient.post<{ message: string }>(
-      `/wishlists/${wishlistId}/items`,
-      { productIds }
+  /**
+   * Export a wishlist to CSV or PDF
+   */
+  exportWishlist: async (
+    wishlistId: string,
+    format: 'csv' | 'pdf',
+    options?: ExportOptions
+  ): Promise<Blob> => {
+    const queryParams = new URLSearchParams({ format });
+    if (options?.includeImages) queryParams.set('includeImages', 'true');
+    if (options?.includeDescriptions) queryParams.set('includeDescriptions', 'true');
+    if (options?.includePrices) queryParams.set('includePrices', 'true');
+    if (options?.includeStockStatus) queryParams.set('includeStockStatus', 'true');
+    
+    const endpoint = `/wishlist/${wishlistId}/export?${queryParams.toString()}`;
+    
+    // For file downloads, we need to get the raw response
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}${endpoint}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`,
+        },
+      }
     );
-    return response;
-  } catch (error) {
-    console.error(`Error adding products to wishlist ${wishlistId}:`, error);
-    throw error;
-  }
-};
 
-// Export all functions as a named object for convenience
-const wishlistApi = {
-  getWishlists,
-  createWishlist,
-  addProductsToWishlist,
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to export wishlist');
+    }
+
+    return response.blob();
+  },
 };
 
 export default wishlistApi;

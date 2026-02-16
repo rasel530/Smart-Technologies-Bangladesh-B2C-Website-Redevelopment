@@ -3,12 +3,12 @@
 import React from 'react';
 import { User } from '@/types/auth';
 import {
-  ShoppingCart,
   ChevronDown,
   User as UserIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SearchAutocomplete } from '@/components/product/SearchAutocomplete';
+import CartIcon from '@/components/cart/CartIcon';
 
 interface MainHeaderRowProps {
   user: User | null;
@@ -95,21 +95,11 @@ const MainHeaderRow: React.FC<MainHeaderRowProps> = ({
                 </div>
 
                 {/* Cart Button */}
-                <a
-                  href="/cart"
-                  aria-label={`Shopping cart with ${cartCount} items`}
-                  className="relative flex items-center space-x-2 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                  <span className="text-sm font-medium hidden sm:inline">
-                    {language === 'bn' ? 'কার্ট' : 'Cart'}
-                  </span>
-                  {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-orange-accent text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                      {cartCount}
-                    </span>
-                  )}
-                </a>
+                <CartIcon
+                  itemCount={cartCount}
+                  showPreview={true}
+                  language={language}
+                />
               </div>
             ) : (
               /* Guest User */
@@ -126,18 +116,11 @@ const MainHeaderRow: React.FC<MainHeaderRowProps> = ({
                 >
                   {language === 'bn' ? 'নিবন্ধন' : 'Register'}
                 </a>
-                <a
-                  href="/cart"
-                  aria-label={`Shopping cart with ${cartCount} items`}
-                  className="relative flex items-center space-x-2 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                  {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-orange-accent text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                      {cartCount}
-                    </span>
-                  )}
-                </a>
+                <CartIcon
+                  itemCount={cartCount}
+                  showPreview={true}
+                  language={language}
+                />
               </div>
             )}
           </div>

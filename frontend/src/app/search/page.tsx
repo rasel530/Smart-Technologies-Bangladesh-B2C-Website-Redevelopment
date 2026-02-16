@@ -168,7 +168,8 @@ export default async function SearchPage({
     brand: result.brandName ? {
       id: result.brandId || '',
       name: result.brandName || '',
-      slug: result.brandName?.toLowerCase().replace(/\s+/g, '-') || '',
+      // FIX: Added null check to prevent "can't access property 'replace'" error
+      slug: (result.brandName?.toLowerCase() || '').replace(/\s+/g, '-') || '',
       logoUrl: undefined,
     } : undefined,
     categories: result.categoryName ? [{
@@ -178,7 +179,8 @@ export default async function SearchPage({
         name: result.categoryName || '',
         nameEn: result.categoryNameEn || result.categoryName || '',
         nameBn: result.categoryNameBn,
-        slug: result.categoryName?.toLowerCase().replace(/\s+/g, '-') || '',
+        // FIX: Added null check to prevent "can't access property 'replace'" error
+        slug: (result.categoryName?.toLowerCase() || '').replace(/\s+/g, '-') || '',
         imageUrl: undefined,
         iconUrl: undefined,
       }

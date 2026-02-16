@@ -11,6 +11,7 @@ import UtilityBar from './UtilityBar';
 import MainHeaderRow from './MainHeaderRow';
 import NavigationBar from './NavigationBar';
 import MobileDrawer from './MobileDrawer';
+import { useCart } from '@/contexts/CartContext';
 
 interface HeaderProps {
   className?: string;
@@ -18,13 +19,15 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ className }) => {
   const { user, logout } = useAuth();
+  const { itemCount } = useCart();
   const router = useRouter();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
-  const [cartCount, setCartCount] = useState<number>(0);
   const [categoryTree, setCategoryTree] = useState<CategoryTree[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [localCartCount, setLocalCartCount] = useState(0);
+  const [isGuestCartMounted, setIsGuestCartMounted] = useState(false);
 
   useEffect(() => {
     // Load language preference from localStorage
@@ -35,29 +38,52 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
   }, []);
 
   useEffect(() => {
-    // Load cart count from localStorage
-    const loadCartCount = () => {
+    // Load initial cart count from localStorage for guest users
+    const loadGuestCartCount = () => {
       try {
-        const savedCart = localStorage.getItem('smart_tech_cart');
+        const savedCart = localStorage.getItem('smart_tech_guest_cart');
         if (savedCart) {
           const cartData = JSON.parse(savedCart);
-          setCartCount(cartData.items?.length || 0);
+          setLocalCartCount(cartData.items?.length || 0);
         }
       } catch (e) {
-        console.error('Error loading cart:', e);
+        console.error('Error loading guest cart:', e);
       }
     };
 
-    loadCartCount();
+    loadGuestCartCount();
+    setIsGuestCartMounted(true);
 
-    // Listen for cart changes
-    const handleCartChange = () => {
-      loadCartCount();
+    // Listen for cart-updated events from CartContext (for both guest and logged-in users)
+    const handleCartUpdate = (event: Event) => {
+      // CartContext dispatches cart-updated event
+      // For guest users, reload cart count from localStorage
+      if (!user) {
+        try {
+          const savedCart = localStorage.getItem('smart_tech_guest_cart');
+          if (savedCart) {
+            const cartData = JSON.parse(savedCart);
+            setLocalCartCount(cartData.items?.length || 0);
+          } else {
+            setLocalCartCount(0);
+          }
+        } catch (e) {
+          console.error('Error loading guest cart:', e);
+        }
+      }
+      // For logged-in users, CartContext will provide the count via useCart hook
     };
 
-    window.addEventListener('cart-updated', handleCartChange);
-    return () => window.removeEventListener('cart-updated', handleCartChange);
+    window.addEventListener('cart-updated', handleCartUpdate);
+    
+    return () => {
+      window.removeEventListener('cart-updated', handleCartUpdate);
+    };
   }, []);
+
+  // Use CartContext itemCount for ALL users (both guest and logged-in)
+  // Zustand store handles reactivity automatically
+  const displayCartCount = itemCount;
 
   // Fetch category tree for navigation dropdown with multi-level hierarchy
   useEffect(() => {
@@ -107,7 +133,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
       <MainHeaderRow
         user={user}
         language={language}
-        cartCount={cartCount}
+        cartCount={displayCartCount}
         onLogout={handleLogout}
       />
 
@@ -130,7 +156,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
         pathname={pathname}
         onClose={() => setIsMobileMenuOpen(false)}
         onLogout={handleLogout}
-        cartCount={cartCount}
+        cartCount={displayCartCount}
         categoryTree={categoryTree}
         categoriesLoading={categoriesLoading}
       />

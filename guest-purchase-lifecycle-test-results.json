@@ -1,0 +1,149 @@
+{
+  "scenario1": {
+    "name": "Scenario 1: Guest Product Addition",
+    "tests": [
+      {
+        "name": "Test 1.1: Add product to guest cart",
+        "status": "FAILED",
+        "statusCode": 400,
+        "error": "Validation failed"
+      },
+      {
+        "name": "Test 1.2: Verify product appears in guest cart",
+        "status": "FAILED",
+        "itemCount": 0
+      },
+      {
+        "name": "Test 1.3: Verify cart count updates",
+        "status": "PASSED",
+        "cartCount": 0
+      }
+    ],
+    "passed": 1,
+    "failed": 2
+  },
+  "scenario2": {
+    "name": "Scenario 2: Guest Cart Page Functionality",
+    "tests": [
+      {
+        "name": "Test 2.1: Verify all cart items are displayed",
+        "status": "PASSED",
+        "itemCount": 0
+      },
+      {
+        "name": "Test 2.2: Test quantity increase functionality",
+        "status": "SKIPPED",
+        "reason": "No items in cart"
+      },
+      {
+        "name": "Test 2.3: Test quantity decrease functionality",
+        "status": "SKIPPED",
+        "reason": "No items in cart"
+      },
+      {
+        "name": "Test 2.4: Test item removal functionality",
+        "status": "SKIPPED",
+        "reason": "No items in cart"
+      },
+      {
+        "name": "Test 2.5: Verify cart totals are calculated correctly",
+        "status": "PASSED",
+        "expectedTotal": 0,
+        "actualTotal": 0
+      }
+    ],
+    "passed": 2,
+    "failed": 0
+  },
+  "scenario3": {
+    "name": "Scenario 3: Guest Checkout Flow",
+    "tests": [
+      {
+        "name": "Test 3.1: Verify guest checkout is possible",
+        "status": "FAILED",
+        "reason": "Cart is empty"
+      },
+      {
+        "name": "Test 3.2: Test guest checkout with address entry",
+        "status": "FAILED",
+        "statusCode": 400,
+        "error": "Unknown error"
+      },
+      {
+        "name": "Test 3.3: Verify order creation for guest users",
+        "status": "SKIPPED",
+        "reason": "No order ID available"
+      }
+    ],
+    "passed": 0,
+    "failed": 2
+  },
+  "scenario4": {
+    "name": "Scenario 4: Stock Validation",
+    "tests": [
+      {
+        "name": "Test 4.1: Validate stock before adding to cart",
+        "status": "FAILED",
+        "isValid": false,
+        "unavailableItems": [
+          {
+            "productId": "4010caae-464e-4787-ad8f-ee04096100d0",
+            "variantId": null,
+            "error": "\nInvalid `prisma.product.findUnique()` invocation:\n\n{\n  where: {\n    id: \"4010caae-464e-4787-ad8f-ee04096100d0\"\n  },\n  select: {\n    id: true,\n    stockQuantity: true,\n    name: true,\n    status: true,\n    allowBackorder: true,\n    ~~~~~~~~~~~~~~\n?   sku?: true,\n?   nameEn?: true,\n?   nameBn?: true,\n?   slug?: true,\n?   shortDescription?: true,\n?   description?: true,\n?   brandId?: true,\n?   regularPrice?: true,\n?   salePrice?: true,\n?   costPrice?: true,\n?   taxRate?: true,\n?   lowStockThreshold?: true,\n?   metaTitle?: true,\n?   metaDescription?: true,\n?   metaKeywords?: true,\n?   isFeatured?: true,\n?   isNewArrival?: true,\n?   isBestSeller?: true,\n?   warrantyPeriod?: true,\n?   warrantyType?: true,\n?   createdAt?: true,\n?   updatedAt?: true,\n?   publishedAt?: true,\n?   visibility?: true,\n?   cartItems?: true,\n?   corporate_pricing?: true,\n?   crossSellProducts?: true,\n?   crossSellFor?: true,\n?   orderItems?: true,\n?   categories?: true,\n?   comparisonItems?: true,\n?   images?: true,\n?   specifications?: true,\n?   variants?: true,\n?   brand?: true,\n?   relatedProducts?: true,\n?   relatedFor?: true,\n?   reviews?: true,\n?   searchClickTrackings?: true,\n?   searchRecommendations?: true,\n?   upSellProducts?: true,\n?   upSellFor?: true,\n?   variantTypes?: true,\n?   wishlistItems?: true,\n?   _count?: true\n  }\n}\n\nUnknown field `allowBackorder` for select statement on model `Product`. Available options are marked with ?."
+          }
+        ]
+      },
+      {
+        "name": "Test 4.2: Attempt checkout with insufficient stock",
+        "status": "PASSED",
+        "isValid": false,
+        "errorMessage": "Some items are out of stock or unavailable"
+      },
+      {
+        "name": "Test 4.3: Verify stock is reserved during checkout",
+        "status": "PASSED",
+        "initialStock": 96,
+        "currentStock": 96
+      }
+    ],
+    "passed": 2,
+    "failed": 1
+  },
+  "scenario5": {
+    "name": "Scenario 5: Session Persistence",
+    "tests": [
+      {
+        "name": "Test 5.1: Verify cart items persist after refresh",
+        "status": "PASSED",
+        "beforeCount": 0,
+        "afterCount": 0
+      },
+      {
+        "name": "Test 5.2: Verify cart state is maintained across different requests",
+        "status": "FAILED",
+        "statusCode": 400
+      }
+    ],
+    "passed": 1,
+    "failed": 1
+  },
+  "errors": [
+    "Scenario 1.1: Failed to add product to cart - 400",
+    "Scenario 1.2: Product not found in guest cart",
+    "Scenario 3.1: Guest cart is empty, cannot proceed with checkout",
+    "Scenario 3.2: Failed to place guest order - 400: Unknown error",
+    "Scenario 4.1: Stock validation failed - items are out of stock",
+    "Scenario 5.2: Failed to add item - 400"
+  ],
+  "warnings": [
+    "Scenario 2.2: No items in cart to update quantity",
+    "Scenario 2.3: No items in cart to update quantity",
+    "Scenario 2.4: No items in cart to remove",
+    "Scenario 3.3: No order ID available to verify"
+  ],
+  "summary": {
+    "total": 5,
+    "passed": 1,
+    "failed": 4
+  }
+}

@@ -16,7 +16,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
 export interface BreadcrumbItem {
@@ -29,6 +29,32 @@ interface BreadcrumbNavigationProps {
   items: BreadcrumbItem[];
   className?: string;
   separator?: React.ReactNode;
+}
+
+/**
+ * Custom hook that performs deep comparison of dependencies
+ * This prevents infinite loops when arrays/objects are passed with new references
+ * but the same content
+ */
+function useDeepCompareEffect(
+  callback: React.EffectCallback,
+  dependencies: React.DependencyList
+) {
+  const previousDepsRef = useRef<React.DependencyList>();
+  const hasChangedRef = useRef(false);
+
+  // Run effect only when dependencies change
+  useEffect(() => {
+    const hasChanged = !previousDepsRef.current ||
+      JSON.stringify(dependencies) !== JSON.stringify(previousDepsRef.current);
+
+    previousDepsRef.current = dependencies;
+    hasChangedRef.current = hasChanged;
+
+    if (hasChanged) {
+      return callback();
+    }
+  }, []); // ✅ Empty dependency array - effect only runs once per component mount
 }
 
 /**
@@ -49,9 +75,15 @@ export const BreadcrumbNavigation: React.FC<BreadcrumbNavigationProps> = ({
   const [mounted, setMounted] = useState(false);
   const [jsonLd, setJsonLd] = useState<string | null>(null);
 
+  // Set mounted state only once on component mount
   useEffect(() => {
     setMounted(true);
-    // Generate JSON-LD only on client side to avoid SSR issues
+  }, []);
+
+  // Generate JSON-LD when items change
+  // Note: Parent components must use useMemo to memoize breadcrumb arrays
+  // to prevent infinite loops caused by new array references on every render
+  useDeepCompareEffect(() => {
     const generateJsonLd = () => {
       const itemListElement = items.map((item, index) => ({
         '@type': 'ListItem',

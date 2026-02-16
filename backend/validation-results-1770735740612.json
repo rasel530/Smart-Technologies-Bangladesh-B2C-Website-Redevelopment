@@ -1,0 +1,152 @@
+{
+  "dataRecovery": {
+    "backupFilesFound": false,
+    "backupDataExists": false,
+    "dockerLogsAnalyzed": false,
+    "walFilesAccessible": false,
+    "summary": ""
+  },
+  "databaseOperations": {
+    "crudTests": {
+      "userCreate": true,
+      "userRead": true,
+      "userUpdate": true,
+      "userDelete": true
+    },
+    "foreignKeyTests": {},
+    "enumTests": {},
+    "indexTests": {},
+    "transactionTests": {}
+  },
+  "backendAPI": {
+    "authentication": {
+      "register": false,
+      "adminLogin": false
+    },
+    "userProfile": {},
+    "productCatalog": {},
+    "shoppingCart": {},
+    "orders": {},
+    "rbac": {},
+    "corporate": {},
+    "endpoints": [
+      {
+        "endpoint": "/health",
+        "status": "pass",
+        "statusCode": 200
+      },
+      {
+        "endpoint": "/auth/register",
+        "status": "fail",
+        "error": "Request failed with status code 400"
+      },
+      {
+        "endpoint": "/auth/login (admin)",
+        "status": "fail",
+        "error": "Email or phone number is required"
+      }
+    ]
+  },
+  "dataPersistence": {
+    "testDataCreated": true,
+    "testDataId": "d9966bba-0650-4dff-b8d9-2dc72ddfddd8",
+    "dataPersistedAfterRestart": false,
+    "automaticMigrationRan": false,
+    "noDataLoss": false
+  },
+  "tableCount": {
+    "actualTableCount": 59,
+    "expectedTableCount": 37,
+    "tablesList": [
+      "_prisma_migrations",
+      "account_deletion_requests",
+      "addresses",
+      "brands",
+      "cart_analytics",
+      "cart_events",
+      "cart_items",
+      "cart_share_tokens",
+      "carts",
+      "categories",
+      "comparison_history",
+      "comparison_share_tokens",
+      "corporate_accounts",
+      "corporate_approvals",
+      "corporate_documents",
+      "corporate_pricing",
+      "corporate_users",
+      "coupons",
+      "cross_sell_products",
+      "email_verification_tokens",
+      "order_items",
+      "orders",
+      "password_history",
+      "permissions",
+      "phone_otps",
+      "product_categories",
+      "product_comparison_items",
+      "product_comparisons",
+      "product_images",
+      "product_specifications",
+      "product_variants",
+      "products",
+      "related_products",
+      "reviews",
+      "role_escalation_requests",
+      "role_permissions",
+      "roles",
+      "search_analytics",
+      "search_click_tracking",
+      "search_logs",
+      "search_optimization_experiments",
+      "search_performance_metrics",
+      "search_recommendations",
+      "search_trending",
+      "transactions",
+      "up_sell_products",
+      "user_communication_preferences",
+      "user_data_exports",
+      "user_notification_preferences",
+      "user_privacy_settings",
+      "user_roles",
+      "user_search_preferences",
+      "user_sessions",
+      "user_social_accounts",
+      "users",
+      "variant_types",
+      "variant_values",
+      "wishlist_items",
+      "wishlists"
+    ],
+    "discrepancies": [
+      {
+        "type": "extra",
+        "tables": [
+          "cart_analytics",
+          "cart_events",
+          "cart_share_tokens",
+          "comparison_history",
+          "comparison_share_tokens",
+          "cross_sell_products",
+          "product_categories",
+          "product_comparison_items",
+          "product_comparisons",
+          "related_products",
+          "search_analytics",
+          "search_click_tracking",
+          "search_logs",
+          "search_optimization_experiments",
+          "search_performance_metrics",
+          "search_recommendations",
+          "search_trending",
+          "up_sell_products",
+          "user_search_preferences",
+          "variant_types",
+          "variant_values"
+        ]
+      }
+    ],
+    "summary": "✗ Table count mismatch. Expected: 37, Actual: 59"
+  },
+  "overall": {}
+}

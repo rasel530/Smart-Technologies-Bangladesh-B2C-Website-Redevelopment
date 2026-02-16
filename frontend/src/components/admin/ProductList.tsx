@@ -146,7 +146,8 @@ const ProductList: React.FC<ProductListProps> = ({ initialProducts = [] }) => {
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status]}`}>
-        {status.replace('_', ' ').toUpperCase()}
+        {/* FIX: Added optional chaining to prevent "can't access property 'replace'" error */}
+        {status?.replace('_', ' ').toUpperCase() || 'DRAFT'}
       </span>
     );
   };

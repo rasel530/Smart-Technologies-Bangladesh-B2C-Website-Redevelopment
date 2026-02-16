@@ -28,7 +28,7 @@ const {
   createBangladeshWishlistUser,
   createFestivalWishlist,
   BANGLADESH_WISHLIST_PRODUCTS
-} = require('./bangladesh-wishlist-fixtures.test');
+} = require('./bangladesh-wishlist-fixtures.js');
 
 const app = require('../index');
 const prisma = new PrismaClient();

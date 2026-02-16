@@ -220,7 +220,13 @@ export class AddressAPI {
         return [];
       }
 
-      return (apiResponse as any).addresses;
+      // 🔧 FIX: Normalize address types to uppercase to match frontend expectations
+      const normalizedAddresses = (apiResponse as any).addresses.map((addr: Address) => ({
+        ...addr,
+        type: addr.type?.toUpperCase() as 'SHIPPING' | 'BILLING'
+      }));
+      
+      return normalizedAddresses;
     } catch (error) {
       console.error('[AddressAPI] Error fetching addresses:', error);
       // Return empty array on error instead of throwing

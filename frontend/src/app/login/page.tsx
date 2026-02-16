@@ -50,7 +50,7 @@ function LoginPageContent() {
       console.log('[LoginPage] Redirect query parameter:', redirectTarget);
       
       // Validate redirect target to prevent loops
-      const safeRedirects = ['/admin', '/account', '/dashboard', '/register'];
+      const safeRedirects = ['/admin', '/account', '/dashboard', '/register', '/checkout'];
       const isSafeRedirect = redirectTarget && 
         redirectTarget !== '/' && 
         redirectTarget !== '/login' &&

@@ -9,7 +9,7 @@
 
 'use client';
 
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import Link from 'next/link';
 import { ProductWithRelations, ProductStatus, ProductVisibility } from '@/types/product';
 import { ProductImageGallery } from './ProductImageGallery';
@@ -161,6 +161,13 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
 }) => {
   const [selectedVariant, setSelectedVariant] = useState<string | undefined>(undefined);
   const [quantity, setQuantity] = useState(1);
+  const [productUrl, setProductUrl] = useState('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setProductUrl(window.location.href);
+    }
+  }, []);
 
   // Determine stock status
   const isOutOfStock = product.status === 'out_of_stock' || product.stockQuantity === 0;
@@ -201,8 +208,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
     }
   };
 
-  // Get product URL for sharing
-  const productUrl = typeof window !== 'undefined' ? window.location.href : '';
 
   return (
     <div className={className}>
@@ -330,7 +335,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           {product.visibility !== 'private' && product.visibility !== 'restricted' && (
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                {product.status.replace('_', ' ').toUpperCase()}
+                {/* FIX: Added optional chaining to prevent "can't access property 'replace'" error */}
+                {product.status?.replace('_', ' ').toUpperCase() || 'PUBLISHED'}
               </span>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                 {product.visibility.toUpperCase()}
@@ -485,7 +491,11 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                     </div>
                   </div>
                   <span className="text-sm text-gray-500">
-                    {new Date(review.createdAt).toLocaleDateString()}
+                    {new Date(review.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
                   </span>
                 </div>
                 <h4 className="font-medium text-gray-900 mb-1">{review.title}</h4>

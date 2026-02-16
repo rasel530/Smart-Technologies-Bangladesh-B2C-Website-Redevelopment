@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, param, validationResult } = require('express-validator');
 const { rbacAuthMiddleware } = require('../middleware/rbacAuth');
+const { authMiddleware } = require('../middleware/auth');
 const { rbacUtils } = require('../utils/rbacUtils');
 const { loggerService } = require('../services/logger');
 const RoleEscalationRequest = require('../models/RoleEscalationRequest');
@@ -9,6 +10,23 @@ const Role = require('../models/Role');
 const router = express.Router();
 const escalationModel = new RoleEscalationRequest();
 const roleModel = new Role();
+
+// SECURITY FIX: Add rate limiting to RBAC endpoints to prevent brute force attacks
+const rbacReadRateLimit = authMiddleware.rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 100, // 100 requests per minute for read operations
+  message: 'Too many requests, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const rbacWriteRateLimit = authMiddleware.rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 20, // 20 requests per minute for write operations
+  message: 'Too many requests, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 // Validation middleware
 const handleValidationErrors = (req, res, next) => {
@@ -27,7 +45,7 @@ const handleValidationErrors = (req, res, next) => {
  * @desc    List escalation requests
  * @access  Admin/Super Admin only
  */
-router.get('/', rbacAuthMiddleware.authenticate(),
+router.get('/', rbacReadRateLimit, rbacAuthMiddleware.authenticate(),
 rbacAuthMiddleware.requireAdmin(), async (req, res) => {
   try {
     const { status, userId } = req.query;
@@ -49,10 +67,7 @@ rbacAuthMiddleware.requireAdmin(), async (req, res) => {
       count: requests.length
     });
   } catch (error) {
-    console.error('Get escalation requests error:', {
-      error: error.message,
-      stack: error.stack
-    });
+    loggerService.error('Get escalation requests error', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch escalation requests',
@@ -67,7 +82,7 @@ rbacAuthMiddleware.requireAdmin(), async (req, res) => {
  * @desc    Get pending escalation requests
  * @access  Admin/Super Admin only
  */
-router.get('/pending', rbacAuthMiddleware.authenticate(),
+router.get('/pending', rbacReadRateLimit, rbacAuthMiddleware.authenticate(),
 rbacAuthMiddleware.requireAdmin(), async (req, res) => {
   try {
     const requests = await escalationModel.getPendingRequests();
@@ -96,7 +111,7 @@ rbacAuthMiddleware.requireAdmin(), async (req, res) => {
  */
 router.get('/:id', [
   param('id').isUUID().withMessage('Invalid request ID')
-], handleValidationErrors, rbacAuthMiddleware.authenticate(), async (req, res) => {
+], handleValidationErrors, rbacReadRateLimit, rbacAuthMiddleware.authenticate(), async (req, res) => {
   try {
     const { id } = req.params;
     const request = await escalationModel.findById(id);
@@ -145,7 +160,7 @@ router.post('/', [
   body('requested_role_id').isUUID().withMessage('Invalid requested role ID'),
   body('reason').trim().notEmpty().withMessage('Reason is required')
     .isLength({ min: 10, max: 500 }).withMessage('Reason must be between 10 and 500 characters')
-], handleValidationErrors, rbacAuthMiddleware.authenticate(), async (req, res) => {
+], handleValidationErrors, rbacWriteRateLimit, rbacAuthMiddleware.authenticate(), async (req, res) => {
   try {
     const { requested_role_id, reason } = req.body;
     const userId = req.user.id;
@@ -242,7 +257,7 @@ router.put('/:id/approve', [
   param('id').isUUID().withMessage('Invalid request ID'),
   body('review_notes').optional().trim()
     .isLength({ max: 500 }).withMessage('Review notes must be less than 500 characters')
-], handleValidationErrors, rbacAuthMiddleware.authenticate(),
+], handleValidationErrors, rbacWriteRateLimit, rbacAuthMiddleware.authenticate(),
 rbacAuthMiddleware.requireAdmin(), async (req, res) => {
   try {
     const { id } = req.params;
@@ -312,7 +327,7 @@ router.put('/:id/reject', [
   param('id').isUUID().withMessage('Invalid request ID'),
   body('review_notes').optional().trim()
     .isLength({ max: 500 }).withMessage('Review notes must be less than 500 characters')
-], handleValidationErrors, rbacAuthMiddleware.authenticate(),
+], handleValidationErrors, rbacWriteRateLimit, rbacAuthMiddleware.authenticate(),
 rbacAuthMiddleware.requireAdmin(), async (req, res) => {
   try {
     const { id } = req.params;
@@ -371,7 +386,7 @@ rbacAuthMiddleware.requireAdmin(), async (req, res) => {
  */
 router.delete('/:id', [
   param('id').isUUID().withMessage('Invalid request ID')
-], handleValidationErrors, rbacAuthMiddleware.authenticate(), async (req, res) => {
+], handleValidationErrors, rbacWriteRateLimit, rbacAuthMiddleware.authenticate(), async (req, res) => {
   try {
     const { id } = req.params;
     

@@ -1,6 +1,7 @@
 const { rbacUtils } = require('../utils/rbacUtils');
 const { authMiddleware } = require('./auth');
 const { loggerService } = require('../services/logger');
+const { databaseService } = require('../services/database');
 
 class RBACAuthMiddleware {
   constructor() {
@@ -347,33 +348,32 @@ class RBACAuthMiddleware {
             isOwner = resourceId === userId;
             break;
           case 'order':
-            const { PrismaClient } = require('@prisma/client');
-            const prisma = new PrismaClient();
-            const order = await prisma.order.findUnique({
+            // SECURITY FIX: Use singleton database service instead of creating multiple PrismaClient instances
+            const order = await databaseService.getClient().order.findUnique({
               where: { id: resourceId },
               select: { userId: true }
             });
             isOwner = order && order.userId === userId;
             break;
           case 'cart':
-            const prisma2 = new PrismaClient();
-            const cart = await prisma2.cart.findUnique({
+            // SECURITY FIX: Use singleton database service instead of creating multiple PrismaClient instances
+            const cart = await databaseService.getClient().cart.findUnique({
               where: { id: resourceId },
               select: { userId: true }
             });
             isOwner = cart && cart.userId === userId;
             break;
           case 'wishlist':
-            const prisma3 = new PrismaClient();
-            const wishlist = await prisma3.wishlist.findUnique({
+            // SECURITY FIX: Use singleton database service instead of creating multiple PrismaClient instances
+            const wishlist = await databaseService.getClient().wishlist.findUnique({
               where: { id: resourceId },
               select: { userId: true }
             });
             isOwner = wishlist && wishlist.userId === userId;
             break;
           case 'review':
-            const prisma4 = new PrismaClient();
-            const review = await prisma4.review.findUnique({
+            // SECURITY FIX: Use singleton database service instead of creating multiple PrismaClient instances
+            const review = await databaseService.getClient().review.findUnique({
               where: { id: resourceId },
               select: { userId: true }
             });

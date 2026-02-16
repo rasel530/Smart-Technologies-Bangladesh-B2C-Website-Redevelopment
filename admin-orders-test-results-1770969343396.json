@@ -1,0 +1,65 @@
+{
+  "summary": {
+    "total": 5,
+    "passed": 4,
+    "failed": 1,
+    "skipped": 0
+  },
+  "results": {
+    "passed": [
+      {
+        "testName": "1.1 - Admin Can See All Orders",
+        "passed": true,
+        "message": "Admin retrieved 2 orders (total: 2)",
+        "details": {
+          "ordersCount": 2,
+          "totalOrders": 2
+        },
+        "timestamp": "2026-02-13T07:55:42.898Z"
+      },
+      {
+        "testName": "1.2 - Regular User Can Only See Own Orders",
+        "passed": true,
+        "message": "User retrieved 2 orders, all belonging to them",
+        "details": {
+          "ordersCount": 2,
+          "allOwnOrders": true
+        },
+        "timestamp": "2026-02-13T07:55:42.927Z"
+      },
+      {
+        "testName": "1.4 - Case Insensitive Role Check",
+        "passed": true,
+        "message": "Admin can access orders endpoint (case-insensitive role check working)",
+        "details": {
+          "statusCode": 200
+        },
+        "timestamp": "2026-02-13T07:55:43.392Z"
+      },
+      {
+        "testName": "2.1 - Admin Orders Page Requires Authentication",
+        "passed": true,
+        "message": "Orders endpoint correctly requires authentication",
+        "details": {
+          "statusCode": 401
+        },
+        "timestamp": "2026-02-13T07:55:43.396Z"
+      }
+    ],
+    "failed": [
+      {
+        "testName": "1.3 - Order Status Update",
+        "passed": false,
+        "message": "Status update response was 200 but status not actually changed",
+        "details": {
+          "orderId": "17b750be-683b-4ae6-a116-9a3332502c05",
+          "originalStatus": "confirmed",
+          "newStatus": "pending"
+        },
+        "timestamp": "2026-02-13T07:55:43.070Z"
+      }
+    ],
+    "skipped": []
+  },
+  "timestamp": "2026-02-13T07:55:43.396Z"
+}

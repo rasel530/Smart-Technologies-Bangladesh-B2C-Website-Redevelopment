@@ -363,7 +363,8 @@ router.get('/admin/analytics', [
 ], handleValidationErrors, authMiddleware.authenticate(), async (req, res, next) => {
   try {
     // Check if user has admin role
-    if (!req.user || (req.user.role !== 'ADMIN' && req.user.role !== 'SUPER_ADMIN')) {
+    const userRole = req.user?.role?.toUpperCase();
+    if (!req.user || (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN')) {
       return res.status(403).json({
         error: 'Insufficient permissions'
       });
@@ -393,7 +394,8 @@ router.get('/admin/performance', [
 ], handleValidationErrors, authMiddleware.authenticate(), async (req, res, next) => {
   try {
     // Check if user has admin role
-    if (!req.user || (req.user.role !== 'ADMIN' && req.user.role !== 'SUPER_ADMIN')) {
+    const userRole = req.user?.role?.toUpperCase();
+    if (!req.user || (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN')) {
       return res.status(403).json({
         error: 'Insufficient permissions'
       });

@@ -88,7 +88,7 @@ export function CompareProvider({ children }: { children: ReactNode }) {
 
     const newProduct: CompareProduct = {
       ...product,
-      addedAt: new Date()
+      addedAt: new Date(product.updatedAt || product.createdAt || Date.now())
     };
 
     setProducts(prev => [...prev, newProduct]);

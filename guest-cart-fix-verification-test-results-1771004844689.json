@@ -1,0 +1,28 @@
+{
+  "total": 5,
+  "passed": 0,
+  "failed": 5,
+  "errors": [
+    {
+      "test": "Test 1: New Guest User Add to Cart (Primary Fix Verification)",
+      "error": "CRITICAL FIX FAILURE: Cart was created empty instead of containing the added item"
+    },
+    {
+      "test": "Test 2: Guest Cart Product Details Loading (Secondary Fix Verification)",
+      "error": "404: {\"error\":\"Route not found\",\"message\":\"The requested route POST /api/v1/products/batch was not found\",\"messageBn\":\"অনুরোধকৃত রুট POST /api/v1/products/batch পাওয়া যায়নি\",\"path\":\"/api/v1/products/batch\",\"method\":\"POST\",\"timestamp\":\"2026-02-13T17:47:22.248Z\",\"availableEndpoints\":{\"auth\":\"/api/v1/auth\",\"users\":\"/api/v1/users\",\"profile\":\"/api/v1/profile\",\"oauth\":\"/api/v1/oauth\",\"products\":\"/api/v1/products\",\"categories\":\"/api/v1/categories\",\"brands\":\"/api/v1/brands\",\"orders\":\"/api/v1/orders\",\"cart\":\"/api/v1/cart\",\"wishlist\":\"/api/v1/wishlist\",\"reviews\":\"/api/v1/reviews\",\"coupons\":\"/api/v1/coupons\",\"user\":\"/api/v1/user\",\"sessions\":\"/api/v1/sessions\",\"rbac\":{\"roles\":\"/api/v1/rbac/roles\",\"permissions\":\"/api/v1/rbac/permissions\",\"rolePermissions\":\"/api/v1/rbac/roles/:roleId/permissions\",\"userRoles\":\"/api/v1/rbac/users/:userId/roles\",\"escalation\":\"/api/v1/rbac/role-escalation-requests\",\"auth\":\"/api/v1/rbac/auth\"},\"search\":{\"products\":\"/api/search/products\",\"autocomplete\":\"/api/search/autocomplete\",\"suggestions\":\"/api/search/suggestions\",\"popular\":\"/api/search/popular\"},\"adminSearch\":{\"analytics\":\"/api/admin/search/analytics\",\"popular\":\"/api/admin/search/popular\",\"performance\":\"/api/admin/search/performance\"},\"corporate\":\"/api/v1/corporate\",\"productImages\":{\"upload\":\"/api/v1/products/:id/images\",\"list\":\"/api/v1/products/:id/images\",\"update\":\"/api/v1/images/:id\",\"reorder\":\"/api/v1/products/:id/images/reorder\",\"delete\":\"/api/v1/images/:id\",\"setPrimary\":\"/api/v1/images/:id/primary\",\"versions\":\"/api/v1/images/:id/versions\"},\"adminProductImages\":{\"statistics\":\"/api/v1/admin/products/:productId/images/statistics\",\"quota\":\"/api/v1/admin/products/:productId/images/quota\",\"bulkUpdate\":\"/api/v1/admin/images/bulk-update\",\"bulkDelete\":\"/api/v1/admin/images/bulk-delete\",\"queue\":\"/api/v1/admin/products/:productId/images/queue\",\"queueCancel\":\"/api/v1/admin/products/:productId/images/queue/cancel\",\"queueRetry\":\"/api/v1/admin/products/:productId/images/queue/retry\",\"overallStatistics\":\"/api/v1/admin/products/images/statistics\",\"cdnStatus\":\"/api/v1/admin/products/:productId/images/cdn-status\",\"cdnSync\":\"/api/v1/admin/products/:productId/images/cdn-sync\",\"optimizationSuggestions\":\"/api/v1/admin/products/:productId/images/optimization-suggestions\"},\"health\":\"/api/v1/health\",\"docs\":\"/api-docs\"}}",
+      "status": 404
+    },
+    {
+      "test": "Test 3: Guest Cart Persistence Across Page Refreshes",
+      "error": "Cannot read properties of undefined (reading 'productId')"
+    },
+    {
+      "test": "Test 4: Multiple Items in Guest Cart",
+      "error": "Expected at least 2 items in cart, got 0"
+    },
+    {
+      "test": "Test 5: Guest Cart with Sale Price Products",
+      "error": "Cart is empty after adding item"
+    }
+  ]
+}

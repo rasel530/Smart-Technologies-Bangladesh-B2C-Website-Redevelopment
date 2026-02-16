@@ -147,8 +147,9 @@ class RBACUtils {
         return false;
       }
       
-      // Assigner must have higher hierarchy level than target role
-      return assignerMaxLevel > targetRole.hierarchy_level;
+      // Assigner must have higher or equal hierarchy level than target role
+      // This allows users to update permissions for roles at their same level (e.g., SUPER_ADMIN updating SUPER_ADMIN permissions)
+      return assignerMaxLevel >= targetRole.hierarchy_level;
     } catch (error) {
       this.logger.error('Error checking role assignment permission', error);
       throw error;

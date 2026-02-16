@@ -216,7 +216,6 @@ export default async function BrandDetailPage({ params, searchParams }: PageProp
     // Generate structured data
     const structuredData = generateStructuredData(brand, products);
 
-    // Generate breadcrumbs with defensive check
     const breadcrumbs = generateBrandBreadcrumbs(
       brand.name || 'Unknown Brand',
       brand.slug || 'unknown-brand'

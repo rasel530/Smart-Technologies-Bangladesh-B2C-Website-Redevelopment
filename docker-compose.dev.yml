@@ -1,0 +1,315 @@
+# ============================================
+# Smart Tech Ecommerce - Docker Compose Development Configuration
+# ============================================
+#
+# This is an optimized development configuration containing only essential services:
+#   - frontend: Next.js frontend application
+#   - backend: Node.js/Express backend API
+#   - postgres: PostgreSQL database
+#   - redis: Redis cache and session store
+#   - es-node1: Single-node Elasticsearch for search functionality
+#
+# Excluded services (production-only or not needed for development):
+#   - es-node2, es-node3: Additional Elasticsearch nodes (not needed for dev)
+#   - elasticsearch: Alternative single-node ES (redundant with es-node1)
+#   - kibana: Elasticsearch visualization UI (not essential for dev)
+#   - qdrant: Vector database (not integrated into application)
+#   - ollama: AI model service (not integrated into application)
+#
+# ⚠️  CRITICAL WARNING - DATA LOSS PREVENTION ⚠️
+#
+# NEVER use: docker-compose down -v
+# NEVER use: docker compose down -v
+# NEVER use: docker-compose down --volumes
+#
+# The -v flag removes ALL named volumes, including:
+#   - postgres_data (ALL database data - products, users, orders, etc.)
+#   - redis_data (all cache and session data)
+#   - es_node1_data (all search indices)
+#
+# To stop containers safely: docker-compose down
+# To restart containers: docker-compose up -d
+#
+# ALWAYS create a backup before major changes:
+#   docker exec -i smarttech_postgres pg_dump -U smart_dev smart_ecommerce_dev > backup.sql
+#
+# For backup and restore procedures, see:
+#   BACKUP_AND_RECOVERY_GUIDE.md
+#   scripts/automated-backup.sh
+#   scripts/pre-deployment-backup.sh
+# ============================================
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: smarttech_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    mem_limit: 4g
+    memswap_limit: 6g
+    mem_reservation: 2g
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=1536 --max-semi-space-size=128
+      - NEXT_PUBLIC_API_URL=http://localhost:3001/api/v1
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      - NEXT_PUBLIC_BACKEND_API_URL=http://localhost:3001/api/v1
+      - BACKEND_API_URL=http://backend:3000/api/v1
+      - NODE_ENV=development
+      - IS_DOCKER=true
+      - NEXT_PRIVATE_SKIP_SWC=1
+      # NextAuth Configuration - CRITICAL for session persistence
+      # Use the same secret value as defined in docker-compose
+      - NEXTAUTH_SECRET=niAUogdInPua71/ckWExw3Wjsj8tyAtf9JltTBfBBfk=
+      - NEXTAUTH_URL=http://localhost:3000
+      # Ensure NEXTAUTH_SECRET is available at runtime for middleware
+      - NEXTAUTH_SECRET_RUNTIME=niAUogdInPua71/ckWExw3Wjsj8tyAtf9JltTBfBBfk=
+      - NEXTAUTH_SESSION_MAX_AGE=2592000
+      - NEXTAUTH_SESSION_UPDATE_AGE=86400
+      - NEXTAUTH_DEBUG=true
+      - NEXTAUTH_SECURE_COOKIES=false
+      # Hot Reload Configuration
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - NEXT_TELEMETRY_DISABLED=1
+    volumes:
+      # Mount source code for hot reload
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/next.config.js:/app/next.config.js
+      - ./frontend/tailwind.config.js:/app/tailwind.config.js
+      - ./frontend/postcss.config.js:/app/postcss.config.js
+      - ./frontend/tsconfig.json:/app/tsconfig.json
+      # Persist build cache
+      - frontend_next_cache:/app/.next
+      # Keep existing mounts
+      - ./frontend/.env:/app/.env
+    networks:
+      - smarttech_network
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: smarttech_backend
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    mem_limit: 4g
+    memswap_limit: 6g
+    mem_reservation: 2g
+    environment:
+      # Environment Detection - Critical for Redis configuration
+      - NODE_ENV=development
+      - IS_DOCKER=true
+      - DOCKER_ENV=true
+      - NODE_OPTIONS=--max-old-space-size=2048 --max-semi-space-size=256
+      
+      # Application Configuration
+      - PORT=3000
+      - FRONTEND_URL=http://localhost:3000
+      # JWT_SECRET is loaded from backend/.env file (128 characters)
+      - JWT_EXPIRES_IN=7d
+      
+      # Database Configuration
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=smart_dev
+      - DB_PASSWORD=smart_dev_password_2024
+      - DB_NAME=smart_ecommerce_dev
+      - DATABASE_URL=postgresql://smart_dev:smart_dev_password_2024@postgres:5432/smart_ecommerce_dev
+      
+      # Redis Configuration (Docker-specific)
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=redis_smarttech_2024
+      - REDIS_URL=redis://:redis_smarttech_2024@redis:6379
+      - REDIS_TTL=3600
+      
+      # External Services
+      - ELASTICSEARCH_URL=http://es-node1:9200
+      
+      # Testing Configuration (Disabled in Production)
+      - DISABLE_EMAIL_VERIFICATION=false
+      - DISABLE_PHONE_VERIFICATION=false
+      - TESTING_MODE=false
+      
+      # Security Configuration
+      - BCRYPT_ROUNDS=12
+      
+      # File Upload Configuration
+      - MAX_FILE_SIZE=5242880
+      - UPLOAD_PATH=uploads
+      # Backend URL for constructing image URLs (must match what frontend uses)
+      # Use localhost so browser can access images from host machine
+      - BACKEND_URL=http://localhost:3001
+    volumes:
+      # Mount entire backend for hot reload (excluding node_modules)
+      - ./backend:/app
+      - /app/node_modules
+      # Keep existing mounts
+      - ./backend/uploads:/app/uploads
+      - ./backend/.env:/app/.env
+      - ./backend/prisma:/app/prisma
+    networks:
+      - smarttech_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      es-node1:
+        condition: service_healthy
+
+  es-node1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: smarttech_es_node1
+    restart: unless-stopped
+    environment:
+      - cluster.name=smarttech-cluster
+      - node.name=es-node1
+      - node.roles=master,data,ingest
+      # Single-node configuration for development
+      - discovery.type=single-node
+      - network.host=0.0.0.0
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+      - bootstrap.memory_lock=true
+      - path.repo=/usr/share/elasticsearch/backups
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - es_node1_data:/usr/share/elasticsearch/data
+      - es_backups:/usr/share/elasticsearch/backups
+      - ./elasticsearch/init:/usr/share/elasticsearch/init:ro
+      - ./elasticsearch/scripts:/usr/share/elasticsearch/scripts:ro
+    networks:
+      - smarttech_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+
+  redis:
+    image: redis:${REDIS_VERSION:-7-alpine}
+    container_name: smarttech_redis
+    restart: unless-stopped
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+      - ./redis/redis-stable.conf:/usr/local/etc/redis/redis.conf:ro
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_smarttech_2024}
+      - REDIS_MAXMEMORY=${REDIS_MAXMEMORY:-512mb}
+      - REDIS_MAXCLIENTS=${REDIS_MAXCLIENTS:-10000}
+    networks:
+      - smarttech_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis_smarttech_2024}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: smarttech_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: smart_ecommerce_dev
+      POSTGRES_USER: smart_dev
+      POSTGRES_PASSWORD: smart_dev_password_2024
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      # ⚠️  CRITICAL: postgres_data contains ALL database data
+      # This includes products, users, orders, categories, etc.
+      # DO NOT remove this volume unless you have a verified backup
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgresql/init:/docker-entrypoint-initdb.d
+    networks:
+      - smarttech_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smart_dev -d smart_ecommerce_dev"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: smarttech_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@smarttech.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_DEFAULT_SERVER_URL: 'http://postgres:5432'
+      PGADMIN_MASTER_PASSWORD: pgadmin_master_2024
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./postgresql/pgadmin-servers.json:/pgadmin4/servers.json
+    networks:
+      - smarttech_network
+    depends_on:
+      - postgres
+
+# ============================================
+# Docker Volumes - CRITICAL DATA STORAGE
+# ============================================
+# These volumes contain ALL application data.
+# Removing any of these volumes will result in PERMANENT DATA LOSS.
+#
+# Always create backups before modifying or removing volumes:
+#   docker exec -i smarttech_postgres pg_dump -U smart_dev smart_ecommerce_dev > backup.sql
+#
+# Volume Contents:
+#   postgres_data: All PostgreSQL database data (products, users, orders, etc.)
+#   redis_data: All Redis cache and session data
+#   es_node1_data: All Elasticsearch indices
+#   es_backups: Elasticsearch snapshot backups
+# ============================================
+
+volumes:
+  postgres_data:
+    driver: local
+    # Labels for better volume management
+    labels:
+      - "com.smarttech.description=PostgreSQL database - contains all application data"
+      - "com.smarttech.critical=true"
+      - "com.smarttech.backup-required=true"
+  pgadmin_data:
+    driver: local
+  redis_data:
+    driver: local
+  es_node1_data:
+    driver: local
+  es_backups:
+    driver: local
+  frontend_next_cache:
+    driver: local
+    labels:
+      - "com.smarttech.description=Next.js build cache for hot reload"
+
+networks:
+  smarttech_network:
+    driver: bridge

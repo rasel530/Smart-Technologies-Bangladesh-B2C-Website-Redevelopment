@@ -433,3 +433,17 @@ module.exports = {
   TEST_CONFIG,
   generateTestToken,
   createTestUser,
+  createTestAdmin,
+  createTestCategory,
+  createTestBrand,
+  createTestProduct,
+  createTestOrder,
+  createTestCart,
+  createTestWishlist,
+  createTestReview,
+  createTestCoupon,
+  cleanupTestData,
+  makeAuthenticatedRequest,
+  validateResponseStructure,
+  BANGLADESH_TEST_DATA
+};

@@ -1,5 +1,5 @@
 # Development Dockerfile - runs backend in dev mode
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Set working directory
 WORKDIR /app
@@ -7,9 +7,25 @@ WORKDIR /app
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
+# Install build dependencies for native modules (sharp, etc.)
+RUN apk add --no-cache --force-overwrite openssl curl \
+  vips-dev \
+  pkgconfig \
+  gcc \
+  g++ \
+  make \
+  python3 \
+  bash
+
+# Fix gdk-pixbuf trigger issue
+RUN rm -rf /var/cache/apk/* && apk add --no-cache gdk-pixbuf 2>/dev/null || true
+
 # Install ALL dependencies (including devDependencies)
-RUN npm ci && \
-  apk add --no-cache openssl
+# Ensure sharp is properly compiled
+RUN npm ci --build-from-source=sharp
+
+# Remove build dependencies to keep image smaller (optional for dev)
+RUN apk del gcc g++ make python3
 
 # Copy Prisma schema
 COPY prisma ./prisma/
@@ -23,8 +39,6 @@ COPY . .
 # Copy migration scripts
 COPY scripts/comprehensive-migration-solution.js ./scripts/comprehensive-migration-solution.js
 COPY scripts/validate-migrations.js ./scripts/validate-migrations.js
-COPY scripts/docker-startup.sh ./scripts/docker-startup.sh
-RUN chmod +x ./scripts/docker-startup.sh
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs
@@ -32,14 +46,23 @@ RUN adduser -S nodejs -u 1001
 
 # Change ownership of the app directory
 RUN chown -R nodejs:nodejs /app
+
+# Create upload directories with proper permissions
+RUN mkdir -p /app/uploads/{categories,products,brands,profile-pictures} && \
+  chown -R nodejs:nodejs /app/uploads
+
 USER nodejs
 
 # Expose port
 EXPOSE 3000
+
+# Health check (useful for development monitoring)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
+  CMD curl -f http://localhost:3000/api/v1/health || exit 1
 
 # Set environment variables for development
 ENV NODE_ENV=development
 ENV PORT=3000
 
 # Start the application with nodemon for hot-reloading and run migrations first
-CMD ["sh", "-c", "./scripts/docker-startup.sh"]
+CMD ["sh", "-c", "node scripts/comprehensive-migration-solution.js && npm run dev"]

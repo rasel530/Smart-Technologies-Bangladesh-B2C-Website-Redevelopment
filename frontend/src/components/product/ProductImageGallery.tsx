@@ -41,6 +41,9 @@ interface ProductImageGalleryProps {
   productName: string;
 }
 
+// Static date string for placeholder images to ensure hydration consistency
+const STATIC_DATE_STRING = '2024-01-01T00:00:00.000Z';
+
 // Convert old ProductImage to new ProductImage (memoized for performance)
 const convertToNewProductImage = (oldImage: ProductImage): NewProductImage => ({
   id: oldImage.id,
@@ -57,8 +60,8 @@ const convertToNewProductImage = (oldImage: ProductImage): NewProductImage => ({
   width: null,
   height: null,
   processingStatus: 'completed' as const,
-  createdAt: new Date(),
-  updatedAt: new Date()
+  createdAt: STATIC_DATE_STRING,
+  updatedAt: STATIC_DATE_STRING
 });
 
 // Debounce utility for preventing rapid image switching that causes NS_BINDING_ABORTED
@@ -143,8 +146,8 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
         width: null,
         height: null,
         processingStatus: 'completed' as const,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: STATIC_DATE_STRING,
+        updatedAt: STATIC_DATE_STRING
       }
     ],
     [newImages, productName]

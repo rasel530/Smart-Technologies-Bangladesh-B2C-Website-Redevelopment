@@ -1,0 +1,20 @@
+{
+  "total": 5,
+  "passed": 2,
+  "failed": 3,
+  "errors": [
+    {
+      "test": "Test 1: New Guest User Add to Cart (Primary Fix Verification)",
+      "error": "Expected cart count of 1, got 0"
+    },
+    {
+      "test": "Test 2: Guest Cart Product Details Loading (Secondary Fix Verification)",
+      "error": "500: {\"error\":\"Internal server error\",\"message\":\"An unexpected error occurred\",\"messageBn\":\"একটি অপ্রত্যাশিত ত্রুটি\",\"timestamp\":\"2026-02-13T17:50:39.796Z\"}",
+      "status": 500
+    },
+    {
+      "test": "Test 4: Multiple Items in Guest Cart",
+      "error": "Expected at least 2 items in cart, got 0"
+    }
+  ]
+}

@@ -109,7 +109,11 @@ router.post('/callback/:provider', [
         provider
       },
       jwtSecret,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '15m' }
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN || '15m',
+        issuer: 'smart-ecommerce-api',
+        audience: 'smart-ecommerce-clients'
+      }
     );
 
     res.json({

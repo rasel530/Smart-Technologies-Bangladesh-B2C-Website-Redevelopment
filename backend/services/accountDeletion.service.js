@@ -418,14 +418,14 @@ class AccountDeletionService {
   async performFinalDeletion(userId) {
     try {
       // Anonymize user data
-      const anonymizedEmail = `deleted_${userId}@deleted.local`;
-      const anonymizedPhone = `deleted_${userId}`;
+      // const anonymizedEmail = `deleted_${userId}@deleted.local`; // REMOVED: No longer modify email
+      // const anonymizedPhone = `deleted_${userId}`; // REMOVED: No longer modify phone
 
       await this.prisma.user.update({
         where: { id: userId },
         data: {
-          email: anonymizedEmail,
-          phone: anonymizedPhone,
+          // email: anonymizedEmail, // REMOVED: No longer modify email
+          // phone: anonymizedPhone, // REMOVED: No longer modify phone
           firstName: 'Deleted',
           lastName: 'User',
           accountStatus: 'deleted',

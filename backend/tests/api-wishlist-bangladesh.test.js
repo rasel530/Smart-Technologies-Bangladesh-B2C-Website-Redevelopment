@@ -33,38 +33,10 @@ const {
   BANGLADESH_FESTIVAL_WISHLISTS,
   BANGLADESH_WISHLIST_USERS,
   BANGLADESH_WISHLIST_SCENARIOS
-} = require('./bangladesh-wishlist-fixtures.test');
+} = require('./bangladesh-wishlist-fixtures.js');
 
 const app = require('../index');
 const prisma = new PrismaClient();
-
-// Mock Bangladesh-specific services
-jest.mock('../services/bangladesh-shipping-service', () => ({
-  calculateRegionalShipping: jest.fn().mockImplementation((division, weight) => {
-    const shippingRates = {
-      'DHAKA': { regular: 100, express: 200 },
-      'CHITTAGONG': { regular: 150, express: 250 },
-      'SYLHET': { regular: 130, express: 230 }
-    };
-    return shippingRates[division] || { regular: 200, express: 300 };
-  }),
-  getDeliveryTimeEstimate: jest.fn().mockReturnValue({ days: 2-3, reliable: true })
-}));
-
-jest.mock('../services/cultural-context-service', () => ({
-  getFestivalRecommendations: jest.fn().mockImplementation((festival) => {
-    return {
-      'eid-ul-fitr': ['clothing', 'electronics', 'sweets'],
-      'pohela-boishakh': ['traditional-clothing', 'books', 'decorations'],
-      'durga-puja': ['traditional-clothing', 'sweets', 'decorations']
-    }[festival] || [];
-  }),
-  getCulturalGiftSuggestions: jest.fn().mockReturnValue([
-    { category: 'gold-jewelry', significance: 'traditional-wedding-gift' },
-    { category: 'traditional-clothing', significance: 'festival-essential' },
-    { category: 'sweets', significance: 'cultural-celebration' }
-  ])
-}));
 
 describe('Bangladesh-Specific Wishlist Features', () => {
   let bdUser, bdToken, bdProducts;

@@ -1,5 +1,5 @@
 module.exports = {
-  preset: 'ts-jest/presets/default-esm',
+  preset: 'ts-jest',
   testEnvironment: 'node',
   testMatch: [
     '**/__tests__/**/*.test.js',
@@ -33,8 +33,14 @@ module.exports = {
         esModuleInterop: true,
         allowSyntheticDefaultImports: true
       }
+    }],
+    '^.+\\.jsx?$': ['babel-jest', {
+      presets: ['@babel/preset-env']
     }]
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!(uuid|isomorphic-dompurify|@exodus|parse5|jsdom)/)'
+  ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/../frontend/src/$1'
   }

@@ -21,16 +21,20 @@ const prisma = new PrismaClient();
 
 // Validation middleware
 const handleValidationErrors = (req, res, next) => {
+  console.log('[VALIDATION] === VALIDATION MIDDLEWARE START ===');
+  console.log('[VALIDATION] Request body exists:', !!req.body);
+  console.log('[VALIDATION] Request body type:', typeof req.body);
+  console.log('[VALIDATION] Request body:', JSON.stringify(req.body));
   console.log('[VALIDATION] Checking request validation');
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.log('[VALIDATION] Validation failed:', errors.array());
+    console.log('[VALIDATION] ✗ Validation failed:', errors.array());
     return res.status(400).json({
       error: 'Validation failed',
       details: errors.array()
     });
   }
-  console.log('[VALIDATION] Validation passed, calling next()');
+  console.log('[VALIDATION] ✓ Validation passed, calling next()');
   next();
 };
 
@@ -524,22 +528,66 @@ router.post('/register', [
 
 // Login endpoint
 router.post('/login', [
-  body('identifier').notEmpty().trim(),
-  body('password').notEmpty().trim(),
+  // body('identifier').notEmpty().trim(),  // TEMPORARILY DISABLED - validation runs before JSON parser
+  // body('password').notEmpty().trim(),     // TEMPORARILY DISABLED - validation runs before JSON parser
   body('rememberMe').optional().isBoolean(),
   body('captcha').optional().isString(),
   body('deviceFingerprint').optional().isString()
-], handleValidationErrors,
-  // loginSecurityMiddleware.enforce(), // TEMPORARILY DISABLED - causing login failures
-  async (req, res) => {
+], // handleValidationErrors,  // TEMPORARILY DISABLED - validation runs before JSON parser
+// loginSecurityMiddleware.enforce(), // TEMPORARILY DISABLED - causing login failures
+async (req, res) => {
   const startTime = Date.now();
+  
+  // DIAGNOSTIC: Log request details at the very beginning
+  console.log('[LOGIN DIAGNOSTIC] === LOGIN REQUEST START ===');
+  console.log('[LOGIN DIAGNOSTIC] Request body exists:', !!req.body);
+  console.log('[LOGIN DIAGNOSTIC] Request body type:', typeof req.body);
+  console.log('[LOGIN DIAGNOSTIC] Request body:', JSON.stringify(req.body));
+  console.log('[LOGIN DIAGNOSTIC] Content-Type header:', req.get('Content-Type'));
+  console.log('[LOGIN DIAGNOSTIC] Content-Length header:', req.get('Content-Length'));
+  
   const { identifier, password, rememberMe, captcha, deviceFingerprint } = req.body;
 
-  console.log('[LOGIN DIAGNOSTIC] === LOGIN REQUEST START ===');
-  console.log('[LOGIN DIAGNOSTIC] Request body:', JSON.stringify(req.body));
+  // MANUAL VALIDATION: Check for missing fields
+  if (!identifier) {
+    return res.status(400).json({
+      error: 'Missing identifier',
+      message: 'Email or phone number is required',
+      messageBn: 'ইমেল বা ফোন নম্বর প্রয়োজন'
+    });
+  }
+
+  if (!password) {
+    return res.status(400).json({
+      error: 'Missing password',
+      message: 'Password is required',
+      messageBn: 'পাসওয়ার্ড প্রয়োজন'
+    });
+  }
+
+  // MANUAL VALIDATION: Check for empty strings (after trim)
+  const trimmedIdentifier = identifier.trim();
+  const trimmedPassword = password.trim();
+
+  if (!trimmedIdentifier) {
+    return res.status(400).json({
+      error: 'Empty identifier',
+      message: 'Email or phone number cannot be empty',
+      messageBn: 'ইমেল বা ফোন নম্বর খালি হতে পারে না'
+    });
+  }
+
+  if (!trimmedPassword) {
+    return res.status(400).json({
+      error: 'Empty password',
+      message: 'Password cannot be empty',
+      messageBn: 'পাসওয়ার্ড খালি হতে পারে না'
+    });
+  }
+
   console.log('[LOGIN DIAGNOSTIC] rememberMe value from body:', rememberMe, typeof rememberMe);
   console.log('[LOGIN DIAGNOSTIC] Request received:', {
-    identifier,
+    identifier: trimmedIdentifier,
     timestamp: new Date().toISOString(),
     startTime
   });
@@ -555,7 +603,7 @@ router.post('/login', [
     });
 
     // Determine if identifier is email or phone
-    const isEmail = identifier.includes('@');
+    const isEmail = trimmedIdentifier.includes('@');
     let user;
     let loginType;
 
@@ -563,7 +611,7 @@ router.post('/login', [
 
     if (isEmail) {
       // Validate email format
-      if (!emailService.validateEmail(identifier)) {
+      if (!emailService.validateEmail(trimmedIdentifier)) {
         console.log('[LOGIN DIAGNOSTIC] Step 3: Invalid email format, returning 400');
         return res.status(400).json({
           error: 'Invalid email format',
@@ -573,14 +621,14 @@ router.post('/login', [
       }
       
       // Find user by email
-      console.log('[LOGIN DIAGNOSTIC] Step 4: Looking up user by email:', identifier);
+      console.log('[LOGIN DIAGNOSTIC] Step 4: Looking up user by email:', trimmedIdentifier);
       user = await prisma.user.findUnique({
-        where: { email: identifier }
+        where: { email: trimmedIdentifier }
       });
       loginType = 'email';
     } else {
       // Validate phone number
-      const phoneValidation = phoneValidationService.validateForUseCase(identifier, 'login');
+      const phoneValidation = phoneValidationService.validateForUseCase(trimmedIdentifier, 'login');
       if (!phoneValidation.isValid) {
         console.log('[LOGIN DIAGNOSTIC] Step 3: Invalid phone format, returning 400');
         return res.status(400).json({
@@ -617,7 +665,7 @@ router.post('/login', [
 
     // Verify password
     console.log('[LOGIN DIAGNOSTIC] Step 7: Verifying password');
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    const isValidPassword = await bcrypt.compare(trimmedPassword, user.password);
     console.log('[LOGIN DIAGNOSTIC] Step 8: Password verification result:', isValidPassword);
     
     if (!isValidPassword) {
@@ -793,20 +841,23 @@ router.post('/login', [
       },
       jwtSecretLogin,
       {
-        expiresIn: process.env.JWT_EXPIRES_IN || '7d', // Longer expiry (7 days) for better token validation
+        expiresIn: process.env.JWT_EXPIRES_IN || '24h', // Longer expiry (24 hours) for better token validation
         issuer: 'smart-ecommerce-api', // Must match verification middleware
         audience: 'smart-ecommerce-clients' // Must match verification middleware
       }
     );
+    // DIAGNOSTIC LOGGING - Token generation
+    console.log('[AUTH] Token generated - length:', token.length);
+    console.log('[AUTH] Token preview:', token.substring(0, 50) + '...');
     console.log('[LOGIN DIAGNOSTIC] Step 24: JWT token generated successfully');
 
 
     // Record successful login and clear failed attempts
     try {
-      await loginSecurityService.clearFailedAttempts(identifier, req.ip);
+      await loginSecurityService.clearFailedAttempts(trimmedIdentifier, req.ip);
       
       loggerService.logSecurity('Successful Login', user.id, {
-        identifier,
+        identifier: trimmedIdentifier,
         ip: req.ip,
         userAgent: req.get('User-Agent'),
         userId: user.id,
@@ -831,6 +882,10 @@ router.post('/login', [
         loginType,
         rememberMe: rememberMe || false
       });
+      
+      // DIAGNOSTIC LOGGING - Token in response
+      console.log('[AUTH] Token in response - length:', token?.length);
+      console.log('[AUTH] Token in response - preview:', token?.substring(0, 50) + '...');
       
       // Send response
       return res.json({
@@ -915,7 +970,7 @@ router.post('/login', [
     req.authError = 'system_error';
     try {
       await loginSecurityService.recordFailedAttempt(
-        req.body?.identifier || 'unknown',
+        trimmedIdentifier || 'unknown',
         req.ip,
         req.get('User-Agent'),
         'system_error'
@@ -1010,9 +1065,9 @@ router.post('/logout', [
 
 // Refresh token endpoint
 router.post('/refresh', async (req, res) => {
-  try {
-    const { token } = req.body;
+  const { token } = req.body;
 
+  try {
     if (!token) {
       return res.status(401).json({
         error: 'Token required',
@@ -1060,7 +1115,11 @@ router.post('/refresh', async (req, res) => {
     const newToken = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
       jwtSecretNew,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+        issuer: 'smart-ecommerce-api',
+        audience: 'smart-ecommerce-clients'
+      }
     );
 
     res.json({
@@ -1074,11 +1133,22 @@ router.post('/refresh', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Token refresh error:', error);
-    res.status(401).json({
+    console.error('[REFRESH] Token refresh error:', {
+      error: error.message,
+      errorName: error.name,
+      tokenProvided: !!token,
+      tokenLength: token?.length,
+      timestamp: new Date().toISOString()
+    });
+    
+    return res.status(401).json({
       error: 'Invalid token',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Token expired or invalid',
-      messageBn: 'টোকেন মেয়াদীপূর্ণ বা অবৈধ'
+      messageBn: 'টোকেন মেয়াদীপূর্ণ বা অবৈধ',
+      details: process.env.NODE_ENV === 'development' ? {
+        errorName: error.name,
+        tokenLength: token?.length
+      } : undefined
     });
   }
 });
@@ -2009,7 +2079,11 @@ router.post('/refresh-from-remember-me', [
         sessionId: refreshResult.sessionId
       },
       jwtSecretLogin,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '15m' }
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN || '15m',
+        issuer: 'smart-ecommerce-api',
+        audience: 'smart-ecommerce-clients'
+      }
     );
 
     res.json({

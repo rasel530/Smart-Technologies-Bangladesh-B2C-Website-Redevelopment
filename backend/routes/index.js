@@ -6,7 +6,7 @@ const categoryRoutes = require('./categories');
 const brandRoutes = require('./brands');
 const orderRoutes = require('./orders');
 const cartRoutes = require('./cart');
-const wishlistRoutes = require('./wishlist');
+const wishlistRoutes = require('./wishlistRoutes');
 const reviewRoutes = require('./reviews');
 const couponRoutes = require('./coupons');
 const notificationPreferencesRoutes = require('./notificationPreferences');
@@ -25,9 +25,13 @@ const rbacEscalationRoutes = require('./rbacEscalation');
 const rbacAuthCheckRoutes = require('./rbacAuthCheck');
 const corporateRoutes = require('./corporate');
 const adminElasticsearchRoutes = require('./admin/elasticsearch');
+const adminCartRoutes = require('./admin/cart');
+const adminInventoryRoutes = require('./admin/inventory');
 const comparisonsRoutes = require('./comparisons');
 const comparisonsGuestRoutes = require('./comparisons-guest');
 const adminComparisonsRoutes = require('./admin/comparisons');
+const adminDiscountRoutes = require('./admin/discount');
+const adminWishlistRoutes = require('./adminWishlistRoutes');
 
 const router = express.Router();
 
@@ -63,6 +67,18 @@ router.use('/v1/corporate', corporateRoutes);
 
 // Admin Elasticsearch management routes
 router.use('/v1/admin/elasticsearch', adminElasticsearchRoutes);
+
+// Admin cart management routes
+router.use('/v1/admin/carts', adminCartRoutes);
+
+// Admin inventory management routes
+router.use('/v1/admin/carts', adminInventoryRoutes);
+
+// Admin discount management routes
+router.use('/v1/admin', adminDiscountRoutes);
+
+// Admin wishlist management routes
+router.use('/v1/admin/wishlists', adminWishlistRoutes);
 
 // Product comparison routes
 router.use('/v1/comparisons', comparisonsRoutes);

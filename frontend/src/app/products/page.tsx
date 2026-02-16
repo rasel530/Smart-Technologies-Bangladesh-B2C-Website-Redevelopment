@@ -13,8 +13,8 @@
 
 'use client';
 
-import { useState, useEffect, useMemo, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useState, useEffect, useMemo, Suspense, Component, ReactNode } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getAll } from '@/lib/api/products';
 import { getCategories } from '@/lib/api/categories';
@@ -25,6 +25,56 @@ import { FilterSidebar } from '@/components/product/FilterSidebar';
 import { SortDropdown } from '@/components/product/SortDropdown';
 import { ViewToggle, ViewMode } from '@/components/product/ViewToggle';
 import { BreadcrumbNavigation } from '@/components/layout/BreadcrumbNavigation';
+import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/hooks/useWishlist';
+import { useWishlistStore } from '@/stores/wishlistStore';
+import { toast } from 'sonner';
+
+// Error Boundary Component to catch React rendering errors
+class ProductsPageErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    console.error('[ProductsPageErrorBoundary] Error caught:', error);
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: any) {
+    console.error('[ProductsPageErrorBoundary] Error caught:', error);
+    console.error('[ProductsPageErrorBoundary] Error info:', errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded max-w-md">
+            <h2 className="text-lg font-semibold text-red-800 mb-2">
+              Something went wrong
+            </h2>
+            <p className="text-sm text-red-700 mb-4">
+              {this.state.error?.message || 'An error occurred while loading the products page.'}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 interface Category {
   id: string;
@@ -39,8 +89,13 @@ interface Brand {
 }
 
 function ProductsPageContent() {
-  const searchParams = useSearchParams();
   const router = useRouter();
+  
+  // Cart context
+  const { addItem } = useCart();
+  
+  // Wishlist state
+  const { isInWishlist, addToDefaultWishlist, removeFromWishlist, items } = useWishlist();
   
   // State
   const [products, setProducts] = useState<ProductWithRelations[]>([]);
@@ -52,48 +107,93 @@ function ProductsPageContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Parse URL parameters
-  const categoryParams = searchParams.getAll('category');
-  const brandParams = searchParams.getAll('brand');
-  const minPrice = searchParams.get('minPrice');
-  const maxPrice = searchParams.get('maxPrice');
-  const rating = searchParams.get('rating');
-  const sort = searchParams.get('sort');
-  const view = searchParams.get('view') as ViewMode;
-  const page = searchParams.get('page');
+  // Parse URL parameters directly from useSearchParams
+  const searchParams = useSearchParams();
+  
+  // Create stable string references for dependencies to prevent infinite loops
+  // These useMemo hooks ensure strings only change when actual URL parameter values change
+  const categoryParamsString = useMemo(() => JSON.stringify(searchParams.getAll('category').sort()), [searchParams]);
+  const brandParamsString = useMemo(() => JSON.stringify(searchParams.getAll('brand').sort()), [searchParams]);
+  const minPriceString = useMemo(() => searchParams.get('minPrice') || '', [searchParams]);
+  const maxPriceString = useMemo(() => searchParams.get('maxPrice') || '', [searchParams]);
+  const ratingString = useMemo(() => searchParams.get('rating') || '', [searchParams]);
+  const sortString = useMemo(() => searchParams.get('sort') || '', [searchParams]);
+  const pageString = useMemo(() => searchParams.get('page') || '1', [searchParams]);
+  const viewString = useMemo(() => searchParams.get('view') || '', [searchParams]);
+  
+  // Parse parameters for use in component
+  const categoryParams = useMemo(() => searchParams.getAll('category'), [searchParams]);
+  const brandParams = useMemo(() => searchParams.getAll('brand'), [searchParams]);
+  const minPrice = useMemo(() => searchParams.get('minPrice'), [searchParams]);
+  const maxPrice = useMemo(() => searchParams.get('maxPrice'), [searchParams]);
+  const rating = useMemo(() => searchParams.get('rating'), [searchParams]);
+  const sort = useMemo(() => searchParams.get('sort'), [searchParams]);
+  const view = useMemo(() => searchParams.get('view'), [searchParams]);
+  const page = useMemo(() => searchParams.get('page') || '1', [searchParams]);
 
-  // Create stable references for dependencies to prevent infinite loops
-  const categoryParamsString = useMemo(() => JSON.stringify(categoryParams.sort()), [categoryParams]);
-  const brandParamsString = useMemo(() => JSON.stringify(brandParams.sort()), [brandParams]);
-  const minPriceString = useMemo(() => minPrice || '', [minPrice]);
-  const maxPriceString = useMemo(() => maxPrice || '', [maxPrice]);
-  const ratingString = useMemo(() => rating || '', [rating]);
-  const sortString = useMemo(() => sort || '', [sort]);
-  const pageString = useMemo(() => page || '1', [page]);
+  // Set isMounted to true after hydration
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Update view mode from URL or localStorage
   useEffect(() => {
-    if (view && (view === 'grid' || view === 'list')) {
-      setViewMode(view);
-    } else {
-      const savedView = localStorage.getItem('smart_tech_product_view_mode') as ViewMode;
-      if (savedView && (savedView === 'grid' || savedView === 'list')) {
-        setViewMode(savedView);
+    if (!isMounted) return;
+    
+    console.log('[ProductsPage] viewMode useEffect triggered', { view, currentViewMode: viewMode });
+    try {
+      if (view && (view === 'grid' || view === 'list')) {
+        // Only update if value is different
+        if (view !== viewMode) {
+          setViewMode(view);
+        }
+      } else {
+        const savedView = localStorage.getItem('smart_tech_product_view_mode') as ViewMode;
+        if (savedView && (savedView === 'grid' || savedView === 'list')) {
+          // Only update if value is different
+          if (savedView !== viewMode) {
+            setViewMode(savedView);
+          }
+        }
       }
+    } catch (error) {
+      console.error('[ProductsPage] Error in viewMode useEffect:', error);
     }
-  }, [view]);
+  }, [view, isMounted]);
 
   // Update page from URL
   useEffect(() => {
-    if (pageString) {
-      setCurrentPage(parseInt(pageString));
+    console.log('[ProductsPage] currentPage useEffect triggered', { pageString, currentPage });
+    try {
+      if (pageString) {
+        const newPage = parseInt(pageString);
+        // Only update if the value is different and valid
+        if (!isNaN(newPage) && newPage > 0 && newPage !== currentPage) {
+          setCurrentPage(newPage);
+        }
+      }
+    } catch (error) {
+      console.error('[ProductsPage] Error in currentPage useEffect:', error);
     }
   }, [pageString]);
 
   // Fetch data
   useEffect(() => {
+    console.log('[ProductsPage] fetchData useEffect triggered', {
+      categoryParamsString,
+      brandParamsString,
+      minPriceString,
+      maxPriceString,
+      ratingString,
+      sortString,
+      pageString,
+      currentPage
+    });
+    
     const fetchData = async () => {
+      console.log('[ProductsPage] Starting data fetch...');
       setLoading(true);
       setError(null);
 
@@ -108,7 +208,7 @@ function ProductsPageContent() {
           maxPrice: maxPrice ? parseInt(maxPrice) : undefined,
           status: 'active',
           visibility: 'public',
-          sortBy: sort === 'price-asc' ? 'price' : 
+          sortBy: sort === 'price-asc' ? 'price' :
                  sort === 'price-desc' ? 'price' :
                  sort === 'newest' ? 'createdAt' :
                  sort === 'rating' ? 'name' :
@@ -118,12 +218,21 @@ function ProductsPageContent() {
                    sort === 'price-desc' || sort === 'name-desc' ? 'desc' : undefined,
         };
 
+        console.log('[ProductsPage] Fetching with filters:', filters);
+
         // Fetch products, categories, and brands
         const [productsData, categoriesResponse, brandsResponse] = await Promise.all([
           getAll(filters),
           getCategories({ status: 'active' }),
           getBrands({ status: 'active' }),
         ]);
+
+        console.log('[ProductsPage] Data fetched successfully', {
+          productsCount: productsData.products?.length,
+          totalProducts: productsData.pagination?.total,
+          categoriesCount: categoriesResponse.categories?.length,
+          brandsCount: brandsResponse.brands?.length
+        });
 
         setProducts(productsData.products);
         setTotalProducts(productsData.pagination.total);
@@ -138,11 +247,12 @@ function ProductsPageContent() {
           slug: brand.slug,
         })));
       } catch (err: any) {
-        console.error('Error fetching products:', err);
+        console.error('[ProductsPage] Error fetching products:', err);
         setError(err?.message || 'Failed to load products. Please try again later.');
         setProducts([]);
         setTotalProducts(0);
       } finally {
+        console.log('[ProductsPage] Data fetch completed');
         setLoading(false);
       }
     };
@@ -201,13 +311,18 @@ function ProductsPageContent() {
     return filters;
   }, [categoryParams, brandParams, minPrice, maxPrice, rating, categories, brands]);
 
+  // Create wishlisted products set
+  const productIds = useMemo(() => products.map(p => p.id), [products]);
+  const wishlistedProducts = useMemo(() => {
+    return new Set(items.filter(i => productIds.includes(i.productId)).map(i => i.productId));
+  }, [productIds, items]);
+
   // Remove active filter
   const removeFilter = (key: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams();
     
     if (key === 'category' || key === 'brand') {
-      const values = params.getAll(key).filter(v => v !== value);
-      params.delete(key);
+      const values = (key === 'category' ? categoryParams : brandParams).filter(v => v !== value);
       values.forEach(v => params.append(key, v));
     } else {
       params.delete(key);
@@ -228,16 +343,44 @@ function ProductsPageContent() {
     setViewMode(view);
     localStorage.setItem('smart_tech_product_view_mode', view);
     
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams();
     params.set('view', view);
     router.push(`?${params.toString()}`);
   };
 
-  // Breadcrumb items
-  const breadcrumbItems = [
+  // Handle add to cart
+  const handleAddToCart = (productId: string, variantId?: string) => {
+    const product = products.find(p => p.id === productId);
+    if (product) {
+      addItem(product, 1, variantId);
+    }
+  };
+
+  // Handle toggle wishlist
+  const handleToggleWishlist = async (productId: string) => {
+    try {
+      if (isInWishlist(productId)) {
+        // Find item ID and remove
+        const item = items.find(i => i.productId === productId);
+        if (item) {
+          await removeFromWishlist(item.wishlistId, item.id);
+          toast.success('Item removed from wishlist');
+        }
+      } else {
+        await addToDefaultWishlist(productId);
+        toast.success('Item added to wishlist');
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+      toast.error('Failed to update wishlist');
+    }
+  };
+
+  // Memoize breadcrumbs to prevent infinite loop in BreadcrumbNavigation
+  const breadcrumbItems = useMemo(() => [
     { label: 'Home', href: '/' },
     { label: 'Products', current: true },
-  ];
+  ], []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -367,6 +510,9 @@ function ProductsPageContent() {
               products={products}
               loading={loading}
               viewMode={viewMode}
+              onAddToCart={handleAddToCart}
+              onToggleWishlist={handleToggleWishlist}
+              wishlistedProducts={wishlistedProducts}
               columns={{
                 mobile: 1,
                 tablet: 2,
@@ -458,7 +604,9 @@ function ProductsPageFallback() {
 export default function ProductsPage() {
   return (
     <Suspense fallback={<ProductsPageFallback />}>
-      <ProductsPageContent />
+      <ProductsPageErrorBoundary>
+        <ProductsPageContent />
+      </ProductsPageErrorBoundary>
     </Suspense>
   );
 }

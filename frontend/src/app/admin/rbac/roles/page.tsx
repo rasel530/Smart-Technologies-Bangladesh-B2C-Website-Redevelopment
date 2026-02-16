@@ -14,9 +14,15 @@ import {
   ChevronDown,
   ChevronUp,
   Layers,
-  Lock
+  Lock,
+  CheckSquare,
+  Square,
+  X,
+  Info,
+  Check,
+  AlertCircle
 } from 'lucide-react';
-import { Role, RoleWithPermissions } from '@/types/rbac';
+import { Role, RoleWithPermissions, Permission } from '@/types/rbac';
 import { rbacApi } from '@/lib/api/rbac';
 import { getRoleDisplayName } from '@/lib/rbac/utils';
 import { withAuth } from '@/components/auth/withAuth';
@@ -60,6 +66,15 @@ function RoleManagementPage() {
   const [showEditForm, setShowEditForm] = useState(false);
   const [expandedRoles, setExpandedRoles] = useState<Set<string>>(new Set());
 
+  // Edit Permissions modal state
+  const [showEditPermissionsModal, setShowEditPermissionsModal] = useState(false);
+  const [editPermissionsRole, setEditPermissionsRole] = useState<RoleWithPermissions | null>(null);
+  const [allPermissions, setAllPermissions] = useState<Permission[]>([]);
+  const [selectedPermissions, setSelectedPermissions] = useState<Set<string>>(new Set());
+  const [loadingPermissions, setLoadingPermissions] = useState(false);
+  const [savingPermissions, setSavingPermissions] = useState(false);
+  const [modalError, setModalError] = useState<string>('');
+
   // Form state
   const [formData, setFormData] = useState({
     name: '',
@@ -78,18 +93,9 @@ function RoleManagementPage() {
       setError('');
       const response = await rbacApi.roles.list();
       
-      // DIAGNOSTIC LOGS - Remove after fixing the issue
-      console.log('[RoleManagement] fetchRoles - Full API response:', response);
-      console.log('[RoleManagement] fetchRoles - response type:', typeof response);
-      console.log('[RoleManagement] fetchRoles - response.data:', response.data);
-      console.log('[RoleManagement] fetchRoles - response.data type:', typeof response.data);
-      console.log('[RoleManagement] fetchRoles - response.data is array?', Array.isArray(response.data));
-      console.log('[RoleManagement] fetchRoles - response.data length:', response.data?.length);
-      console.log('[RoleManagement] fetchRoles - First role object:', response.data?.[0]);
-      console.log('[RoleManagement] fetchRoles - First role properties:', response.data?.[0] ? Object.keys(response.data[0]) : 'N/A');
-      console.log('[RoleManagement] fetchRoles - Setting roles to:', response.data || []);
-      
-      setRoles(response.data || []);
+      // API client already unwraps response from { success: true, data: {...} } format
+      // response is already Role[] (the data part)
+      setRoles(Array.isArray(response) ? response : []);
     } catch (error: any) {
       console.error('[RoleManagement] Error fetching roles:', error);
       setError(error.message || 'Failed to load roles');
@@ -102,7 +108,8 @@ function RoleManagementPage() {
     try {
       setError('');
       const response = await rbacApi.roles.get(roleId);
-      setSelectedRole(response.data);
+      // API client already unwraps response from { success: true, data: {...} } format
+      setSelectedRole(response);
     } catch (error: any) {
       console.error('[RoleManagement] Error fetching role details:', error);
       setError(error.message || 'Failed to load role details');
@@ -236,6 +243,116 @@ function RoleManagementPage() {
       hierarchy_level: role.hierarchy_level,
     });
     setShowEditForm(true);
+  };
+
+  // Edit Permissions handlers
+  const openEditPermissionsModal = async (role: Role) => {
+    try {
+      setLoadingPermissions(true);
+      setModalError('');
+      
+      // Fetch all permissions and role details
+      const [allPerms, roleDetails] = await Promise.all([
+        rbacApi.permissions.list(),
+        rbacApi.roles.get(role.id),
+      ]);
+      
+      setAllPermissions(allPerms);
+      setEditPermissionsRole(roleDetails);
+      
+      // Set currently assigned permissions as selected
+      const assignedPermissionIds = new Set(
+        roleDetails.permissions.map(p => p.id)
+      );
+      setSelectedPermissions(assignedPermissionIds);
+      
+      setShowEditPermissionsModal(true);
+    } catch (error: any) {
+      console.error('[RoleManagement] Error opening edit permissions modal:', error);
+      setModalError(error.message || 'Failed to load permissions');
+    } finally {
+      setLoadingPermissions(false);
+    }
+  };
+
+  const closeEditPermissionsModal = () => {
+    setShowEditPermissionsModal(false);
+    setEditPermissionsRole(null);
+    setAllPermissions([]);
+    setSelectedPermissions(new Set());
+    setModalError('');
+  };
+
+  const togglePermission = (permissionId: string) => {
+    setSelectedPermissions((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(permissionId)) {
+        newSet.delete(permissionId);
+      } else {
+        newSet.add(permissionId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleResourcePermissions = (resource: string, permissions: Permission[]) => {
+    const resourcePermissionIds = permissions.map(p => p.id);
+    const allSelected = resourcePermissionIds.every(id => selectedPermissions.has(id));
+    
+    setSelectedPermissions((prev) => {
+      const newSet = new Set(prev);
+      if (allSelected) {
+        // Deselect all
+        resourcePermissionIds.forEach(id => newSet.delete(id));
+      } else {
+        // Select all
+        resourcePermissionIds.forEach(id => newSet.add(id));
+      }
+      return newSet;
+    });
+  };
+
+  const handleSavePermissions = async () => {
+    if (!editPermissionsRole) return;
+
+    try {
+      setSavingPermissions(true);
+      setModalError('');
+
+      await rbacApi.rolePermissions.updateRolePermissions(
+        editPermissionsRole.id,
+        Array.from(selectedPermissions)
+      );
+
+      setSuccess('Permissions updated successfully');
+      closeEditPermissionsModal();
+      
+      // Refresh role data
+      if (editPermissionsRole) {
+        await fetchRoleDetails(editPermissionsRole.id);
+      }
+    } catch (error: any) {
+      console.error('[RoleManagement] Error saving permissions:', error);
+      if (error.message?.includes('403') || error.message?.includes('insufficient')) {
+        setModalError('You do not have permission to modify role permissions');
+      } else {
+        setModalError(error.message || 'Failed to save permissions');
+      }
+    } finally {
+      setSavingPermissions(false);
+    }
+  };
+
+  // Group permissions by resource
+  const getGroupedPermissions = () => {
+    const groups: Record<string, Permission[]> = {};
+    allPermissions.forEach((permission) => {
+      if (!groups[permission.resource]) {
+        groups[permission.resource] = [];
+      }
+      groups[permission.resource].push(permission);
+    });
+    return groups;
   };
 
   const filteredRoles = roles.filter(
@@ -478,16 +595,25 @@ function RoleManagementPage() {
                     {role.description}
                   </td>
                   <td className="px-6 py-4">
-                    <button
-                      onClick={() => {
-                        fetchRoleDetails(role.id);
-                        toggleExpand(role.id);
-                      }}
-                      className="flex items-center space-x-2 text-blue-600 hover:text-blue-700"
-                    >
-                      <Eye className="w-4 h-4" />
-                      <span>View</span>
-                    </button>
+                    <div className="flex items-center space-x-3">
+                      <button
+                        onClick={() => {
+                          fetchRoleDetails(role.id);
+                          toggleExpand(role.id);
+                        }}
+                        className="flex items-center space-x-2 text-blue-600 hover:text-blue-700"
+                      >
+                        <Eye className="w-4 h-4" />
+                        <span>View</span>
+                      </button>
+                      <button
+                        onClick={() => openEditPermissionsModal(role)}
+                        className="flex items-center space-x-2 text-green-600 hover:text-green-700"
+                      >
+                        <Edit className="w-4 h-4" />
+                        <span>Edit</span>
+                      </button>
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end space-x-2">
@@ -552,6 +678,202 @@ function RoleManagementPage() {
               No permissions assigned to this role
             </div>
           )}
+        </div>
+      )}
+
+      {/* Edit Permissions Modal */}
+      {showEditPermissionsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b bg-gray-50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+                    <Shield className="w-5 h-5 mr-2" />
+                    Edit Permissions
+                  </h2>
+                  {editPermissionsRole && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      Role: {getRoleDisplayName(editPermissionsRole.name)}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={closeEditPermissionsModal}
+                  className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {loadingPermissions ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              ) : modalError ? (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start">
+                  <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+                  <p className="text-red-800 text-sm">{modalError}</p>
+                </div>
+              ) : (
+                <>
+                  {/* Permission Summary */}
+                  <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <CheckSquare className="w-5 h-5 text-blue-600 mr-2" />
+                        <span className="text-sm font-medium text-blue-900">
+                          {selectedPermissions.size} of {allPermissions.length} permissions selected
+                        </span>
+                      </div>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => {
+                            const allIds = allPermissions.map(p => p.id);
+                            setSelectedPermissions(new Set(allIds));
+                          }}
+                          className="text-sm px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                        >
+                          Select All
+                        </button>
+                        <button
+                          onClick={() => setSelectedPermissions(new Set())}
+                          className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                        >
+                          Deselect All
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Permission Groups */}
+                  {Object.entries(getGroupedPermissions()).map(([resource, permissions]) => {
+                    const resourcePermissionIds = permissions.map(p => p.id);
+                    const allSelected = resourcePermissionIds.every(id => selectedPermissions.has(id));
+                    const someSelected = resourcePermissionIds.some(id => selectedPermissions.has(id));
+
+                    return (
+                      <div key={resource} className="mb-6">
+                        {/* Resource Header */}
+                        <div className="flex items-center justify-between mb-3 p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center">
+                            <Layers className="w-4 h-4 text-gray-600 mr-2" />
+                            <h3 className="font-semibold text-gray-900 capitalize">{resource}</h3>
+                            <span className="ml-2 text-sm text-gray-500">
+                              ({permissions.length} permissions)
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => toggleResourcePermissions(resource, permissions)}
+                            className="text-sm px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors flex items-center"
+                          >
+                            {allSelected ? (
+                              <>
+                                <CheckSquare className="w-4 h-4 mr-1 text-blue-600" />
+                                <span>Deselect All</span>
+                              </>
+                            ) : someSelected ? (
+                              <>
+                                <Square className="w-4 h-4 mr-1 text-gray-600" />
+                                <span>Select All</span>
+                              </>
+                            ) : (
+                              <>
+                                <Square className="w-4 h-4 mr-1 text-gray-400" />
+                                <span>Select All</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+
+                        {/* Permission List */}
+                        <div className="space-y-2 ml-4">
+                          {permissions.map((permission) => {
+                            const isSelected = selectedPermissions.has(permission.id);
+                            return (
+                              <div
+                                key={permission.id}
+                                className="flex items-start p-3 border rounded-lg hover:bg-gray-50 transition-colors group"
+                              >
+                                <button
+                                  onClick={() => togglePermission(permission.id)}
+                                  className="mt-0.5 mr-3 flex-shrink-0"
+                                  aria-label={isSelected ? 'Deselect permission' : 'Select permission'}
+                                >
+                                  {isSelected ? (
+                                    <CheckSquare className="w-5 h-5 text-blue-600" />
+                                  ) : (
+                                    <Square className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
+                                  )}
+                                </button>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between">
+                                    <div>
+                                      <div className="font-medium text-gray-900">
+                                        {permission.displayName}
+                                      </div>
+                                      <div className="text-sm text-gray-500">
+                                        {permission.name}
+                                      </div>
+                                    </div>
+                                    {permission.description && (
+                                      <div className="relative group/tooltip">
+                                        <Info className="w-4 h-4 text-gray-400 cursor-help" />
+                                        <div className="absolute right-0 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-opacity z-10">
+                                          {permission.description}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="mt-1 flex items-center space-x-2">
+                                    <span className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-xs font-medium">
+                                      {permission.action}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t bg-gray-50 flex items-center justify-between">
+              <button
+                onClick={closeEditPermissionsModal}
+                disabled={savingPermissions}
+                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSavePermissions}
+                disabled={savingPermissions || loadingPermissions}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium flex items-center"
+              >
+                {savingPermissions ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4 mr-2" />
+                    Save Changes
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -33,13 +33,26 @@ export interface PermissionWithRoles extends Permission {
 // User Role types
 export interface UserRole {
   id: string;
-  userId: string;
+  user_id: string;
+  role_id: string;
+  role_name: string;
+  role_description: string;
+  hierarchy_level: number;
+  assigned_at: string;
+  expires_at?: string | null;
+  is_active: boolean;
+  assigned_by?: string | null;
+}
+
+// Simplified role type for user roles (backend now returns roles directly from user_roles table)
+export interface UserRoleSimple {
+  id: string;
   roleId: string;
-  role: Role;
-  assignedAt: string;
+  name: string;
+  description: string;
+  hierarchy_level: number;
+  assigned_at: string;
   expiresAt?: string | null;
-  isActive: boolean;
-  assignedBy?: string | null;
 }
 
 // Role Escalation Request types
@@ -64,12 +77,15 @@ export interface RoleEscalationRequest {
 // User with roles
 export interface UserWithRoles {
   id: string;
-  email?: string;
-  phone?: string;
+  email: string;
+  phone: string | null;
   firstName: string;
   lastName: string;
-  roles: UserRole[];
+  status: string;
   maxRoleLevel: number;
+  roles: UserRoleSimple[];
+  created_at: string;
+  updated_at: string;
 }
 
 // Permission check response
@@ -178,8 +194,17 @@ export interface AssignRoleData {
 }
 
 export interface UpdateUserRoleData {
-  expiresAt?: string | null;
-  isActive?: boolean;
+  expires_at?: string | null;
+  is_active?: boolean;
+}
+
+export interface CreateUserData {
+  email: string;
+  phone?: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  roleIds: string[];
 }
 
 export interface CreateEscalationRequestData {

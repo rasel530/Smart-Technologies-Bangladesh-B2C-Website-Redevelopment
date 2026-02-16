@@ -7,10 +7,13 @@
  * including view mode toggle with localStorage persistence and URL parameter support.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ViewToggle, ViewMode } from '@/components/product/ViewToggle';
 import { ProductGrid } from '@/components/product/ProductGrid';
+import { useWishlist } from '@/hooks/useWishlist';
+import { useWishlistStore } from '@/stores/wishlistStore';
+import { toast } from 'sonner';
 
 interface BrandPageClientProps {
   brandId: string;
@@ -37,21 +40,50 @@ export function BrandPageClient({
   const searchParams = useSearchParams();
   const router = useRouter();
 
+  // Wishlist state
+  const { isInWishlist, addToDefaultWishlist, removeFromWishlist, items } = useWishlist();
+
   // View mode state with localStorage persistence and URL parameter support
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [isMounted, setIsMounted] = useState(false);
+  
+  // Use ref to track previous view mode to prevent infinite loops
+  const previousViewModeRef = useRef<ViewMode | null>(null);
+
+  // Set isMounted to true after hydration
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Update view mode from URL or localStorage
+  // Only update state when the value actually changes to prevent infinite loops
   useEffect(() => {
+    if (!isMounted) return;
+    
     const view = searchParams.get('view') as ViewMode;
+    let newViewMode: ViewMode | null = null;
+    
     if (view && (view === 'grid' || view === 'list')) {
-      setViewMode(view);
+      newViewMode = view;
     } else {
       const savedView = localStorage.getItem('smart_tech_product_view_mode') as ViewMode;
       if (savedView && (savedView === 'grid' || savedView === 'list')) {
-        setViewMode(savedView);
+        newViewMode = savedView;
       }
     }
-  }, [searchParams]);
+    
+    // Only update if we have a new view mode and it's different from the previous one we processed
+    if (newViewMode !== null && previousViewModeRef.current !== newViewMode) {
+      previousViewModeRef.current = newViewMode;
+      setViewMode(newViewMode);
+    }
+  }, [searchParams, isMounted]);
+
+  // Create wishlisted products set
+  const wishlistedProducts = useMemo(() => {
+    const itemProductIds = new Set(items.map(i => i.productId));
+    return new Set(initialProducts.filter(p => itemProductIds.has(p.id)).map(p => p.id));
+  }, [initialProducts, items]);
 
   // Handle view mode change
   const handleViewChange = (mode: ViewMode) => {
@@ -61,6 +93,26 @@ export function BrandPageClient({
     const params = new URLSearchParams(searchParams.toString());
     params.set('view', mode);
     router.push(`?${params.toString()}`);
+  };
+
+  // Handle toggle wishlist
+  const handleToggleWishlist = async (productId: string) => {
+    try {
+      if (isInWishlist(productId)) {
+        // Find item ID and remove
+        const item = items.find(i => i.productId === productId);
+        if (item) {
+          await removeFromWishlist(item.wishlistId, item.id);
+          toast.success('Item removed from wishlist');
+        }
+      } else {
+        await addToDefaultWishlist(productId);
+        toast.success('Item added to wishlist');
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+      toast.error('Failed to update wishlist');
+    }
   };
 
   return (
@@ -130,47 +182,47 @@ export function BrandPageClient({
                   desktop: viewMode === 'grid' ? 4 : 1,
                 }}
                 viewMode={viewMode}
+                onToggleWishlist={handleToggleWishlist}
+                wishlistedProducts={wishlistedProducts}
               />
 
               {/* Pagination */}
-              {initialPagination.pages > 1 && (
-                <div className="mt-8 flex justify-center items-center gap-2">
-                  {initialPage > 1 && (
-                    <a
-                      href={`?page=${initialPage - 1}&sortBy=${initialSortBy}&sortOrder=${initialSortOrder}&view=${viewMode}`}
-                      className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-                    >
-                      Previous
-                    </a>
-                  )}
+              <div className="mt-8 flex justify-center items-center gap-2">
+                <a
+                  href={`?page=${initialPage - 1}&sortBy=${initialSortBy}&sortOrder=${initialSortOrder}&view=${viewMode}`}
+                  className={`px-4 py-2 border border-gray-300 rounded-md transition-colors ${
+                    initialPage > 1 ? 'hover:bg-gray-50' : 'invisible pointer-events-none'
+                  }`}
+                >
+                  Previous
+                </a>
 
-                  {[...Array(initialPagination.pages)].map((_, i) => {
-                    const pageNum = i + 1;
-                    return (
-                      <a
-                        key={pageNum}
-                        href={`?page=${pageNum}&sortBy=${initialSortBy}&sortOrder=${initialSortOrder}&view=${viewMode}`}
-                        className={`w-10 h-10 rounded-md transition-colors ${
-                          initialPage === pageNum
-                            ? 'bg-blue-600 text-white'
-                            : 'border border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {pageNum}
-                      </a>
-                    );
-                  })}
-
-                  {initialPage < initialPagination.pages && (
+                {[...Array(initialPagination.pages)].map((_, i) => {
+                  const pageNum = i + 1;
+                  return (
                     <a
-                      href={`?page=${initialPage + 1}&sortBy=${initialSortBy}&sortOrder=${initialSortOrder}&view=${viewMode}`}
-                      className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                      key={pageNum}
+                      href={`?page=${pageNum}&sortBy=${initialSortBy}&sortOrder=${initialSortOrder}&view=${viewMode}`}
+                      className={`w-10 h-10 rounded-md transition-colors ${
+                        initialPage === pageNum
+                          ? 'bg-blue-600 text-white'
+                          : 'border border-gray-300 hover:bg-gray-50'
+                      }`}
                     >
-                      Next
+                      {pageNum}
                     </a>
-                  )}
-                </div>
-              )}
+                  );
+                })}
+
+                <a
+                  href={`?page=${initialPage + 1}&sortBy=${initialSortBy}&sortOrder=${initialSortOrder}&view=${viewMode}`}
+                  className={`px-4 py-2 border border-gray-300 rounded-md transition-colors ${
+                    initialPage < initialPagination.pages ? 'hover:bg-gray-50' : 'invisible pointer-events-none'
+                  }`}
+                >
+                  Next
+                </a>
+              </div>
             </>
           ) : (
             <div className="text-center py-12">

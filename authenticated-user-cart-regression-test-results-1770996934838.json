@@ -1,0 +1,303 @@
+{
+  "timestamp": "2026-02-13T15:35:34.838Z",
+  "duration": "13.84",
+  "summary": {
+    "totalTests": 33,
+    "passed": 15,
+    "failed": 18,
+    "successRate": "45.45%"
+  },
+  "scenarios": {
+    "scenario1": {
+      "name": "Authenticated User Login",
+      "tests": [
+        {
+          "name": "Test 1.1: Login with valid credentials",
+          "status": "passed"
+        },
+        {
+          "name": "Test 1.2: Verify authentication token is valid JWT",
+          "status": "passed"
+        },
+        {
+          "name": "Test 1.3: Verify user session is established",
+          "status": "failed",
+          "error": "404: {\"error\":\"Route not found\",\"message\":\"The requested route GET /api/v1/profile was not found\",\"messageBn\":\"অনুরোধকৃত রুট GET /api/v1/profile পাওয়া যায়নি\",\"path\":\"/api/v1/profile\",\"method\":\"GET\",\"timestamp\":\"2026-02-13T15:35:23.455Z\",\"availableEndpoints\":{\"auth\":\"/api/v1/auth\",\"users\":\"/api/v1/users\",\"profile\":\"/api/v1/profile\",\"oauth\":\"/api/v1/oauth\",\"products\":\"/api/v1/products\",\"categories\":\"/api/v1/categories\",\"brands\":\"/api/v1/brands\",\"orders\":\"/api/v1/orders\",\"cart\":\"/api/v1/cart\",\"wishlist\":\"/api/v1/wishlist\",\"reviews\":\"/api/v1/reviews\",\"coupons\":\"/api/v1/coupons\",\"user\":\"/api/v1/user\",\"sessions\":\"/api/v1/sessions\",\"rbac\":{\"roles\":\"/api/v1/rbac/roles\",\"permissions\":\"/api/v1/rbac/permissions\",\"rolePermissions\":\"/api/v1/rbac/roles/:roleId/permissions\",\"userRoles\":\"/api/v1/rbac/users/:userId/roles\",\"escalation\":\"/api/v1/rbac/role-escalation-requests\",\"auth\":\"/api/v1/rbac/auth\"},\"search\":{\"products\":\"/api/search/products\",\"autocomplete\":\"/api/search/autocomplete\",\"suggestions\":\"/api/search/suggestions\",\"popular\":\"/api/search/popular\"},\"adminSearch\":{\"analytics\":\"/api/admin/search/analytics\",\"popular\":\"/api/admin/search/popular\",\"performance\":\"/api/admin/search/performance\"},\"corporate\":\"/api/v1/corporate\",\"productImages\":{\"upload\":\"/api/v1/products/:id/images\",\"list\":\"/api/v1/products/:id/images\",\"update\":\"/api/v1/images/:id\",\"reorder\":\"/api/v1/products/:id/images/reorder\",\"delete\":\"/api/v1/images/:id\",\"setPrimary\":\"/api/v1/images/:id/primary\",\"versions\":\"/api/v1/images/:id/versions\"},\"adminProductImages\":{\"statistics\":\"/api/v1/admin/products/:productId/images/statistics\",\"quota\":\"/api/v1/admin/products/:productId/images/quota\",\"bulkUpdate\":\"/api/v1/admin/images/bulk-update\",\"bulkDelete\":\"/api/v1/admin/images/bulk-delete\",\"queue\":\"/api/v1/admin/products/:productId/images/queue\",\"queueCancel\":\"/api/v1/admin/products/:productId/images/queue/cancel\",\"queueRetry\":\"/api/v1/admin/products/:productId/images/queue/retry\",\"overallStatistics\":\"/api/v1/admin/products/images/statistics\",\"cdnStatus\":\"/api/v1/admin/products/:productId/images/cdn-status\",\"cdnSync\":\"/api/v1/admin/products/:productId/images/cdn-sync\",\"optimizationSuggestions\":\"/api/v1/admin/products/:productId/images/optimization-suggestions\"},\"health\":\"/api/v1/health\",\"docs\":\"/api-docs\"}}"
+        },
+        {
+          "name": "Test 1.4: Verify user profile is loaded correctly",
+          "status": "failed",
+          "error": "404: {\"error\":\"Route not found\",\"message\":\"The requested route GET /api/v1/profile was not found\",\"messageBn\":\"অনুরোধকৃত রুট GET /api/v1/profile পাওয়া যায়নি\",\"path\":\"/api/v1/profile\",\"method\":\"GET\",\"timestamp\":\"2026-02-13T15:35:23.786Z\",\"availableEndpoints\":{\"auth\":\"/api/v1/auth\",\"users\":\"/api/v1/users\",\"profile\":\"/api/v1/profile\",\"oauth\":\"/api/v1/oauth\",\"products\":\"/api/v1/products\",\"categories\":\"/api/v1/categories\",\"brands\":\"/api/v1/brands\",\"orders\":\"/api/v1/orders\",\"cart\":\"/api/v1/cart\",\"wishlist\":\"/api/v1/wishlist\",\"reviews\":\"/api/v1/reviews\",\"coupons\":\"/api/v1/coupons\",\"user\":\"/api/v1/user\",\"sessions\":\"/api/v1/sessions\",\"rbac\":{\"roles\":\"/api/v1/rbac/roles\",\"permissions\":\"/api/v1/rbac/permissions\",\"rolePermissions\":\"/api/v1/rbac/roles/:roleId/permissions\",\"userRoles\":\"/api/v1/rbac/users/:userId/roles\",\"escalation\":\"/api/v1/rbac/role-escalation-requests\",\"auth\":\"/api/v1/rbac/auth\"},\"search\":{\"products\":\"/api/search/products\",\"autocomplete\":\"/api/search/autocomplete\",\"suggestions\":\"/api/search/suggestions\",\"popular\":\"/api/search/popular\"},\"adminSearch\":{\"analytics\":\"/api/admin/search/analytics\",\"popular\":\"/api/admin/search/popular\",\"performance\":\"/api/admin/search/performance\"},\"corporate\":\"/api/v1/corporate\",\"productImages\":{\"upload\":\"/api/v1/products/:id/images\",\"list\":\"/api/v1/products/:id/images\",\"update\":\"/api/v1/images/:id\",\"reorder\":\"/api/v1/products/:id/images/reorder\",\"delete\":\"/api/v1/images/:id\",\"setPrimary\":\"/api/v1/images/:id/primary\",\"versions\":\"/api/v1/images/:id/versions\"},\"adminProductImages\":{\"statistics\":\"/api/v1/admin/products/:productId/images/statistics\",\"quota\":\"/api/v1/admin/products/:productId/images/quota\",\"bulkUpdate\":\"/api/v1/admin/images/bulk-update\",\"bulkDelete\":\"/api/v1/admin/images/bulk-delete\",\"queue\":\"/api/v1/admin/products/:productId/images/queue\",\"queueCancel\":\"/api/v1/admin/products/:productId/images/queue/cancel\",\"queueRetry\":\"/api/v1/admin/products/:productId/images/queue/retry\",\"overallStatistics\":\"/api/v1/admin/products/images/statistics\",\"cdnStatus\":\"/api/v1/admin/products/:productId/images/cdn-status\",\"cdnSync\":\"/api/v1/admin/products/:productId/images/cdn-sync\",\"optimizationSuggestions\":\"/api/v1/admin/products/:productId/images/optimization-suggestions\"},\"health\":\"/api/v1/health\",\"docs\":\"/api-docs\"}}"
+        }
+      ],
+      "passed": 2,
+      "failed": 2,
+      "errors": [
+        {
+          "test": "Test 1.3: Verify user session is established",
+          "error": "404: {\"error\":\"Route not found\",\"message\":\"The requested route GET /api/v1/profile was not found\",\"messageBn\":\"অনুরোধকৃত রুট GET /api/v1/profile পাওয়া যায়নি\",\"path\":\"/api/v1/profile\",\"method\":\"GET\",\"timestamp\":\"2026-02-13T15:35:23.455Z\",\"availableEndpoints\":{\"auth\":\"/api/v1/auth\",\"users\":\"/api/v1/users\",\"profile\":\"/api/v1/profile\",\"oauth\":\"/api/v1/oauth\",\"products\":\"/api/v1/products\",\"categories\":\"/api/v1/categories\",\"brands\":\"/api/v1/brands\",\"orders\":\"/api/v1/orders\",\"cart\":\"/api/v1/cart\",\"wishlist\":\"/api/v1/wishlist\",\"reviews\":\"/api/v1/reviews\",\"coupons\":\"/api/v1/coupons\",\"user\":\"/api/v1/user\",\"sessions\":\"/api/v1/sessions\",\"rbac\":{\"roles\":\"/api/v1/rbac/roles\",\"permissions\":\"/api/v1/rbac/permissions\",\"rolePermissions\":\"/api/v1/rbac/roles/:roleId/permissions\",\"userRoles\":\"/api/v1/rbac/users/:userId/roles\",\"escalation\":\"/api/v1/rbac/role-escalation-requests\",\"auth\":\"/api/v1/rbac/auth\"},\"search\":{\"products\":\"/api/search/products\",\"autocomplete\":\"/api/search/autocomplete\",\"suggestions\":\"/api/search/suggestions\",\"popular\":\"/api/search/popular\"},\"adminSearch\":{\"analytics\":\"/api/admin/search/analytics\",\"popular\":\"/api/admin/search/popular\",\"performance\":\"/api/admin/search/performance\"},\"corporate\":\"/api/v1/corporate\",\"productImages\":{\"upload\":\"/api/v1/products/:id/images\",\"list\":\"/api/v1/products/:id/images\",\"update\":\"/api/v1/images/:id\",\"reorder\":\"/api/v1/products/:id/images/reorder\",\"delete\":\"/api/v1/images/:id\",\"setPrimary\":\"/api/v1/images/:id/primary\",\"versions\":\"/api/v1/images/:id/versions\"},\"adminProductImages\":{\"statistics\":\"/api/v1/admin/products/:productId/images/statistics\",\"quota\":\"/api/v1/admin/products/:productId/images/quota\",\"bulkUpdate\":\"/api/v1/admin/images/bulk-update\",\"bulkDelete\":\"/api/v1/admin/images/bulk-delete\",\"queue\":\"/api/v1/admin/products/:productId/images/queue\",\"queueCancel\":\"/api/v1/admin/products/:productId/images/queue/cancel\",\"queueRetry\":\"/api/v1/admin/products/:productId/images/queue/retry\",\"overallStatistics\":\"/api/v1/admin/products/images/statistics\",\"cdnStatus\":\"/api/v1/admin/products/:productId/images/cdn-status\",\"cdnSync\":\"/api/v1/admin/products/:productId/images/cdn-sync\",\"optimizationSuggestions\":\"/api/v1/admin/products/:productId/images/optimization-suggestions\"},\"health\":\"/api/v1/health\",\"docs\":\"/api-docs\"}}",
+          "status": 404
+        },
+        {
+          "test": "Test 1.4: Verify user profile is loaded correctly",
+          "error": "404: {\"error\":\"Route not found\",\"message\":\"The requested route GET /api/v1/profile was not found\",\"messageBn\":\"অনুরোধকৃত রুট GET /api/v1/profile পাওয়া যায়নি\",\"path\":\"/api/v1/profile\",\"method\":\"GET\",\"timestamp\":\"2026-02-13T15:35:23.786Z\",\"availableEndpoints\":{\"auth\":\"/api/v1/auth\",\"users\":\"/api/v1/users\",\"profile\":\"/api/v1/profile\",\"oauth\":\"/api/v1/oauth\",\"products\":\"/api/v1/products\",\"categories\":\"/api/v1/categories\",\"brands\":\"/api/v1/brands\",\"orders\":\"/api/v1/orders\",\"cart\":\"/api/v1/cart\",\"wishlist\":\"/api/v1/wishlist\",\"reviews\":\"/api/v1/reviews\",\"coupons\":\"/api/v1/coupons\",\"user\":\"/api/v1/user\",\"sessions\":\"/api/v1/sessions\",\"rbac\":{\"roles\":\"/api/v1/rbac/roles\",\"permissions\":\"/api/v1/rbac/permissions\",\"rolePermissions\":\"/api/v1/rbac/roles/:roleId/permissions\",\"userRoles\":\"/api/v1/rbac/users/:userId/roles\",\"escalation\":\"/api/v1/rbac/role-escalation-requests\",\"auth\":\"/api/v1/rbac/auth\"},\"search\":{\"products\":\"/api/search/products\",\"autocomplete\":\"/api/search/autocomplete\",\"suggestions\":\"/api/search/suggestions\",\"popular\":\"/api/search/popular\"},\"adminSearch\":{\"analytics\":\"/api/admin/search/analytics\",\"popular\":\"/api/admin/search/popular\",\"performance\":\"/api/admin/search/performance\"},\"corporate\":\"/api/v1/corporate\",\"productImages\":{\"upload\":\"/api/v1/products/:id/images\",\"list\":\"/api/v1/products/:id/images\",\"update\":\"/api/v1/images/:id\",\"reorder\":\"/api/v1/products/:id/images/reorder\",\"delete\":\"/api/v1/images/:id\",\"setPrimary\":\"/api/v1/images/:id/primary\",\"versions\":\"/api/v1/images/:id/versions\"},\"adminProductImages\":{\"statistics\":\"/api/v1/admin/products/:productId/images/statistics\",\"quota\":\"/api/v1/admin/products/:productId/images/quota\",\"bulkUpdate\":\"/api/v1/admin/images/bulk-update\",\"bulkDelete\":\"/api/v1/admin/images/bulk-delete\",\"queue\":\"/api/v1/admin/products/:productId/images/queue\",\"queueCancel\":\"/api/v1/admin/products/:productId/images/queue/cancel\",\"queueRetry\":\"/api/v1/admin/products/:productId/images/queue/retry\",\"overallStatistics\":\"/api/v1/admin/products/images/statistics\",\"cdnStatus\":\"/api/v1/admin/products/:productId/images/cdn-status\",\"cdnSync\":\"/api/v1/admin/products/:productId/images/cdn-sync\",\"optimizationSuggestions\":\"/api/v1/admin/products/:productId/images/optimization-suggestions\"},\"health\":\"/api/v1/health\",\"docs\":\"/api-docs\"}}",
+          "status": 404
+        }
+      ]
+    },
+    "scenario2": {
+      "name": "Authenticated User Product Addition",
+      "tests": [
+        {
+          "name": "Test 2.1: Get user cart (initial state)",
+          "status": "passed"
+        },
+        {
+          "name": "Test 2.2: Add product to cart",
+          "status": "passed"
+        },
+        {
+          "name": "Test 2.3: Verify product appears in cart after addition",
+          "status": "failed",
+          "error": "Expected quantity 2, got 4"
+        },
+        {
+          "name": "Test 2.4: Verify cart count endpoint",
+          "status": "failed",
+          "error": "400: {\"success\":false,\"error\":\"Validation failed\",\"message\":\"Validation failed\",\"messageBn\":\"যাচাইকরণ ব্যর্থ হয়েছে\",\"details\":[{\"type\":\"field\",\"value\":\"count\",\"msg\":\"Invalid cart ID\",\"path\":\"cartId\",\"location\":\"params\"}]}"
+        },
+        {
+          "name": "Test 2.5: Add product with variant to cart",
+          "status": "passed"
+        },
+        {
+          "name": "Test 2.6: Verify cart totals are calculated correctly",
+          "status": "passed"
+        }
+      ],
+      "passed": 4,
+      "failed": 2,
+      "errors": [
+        {
+          "test": "Test 2.3: Verify product appears in cart after addition",
+          "error": "Expected quantity 2, got 4"
+        },
+        {
+          "test": "Test 2.4: Verify cart count endpoint",
+          "error": "400: {\"success\":false,\"error\":\"Validation failed\",\"message\":\"Validation failed\",\"messageBn\":\"যাচাইকরণ ব্যর্থ হয়েছে\",\"details\":[{\"type\":\"field\",\"value\":\"count\",\"msg\":\"Invalid cart ID\",\"path\":\"cartId\",\"location\":\"params\"}]}",
+          "status": 400
+        }
+      ]
+    },
+    "scenario3": {
+      "name": "Authenticated User Cart Page Functionality",
+      "tests": [
+        {
+          "name": "Test 3.1: Get cart for page display",
+          "status": "passed"
+        },
+        {
+          "name": "Test 3.2: Verify all cart items are displayed correctly",
+          "status": "passed"
+        },
+        {
+          "name": "Test 3.3: Test quantity increase functionality",
+          "status": "passed"
+        },
+        {
+          "name": "Test 3.4: Test quantity decrease functionality",
+          "status": "passed"
+        },
+        {
+          "name": "Test 3.5: Test item removal functionality",
+          "status": "passed"
+        },
+        {
+          "name": "Test 3.6: Verify cart totals after modifications",
+          "status": "passed"
+        }
+      ],
+      "passed": 6,
+      "failed": 0,
+      "errors": []
+    },
+    "scenario4": {
+      "name": "Authenticated User Checkout Flow",
+      "tests": [
+        {
+          "name": "Test 4.1: Ensure cart has items for checkout",
+          "status": "passed"
+        },
+        {
+          "name": "Test 4.2: Get saved addresses for checkout",
+          "status": "failed",
+          "error": "404: {\"error\":\"Route not found\",\"message\":\"The requested route GET /api/v1/profile was not found\",\"messageBn\":\"অনুরোধকৃত রুট GET /api/v1/profile পাওয়া যায়নি\",\"path\":\"/api/v1/profile\",\"method\":\"GET\",\"timestamp\":\"2026-02-13T15:35:29.051Z\",\"availableEndpoints\":{\"auth\":\"/api/v1/auth\",\"users\":\"/api/v1/users\",\"profile\":\"/api/v1/profile\",\"oauth\":\"/api/v1/oauth\",\"products\":\"/api/v1/products\",\"categories\":\"/api/v1/categories\",\"brands\":\"/api/v1/brands\",\"orders\":\"/api/v1/orders\",\"cart\":\"/api/v1/cart\",\"wishlist\":\"/api/v1/wishlist\",\"reviews\":\"/api/v1/reviews\",\"coupons\":\"/api/v1/coupons\",\"user\":\"/api/v1/user\",\"sessions\":\"/api/v1/sessions\",\"rbac\":{\"roles\":\"/api/v1/rbac/roles\",\"permissions\":\"/api/v1/rbac/permissions\",\"rolePermissions\":\"/api/v1/rbac/roles/:roleId/permissions\",\"userRoles\":\"/api/v1/rbac/users/:userId/roles\",\"escalation\":\"/api/v1/rbac/role-escalation-requests\",\"auth\":\"/api/v1/rbac/auth\"},\"search\":{\"products\":\"/api/search/products\",\"autocomplete\":\"/api/search/autocomplete\",\"suggestions\":\"/api/search/suggestions\",\"popular\":\"/api/search/popular\"},\"adminSearch\":{\"analytics\":\"/api/admin/search/analytics\",\"popular\":\"/api/admin/search/popular\",\"performance\":\"/api/admin/search/performance\"},\"corporate\":\"/api/v1/corporate\",\"productImages\":{\"upload\":\"/api/v1/products/:id/images\",\"list\":\"/api/v1/products/:id/images\",\"update\":\"/api/v1/images/:id\",\"reorder\":\"/api/v1/products/:id/images/reorder\",\"delete\":\"/api/v1/images/:id\",\"setPrimary\":\"/api/v1/images/:id/primary\",\"versions\":\"/api/v1/images/:id/versions\"},\"adminProductImages\":{\"statistics\":\"/api/v1/admin/products/:productId/images/statistics\",\"quota\":\"/api/v1/admin/products/:productId/images/quota\",\"bulkUpdate\":\"/api/v1/admin/images/bulk-update\",\"bulkDelete\":\"/api/v1/admin/images/bulk-delete\",\"queue\":\"/api/v1/admin/products/:productId/images/queue\",\"queueCancel\":\"/api/v1/admin/products/:productId/images/queue/cancel\",\"queueRetry\":\"/api/v1/admin/products/:productId/images/queue/retry\",\"overallStatistics\":\"/api/v1/admin/products/images/statistics\",\"cdnStatus\":\"/api/v1/admin/products/:productId/images/cdn-status\",\"cdnSync\":\"/api/v1/admin/products/:productId/images/cdn-sync\",\"optimizationSuggestions\":\"/api/v1/admin/products/:productId/images/optimization-suggestions\"},\"health\":\"/api/v1/health\",\"docs\":\"/api-docs\"}}"
+        },
+        {
+          "name": "Test 4.3: Place order with valid data",
+          "status": "failed",
+          "error": "400: {\"error\":\"Validation failed\",\"details\":[{\"type\":\"field\",\"msg\":\"Invalid value\",\"path\":\"items\",\"location\":\"body\"}]}"
+        },
+        {
+          "name": "Test 4.4: Verify order is associated with authenticated user",
+          "status": "failed",
+          "error": "No order ID available"
+        },
+        {
+          "name": "Test 4.5: Verify order details are correct",
+          "status": "failed",
+          "error": "No order ID available"
+        },
+        {
+          "name": "Test 4.6: Verify cart is cleared after order placement",
+          "status": "failed",
+          "error": "Cart should be empty after order, but has 1 items"
+        }
+      ],
+      "passed": 1,
+      "failed": 5,
+      "errors": [
+        {
+          "test": "Test 4.2: Get saved addresses for checkout",
+          "error": "404: {\"error\":\"Route not found\",\"message\":\"The requested route GET /api/v1/profile was not found\",\"messageBn\":\"অনুরোধকৃত রুট GET /api/v1/profile পাওয়া যায়নি\",\"path\":\"/api/v1/profile\",\"method\":\"GET\",\"timestamp\":\"2026-02-13T15:35:29.051Z\",\"availableEndpoints\":{\"auth\":\"/api/v1/auth\",\"users\":\"/api/v1/users\",\"profile\":\"/api/v1/profile\",\"oauth\":\"/api/v1/oauth\",\"products\":\"/api/v1/products\",\"categories\":\"/api/v1/categories\",\"brands\":\"/api/v1/brands\",\"orders\":\"/api/v1/orders\",\"cart\":\"/api/v1/cart\",\"wishlist\":\"/api/v1/wishlist\",\"reviews\":\"/api/v1/reviews\",\"coupons\":\"/api/v1/coupons\",\"user\":\"/api/v1/user\",\"sessions\":\"/api/v1/sessions\",\"rbac\":{\"roles\":\"/api/v1/rbac/roles\",\"permissions\":\"/api/v1/rbac/permissions\",\"rolePermissions\":\"/api/v1/rbac/roles/:roleId/permissions\",\"userRoles\":\"/api/v1/rbac/users/:userId/roles\",\"escalation\":\"/api/v1/rbac/role-escalation-requests\",\"auth\":\"/api/v1/rbac/auth\"},\"search\":{\"products\":\"/api/search/products\",\"autocomplete\":\"/api/search/autocomplete\",\"suggestions\":\"/api/search/suggestions\",\"popular\":\"/api/search/popular\"},\"adminSearch\":{\"analytics\":\"/api/admin/search/analytics\",\"popular\":\"/api/admin/search/popular\",\"performance\":\"/api/admin/search/performance\"},\"corporate\":\"/api/v1/corporate\",\"productImages\":{\"upload\":\"/api/v1/products/:id/images\",\"list\":\"/api/v1/products/:id/images\",\"update\":\"/api/v1/images/:id\",\"reorder\":\"/api/v1/products/:id/images/reorder\",\"delete\":\"/api/v1/images/:id\",\"setPrimary\":\"/api/v1/images/:id/primary\",\"versions\":\"/api/v1/images/:id/versions\"},\"adminProductImages\":{\"statistics\":\"/api/v1/admin/products/:productId/images/statistics\",\"quota\":\"/api/v1/admin/products/:productId/images/quota\",\"bulkUpdate\":\"/api/v1/admin/images/bulk-update\",\"bulkDelete\":\"/api/v1/admin/images/bulk-delete\",\"queue\":\"/api/v1/admin/products/:productId/images/queue\",\"queueCancel\":\"/api/v1/admin/products/:productId/images/queue/cancel\",\"queueRetry\":\"/api/v1/admin/products/:productId/images/queue/retry\",\"overallStatistics\":\"/api/v1/admin/products/images/statistics\",\"cdnStatus\":\"/api/v1/admin/products/:productId/images/cdn-status\",\"cdnSync\":\"/api/v1/admin/products/:productId/images/cdn-sync\",\"optimizationSuggestions\":\"/api/v1/admin/products/:productId/images/optimization-suggestions\"},\"health\":\"/api/v1/health\",\"docs\":\"/api-docs\"}}",
+          "status": 404
+        },
+        {
+          "test": "Test 4.3: Place order with valid data",
+          "error": "400: {\"error\":\"Validation failed\",\"details\":[{\"type\":\"field\",\"msg\":\"Invalid value\",\"path\":\"items\",\"location\":\"body\"}]}",
+          "status": 400
+        },
+        {
+          "test": "Test 4.4: Verify order is associated with authenticated user",
+          "error": "No order ID available"
+        },
+        {
+          "test": "Test 4.5: Verify order details are correct",
+          "error": "No order ID available"
+        },
+        {
+          "test": "Test 4.6: Verify cart is cleared after order placement",
+          "error": "Cart should be empty after order, but has 1 items"
+        }
+      ]
+    },
+    "scenario5": {
+      "name": "Authenticated User Stock Validation",
+      "tests": [
+        {
+          "name": "Test 5.1: Add items to cart for stock validation test",
+          "status": "passed"
+        },
+        {
+          "name": "Test 5.2: Validate cart stock (authenticated)",
+          "status": "failed",
+          "error": "Response missing isValid field"
+        },
+        {
+          "name": "Test 5.3: Check stock availability for product",
+          "status": "passed"
+        },
+        {
+          "name": "Test 5.4: Attempt checkout with insufficient stock",
+          "status": "failed",
+          "error": "500: {\"success\":false,\"error\":\"Insufficient stock available. Available: 96, Requested: 9999\",\"message\":\"Failed to add item to cart\",\"messageBn\":\"কার্টে আইটেম যোগ করতে ব্যর্থ হয়েছে\"}"
+        },
+        {
+          "name": "Test 5.5: Verify stock is reserved during checkout",
+          "status": "failed",
+          "error": "400: {\"error\":\"Validation failed\",\"details\":[{\"type\":\"field\",\"msg\":\"Invalid value\",\"path\":\"items\",\"location\":\"body\"}]}"
+        }
+      ],
+      "passed": 2,
+      "failed": 3,
+      "errors": [
+        {
+          "test": "Test 5.2: Validate cart stock (authenticated)",
+          "error": "Response missing isValid field"
+        },
+        {
+          "test": "Test 5.4: Attempt checkout with insufficient stock",
+          "error": "500: {\"success\":false,\"error\":\"Insufficient stock available. Available: 96, Requested: 9999\",\"message\":\"Failed to add item to cart\",\"messageBn\":\"কার্টে আইটেম যোগ করতে ব্যর্থ হয়েছে\"}",
+          "status": 500
+        },
+        {
+          "test": "Test 5.5: Verify stock is reserved during checkout",
+          "error": "400: {\"error\":\"Validation failed\",\"details\":[{\"type\":\"field\",\"msg\":\"Invalid value\",\"path\":\"items\",\"location\":\"body\"}]}",
+          "status": 400
+        }
+      ]
+    },
+    "scenario6": {
+      "name": "Authenticated User Order History",
+      "tests": [
+        {
+          "name": "Test 6.1: Get order history for authenticated user",
+          "status": "failed",
+          "error": "Response success is false"
+        },
+        {
+          "name": "Test 6.2: Verify all previous orders are displayed",
+          "status": "failed",
+          "error": "Order missing totalAmount"
+        },
+        {
+          "name": "Test 6.3: Verify order details can be viewed",
+          "status": "failed",
+          "error": "No order ID available"
+        },
+        {
+          "name": "Test 6.4: Verify order status is displayed correctly",
+          "status": "failed",
+          "error": "No order ID available"
+        },
+        {
+          "name": "Test 6.5: Verify order items are displayed correctly",
+          "status": "failed",
+          "error": "No order ID available"
+        },
+        {
+          "name": "Test 6.6: Verify order totals are correct",
+          "status": "failed",
+          "error": "No order ID available"
+        }
+      ],
+      "passed": 0,
+      "failed": 6,
+      "errors": [
+        {
+          "test": "Test 6.1: Get order history for authenticated user",
+          "error": "Response success is false"
+        },
+        {
+          "test": "Test 6.2: Verify all previous orders are displayed",
+          "error": "Order missing totalAmount"
+        },
+        {
+          "test": "Test 6.3: Verify order details can be viewed",
+          "error": "No order ID available"
+        },
+        {
+          "test": "Test 6.4: Verify order status is displayed correctly",
+          "error": "No order ID available"
+        },
+        {
+          "test": "Test 6.5: Verify order items are displayed correctly",
+          "error": "No order ID available"
+        },
+        {
+          "test": "Test 6.6: Verify order totals are correct",
+          "error": "No order ID available"
+        }
+      ]
+    }
+  },
+  "testData": {
+    "userId": "2bdca14e-ac33-43ca-b98a-5117c8ecdeb9",
+    "userEmail": "raselbepari88@gmail.com",
+    "cartId": "2614269d-f61a-4669-b1de-7e8a47370311",
+    "productId": "4010caae-464e-4787-ad8f-ee04096100d0",
+    "variantId": null,
+    "createdOrderId": null
+  },
+  "regressions": 4
+}

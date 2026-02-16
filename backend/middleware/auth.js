@@ -1,50 +1,20 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { PrismaClient } = require('@prisma/client');
 const { configService } = require('../services/config');
 const { loggerService } = require('../services/logger');
 const { rateLimitService } = require('../services/rateLimitService');
+const { redisConnectionPool } = require('../services/redisConnectionPool');
+const { databaseService } = require('../services/database');
 
 class AuthMiddleware {
   constructor() {
-    this.prisma = new PrismaClient();
+    this.prisma = databaseService.getClient();
     this.config = configService;
     this.logger = loggerService;
-    this.tokenBlacklist = new Set();
-    this.initializeTokenCleanup();
-  }
-
-  // Initialize token cleanup interval
-  initializeTokenCleanup() {
-    // Clean up expired tokens every hour
-    setInterval(() => {
-      this.cleanupExpiredTokens();
-    }, 60 * 60 * 1000);
-  }
-
-  // Clean up expired tokens from blacklist
-  cleanupExpiredTokens() {
-    const now = Date.now();
-    const expiredTokens = [];
-    
-    for (const token of this.tokenBlacklist) {
-      try {
-        const decoded = jwt.decode(token);
-        if (decoded && decoded.exp * 1000 < now) {
-          expiredTokens.push(token);
-        }
-      } catch (error) {
-        expiredTokens.push(token);
-      }
-    }
-    
-    expiredTokens.forEach(token => {
-      this.tokenBlacklist.delete(token);
-    });
-    
-    if (expiredTokens.length > 0) {
-      this.logger.info(`Cleaned up ${expiredTokens.length} expired tokens from blacklist`);
-    }
+    // SECURITY FIX: Use Redis for token blacklist instead of in-memory Set
+    // This provides persistence across server restarts and automatic TTL-based expiration
+    this.tokenBlacklistPrefix = 'token_blacklist:';
+    this.tokenBlacklistTTL = 24 * 60 * 60; // 24 hours in seconds
   }
 
   // Generate JWT token
@@ -64,16 +34,26 @@ class AuthMiddleware {
   }
 
   // Verify JWT token
-  verifyToken(token) {
+  async verifyToken(token) {
+    console.log('[AUTH MIDDLEWARE] Token verification attempt:', {
+      tokenLength: token?.length,
+      tokenPreview: token?.substring(0, 50) + '...',
+      timestamp: new Date().toISOString()
+    });
+    
     try {
       const jwtSecret = this.config.get('JWT_SECRET');
       
       if (!jwtSecret) {
+        console.error('[AUTH MIDDLEWARE] JWT_SECRET is not configured');
         throw new Error('JWT_SECRET is not configured');
       }
       
-      // Check if token is blacklisted
-      if (this.tokenBlacklist.has(token)) {
+      // SECURITY FIX: Check if token is blacklisted in Redis
+      // Using Redis provides persistence and automatic expiration
+      const isBlacklisted = await this.isTokenBlacklisted(token);
+      if (isBlacklisted) {
+        console.error('[AUTH MIDDLEWARE] Token is blacklisted');
         throw new Error('Token has been revoked');
       }
       
@@ -82,23 +62,88 @@ class AuthMiddleware {
         audience: 'smart-ecommerce-clients'
       });
       
+      console.log('[AUTH MIDDLEWARE] Token verified successfully:', {
+        userId: decoded.userId,
+        email: decoded.email,
+        role: decoded.role,
+        exp: decoded.exp,
+        iat: decoded.iat
+      });
+      
       return decoded;
       
     } catch (error) {
-      if (error.name === 'TokenExpiredError') {
-        throw new Error('Token has expired');
-      } else if (error.name === 'JsonWebTokenError') {
-        throw new Error('Invalid token');
-      } else {
-        throw error;
-      }
+      console.error('[AUTH MIDDLEWARE] Token verification failed:', {
+        error: error.message,
+        errorName: error.name,
+        tokenLength: token?.length,
+        timestamp: new Date().toISOString(),
+        decodedPayload: error.name === 'JsonWebTokenError' ? null : jwt.decode(token),
+        jwtSecretSet: !!this.config.get('JWT_SECRET')
+      });
+      
+      // Re-throw the error to be handled by the calling middleware
+      throw error;
     }
   }
 
-  // Add token to blacklist
-  blacklistToken(token) {
-    this.tokenBlacklist.add(token);
-    this.logger.info('Token added to blacklist', { token: token.substring(0, 20) + '...' });
+  // Check if token is blacklisted in Redis
+  async isTokenBlacklisted(token) {
+    try {
+      const redis = redisConnectionPool.getClient('tokenBlacklist');
+      if (!redis) {
+        // Fallback: Log warning if Redis is not available
+        this.logger.warn('Redis not available for token blacklist check');
+        return false;
+      }
+      const key = this.tokenBlacklistPrefix + this.getTokenHash(token);
+      const result = await redis.get(key);
+      return result !== null;
+    } catch (error) {
+      this.logger.error('Error checking token blacklist', error);
+      return false;
+    }
+  }
+
+  // Add token to blacklist in Redis with TTL
+  async blacklistToken(token) {
+    try {
+      const redis = redisConnectionPool.getClient('tokenBlacklist');
+      if (!redis) {
+        // Fallback: Log warning if Redis is not available
+        this.logger.warn('Redis not available for token blacklist, token will not be blacklisted');
+        return;
+      }
+      
+      // Decode token to get expiration time
+      let ttl = this.tokenBlacklistTTL;
+      try {
+        const decoded = jwt.decode(token);
+        if (decoded && decoded.exp) {
+          const now = Math.floor(Date.now() / 1000);
+          ttl = decoded.exp - now;
+          if (ttl <= 0) {
+            ttl = this.tokenBlacklistTTL; // Token already expired, use default TTL
+          }
+        }
+      } catch (error) {
+        // Use default TTL if we can't decode the token
+      }
+      
+      const key = this.tokenBlacklistPrefix + this.getTokenHash(token);
+      await redis.setEx(key, ttl, '1');
+      this.logger.info('Token added to blacklist', {
+        token: token.substring(0, 20) + '...',
+        ttl
+      });
+    } catch (error) {
+      this.logger.error('Error adding token to blacklist', error);
+    }
+  }
+
+  // Get hash of token for storage (to save space)
+  getTokenHash(token) {
+    return crypto.createHash('sha256').update(token).digest('hex');
   }
 
   // Extract token from request
@@ -169,7 +214,7 @@ class AuthMiddleware {
           tokenPrefix: token.substring(0, 20) + '...'
         });
         
-        const decoded = this.verifyToken(token);
+        const decoded = await this.verifyToken(token);
         
         this.logger.info('Token verified', {
           userId: decoded.userId,
@@ -177,22 +222,49 @@ class AuthMiddleware {
         });
         
         // Fetch user from database
-        const user = await this.prisma.user.findUnique({
-          where: { id: decoded.userId },
-          select: {
-            id: true,
-            email: true,
-            phone: true,
-            firstName: true,
-            lastName: true,
-            role: true,
-            status: true, // Changed from isActive to status
-            emailVerified: true, // Changed from isEmailVerified to emailVerified
-            phoneVerified: true, // Changed from isPhoneVerified to phoneVerified
-            createdAt: true,
-            updatedAt: true
+        let user;
+        try {
+          // FIX 1: Extract userId from multiple possible field names to handle different JWT payload structures
+          // NextAuth and other auth providers may use different field names (sub, id, user_id, userId)
+          const userId = decoded.userId || decoded.sub || decoded.id || decoded.user_id;
+
+          if (!userId) {
+            this.logger.error('JWT token missing user identifier', {
+              availableFields: Object.keys(decoded),
+              decoded: decoded
+            });
+            return res.status(401).json({
+              success: false,
+              error: 'Invalid token: missing user identifier'
+            });
           }
-        });
+
+          user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+              id: true,
+              email: true,
+              phone: true,
+              firstName: true,
+              lastName: true,
+              role: true,
+              status: true, // Changed from isActive to status
+              emailVerified: true, // Changed from isEmailVerified to emailVerified
+              phoneVerified: true, // Changed from isPhoneVerified to phoneVerified
+              createdAt: true,
+              updatedAt: true
+            }
+          });
+        } catch (error) {
+          this.logger.error('Database error during user lookup', {
+            userId: decoded.userId,
+            error: error.message
+          });
+          return res.status(401).json({
+            error: 'Authentication failed',
+            message: 'User lookup failed'
+          });
+        }
         
         if (!user) {
           this.logger.warn('User not found', { userId: decoded.userId });
@@ -299,29 +371,51 @@ class AuthMiddleware {
   // Optional authentication middleware
   optional() {
     return async (req, res, next) => {
-      try {
-        const token = this.extractToken(req);
-        
-        if (token) {
-          const decoded = this.verifyToken(token);
-          
-          // Fetch user from database
-          const user = await this.prisma.user.findUnique({
-            where: { id: decoded.userId },
-            select: {
-              id: true,
-              email: true,
-              phone: true,
-              firstName: true,
-              lastName: true,
-              role: true,
-              status: true, // Changed from isActive to status
-              emailVerified: true, // Changed from isEmailVerified to emailVerified
-              phoneVerified: true, // Changed from isPhoneVerified to phoneVerified
-              createdAt: true,
-              updatedAt: true
+  try {
+    const token = this.extractToken(req);
+    
+    if (token) {
+      const decoded = await this.verifyToken(token);
+      
+      // Fetch user from database
+          let user;
+          try {
+            // FIX 1: Extract userId from multiple possible field names to handle different JWT payload structures
+            // NextAuth and other auth providers may use different field names (sub, id, user_id, userId)
+            const userId = decoded.userId || decoded.sub || decoded.id || decoded.user_id;
+
+            if (!userId) {
+              this.logger.warn('Optional auth - JWT token missing user identifier', {
+                availableFields: Object.keys(decoded)
+              });
+              // For optional auth, continue without user
+              user = null;
+            } else {
+              user = await this.prisma.user.findUnique({
+                where: { id: userId },
+                select: {
+                  id: true,
+                  email: true,
+                  phone: true,
+                  firstName: true,
+                  lastName: true,
+                  role: true,
+                  status: true, // Changed from isActive to status
+                  emailVerified: true, // Changed from isEmailVerified to emailVerified
+                  phoneVerified: true, // Changed from isPhoneVerified to phoneVerified
+                  createdAt: true,
+                  updatedAt: true
+                }
+              });
             }
-          });
+          } catch (error) {
+            this.logger.warn('Optional auth - Database error during user lookup', {
+              userId: decoded.userId,
+              error: error.message
+            });
+            // For optional auth, continue without user on database error
+            user = null;
+          }
           
           // DIAGNOSTIC: Log the actual status value from database
           if (user) {
@@ -397,34 +491,86 @@ class AuthMiddleware {
             break;
             
           case 'order':
-            const order = await this.prisma.order.findUnique({
-              where: { id: resourceId },
-              select: { userId: true }
-            });
+            let order;
+            try {
+              order = await this.prisma.order.findUnique({
+                where: { id: resourceId },
+                select: { userId: true }
+              });
+            } catch (error) {
+              this.logger.error('Database error during order ownership check', {
+                resourceId,
+                userId,
+                error: error.message
+              });
+              return res.status(500).json({
+                error: 'Authorization check failed',
+                message: 'Failed to verify order ownership'
+              });
+            }
             isOwner = order && order.userId === userId;
             break;
             
           case 'cart':
-            const cart = await this.prisma.cart.findUnique({
-              where: { id: resourceId },
-              select: { userId: true }
-            });
+            let cart;
+            try {
+              cart = await this.prisma.cart.findUnique({
+                where: { id: resourceId },
+                select: { userId: true }
+              });
+            } catch (error) {
+              this.logger.error('Database error during cart ownership check', {
+                resourceId,
+                userId,
+                error: error.message
+              });
+              return res.status(500).json({
+                error: 'Authorization check failed',
+                message: 'Failed to verify cart ownership'
+              });
+            }
             isOwner = cart && cart.userId === userId;
             break;
             
           case 'wishlist':
-            const wishlist = await this.prisma.wishlist.findUnique({
-              where: { id: resourceId },
-              select: { userId: true }
-            });
+            let wishlist;
+            try {
+              wishlist = await this.prisma.wishlist.findUnique({
+                where: { id: resourceId },
+                select: { userId: true }
+              });
+            } catch (error) {
+              this.logger.error('Database error during wishlist ownership check', {
+                resourceId,
+                userId,
+                error: error.message
+              });
+              return res.status(500).json({
+                error: 'Authorization check failed',
+                message: 'Failed to verify wishlist ownership'
+              });
+            }
             isOwner = wishlist && wishlist.userId === userId;
             break;
             
           case 'review':
-            const review = await this.prisma.review.findUnique({
-              where: { id: resourceId },
-              select: { userId: true }
-            });
+            let review;
+            try {
+              review = await this.prisma.review.findUnique({
+                where: { id: resourceId },
+                select: { userId: true }
+              });
+            } catch (error) {
+              this.logger.error('Database error during review ownership check', {
+                resourceId,
+                userId,
+                error: error.message
+              });
+              return res.status(500).json({
+                error: 'Authorization check failed',
+                message: 'Failed to verify review ownership'
+              });
+            }
             isOwner = review && review.userId === userId;
             break;
             
@@ -531,19 +677,31 @@ class AuthMiddleware {
         }
         
         // Find API key in database
-        const keyRecord = await this.prisma.apiKey.findUnique({
-          where: { key: apiKey },
-          include: {
-            user: {
-              select: {
-                id: true,
-                email: true,
-                role: true,
-                status: true // Changed from isActive to status
+        let keyRecord;
+        try {
+          keyRecord = await this.prisma.apiKey.findUnique({
+            where: { key: apiKey },
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  email: true,
+                  role: true,
+                  status: true // Changed from isActive to status
+                }
               }
             }
-          }
-        });
+          });
+        } catch (error) {
+          this.logger.error('Database error during API key lookup', {
+            apiKey: apiKey.substring(0, 10) + '...',
+            error: error.message
+          });
+          return res.status(500).json({
+            error: 'Authentication failed',
+            message: 'Failed to verify API key'
+          });
+        }
         
         if (!keyRecord) {
           return res.status(401).json({

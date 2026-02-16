@@ -132,8 +132,6 @@ router.delete('/account', [
       where: { id: userId },
       data: {
         deletedAt: new Date(),
-        email: `${user.email}_deleted_${Date.now()}`, // Make email unique to allow reuse
-        phone: user.phone ? `${user.phone}_deleted_${Date.now()}` : null, // Make phone unique to allow reuse
         status: 'INACTIVE'
       }
     });

@@ -29,26 +29,18 @@ const {
   createFestivalWishlist,
   BANGLADESH_WISHLIST_PRODUCTS,
   BANGLADESH_FESTIVAL_WISHLISTS
-} = require('./bangladesh-wishlist-fixtures.test');
+} = require('./bangladesh-wishlist-fixtures.js');
 
 const app = require('../index');
 const prisma = new PrismaClient();
 
 // Mock notification services
-jest.mock('../services/email-service', () => ({
-  sendPriceDropNotification: jest.fn().mockResolvedValue({ success: true }),
-  sendStockAlertNotification: jest.fn().mockResolvedValue({ success: true }),
-  sendWishlistReminderNotification: jest.fn().mockResolvedValue({ success: true }),
-  sendProductRecommendationNotification: jest.fn().mockResolvedValue({ success: true })
+jest.mock('../services/emailService', () => ({
+  sendEmail: jest.fn().mockResolvedValue({ success: true })
 }));
 
-jest.mock('../services/push-notification-service', () => ({
-  sendPushNotification: jest.fn().mockResolvedValue({ success: true }),
-  sendInAppNotification: jest.fn().mockResolvedValue({ success: true })
-}));
-
-jest.mock('../services/sms-service', () => ({
-  sendSMSNotification: jest.fn().mockResolvedValue({ success: true })
+jest.mock('../services/smsService', () => ({
+  sendSMS: jest.fn().mockResolvedValue({ success: true })
 }));
 
 describe('Wishlist Notification Features', () => {

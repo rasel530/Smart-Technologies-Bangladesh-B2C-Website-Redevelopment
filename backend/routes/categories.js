@@ -105,13 +105,29 @@ const handleValidationErrors = (req, res, next) => {
   next();
 };
 
-// Helper function to build category tree
-const buildCategoryTree = (categories, parentId = null) => {
+// Helper function to build category tree with circular reference protection
+const MAX_DEPTH = 10; // Prevent excessive nesting
+
+const buildCategoryTree = (categories, parentId = null, visited = new Set(), depth = 0) => {
+  // Prevent excessive recursion depth
+  if (depth > MAX_DEPTH) {
+    console.warn('[buildCategoryTree] Maximum depth exceeded:', depth, 'parentId:', parentId);
+    return [];
+  }
+  
+  // Prevent circular references
+  const key = `${parentId || 'root'}`;
+  if (visited.has(key)) {
+    console.warn('[buildCategoryTree] Circular reference detected at parentId:', parentId);
+    return []; // Return empty array for circular reference
+  }
+  visited.add(key);
+  
   const tree = categories
     .filter(category => category.parentId === parentId)
     .map(category => ({
       ...category,
-      children: buildCategoryTree(categories, category.id)
+      children: buildCategoryTree(categories, category.id, new Set(visited), depth + 1)
     }));
   
   return tree.sort((a, b) => a.displayOrder - b.displayOrder);
@@ -145,6 +161,7 @@ const getCategoryPath = async (categoryId) => {
 router.get('/tree', async (req, res) => {
   try {
     const { status } = req.query;
+    console.log('[/categories/tree] Request received:', { status });
 
     const where = status ? { status } : {};
 
@@ -158,7 +175,15 @@ router.get('/tree', async (req, res) => {
       orderBy: { displayOrder: 'asc' }
     });
 
+    console.log('[/categories/tree] Categories fetched:', categories.length);
+    console.log('[/categories/tree] Sample categories:', categories.slice(0, 3).map(c => ({
+      id: c.id,
+      name: c.name,
+      parentId: c.parentId
+    })));
+
     const categoryTree = buildCategoryTree(categories);
+    console.log('[/categories/tree] Tree built successfully');
 
     res.json({
       tree: categoryTree,
@@ -166,7 +191,12 @@ router.get('/tree', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get category tree error:', error);
+    console.error('[/categories/tree] Error:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      meta: error.meta
+    });
     res.status(500).json({
       error: 'Failed to fetch category tree',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'

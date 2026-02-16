@@ -8,7 +8,7 @@
  * client-side interactions like filters, sorting, and search history.
  */
 
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useMemo } from 'react';
 import { ProductGrid } from '@/components/product/ProductGrid';
 import { FilterSidebar } from '@/components/product/FilterSidebar';
 import { SortDropdown } from '@/components/product/SortDropdown';
@@ -90,13 +90,16 @@ export function SearchPageClient({
     'Bluetooth Speaker',
   ];
 
+  // Memoize breadcrumbs to prevent infinite loop in BreadcrumbNavigation
+  const breadcrumbs = useMemo(() => generateSearchBreadcrumbs(query), [query]);
+
   return (
     <SearchPageContent>
       <div className="min-h-screen bg-gray-50">
         {/* Breadcrumb */}
         <div className="bg-white border-b border-gray-200">
           <div className="container mx-auto px-4 py-4">
-            <BreadcrumbNavigation items={generateSearchBreadcrumbs(query)} />
+            <BreadcrumbNavigation items={breadcrumbs} />
           </div>
         </div>
 

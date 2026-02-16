@@ -1,0 +1,60 @@
+{
+  "login": {
+    "success": true,
+    "statusCode": 200,
+    "token": "eyJhbGciOiJIUzI1NiIs...",
+    "userId": "2bdca14e-ac33-43ca-b98a-5117c8ecdeb9",
+    "email": "raselbepari88@gmail.com"
+  },
+  "cart": {
+    "success": true,
+    "statusCode": 200,
+    "itemCount": 0,
+    "items": []
+  },
+  "placeOrder": null,
+  "orderDetails": null,
+  "stockUpdate": {
+    "success": false,
+    "error": "Cart is empty after order placement"
+  },
+  "orderHistory": {
+    "success": true,
+    "statusCode": 200,
+    "totalOrders": 4,
+    "orders": [
+      {
+        "orderId": "45bfd340-0f6c-45f1-805c-5e64ca378459",
+        "orderNumber": "ORD177098084778865",
+        "status": "confirmed",
+        "createdAt": "2026-02-13T11:07:27.790Z"
+      },
+      {
+        "orderId": "fe5e7f65-7158-4f20-8314-0b5f36081614",
+        "orderNumber": "ORD1770977328305933",
+        "status": "pending",
+        "createdAt": "2026-02-13T10:08:48.306Z"
+      },
+      {
+        "orderId": "17b750be-683b-4ae6-a116-9a3332502c05",
+        "orderNumber": "ORD1770932063030556",
+        "status": "confirmed",
+        "createdAt": "2026-02-12T21:34:23.031Z"
+      },
+      {
+        "orderId": "b4267a0c-34f6-4873-b083-9c529f49bdc9",
+        "orderNumber": "ORD1770931924340241",
+        "status": "pending",
+        "createdAt": "2026-02-12T21:32:04.342Z"
+      }
+    ]
+  },
+  "errors": [
+    "Cannot place order: Cart is empty",
+    "Cannot verify order details: No order ID"
+  ],
+  "warnings": [
+    "Cart is empty - cannot proceed with order test",
+    "Created order not found in order history"
+  ]
+}

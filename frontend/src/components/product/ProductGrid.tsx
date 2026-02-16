@@ -25,6 +25,8 @@ interface ProductGridProps {
   };
   loading?: boolean;
   viewMode?: 'grid' | 'list';
+  onAddToCart?: (productId: string, variantId?: string) => void;
+  onToggleWishlist?: (productId: string) => void;
 }
 
 /**
@@ -43,6 +45,8 @@ export function ProductGrid({
   },
   loading = false,
   viewMode = 'grid',
+  onAddToCart,
+  onToggleWishlist,
 }: ProductGridProps) {
   // Show loading skeleton
   if (loading) {
@@ -94,6 +98,8 @@ export function ProductGrid({
             product={product}
             isWishlisted={wishlistedProducts.has(product.id)}
             viewMode="list"
+            onAddToCart={onAddToCart}
+            onToggleWishlist={onToggleWishlist}
           />
         ))}
       </div>
@@ -109,6 +115,8 @@ export function ProductGrid({
           product={product}
           isWishlisted={wishlistedProducts.has(product.id)}
           viewMode="grid"
+          onAddToCart={onAddToCart}
+          onToggleWishlist={onToggleWishlist}
         />
       ))}
     </div>

@@ -1,0 +1,454 @@
+}
+[LOGIN DIAGNOSTIC] Step 7: Verifying password
+[LOGIN DIAGNOSTIC] Step 8: Password verification result: true
+[LOGIN DIAGNOSTIC] Step 10: Verification check: {
+  isTestingMode: false,
+  isEmailVerificationDisabled: false,
+  isPhoneVerificationDisabled: false,
+  userStatus: 'active',
+  loginType: 'email'
+}
+[LOGIN DIAGNOSTIC] Step 11: requiresVerification: true
+[LOGIN DIAGNOSTIC] Step 15: Creating session for user 2bdca14e-ac33-43ca-b98a-5117c8ecdeb9
+[LOGIN DIAGNOSTIC] Step 16: Session created: {
+  sessionId: '0b7d5adf0c525e527b95749b2e08fd3c253c62a52fc57f07fc6e76e4aee9a960',
+  success: true,
+  maxAge: 86400000
+}
+[LOGIN DIAGNOSTIC] Step 18: rememberMe value before if check: undefined undefined
+[LOGIN DIAGNOSTIC] Step 19: Skipping remember me token creation (rememberMe is false or undefined)
+[LOGIN DIAGNOSTIC] Step 20: Final rememberToken value before response: null
+[LOGIN DIAGNOSTIC] Step 21: Setting session cookie
+[LOGIN DIAGNOSTIC] Step 22: Generating JWT token
+[LOGIN DIAGNOSTIC] Step 24: JWT token generated successfully
+{"environment":"production","instanceId":"default","level":"error","message":"Error clearing failed attempts","service":"smart-ecommerce-api","timestamp":"2026-02-12T21:15:13.613Z","version":"1.0.0"}
+[LOGIN DIAGNOSTIC] Step 25: About to send success response
+[LOGIN DIAGNOSTIC] Response data: {
+  message: 'Login successful',
+  hasUser: true,
+  hasToken: true,
+  hasSessionId: true,
+  hasRememberToken: false,
+  userId: '2bdca14e-ac33-43ca-b98a-5117c8ecdeb9',
+  loginType: 'email',
+  rememberMe: false
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-12T21:15:13.621Z',
+  method: 'GET',
+  path: '/api/v1/products',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': undefined
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/products',
+  url: '/api/v1/products?limit=5',
+  timestamp: '2026-02-12T21:15:13.622Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: application/json
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/products?limit=5
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/products?limit=5
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1770930013623
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-12T21:15:13.645Z',
+  method: 'GET',
+  path: '/api/v1/users/2bdca14e-ac33-43ca-b98a-5117c8ecdeb9/addresses',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': undefined
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/users/2bdca14e-ac33-43ca-b98a-5117c8ecdeb9/addresses',
+  url: '/api/v1/users/2bdca14e-ac33-43ca-b98a-5117c8ecdeb9/addresses',
+  timestamp: '2026-02-12T21:15:13.645Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: application/json
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/users/2bdca14e-ac33-43ca-b98a-5117c8ecdeb9/addresses
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/users/2bdca14e-ac33-43ca-b98a-5117c8ecdeb9/addresses
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1770930013647
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-12T21:15:13.653Z
+}
+🔍 Query: {
+  query: 'SELECT "public"."users"."id", "public"."users"."email", "public"."users"."phone", "public"."users"."firstName", "public"."users"."lastName", "public"."users"."role"::text, "public"."users"."status"::text, "public"."users"."emailVerified", "public"."users"."phoneVerified", "public"."users"."createdAt", "public"."users"."updatedAt" FROM "public"."users" WHERE ("public"."users"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3',
+  params: '["2bdca14e-ac33-43ca-b98a-5117c8ecdeb9",1,0]',
+  duration: '0ms',
+  timestamp: 2026-02-12T21:15:13.654Z
+}
+🔍 Query: {
+  query: 'SELECT "public"."user_roles"."id", "public"."user_roles"."user_id", "public"."user_roles"."role_id", "public"."user_roles"."assigned_by", "public"."user_roles"."assigned_at", "public"."user_roles"."expires_at", "public"."user_roles"."is_active" FROM "public"."user_roles" LEFT JOIN "public"."roles" AS "orderby_1" ON ("orderby_1"."id") = ("public"."user_roles"."role_id") WHERE ("public"."user_roles"."user_id" = $1 AND "public"."user_roles"."is_active" = $2 AND ("public"."user_roles"."expires_at" IS NULL OR "public"."user_roles"."expires_at" > $3)) ORDER BY "orderby_1"."hierarchy_level" DESC, "public"."user_roles"."assigned_at" DESC OFFSET $4',
+  params: '["2bdca14e-ac33-43ca-b98a-5117c8ecdeb9",true,"2026-02-12 21:15:13.655 UTC",0]',
+  duration: '0ms',
+  timestamp: 2026-02-12T21:15:13.657Z
+}
+[AUTH DEBUG] User authenticated successfully: {
+  userId: '2bdca14e-ac33-43ca-b98a-5117c8ecdeb9',
+  email: 'raselbepari88@gmail.com',
+  role: 'customer',
+  timestamp: '2026-02-12T21:15:13.658Z'
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-12T21:15:13.662Z',
+  method: 'POST',
+  path: '/api/v1/orders',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': undefined
+}
+[SERVER] Request received: {
+  method: 'POST',
+  path: '/api/v1/orders',
+  url: '/api/v1/orders',
+  timestamp: '2026-02-12T21:15:13.662Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: application/json
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: POST
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/orders
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: {
+  addressId: 'e5cc2d06-90ca-4fbb-bed6-ff6f965e3ed2',
+  items: [
+    { productId: '4010caae-464e-4787-ad8f-ee04096100d0', quantity: 1 }
+  ],
+  paymentMethod: 'CASH_ON_DELIVERY',
+  notes: 'Test order for variantId fix verification'
+}
+[JSON PARSER DIAGNOSTIC] Request body type: object
+[JSON PARSER DIAGNOSTIC] Request body keys: [ 'addressId', 'items', 'paymentMethod', 'notes' ]
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/orders
+[RATE LIMIT SERVICE] Request method: POST
+[RATE LIMIT SERVICE] req.body before processing: {
+  addressId: 'e5cc2d06-90ca-4fbb-bed6-ff6f965e3ed2',
+  items: [
+    { productId: '4010caae-464e-4787-ad8f-ee04096100d0', quantity: 1 }
+  ],
+  paymentMethod: 'CASH_ON_DELIVERY',
+  notes: 'Test order for variantId fix verification'
+}
+[RATE LIMIT SERVICE] req.body type: object
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1770930013663
+[RATE LIMIT SERVICE] req.body after key generation: {
+  addressId: 'e5cc2d06-90ca-4fbb-bed6-ff6f965e3ed2',
+  items: [
+    { productId: '4010caae-464e-4787-ad8f-ee04096100d0', quantity: 1 }
+  ],
+  paymentMethod: 'CASH_ON_DELIVERY',
+  notes: 'Test order for variantId fix verification'
+}
+🔍 Query: {
+  query: 'SELECT "public"."users"."id", "public"."users"."email", "public"."users"."phone", "public"."users"."firstName", "public"."users"."lastName", "public"."users"."role"::text, "public"."users"."status"::text, "public"."users"."emailVerified", "public"."users"."phoneVerified", "public"."users"."createdAt", "public"."users"."updatedAt" FROM "public"."users" WHERE ("public"."users"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3',
+  params: '["2bdca14e-ac33-43ca-b98a-5117c8ecdeb9",1,0]',
+  duration: '0ms',
+  timestamp: 2026-02-12T21:15:13.668Z
+}
+🔍 Query: {
+  query: 'SELECT "public"."user_roles"."id", "public"."user_roles"."user_id", "public"."user_roles"."role_id", "public"."user_roles"."assigned_by", "public"."user_roles"."assigned_at", "public"."user_roles"."expires_at", "public"."user_roles"."is_active" FROM "public"."user_roles" LEFT JOIN "public"."roles" AS "orderby_1" ON ("orderby_1"."id") = ("public"."user_roles"."role_id") WHERE ("public"."user_roles"."user_id" = $1 AND "public"."user_roles"."is_active" = $2 AND ("public"."user_roles"."expires_at" IS NULL OR "public"."user_roles"."expires_at" > $3)) ORDER BY "orderby_1"."hierarchy_level" DESC, "public"."user_roles"."assigned_at" DESC OFFSET $4',
+  params: '["2bdca14e-ac33-43ca-b98a-5117c8ecdeb9",true,"2026-02-12 21:15:13.669 UTC",0]',
+  duration: '0ms',
+  timestamp: 2026-02-12T21:15:13.671Z
+}
+[AUTH DEBUG] User authenticated successfully: {
+  userId: '2bdca14e-ac33-43ca-b98a-5117c8ecdeb9',
+  email: 'raselbepari88@gmail.com',
+  role: 'customer',
+  timestamp: '2026-02-12T21:15:13.671Z'
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-12T21:15:13.687Z',
+  method: 'GET',
+  path: '/api/v1/orders',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': undefined
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/orders',
+  url: '/api/v1/orders',
+  timestamp: '2026-02-12T21:15:13.687Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: application/json
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/orders
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/orders
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1770930013687
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT "public"."users"."id", "public"."users"."email", "public"."users"."phone", "public"."users"."firstName", "public"."users"."lastName", "public"."users"."role"::text, "public"."users"."status"::text, "public"."users"."emailVerified", "public"."users"."phoneVerified", "public"."users"."createdAt", "public"."users"."updatedAt" FROM "public"."users" WHERE ("public"."users"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3',
+  params: '["2bdca14e-ac33-43ca-b98a-5117c8ecdeb9",1,0]',
+  duration: '0ms',
+  timestamp: 2026-02-12T21:15:13.692Z
+}
+🔍 Query: {
+  query: 'SELECT "public"."user_roles"."id", "public"."user_roles"."user_id", "public"."user_roles"."role_id", "public"."user_roles"."assigned_by", "public"."user_roles"."assigned_at", "public"."user_roles"."expires_at", "public"."user_roles"."is_active" FROM "public"."user_roles" LEFT JOIN "public"."roles" AS "orderby_1" ON ("orderby_1"."id") = ("public"."user_roles"."role_id") WHERE ("public"."user_roles"."user_id" = $1 AND "public"."user_roles"."is_active" = $2 AND ("public"."user_roles"."expires_at" IS NULL OR "public"."user_roles"."expires_at" > $3)) ORDER BY "orderby_1"."hierarchy_level" DESC, "public"."user_roles"."assigned_at" DESC OFFSET $4',
+  params: '["2bdca14e-ac33-43ca-b98a-5117c8ecdeb9",true,"2026-02-12 21:15:13.692 UTC",0]',
+  duration: '0ms',
+  timestamp: 2026-02-12T21:15:13.694Z
+}
+[AUTH DEBUG] User authenticated successfully: {
+  userId: '2bdca14e-ac33-43ca-b98a-5117c8ecdeb9',
+  email: 'raselbepari88@gmail.com',
+  role: 'customer',
+  timestamp: '2026-02-12T21:15:13.694Z'
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-12T21:15:23.196Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-12T21:15:23.197Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: undefined
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1770930023197
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-12T21:15:23.200Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-12T21:15:53.255Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-12T21:15:53.255Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: undefined
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1770930053255
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-12T21:15:53.259Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-12T21:15:53.260Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-12T21:16:23.349Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-12T21:16:23.350Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: undefined
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1770930083351
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '1ms',
+  timestamp: 2026-02-12T21:16:23.358Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-12T21:16:23.358Z
+}

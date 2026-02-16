@@ -1,0 +1,32 @@
+{
+  "total": 5,
+  "passed": 0,
+  "failed": 5,
+  "errors": [
+    {
+      "test": "Test 1: New Guest User Add to Cart (Primary Fix Verification)",
+      "error": "500: {\"success\":false,\"error\":\"\\nInvalid `prisma.cartItem.create()` invocation:\\n\\n{\\n  data: {\\n    cartId: \\\"7d60f98e-51e7-4a50-9c63-a338dceb2885\\\",\\n    productId: \\\"4010caae-464e-4787-ad8f-ee04096100d0\\\",\\n    variantId: null,\\n    quantity: 1,\\n    price: 5000,\\n    subtotal: 5000\\n  },\\n  select: {\\n    id: true,\\n    cartId: true,\\n    productId: true,\\n    variantId: true,\\n    quantity: true,\\n    price: true,\\n    subtotal: true,\\n    addedAt: true,\\n    updatedAt: true,\\n    ~~~~~~~~~\\n    product: {\\n      select: {\\n        id: true,\\n        name: true,\\n        slug: true,\\n        regularPrice: true,\\n        salePrice: true,\\n        images: true\\n      }\\n    },\\n    variant: true,\\n?   cart?: true\\n  }\\n}\\n\\nUnknown field `updatedAt` for select statement on model `CartItem`. Available options are marked with ?.\",\"message\":\"Failed to add item to cart\",\"messageBn\":\"কার্টে আইটেম যোগ করতে ব্যর্থ হয়েছে\"}",
+      "status": 500
+    },
+    {
+      "test": "Test 2: Guest Cart Product Details Loading (Secondary Fix Verification)",
+      "error": "500: {\"success\":false,\"error\":\"\\nInvalid `prisma.cartItem.create()` invocation:\\n\\n{\\n  data: {\\n    cartId: \\\"5447c689-dd87-477b-891e-7f37608e7859\\\",\\n    productId: \\\"4010caae-464e-4787-ad8f-ee04096100d0\\\",\\n    variantId: null,\\n    quantity: 1,\\n    price: 5000,\\n    subtotal: 5000\\n  },\\n  select: {\\n    id: true,\\n    cartId: true,\\n    productId: true,\\n    variantId: true,\\n    quantity: true,\\n    price: true,\\n    subtotal: true,\\n    addedAt: true,\\n    updatedAt: true,\\n    ~~~~~~~~~\\n    product: {\\n      select: {\\n        id: true,\\n        name: true,\\n        slug: true,\\n        regularPrice: true,\\n        salePrice: true,\\n        images: true\\n      }\\n    },\\n    variant: true,\\n?   cart?: true\\n  }\\n}\\n\\nUnknown field `updatedAt` for select statement on model `CartItem`. Available options are marked with ?.\",\"message\":\"Failed to add item to cart\",\"messageBn\":\"কার্টে আইটেম যোগ করতে ব্যর্থ হয়েছে\"}",
+      "status": 500
+    },
+    {
+      "test": "Test 3: Guest Cart Persistence Across Page Refreshes",
+      "error": "500: {\"success\":false,\"error\":\"\\nInvalid `prisma.cartItem.create()` invocation:\\n\\n{\\n  data: {\\n    cartId: \\\"1e105ef0-8e7b-42de-8015-dcf76568cd67\\\",\\n    productId: \\\"4010caae-464e-4787-ad8f-ee04096100d0\\\",\\n    variantId: null,\\n    quantity: 2,\\n    price: 5000,\\n    subtotal: 10000\\n  },\\n  select: {\\n    id: true,\\n    cartId: true,\\n    productId: true,\\n    variantId: true,\\n    quantity: true,\\n    price: true,\\n    subtotal: true,\\n    addedAt: true,\\n    updatedAt: true,\\n    ~~~~~~~~~\\n    product: {\\n      select: {\\n        id: true,\\n        name: true,\\n        slug: true,\\n        regularPrice: true,\\n        salePrice: true,\\n        images: true\\n      }\\n    },\\n    variant: true,\\n?   cart?: true\\n  }\\n}\\n\\nUnknown field `updatedAt` for select statement on model `CartItem`. Available options are marked with ?.\",\"message\":\"Failed to add item to cart\",\"messageBn\":\"কার্টে আইটেম যোগ করতে ব্যর্থ হয়েছে\"}",
+      "status": 500
+    },
+    {
+      "test": "Test 4: Multiple Items in Guest Cart",
+      "error": "500: {\"success\":false,\"error\":\"\\nInvalid `prisma.cartItem.create()` invocation:\\n\\n{\\n  data: {\\n    cartId: \\\"a3e85f7e-d2eb-4f16-9761-c8c1fb7c21fe\\\",\\n    productId: \\\"4010caae-464e-4787-ad8f-ee04096100d0\\\",\\n    variantId: null,\\n    quantity: 2,\\n    price: 5000,\\n    subtotal: 10000\\n  },\\n  select: {\\n    id: true,\\n    cartId: true,\\n    productId: true,\\n    variantId: true,\\n    quantity: true,\\n    price: true,\\n    subtotal: true,\\n    addedAt: true,\\n    updatedAt: true,\\n    ~~~~~~~~~\\n    product: {\\n      select: {\\n        id: true,\\n        name: true,\\n        slug: true,\\n        regularPrice: true,\\n        salePrice: true,\\n        images: true\\n      }\\n    },\\n    variant: true,\\n?   cart?: true\\n  }\\n}\\n\\nUnknown field `updatedAt` for select statement on model `CartItem`. Available options are marked with ?.\",\"message\":\"Failed to add item to cart\",\"messageBn\":\"কার্টে আইটেম যোগ করতে ব্যর্থ হয়েছে\"}",
+      "status": 500
+    },
+    {
+      "test": "Test 5: Guest Cart with Sale Price Products",
+      "error": "500: {\"success\":false,\"error\":\"\\nInvalid `prisma.cartItem.create()` invocation:\\n\\n{\\n  data: {\\n    cartId: \\\"dd9c4516-d018-449a-a3ef-ba2c23c83820\\\",\\n    productId: \\\"c571ed71-fd5b-4158-ad6d-87405e75f046\\\",\\n    variantId: null,\\n    quantity: 1,\\n    price: 850,\\n    subtotal: 850\\n  },\\n  select: {\\n    id: true,\\n    cartId: true,\\n    productId: true,\\n    variantId: true,\\n    quantity: true,\\n    price: true,\\n    subtotal: true,\\n    addedAt: true,\\n    updatedAt: true,\\n    ~~~~~~~~~\\n    product: {\\n      select: {\\n        id: true,\\n        name: true,\\n        slug: true,\\n        regularPrice: true,\\n        salePrice: true,\\n        images: true\\n      }\\n    },\\n    variant: true,\\n?   cart?: true\\n  }\\n}\\n\\nUnknown field `updatedAt` for select statement on model `CartItem`. Available options are marked with ?.\",\"message\":\"Failed to add item to cart\",\"messageBn\":\"কার্টে আইটেম যোগ করতে ব্যর্থ হয়েছে\"}",
+      "status": 500
+    }
+  ]
+}

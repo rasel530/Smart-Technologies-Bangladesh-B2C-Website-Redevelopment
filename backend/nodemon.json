@@ -1,0 +1,16 @@
+{
+  "watch": ["src", "routes", "services", "middleware", "prisma"],
+  "ext": "js,json",
+  "ignore": [
+    "node_modules/**",
+    ".git/**",
+    "uploads/**",
+    "exports/**",
+    "coverage/**",
+    "*.test.js",
+    "*.spec.js"
+  ],
+  "exec": "node index.js",
+  "delay": "1000",
+  "verbose": true
+}

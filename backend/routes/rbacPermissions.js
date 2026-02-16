@@ -1,12 +1,30 @@
 const express = require('express');
 const { body, param, validationResult } = require('express-validator');
 const { rbacAuthMiddleware } = require('../middleware/rbacAuth');
+const { authMiddleware } = require('../middleware/auth');
 const { rbacUtils } = require('../utils/rbacUtils');
 const { loggerService } = require('../services/logger');
 const Permission = require('../models/Permission');
 
 const router = express.Router();
 const permissionModel = new Permission();
+
+// SECURITY FIX: Add rate limiting to RBAC endpoints to prevent brute force attacks
+const rbacReadRateLimit = authMiddleware.rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 100, // 100 requests per minute for read operations
+  message: 'Too many requests, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const rbacWriteRateLimit = authMiddleware.rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 20, // 20 requests per minute for write operations
+  message: 'Too many requests, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 // Validation middleware
 const handleValidationErrors = (req, res, next) => {
@@ -25,7 +43,7 @@ const handleValidationErrors = (req, res, next) => {
  * @desc    Get all permissions
  * @access  Public (or authenticated based on requirements)
  */
-router.get('/', rbacAuthMiddleware.authenticate(), async (req, res) => {
+router.get('/', rbacReadRateLimit, rbacAuthMiddleware.authenticate(), rbacAuthMiddleware.requireAdmin(), async (req, res) => {
   try {
     const { resource } = req.query;
     
@@ -56,7 +74,7 @@ router.get('/', rbacAuthMiddleware.authenticate(), async (req, res) => {
  * @desc    Get all unique resource categories
  * @access  Authenticated
  */
-router.get('/resources', rbacAuthMiddleware.authenticate(), async (req, res) => {
+router.get('/resources', rbacReadRateLimit, rbacAuthMiddleware.authenticate(), async (req, res) => {
   try {
     const resources = await rbacUtils.getPermissionCategories();
     
@@ -82,7 +100,7 @@ router.get('/resources', rbacAuthMiddleware.authenticate(), async (req, res) => 
  */
 router.get('/:id', [
   param('id').isUUID().withMessage('Invalid permission ID')
-], handleValidationErrors, rbacAuthMiddleware.authenticate(), async (req, res) => {
+], handleValidationErrors, rbacReadRateLimit, rbacAuthMiddleware.authenticate(), async (req, res) => {
   try {
     const { id } = req.params;
     const permission = await permissionModel.findById(id);
@@ -119,7 +137,7 @@ router.post('/', [
   body('resource').trim().notEmpty().withMessage('Resource is required'),
   body('action').trim().notEmpty().withMessage('Action is required'),
   body('description').optional().trim()
-], handleValidationErrors, rbacAuthMiddleware.authenticate(),
+], handleValidationErrors, rbacWriteRateLimit, rbacAuthMiddleware.authenticate(),
 rbacAuthMiddleware.requireAdmin(), async (req, res) => {
   try {
     const { name, resource, action, description } = req.body;
@@ -175,7 +193,7 @@ router.put('/:id', [
   body('resource').trim().notEmpty().withMessage('Resource is required'),
   body('action').trim().notEmpty().withMessage('Action is required'),
   body('description').optional().trim()
-], handleValidationErrors, rbacAuthMiddleware.authenticate(),
+], handleValidationErrors, rbacWriteRateLimit, rbacAuthMiddleware.authenticate(),
 rbacAuthMiddleware.requireAdmin(), async (req, res) => {
   try {
     const { id } = req.params;
@@ -236,7 +254,7 @@ rbacAuthMiddleware.requireAdmin(), async (req, res) => {
  */
 router.delete('/:id', [
   param('id').isUUID().withMessage('Invalid permission ID')
-], handleValidationErrors, rbacAuthMiddleware.authenticate(),
+], handleValidationErrors, rbacWriteRateLimit, rbacAuthMiddleware.authenticate(),
 rbacAuthMiddleware.requireSuperAdmin(), async (req, res) => {
   try {
     const { id } = req.params;

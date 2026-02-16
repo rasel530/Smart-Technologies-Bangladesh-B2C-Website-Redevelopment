@@ -107,11 +107,14 @@ const authOptions: NextAuthOptions = {
         rememberMe: { label: 'Remember Me', type: 'checkbox' }
       },
       async authorize(credentials) {
-        console.log('[NextAuth] Credentials authorize called');
+        console.log('[NextAuth] === CREDENTIALS AUTHORIZE START ===');
         console.log('[NextAuth] BACKEND_API_URL:', BACKEND_API_URL);
+        console.log('[NextAuth] NODE_ENV:', process.env.NODE_ENV);
 
         if (!credentials?.identifier || !credentials?.password) {
           console.log('[NextAuth] Missing credentials');
+          console.log('[NextAuth] identifier present:', !!credentials?.identifier);
+          console.log('[NextAuth] password present:', !!credentials?.password);
           return null;
         }
 
@@ -123,9 +126,18 @@ const authOptions: NextAuthOptions = {
         });
 
         try {
-          // Call backend login API
-          console.log('[NextAuth] Sending request to backend...');
-          const response = await fetch(`${BACKEND_API_URL}/auth/login`, {
+          console.log('[NextAuth] === STARTING BACKEND REQUEST ===');
+          const loginUrl = `${BACKEND_API_URL}/auth/login`;
+          console.log('[NextAuth] URL:', loginUrl);
+          console.log('[NextAuth] Method:', 'POST');
+          console.log('[NextAuth] Headers:', { 'Content-Type': 'application/json' });
+          console.log('[NextAuth] Body:', JSON.stringify({
+            identifier: credentials.identifier,
+            password: '[REDACTED]',
+            rememberMe: credentials.rememberMe || false,
+          }));
+
+          const response = await fetch(loginUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -137,12 +149,11 @@ const authOptions: NextAuthOptions = {
             }),
           });
 
-          console.log('[NextAuth] Backend response received:', {
-            status: response.status,
-            statusText: response.statusText,
-            ok: response.ok,
-            headers: Object.fromEntries(response.headers.entries())
-          });
+          console.log('[NextAuth] === BACKEND RESPONSE RECEIVED ===');
+          console.log('[NextAuth] Status:', response.status);
+          console.log('[NextAuth] Status Text:', response.statusText);
+          console.log('[NextAuth] OK:', response.ok);
+          console.log('[NextAuth] Headers:', Object.fromEntries(response.headers.entries()));
 
           // Get raw text first to see what we're dealing with
           const rawText = await response.text();
@@ -153,6 +164,7 @@ const authOptions: NextAuthOptions = {
             data = JSON.parse(rawText);
             console.log('[NextAuth] Parsed response data:', JSON.stringify(data, null, 2));
           } catch (parseError) {
+            console.error('[NextAuth] === JSON PARSE ERROR ===');
             console.error('[NextAuth] Failed to parse JSON response:', parseError);
             console.log('[NextAuth] Response is not valid JSON');
             return null;
@@ -160,7 +172,8 @@ const authOptions: NextAuthOptions = {
 
           // Check for errors in response
           if (!response.ok) {
-            console.log('[NextAuth] Backend returned error status:', {
+            console.error('[NextAuth] === BACKEND ERROR RESPONSE ===');
+            console.error('[NextAuth] Backend returned error status:', {
               status: response.status,
               statusText: response.statusText,
               error: data.error,
@@ -170,21 +183,22 @@ const authOptions: NextAuthOptions = {
           }
 
           // Validate response structure
-          console.log('[NextAuth] Validating response structure...');
+          console.log('[NextAuth] === VALIDATING RESPONSE STRUCTURE ===');
           console.log('[NextAuth] Has token?', !!data.token);
           console.log('[NextAuth] Has user?', !!data.user);
           console.log('[NextAuth] Has sessionId?', !!data.sessionId);
 
           if (!data.token) {
-            console.log('[NextAuth] Backend response missing token');
+            console.error('[NextAuth] Backend response missing token');
             return null;
           }
 
           if (!data.user) {
-            console.log('[NextAuth] Backend response missing user');
+            console.error('[NextAuth] Backend response missing user');
             return null;
           }
 
+          console.log('[NextAuth] === LOGIN SUCCESSFUL ===');
           console.log('[NextAuth] Backend login successful, returning user object');
           console.log('[NextAuth] User data:', {
             id: data.user.id,
@@ -211,12 +225,13 @@ const authOptions: NextAuthOptions = {
             rememberToken: data.rememberToken,
           };
         } catch (error) {
-          console.error('[NextAuth] Credentials authorize error:', error);
-          console.error('[NextAuth] Error details:', {
-            name: error instanceof Error ? error.name : String(error),
-            message: error instanceof Error ? error.message : String(error),
-            stack: error instanceof Error ? error.stack : undefined
-          });
+          console.error('[NextAuth] === FETCH ERROR ===');
+          console.error('[NextAuth] Error:', error instanceof Error ? error.message : String(error));
+          console.error('[NextAuth] Stack:', error instanceof Error ? error.stack : undefined);
+          console.error('[NextAuth] Name:', error instanceof Error ? error.name : String(error));
+          if (error instanceof Error && 'code' in error) {
+            console.error('[NextAuth] Code:', (error as any).code);
+          }
           return null;
         }
       },
@@ -241,11 +256,14 @@ const authOptions: NextAuthOptions = {
     /**
      * JWT Callback
      * Called whenever a JWT is created or updated
+     * CRITICAL: ALWAYS generates a new token on login, never preserves existing tokens
      */
     async jwt({ token, user, account, trigger, session }) {
-      // Initial sign in - populate token with user data
+      // ALWAYS generate a new token on login, never preserve existing
       if (user) {
-        console.log('[NextAuth] JWT callback - initial sign in');
+        console.log('[NextAuth] JWT callback - generating NEW token for user:', user.email);
+        
+        // Create a fresh token with all user data
         token.id = user.id;
         token.email = user.email;
         token.phone = user.phone;
@@ -256,12 +274,21 @@ const authOptions: NextAuthOptions = {
         token.sessionId = user.sessionId;
         token.rememberMe = user.rememberMe;
         token.rememberToken = user.rememberToken;
-        console.log('[NextAuth] Token populated with user data');
+        
+        // Add timestamps to track token creation
+        token.createdAt = new Date().toISOString();
+        token.updatedAt = new Date().toISOString();
+        
+        // Track token version to ensure freshness
+        token.tokenVersion = Date.now();
+        
+        console.log('[NextAuth] NEW token generated with version:', token.tokenVersion);
       } else if (token) {
-        // Token already exists, preserve it
-        console.log('[NextAuth] JWT callback - preserving existing token');
+        // CRITICAL FIX: Do NOT preserve existing tokens
+        // When a user logs out and logs back in, a fresh token will be generated
+        // This block only returns the existing token for session updates, not for new logins
+        console.log('[NextAuth] JWT callback - existing token (only for session updates, not new logins)');
       } else {
-        // CRITICAL FIX: Only log error when no user or token - don't modify token
         console.log('[NextAuth] JWT callback - no token or user, skipping token population');
       }
 
@@ -286,9 +313,10 @@ const authOptions: NextAuthOptions = {
     /**
      * Session Callback
      * Called whenever a session is checked
+     * CRITICAL: ALWAYS uses the new token from JWT callback, never preserves existing ones
      */
     async session({ session, token }) {
-      console.log('[NextAuth] Session callback');
+      console.log('[NextAuth] Session callback - using NEW token from JWT callback');
       console.log('[NextAuth] Token in session callback:', !!token);
 
       if (token) {
@@ -303,15 +331,23 @@ const authOptions: NextAuthOptions = {
           image: token.picture as string | null,
           preferredLanguage: 'en', // Default, can be updated from backend
           // Use createdAt from token if available, otherwise use current time
-          createdAt: token.createdAt ? (token.createdAt as Date).toISOString() : new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          createdAt: token.createdAt ? (token.createdAt as string) : new Date().toISOString(),
+          updatedAt: token.updatedAt ? (token.updatedAt as string) : new Date().toISOString(),
         };
+        
+        // ALWAYS use the new token from JWT callback
         session.backendToken = token.backendToken as string;
         session.sessionId = token.sessionId as string;
         session.rememberMe = token.rememberMe;
         session.rememberToken = token.rememberToken;
         session.oauthProvider = token.oauthProvider as string | undefined;
-        console.log('[NextAuth] Session created successfully');
+        
+        // Track token version to ensure we're using the new token
+        session.tokenVersion = token.tokenVersion as number;
+        session.createdAt = token.createdAt as string;
+        session.updatedAt = token.updatedAt as string;
+        
+        console.log('[NextAuth] Session created successfully with token version:', session.tokenVersion);
       } else {
         console.log('[NextAuth] No token in session callback');
       }

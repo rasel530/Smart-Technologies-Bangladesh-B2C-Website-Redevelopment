@@ -1,0 +1,139 @@
+{
+  "timestamp": "2026-02-10T15:02:20.229Z",
+  "environment": {
+    "backend": "http://localhost:3001",
+    "frontend": "http://localhost:3000"
+  },
+  "summary": {
+    "total": 13,
+    "passed": 5,
+    "failed": 1,
+    "skipped": 7
+  },
+  "tests": [
+    {
+      "testName": "Login - Get JWT Token",
+      "status": "FAILED",
+      "timestamp": "2026-02-10T15:02:28.992Z",
+      "details": {
+        "statusCode": 401,
+        "body": {
+          "error": "Invalid credentials",
+          "message": "Invalid email or password",
+          "messageBn": "অবৈধ ইমেল বা পাসওয়ার্ড"
+        }
+      },
+      "error": "Failed to get JWT token"
+    },
+    {
+      "testName": "Notification Settings - Save",
+      "status": "SKIPPED",
+      "timestamp": "2026-02-10T15:02:29.095Z",
+      "details": {
+        "reason": "No JWT token available"
+      },
+      "error": null
+    },
+    {
+      "testName": "Notification Settings - Retrieve After Save",
+      "status": "SKIPPED",
+      "timestamp": "2026-02-10T15:02:29.153Z",
+      "details": {
+        "reason": "No JWT token available"
+      },
+      "error": null
+    },
+    {
+      "testName": "Notification Settings - Persistence Verification",
+      "status": "SKIPPED",
+      "timestamp": "2026-02-10T15:02:29.197Z",
+      "details": {
+        "reason": "No JWT token available"
+      },
+      "error": null
+    },
+    {
+      "testName": "Password Change - Route Exists",
+      "status": "SKIPPED",
+      "timestamp": "2026-02-10T15:02:29.281Z",
+      "details": {
+        "reason": "No JWT token available"
+      },
+      "error": null
+    },
+    {
+      "testName": "Password Change - Validation",
+      "status": "SKIPPED",
+      "timestamp": "2026-02-10T15:02:29.414Z",
+      "details": {
+        "reason": "No JWT token available"
+      },
+      "error": null
+    },
+    {
+      "testName": "Password Change - Success",
+      "status": "SKIPPED",
+      "timestamp": "2026-02-10T15:02:29.491Z",
+      "details": {
+        "reason": "No JWT token available"
+      },
+      "error": null
+    },
+    {
+      "testName": "Password Change - Login with New Password",
+      "status": "SKIPPED",
+      "timestamp": "2026-02-10T15:02:29.523Z",
+      "details": {
+        "reason": "No JWT token available"
+      },
+      "error": null
+    },
+    {
+      "testName": "Verification Modal - Close Button Exists",
+      "status": "PASSED",
+      "timestamp": "2026-02-10T15:02:29.590Z",
+      "details": {
+        "hasCloseButton": true,
+        "hasCloseFunction": true,
+        "hasXIcon": true
+      },
+      "error": null
+    },
+    {
+      "testName": "Verification Modal - Modal Structure",
+      "status": "PASSED",
+      "timestamp": "2026-02-10T15:02:29.664Z",
+      "details": {
+        "hasModalStructure": true
+      },
+      "error": null
+    },
+    {
+      "testName": "Verification Modal - Component Export",
+      "status": "PASSED",
+      "timestamp": "2026-02-10T15:02:29.724Z",
+      "details": {
+        "hasExport": true
+      },
+      "error": null
+    },
+    {
+      "testName": "Verification Modal - Error Handling",
+      "status": "PASSED",
+      "timestamp": "2026-02-10T15:02:29.776Z",
+      "details": {
+        "hasErrorHandling": true
+      },
+      "error": null
+    },
+    {
+      "testName": "Verification Modal - Close Button Event Handling",
+      "status": "PASSED",
+      "timestamp": "2026-02-10T15:02:29.853Z",
+      "details": {
+        "hasStopPropagation": true
+      },
+      "error": null
+    }
+  ]
+}

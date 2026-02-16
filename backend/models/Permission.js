@@ -9,20 +9,17 @@ class Permission {
 
   /**
    * Get all permissions
+   * SECURITY: Uses Prisma ORM findMany() instead of raw SQL to prevent SQL injection
    */
   async findAll() {
     try {
-      const permissions = await this.db.getClient().$queryRaw`
-        SELECT 
-          id,
-          name,
-          resource,
-          action,
-          description,
-          created_at
-        FROM permissions
-        ORDER BY resource, action
-      `;
+      const permissions = await this.db.getClient().permissions.findMany({
+        orderBy: [
+          { resource: 'asc' },
+          { action: 'asc' }
+        ]
+      });
+      
       return permissions;
     } catch (error) {
       this.logger.error('Error fetching all permissions', error);
@@ -32,21 +29,15 @@ class Permission {
 
   /**
    * Get permission by ID
+   * SECURITY: Uses Prisma ORM findFirst() instead of raw SQL to prevent SQL injection
    */
   async findById(id) {
     try {
-      const permissions = await this.db.getClient().$queryRaw`
-        SELECT 
-          id,
-          name,
-          resource,
-          action,
-          description,
-          created_at
-        FROM permissions
-        WHERE id = ${id}
-      `;
-      return permissions[0] || null;
+      const permission = await this.db.getClient().permissions.findFirst({
+        where: { id }
+      });
+      
+      return permission;
     } catch (error) {
       this.logger.error('Error fetching permission by ID', error);
       throw error;
@@ -55,21 +46,15 @@ class Permission {
 
   /**
    * Get permission by name
+   * SECURITY: Uses Prisma ORM findFirst() instead of raw SQL to prevent SQL injection
    */
   async findByName(name) {
     try {
-      const permissions = await this.db.getClient().$queryRaw`
-        SELECT 
-          id,
-          name,
-          resource,
-          action,
-          description,
-          created_at
-        FROM permissions
-        WHERE name = ${name}
-      `;
-      return permissions[0] || null;
+      const permission = await this.db.getClient().permissions.findFirst({
+        where: { name }
+      });
+      
+      return permission;
     } catch (error) {
       this.logger.error('Error fetching permission by name', error);
       throw error;
@@ -78,21 +63,15 @@ class Permission {
 
   /**
    * Get permissions by resource
+   * SECURITY: Uses Prisma ORM findMany() instead of raw SQL to prevent SQL injection
    */
   async findByResource(resource) {
     try {
-      const permissions = await this.db.getClient().$queryRaw`
-        SELECT 
-          id,
-          name,
-          resource,
-          action,
-          description,
-          created_at
-        FROM permissions
-        WHERE resource = ${resource}
-        ORDER BY action
-      `;
+      const permissions = await this.db.getClient().permissions.findMany({
+        where: { resource },
+        orderBy: { action: 'asc' }
+      });
+      
       return permissions;
     } catch (error) {
       this.logger.error('Error fetching permissions by resource', error);
@@ -102,24 +81,22 @@ class Permission {
 
   /**
    * Create new permission
+   * SECURITY: Uses Prisma ORM create() instead of raw SQL to prevent SQL injection
    */
   async create(data) {
     try {
       const { name, resource, action, description } = data;
       
-      const permissions = await this.db.getClient().$queryRaw`
-        INSERT INTO permissions (name, resource, action, description)
-        VALUES (${name}, ${resource}, ${action}, ${description})
-        RETURNING 
-          id,
+      const permission = await this.db.getClient().permissions.create({
+        data: {
           name,
           resource,
           action,
-          description,
-          created_at
-      `;
+          description
+        }
+      });
       
-      return permissions[0];
+      return permission;
     } catch (error) {
       this.logger.error('Error creating permission', error);
       throw error;
@@ -128,29 +105,23 @@ class Permission {
 
   /**
    * Update permission
+   * SECURITY: Uses Prisma ORM update() instead of raw SQL to prevent SQL injection
    */
   async update(id, data) {
     try {
       const { name, resource, action, description } = data;
       
-      const permissions = await this.db.getClient().$queryRaw`
-        UPDATE permissions
-        SET 
-          name = ${name},
-          resource = ${resource},
-          action = ${action},
-          description = ${description}
-        WHERE id = ${id}
-        RETURNING 
-          id,
+      const permission = await this.db.getClient().permissions.update({
+        where: { id },
+        data: {
           name,
           resource,
           action,
-          description,
-          created_at
-      `;
+          description
+        }
+      });
       
-      return permissions[0] || null;
+      return permission;
     } catch (error) {
       this.logger.error('Error updating permission', error);
       throw error;
@@ -159,16 +130,19 @@ class Permission {
 
   /**
    * Delete permission
+   * SECURITY: Uses Prisma ORM delete() instead of raw SQL to prevent SQL injection
    */
   async delete(id) {
     try {
-      const permissions = await this.db.getClient().$queryRaw`
-        DELETE FROM permissions
-        WHERE id = ${id}
-        RETURNING id, name
-      `;
+      const permission = await this.db.getClient().permissions.delete({
+        where: { id },
+        select: {
+          id: true,
+          name: true
+        }
+      });
       
-      return permissions[0] || null;
+      return permission;
     } catch (error) {
       this.logger.error('Error deleting permission', error);
       throw error;
@@ -177,15 +151,21 @@ class Permission {
 
   /**
    * Get all unique resources
+   * SECURITY: Uses Prisma ORM findMany() instead of raw SQL to prevent SQL injection
    */
   async getResources() {
     try {
-      const resources = await this.db.getClient().$queryRaw`
-        SELECT DISTINCT resource
-        FROM permissions
-        ORDER BY resource
-      `;
-      return resources.map(r => r.resource);
+      const permissions = await this.db.getClient().permissions.findMany({
+        select: {
+          resource: true
+        },
+        distinct: ['resource'],
+        orderBy: {
+          resource: 'asc'
+        }
+      });
+      
+      return permissions.map(p => p.resource);
     } catch (error) {
       this.logger.error('Error fetching resources', error);
       throw error;

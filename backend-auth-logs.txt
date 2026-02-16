@@ -1,0 +1,300 @@
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1770553967497
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-08T12:47:47.506Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-08T12:48:17.589Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-08T12:48:17.589Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1770553997589
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-08T12:48:17.593Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-08T12:48:17.593Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-08T12:48:47.674Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-08T12:48:47.674Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1770554027674
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-08T12:48:47.679Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-08T12:48:47.679Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-08T12:49:11.424Z',
+  method: 'GET',
+  path: '/api/v1/rbac/roles',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.13.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/rbac/roles',
+  url: '/api/v1/rbac/roles',
+  timestamp: '2026-02-08T12:49:11.425Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/rbac/roles
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1770554051426
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-08T12:49:11.433Z
+}
+❌ Database Error: {
+  target: 'user.findUnique',
+  message: '\n' +
+    'Invalid `prisma.user.findUnique()` invocation:\n' +
+    '\n' +
+    '{\n' +
+    '  where: {\n' +
+    '    id: undefined,\n' +
+    '?   email?: String,\n' +
+    '?   phone?: String,\n' +
+    '?   AND?: UserWhereInput | UserWhereInput[],\n' +
+    '?   OR?: UserWhereInput[],\n' +
+    '?   NOT?: UserWhereInput | UserWhereInput[],\n' +
+    '?   emailVerified?: DateTimeNullableFilter | DateTime | Null,\n' +
+    '?   phoneVerified?: DateTimeNullableFilter | DateTime | Null,\n' +
+    '?   password?: StringNullableFilter | String | Null,\n' +
+    '?   firstName?: StringFilter | String,\n' +
+    '?   lastName?: StringFilter | String,\n' +
+    '?   dateOfBirth?: DateTimeNullableFilter | DateTime | Null,\n' +
+    '?   gender?: StringNullableFilter | String | Null,\n' +
+    '?   role?: EnumUserRoleFilter | UserRole,\n' +
+    '?   status?: EnumUserStatusFilter | UserStatus,\n' +
+    '?   image?: StringNullableFilter | String | Null,\n' +
+    '?   createdAt?: DateTimeFilter | DateTime,\n' +
+    '?   updatedAt?: DateTimeFilter | DateTime,\n' +
+    '?   lastLoginAt?: DateTimeNullableFilter | DateTime | Null,\n' +
+    '?   preferredLanguage?: StringNullableFilter | String | Null,\n' +
+    '?   accountStatus?: StringNullableFilter | String | Null,\n' +
+    '?   deletionRequestedAt?: DateTimeNullableFilter | DateTime | Null,\n' +
+    '?   deletionReason?: StringNullableFilter | String | Null,\n' +
+    '?   deletedAt?: DateTimeNullableFilter | DateTime | Null,\n' +
+    '?   accountDeletionRequests?: AccountDeletionRequestsListRelationFilter,\n' +
+    '?   addresses?: AddressListRelationFilter,\n' +
+    '?   cart?: CartNullableRelationFilter | CartWhereInput | Null,\n' +
+    '?   comparisonHistory?: ComparisonHistoryListRelationFilter,\n' +
+    '?   corporate_accounts_corporate_accounts_account_manager_idTousers?: CorporateAccountListRelationFilter,\n' +
+    '?   corporate_accounts_corporate_accounts_user_idTousers?: CorporateAccountNullableRelationFilter | CorporateAccountWhereInput | Null,\n' +
+    '?   corporate_users?: CorporateUserListRelationFilter,\n' +
+    '?   emailVerificationTokens?: EmailVerificationTokenListRelationFilter,\n' +
+    '?   orders?: OrderListRelationFilter,\n' +
+    '?   passwordHistory?: PasswordHistoryListRelationFilter,\n' +
+    '?   phoneOTPs?: PhoneOTPListRelationFilter,\n' +
+    '?   comparisons?: ProductComparisonListRelationFilter,\n' +
+    '?   reviews?: ReviewListRelationFilter,\n' +
+    '?   role_escalation_requests?: Role_escalation_requestsListRelationFilter,\n' +
+    '?   searchAnalytics?: SearchAnalyticsListRelationFilter,\n' +
+    '?   searchLogs?: SearchLogListRelationFilter,\n' +
+    '?   searchRecommendations?: SearchRecommendationsListRelationFilter,\n' +
+    '?   communicationPreferences?: UserCommunicationPreferencesNullableRelationFilter | UserCommunicationPreferencesWhereInput | Null,\n' +
+    '?   userDataExports?: UserDataExportsListRelationFilter,\n' +
+    '?   notificationPreferences?: UserNotificationPreferencesNullableRelationFilter | UserNotificationPreferencesWhereInput | Null,\n' +
+    '?   privacySettings?: UserPrivacySettingsNullableRelationFilter | UserPrivacySettingsWhereInput | Null,\n' +
+    '?   user_roles?: User_rolesListRelationFilter,\n' +
+    '?   userSearchPreferences?: UserSearchPreferencesNullableRelationFilter | UserSearchPreferencesWhereInput | Null,\n' +
+    '?   userSessions?: UserSessionListRelationFilter,\n' +
+    '?   socialAccounts?: UserSocialAccountListRelationFilter,\n' +
+    '?   wishlist?: WishlistNullableRelationFilter | WishlistWhereInput | Null\n' +
+    '  },\n' +
+    '  select: {\n' +
+    '    id: true,\n' +
+    '    email: true,\n' +
+    '    phone: true,\n' +
+    '    firstName: true,\n' +
+    '    lastName: true,\n' +
+    '    role: true,\n' +
+    '    status: true,\n' +
+    '    emailVerified: true,\n' +
+    '    phoneVerified: true,\n' +
+    '    createdAt: true,\n' +
+    '    updatedAt: true\n' +
+    '  }\n' +
+    '}\n' +
+    '\n' +
+    'Argument `where` of type UserWhereUniqueInput needs at least one of `id`, `email` or `phone` arguments. Available options are marked with ?.',
+  timestamp: 2026-02-08T12:49:11.435Z
+}
+{"environment":"production","error":"\nInvalid `prisma.user.findUnique()` invocation:\n\n{\n  where: {\n    id: undefined,\n?   email?: String,\n?   phone?: String,\n?   AND?: UserWhereInput | UserWhereInput[],\n?   OR?: UserWhereInput[],\n?   NOT?: UserWhereInput | UserWhereInput[],\n?   emailVerified?: DateTimeNullableFilter | DateTime | Null,\n?   phoneVerified?: DateTimeNullableFilter | DateTime | Null,\n?   password?: StringNullableFilter | String | Null,\n?   firstName?: StringFilter | String,\n?   lastName?: StringFilter | String,\n?   dateOfBirth?: DateTimeNullableFilter | DateTime | Null,\n?   gender?: StringNullableFilter | String | Null,\n?   role?: EnumUserRoleFilter | UserRole,\n?   status?: EnumUserStatusFilter | UserStatus,\n?   image?: StringNullableFilter | String | Null,\n?   createdAt?: DateTimeFilter | DateTime,\n?   updatedAt?: DateTimeFilter | DateTime,\n?   lastLoginAt?: DateTimeNullableFilter | DateTime | Null,\n?   preferredLanguage?: StringNullableFilter | String | Null,\n?   accountStatus?: StringNullableFilter | String | Null,\n?   deletionRequestedAt?: DateTimeNullableFilter | DateTime | Null,\n?   deletionReason?: StringNullableFilter | String | Null,\n?   deletedAt?: DateTimeNullableFilter | DateTime | Null,\n?   accountDeletionRequests?: AccountDeletionRequestsListRelationFilter,\n?   addresses?: AddressListRelationFilter,\n?   cart?: CartNullableRelationFilter | CartWhereInput | Null,\n?   comparisonHistory?: ComparisonHistoryListRelationFilter,\n?   corporate_accounts_corporate_accounts_account_manager_idTousers?: CorporateAccountListRelationFilter,\n?   corporate_accounts_corporate_accounts_user_idTousers?: CorporateAccountNullableRelationFilter | CorporateAccountWhereInput | Null,\n?   corporate_users?: CorporateUserListRelationFilter,\n?   emailVerificationTokens?: EmailVerificationTokenListRelationFilter,\n?   orders?: OrderListRelationFilter,\n?   passwordHistory?: PasswordHistoryListRelationFilter,\n?   phoneOTPs?: PhoneOTPListRelationFilter,\n?   comparisons?: ProductComparisonListRelationFilter,\n?   reviews?: ReviewListRelationFilter,\n?   role_escalation_requests?: Role_escalation_requestsListRelationFilter,\n?   searchAnalytics?: SearchAnalyticsListRelationFilter,\n?   searchLogs?: SearchLogListRelationFilter,\n?   searchRecommendations?: SearchRecommendationsListRelationFilter,\n?   communicationPreferences?: UserCommunicationPreferencesNullableRelationFilter | UserCommunicationPreferencesWhereInput | Null,\n?   userDataExports?: UserDataExportsListRelationFilter,\n?   notificationPreferences?: UserNotificationPreferencesNullableRelationFilter | UserNotificationPreferencesWhereInput | Null,\n?   privacySettings?: UserPrivacySettingsNullableRelationFilter | UserPrivacySettingsWhereInput | Null,\n?   user_roles?: User_rolesListRelationFilter,\n?   userSearchPreferences?: UserSearchPreferencesNullableRelationFilter | UserSearchPreferencesWhereInput | Null,\n?   userSessions?: UserSessionListRelationFilter,\n?   socialAccounts?: UserSocialAccountListRelationFilter,\n?   wishlist?: WishlistNullableRelationFilter | WishlistWhereInput | Null\n  },\n  select: {\n    id: true,\n    email: true,\n    phone: true,\n    firstName: true,\n    lastName: true,\n    role: true,\n    status: true,\n    emailVerified: true,\n    phoneVerified: true,\n    createdAt: true,\n    updatedAt: true\n  }\n}\n\nArgument `where` of type UserWhereUniqueInput needs at least one of `id`, `email` or `phone` arguments. Available options are marked with ?.","instanceId":"default","level":"error","message":"Database error during user lookup","service":"smart-ecommerce-api","timestamp":"2026-02-08T12:49:11.435Z","version":"1.0.0"}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-08T12:49:17.737Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-08T12:49:17.737Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1770554057737
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-08T12:49:17.740Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-08T12:49:47.804Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-08T12:49:47.804Z'
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1770554087805
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-08T12:49:47.807Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-08T12:49:47.808Z
+}

@@ -1,0 +1,39 @@
+{
+  "startTime": "2026-02-08T19:18:44.906Z",
+  "tests": [
+    {
+      "name": "Fetch available permissions from database",
+      "passed": true,
+      "timestamp": "2026-02-08T19:18:44.980Z",
+      "count": 10
+    },
+    {
+      "name": "Check if test role exists",
+      "passed": true,
+      "timestamp": "2026-02-08T19:18:44.989Z",
+      "roleId": "09510acf-2e77-4ae0-8206-3b154b391821",
+      "roleName": "admin"
+    },
+    {
+      "name": "Get current role permissions",
+      "passed": false,
+      "timestamp": "2026-02-08T19:18:44.998Z",
+      "error": "\nInvalid `db.role_permissions.findMany()` invocation in\ne:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\test-role-permissions-fix.js:160:59\n\n  157 \n  158 try {\n  159     const db = databaseService.getClient();\n→ 160     const rolePermissions = await db.role_permissions.findMany({\n            where: {\n              role_id: \"09510acf-2e77-4ae0-8206-3b154b391821\"\n            },\n            include: {\n              permission: {\n              ~~~~~~~~~~\n                select: {\n                  id: true,\n                  name: true\n                }\n              },\n          ?   permissions?: true,\n          ?   roles?: true\n            }\n          })\n\nUnknown field `permission` for include statement on model `role_permissions`. Available options are marked with ?."
+    },
+    {
+      "name": "Test PUT endpoint update",
+      "passed": false,
+      "timestamp": "2026-02-08T19:18:45.045Z",
+      "status": 401,
+      "body": {
+        "error": "Authentication failed",
+        "message": "Invalid token"
+      }
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "passed": 2,
+    "failed": 2
+  }
+}

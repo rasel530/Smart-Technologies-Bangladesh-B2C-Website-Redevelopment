@@ -13,7 +13,9 @@ import {
   Shield,
   Tag,
   Layers,
-  Search
+  Search,
+  BarChart3,
+  Heart
 } from 'lucide-react';
 import Link from 'next/link';
 import { ButtonDanger } from '@/components/design-system';
@@ -60,6 +62,21 @@ function AdminLayout({ children }: AdminLayoutProps) {
       href: '/admin/brands',
       label: 'Brands',
       icon: Layers,
+    },
+    {
+      href: '/admin/cart',
+      label: 'Carts',
+      icon: ShoppingCart,
+    },
+    {
+      href: '/admin/cart/analytics',
+      label: 'Cart Analytics',
+      icon: BarChart3,
+    },
+    {
+      href: '/admin/wishlists',
+      label: 'Wishlists',
+      icon: Heart,
     },
     {
       href: '/admin/rbac',

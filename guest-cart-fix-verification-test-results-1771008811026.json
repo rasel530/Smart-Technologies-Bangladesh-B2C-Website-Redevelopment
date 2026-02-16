@@ -1,0 +1,15 @@
+{
+  "total": 5,
+  "passed": 3,
+  "failed": 2,
+  "errors": [
+    {
+      "test": "Test 1: New Guest User Add to Cart (Primary Fix Verification)",
+      "error": "Backend cart is empty"
+    },
+    {
+      "test": "Test 4: Multiple Items in Guest Cart",
+      "error": "Expected at least 2 items in cart, got 1"
+    }
+  ]
+}

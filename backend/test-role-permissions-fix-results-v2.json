@@ -1,0 +1,40 @@
+{
+  "startTime": "2026-02-08T19:25:22.642Z",
+  "tests": [
+    {
+      "name": "Permissions table exists and is accessible",
+      "passed": true,
+      "timestamp": "2026-02-08T19:25:22.680Z",
+      "count": 5
+    },
+    {
+      "name": "Permission (singular) table does NOT exist",
+      "passed": false,
+      "timestamp": "2026-02-08T19:25:22.681Z",
+      "error": "Cannot read properties of undefined (reading 'findMany')"
+    },
+    {
+      "name": "Role permissions with permissions relation query works",
+      "passed": true,
+      "timestamp": "2026-02-08T19:25:22.688Z",
+      "count": 10
+    },
+    {
+      "name": "Fixed code query (db.permissions.findMany) works",
+      "passed": true,
+      "timestamp": "2026-02-08T19:25:22.695Z",
+      "count": 3
+    },
+    {
+      "name": "Old buggy query (db.permission.findMany) fails as expected",
+      "passed": true,
+      "timestamp": "2026-02-08T19:25:22.696Z",
+      "error": "Cannot read properties of undefined (reading 'findMany')"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "passed": 4,
+    "failed": 1
+  }
+}

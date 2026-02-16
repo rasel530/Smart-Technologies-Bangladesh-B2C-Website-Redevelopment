@@ -17,7 +17,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { getBySlug, getAll } from '@/lib/api/products';
 import { ProductWithRelations, ProductVariant } from '@/types/product';
@@ -27,6 +27,11 @@ import { StockIndicator } from '@/components/product/StockIndicator';
 import { SpecificationsDisplay } from '@/components/product/SpecificationsDisplay';
 import { ProductGrid } from '@/components/product/ProductGrid';
 import { getImageUrl } from '@/lib/api/product-images';
+import AddToCartButton from '@/components/cart/AddToCartButton';
+import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/hooks/useWishlist';
+import { useWishlistStore } from '@/stores/wishlistStore';
+import { toast } from 'sonner';
 
 // Dynamic import for ProductDetail to avoid SSR issues
 const ProductDetail = dynamic(
@@ -149,6 +154,8 @@ export default function ProductDetailPage({
 }: {
   params: { slug: string };
 }) {
+  const { addItem } = useCart();
+  const { isInWishlist, addToDefaultWishlist, removeFromWishlist, items } = useWishlist();
   const [product, setProduct] = useState<ProductWithRelations | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<ProductWithRelations[]>([]);
   const [recentlyViewed, setRecentlyViewed] = useState<ProductWithRelations[]>([]);
@@ -156,6 +163,7 @@ export default function ProductDetailPage({
   const [error, setError] = useState<string | null>(null);
   const [structuredData, setStructuredData] = useState<any>(null);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
+  const [quantity, setQuantity] = useState(1);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -217,21 +225,23 @@ export default function ProductDetailPage({
         }
         
         // Load recently viewed products from localStorage
-        const savedRecentlyViewed = localStorage.getItem('smart_tech_recently_viewed');
-        if (savedRecentlyViewed) {
-          try {
-            const viewed: ProductWithRelations[] = JSON.parse(savedRecentlyViewed);
-            // Add current product to beginning, remove duplicates, and keep only 4
-            const updated = [productData, ...viewed.filter(p => p.id !== productData.id)].slice(0, 4);
-            setRecentlyViewed(updated);
-            localStorage.setItem('smart_tech_recently_viewed', JSON.stringify(updated));
-          } catch (e) {
-            console.error('Error loading recently viewed:', e);
+        if (typeof window !== 'undefined') {
+          const savedRecentlyViewed = localStorage.getItem('smart_tech_recently_viewed');
+          if (savedRecentlyViewed) {
+            try {
+              const viewed: ProductWithRelations[] = JSON.parse(savedRecentlyViewed);
+              // Add current product to beginning, remove duplicates, and keep only 4
+              const updated = [productData, ...viewed.filter(p => p.id !== productData.id)].slice(0, 4);
+              setRecentlyViewed(updated);
+              localStorage.setItem('smart_tech_recently_viewed', JSON.stringify(updated));
+            } catch (e) {
+              console.error('Error loading recently viewed:', e);
+            }
+          } else if (productData) {
+            // First time viewing a product
+            setRecentlyViewed([productData]);
+            localStorage.setItem('smart_tech_recently_viewed', JSON.stringify([productData]));
           }
-        } else if (productData) {
-          // First time viewing a product
-          setRecentlyViewed([productData]);
-          localStorage.setItem('smart_tech_recently_viewed', JSON.stringify([productData]));
         }
       } catch (err: any) {
         console.error('Error fetching product:', err);
@@ -264,14 +274,19 @@ export default function ProductDetailPage({
     isAvailable: variant.isActive && variant.stock > 0,
     price: variant.price,
   })) || [];
-  
-  // Generate breadcrumbs - use primary category where isPrimary: true
-  const primaryCategory = product?.categories?.find(cat => cat.isPrimary)?.category;
-  const breadcrumbs = product ? generateProductBreadcrumbs(
-    primaryCategory,
-    product.brand?.name ? { name: product.brand.name, slug: product.brand.slug } : undefined,
-    product.name
-  ) : [];
+
+  // Memoize breadcrumbs to prevent infinite loop in BreadcrumbNavigation
+  const breadcrumbs = useMemo(() => {
+    if (!product) return [];
+
+    // Generate breadcrumbs - use primary category where isPrimary: true
+    const primaryCategory = product?.categories?.find(cat => cat.isPrimary)?.category;
+    return generateProductBreadcrumbs(
+      primaryCategory,
+      product.brand?.name ? { name: product.brand.name, slug: product.brand.slug } : undefined,
+      product.name
+    );
+  }, [product]);
   
   // Handle variant selection
   const handleVariantSelect = (variant: any) => {
@@ -282,6 +297,13 @@ export default function ProductDetailPage({
   const handleImageChange = (imageUrl: string) => {
     // Image change logic if needed
     console.log('Image changed to:', imageUrl);
+  };
+
+  // Handle add to cart
+  const handleAddToCart = async (productId: string, variantId?: string) => {
+    if (product) {
+      await addItem(product, quantity, variantId || null);
+    }
   };
   
   return (
@@ -309,19 +331,28 @@ export default function ProductDetailPage({
           <>
             <ProductDetail
               product={product}
-              relatedProducts={relatedProducts}
-              onAddToCart={(productId, variantId) => {
-                // TODO: Implement add to cart functionality
-                console.log('Add to cart:', productId, variantId);
+              onAddToCart={handleAddToCart}
+              onToggleWishlist={async (productId) => {
+                try {
+                  if (isInWishlist(productId)) {
+                    const item = items.find(i => i.productId === productId);
+                    if (item) {
+                      await removeFromWishlist(item.wishlistId, item.id);
+                      toast.success('Item removed from wishlist');
+                    }
+                  } else {
+                    await addToDefaultWishlist(productId);
+                    toast.success('Item added to wishlist');
+                  }
+                } catch (error) {
+                  console.error('Error toggling wishlist:', error);
+                  toast.error('Failed to update wishlist');
+                }
               }}
-              onToggleWishlist={(productId) => {
-                // TODO: Implement wishlist functionality
-                console.log('Toggle wishlist:', productId);
-              }}
-              isWishlisted={false}
+              isWishlisted={isInWishlist(product.id)}
             />
             
-            {/* Variant Selector */}
+
             {product.variants && product.variants.length > 0 && (
               <div className="mt-8">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Select Variant</h2>
@@ -336,15 +367,6 @@ export default function ProductDetailPage({
             )}
             
             {/* Stock Indicator */}
-            <div className="mt-8">
-              <StockIndicator
-                stockQuantity={product.stockQuantity}
-                lowStockThreshold={product.lowStockThreshold || 10}
-                showQuantity={false}
-              />
-            </div>
-            
-            {/* Specifications Display */}
             {product.specifications && product.specifications.length > 0 && (
               <div className="mt-12">
                 <SpecificationsDisplay

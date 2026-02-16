@@ -30,26 +30,10 @@ const {
   createBangladeshWishlistUser,
   createFestivalWishlist,
   BANGLADESH_WISHLIST_PRODUCTS
-} = require('./bangladesh-wishlist-fixtures.test');
+} = require('./bangladesh-wishlist-fixtures.js');
 
 const app = require('../index');
 const prisma = new PrismaClient();
-
-// Mock error scenarios
-jest.mock('../services/redis-service', () => ({
-  get: jest.fn().mockRejectedValue(new Error('Redis connection failed')),
-  set: jest.fn().mockRejectedValue(new Error('Redis connection failed')),
-  del: jest.fn().mockRejectedValue(new Error('Redis connection failed'))
-}));
-
-jest.mock('../services/email-service', () => ({
-  sendWishlistShareEmail: jest.fn().mockRejectedValue(new Error('Email service unavailable')),
-  sendPriceDropNotification: jest.fn().mockRejectedValue(new Error('SMTP server down'))
-}));
-
-jest.mock('../services/notification-service', () => ({
-  sendPushNotification: jest.fn().mockRejectedValue(new Error('Push notification service down'))
-}));
 
 describe('Wishlist Error Handling and Edge Cases', () => {
   let testUser, testToken, testProduct, testCategory, testBrand;

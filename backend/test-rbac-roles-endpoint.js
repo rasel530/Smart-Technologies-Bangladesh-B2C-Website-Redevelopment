@@ -1,76 +1,73 @@
-/**
- * Test script to verify RBAC roles endpoint is working
- */
+const { PrismaClient } = require('@prisma/client');
+const jwt = require('jsonwebtoken');
 
-const { Pool } = require('pg');
+const prisma = new PrismaClient();
 
-// Database configuration
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://smart_dev:smart_dev_password_2024@localhost:5432/smart_ecommerce_dev';
-
-async function testRBACRolesEndpoint() {
-  const pool = new Pool({
-    connectionString: DATABASE_URL,
-  });
-
-  const client = await pool.connect();
-
+async function testRbacRolesEndpoint() {
   try {
-    console.log('🔐 Connecting to database...');
-    
-    // Test direct database query
-    const dbResult = await client.query(
-      `SELECT id, name, description, hierarchy_level, created_at, updated_at 
-       FROM roles 
-       ORDER BY hierarchy_level ASC, name ASC`
-    );
-    
-    console.log('\n✅ Database Query Result:');
-    console.log(`Total roles found: ${dbResult.rows.length}`);
-    console.log('');
-    
-    dbResult.rows.forEach((role, index) => {
-      console.log(`${index + 1}. ${role.name}`);
-      console.log(`   ID: ${role.id}`);
-      console.log(`   Hierarchy Level: ${role.hierarchy_level}`);
-      console.log(`   Description: ${role.description || 'No description'}`);
-      console.log('');
+    console.log('=== Testing RBAC Roles Endpoint ===\n');
+
+    // 1. Find admin user
+    console.log('1. Finding admin user...');
+    const adminUser = await prisma.user.findFirst({
+      where: { email: 'admin@smarttech.com' },
+      select: { id: true, email: true, status: true }
     });
     
-    // Test if we can query roles via HTTP
-    console.log('\n🌐 Testing HTTP endpoint at http://localhost:3001/api/v1/rbac/roles');
+    if (!adminUser) {
+      console.log('❌ Admin user not found');
+      return;
+    }
+    console.log('✅ Admin user found:', { id: adminUser.id, email: adminUser.email, status: adminUser.status });
+
+    // 2. Generate token
+    console.log('\n2. Generating JWT token...');
+    const payload = { userId: adminUser.id, email: adminUser.email };
+    const secret = 'smarttech-super-secret-jwt-key-change-in-production-2024-at-least-32-chars';
+    const token = jwt.sign(payload, secret, { 
+      expiresIn: '1h',
+      issuer: 'smart-ecommerce-api',
+      audience: 'smart-ecommerce-clients'
+    });
+    console.log('✅ Token generated (first 50 chars):', token.substring(0, 50) + '...');
+
+    // 3. Test RBAC roles endpoint
+    console.log('\n3. Testing RBAC roles endpoint...');
+    console.log('   URL: http://localhost:3001/api/v1/rbac/roles');
     
     const response = await fetch('http://localhost:3001/api/v1/rbac/roles', {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      }
     });
     
-    console.log(`\nHTTP Response Status: ${response.status}`);
-    console.log(`HTTP Response Headers:`);
-    response.headers.forEach((value, key) => {
-      console.log(`  ${key}: ${value}`);
+    console.log('   Response status:', response.status);
+    console.log('   Response headers:', Object.fromEntries(response.headers.entries()));
+    
+    const data = await response.text();
+    console.log('   Response body:', data);
+
+    // 4. Test token refresh endpoint
+    console.log('\n4. Testing token refresh endpoint...');
+    const refreshResponse = await fetch('http://localhost:3001/api/v1/auth/refresh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: token })
     });
     
-    if (response.ok) {
-      const data = await response.json();
-      console.log('\n✅ HTTP Response Data:');
-      console.log(JSON.stringify(data, null, 2));
-    } else {
-      const errorText = await response.text();
-      console.log('\n❌ HTTP Error Response:');
-      console.log(errorText);
-    }
-    
+    console.log('   Refresh response status:', refreshResponse.status);
+    const refreshData = await refreshResponse.text();
+    console.log('   Refresh response body:', refreshData);
+
   } catch (error) {
-    console.error('❌ Error:', error.message);
-    console.error(error);
-    process.exit(1);
+    console.error('\n❌ Error:', error.message);
+    console.error('Stack:', error.stack);
   } finally {
-    await client.release();
-    await pool.end();
+    await prisma.$disconnect();
+    console.log('\n=== Test Complete ===');
   }
 }
 
-// Run the test
-testRBACRolesEndpoint();
+testRbacRolesEndpoint();

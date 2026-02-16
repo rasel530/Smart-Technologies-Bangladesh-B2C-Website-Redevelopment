@@ -29,22 +29,14 @@ const {
   createFestivalWishlist,
   BANGLADESH_WISHLIST_PRODUCTS,
   BANGLADESH_FESTIVAL_WISHLISTS
-} = require('./bangladesh-wishlist-fixtures.test');
+} = require('./bangladesh-wishlist-fixtures.js');
 
 const app = require('../index');
 const prisma = new PrismaClient();
 
 // Mock email service
-jest.mock('../services/email-service', () => ({
-  sendWishlistShareEmail: jest.fn().mockResolvedValue({ success: true }),
-  sendCollaborationInvite: jest.fn().mockResolvedValue({ success: true })
-}));
-
-// Mock social media sharing
-jest.mock('../services/social-service', () => ({
-  generateFacebookShareLink: jest.fn().mockReturnValue('https://facebook.com/share/test'),
-  generateTwitterShareLink: jest.fn().mockReturnValue('https://twitter.com/intent/tweet/test'),
-  generateWhatsAppShareLink: jest.fn().mockReturnValue('https://wa.me/share/test')
+jest.mock('../services/emailService', () => ({
+  sendEmail: jest.fn().mockResolvedValue({ success: true })
 }));
 
 describe('Wishlist Sharing Functionality', () => {

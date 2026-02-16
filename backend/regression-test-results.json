@@ -1,0 +1,378 @@
+{
+  "timestamp": "2026-02-07T13:47:46.241Z",
+  "results": {
+    "phase1": {
+      "passed": 0,
+      "failed": 5,
+      "tests": [
+        {
+          "name": "Project structure intact",
+          "passed": false,
+          "details": "Missing directories",
+          "timestamp": "2026-02-07T13:47:43.979Z"
+        },
+        {
+          "name": "Package.json dependencies correct",
+          "passed": false,
+          "details": "ENOENT: no such file or directory, open 'e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\backend\\package.json'",
+          "timestamp": "2026-02-07T13:47:43.980Z"
+        },
+        {
+          "name": "Environment variables configured",
+          "passed": false,
+          "details": "Missing env vars",
+          "timestamp": "2026-02-07T13:47:43.980Z"
+        },
+        {
+          "name": "Docker configuration unchanged",
+          "passed": false,
+          "details": "ENOENT: no such file or directory, open 'e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\docker-compose.yml'",
+          "timestamp": "2026-02-07T13:47:44.025Z"
+        },
+        {
+          "name": "Git repository structure intact",
+          "passed": false,
+          "details": ".git directory missing",
+          "timestamp": "2026-02-07T13:47:44.025Z"
+        }
+      ]
+    },
+    "phase2": {
+      "passed": 3,
+      "failed": 0,
+      "tests": [
+        {
+          "name": "Backend routing works",
+          "passed": true,
+          "details": "Backend responds to requests",
+          "timestamp": "2026-02-07T13:47:44.184Z"
+        },
+        {
+          "name": "Database connection works",
+          "passed": true,
+          "details": "Successfully connected to database",
+          "timestamp": "2026-02-07T13:47:44.209Z"
+        },
+        {
+          "name": "Basic middleware functions",
+          "passed": true,
+          "details": "Middleware processing requests",
+          "timestamp": "2026-02-07T13:47:44.359Z"
+        }
+      ]
+    },
+    "phase3": {
+      "passed": 1,
+      "failed": 5,
+      "tests": [
+        {
+          "name": "User registration works",
+          "passed": false,
+          "details": "Registration failed",
+          "timestamp": "2026-02-07T13:47:44.470Z"
+        },
+        {
+          "name": "User login works",
+          "passed": false,
+          "details": "Login failed",
+          "timestamp": "2026-02-07T13:47:44.482Z"
+        },
+        {
+          "name": "JWT token generation works",
+          "passed": null,
+          "details": "JWT token not generated",
+          "timestamp": "2026-02-07T13:47:44.482Z"
+        },
+        {
+          "name": "RBAC system works",
+          "passed": true,
+          "details": "Found 11 roles",
+          "timestamp": "2026-02-07T13:47:44.548Z"
+        },
+        {
+          "name": "User profile management works",
+          "passed": false,
+          "details": "Profile endpoint not accessible",
+          "timestamp": "2026-02-07T13:47:44.574Z"
+        },
+        {
+          "name": "NextAuth integration works",
+          "passed": false,
+          "details": "NextAuth route missing",
+          "timestamp": "2026-02-07T13:47:44.574Z"
+        }
+      ]
+    },
+    "phase4": {
+      "passed": 5,
+      "failed": 0,
+      "tests": [
+        {
+          "name": "Product listing works",
+          "passed": true,
+          "details": "Products can be listed",
+          "timestamp": "2026-02-07T13:47:44.656Z"
+        },
+        {
+          "name": "Product details page works",
+          "passed": true,
+          "details": "Product details accessible",
+          "timestamp": "2026-02-07T13:47:44.725Z"
+        },
+        {
+          "name": "Category browsing works",
+          "passed": true,
+          "details": "Categories can be browsed",
+          "timestamp": "2026-02-07T13:47:44.804Z"
+        },
+        {
+          "name": "Brand browsing works",
+          "passed": true,
+          "details": "Brands can be browsed",
+          "timestamp": "2026-02-07T13:47:44.849Z"
+        },
+        {
+          "name": "Product search works",
+          "passed": true,
+          "details": "Products can be searched",
+          "timestamp": "2026-02-07T13:47:44.877Z"
+        }
+      ]
+    },
+    "phase5": {
+      "passed": 2,
+      "failed": 2,
+      "tests": [
+        {
+          "name": "Elasticsearch integration works",
+          "passed": false,
+          "details": "Invalid URL",
+          "timestamp": "2026-02-07T13:47:44.879Z"
+        },
+        {
+          "name": "Search API endpoints work",
+          "passed": false,
+          "details": "Search API not responding",
+          "timestamp": "2026-02-07T13:47:44.886Z"
+        },
+        {
+          "name": "Search analytics work",
+          "passed": true,
+          "details": "Search analytics accessible",
+          "timestamp": "2026-02-07T13:47:44.926Z"
+        },
+        {
+          "name": "Search performance works",
+          "passed": true,
+          "details": "Response time: 7ms",
+          "timestamp": "2026-02-07T13:47:44.943Z"
+        }
+      ]
+    },
+    "database": {
+      "passed": 5,
+      "failed": 0,
+      "tests": [
+        {
+          "name": "All existing tables intact",
+          "passed": true,
+          "details": "All tables accessible",
+          "timestamp": "2026-02-07T13:47:45.034Z"
+        },
+        {
+          "name": "New cart tables exist",
+          "passed": true,
+          "details": "All cart tables present",
+          "timestamp": "2026-02-07T13:47:45.047Z"
+        },
+        {
+          "name": "All existing relationships intact",
+          "passed": true,
+          "details": "Relationships accessible",
+          "timestamp": "2026-02-07T13:47:45.060Z"
+        },
+        {
+          "name": "All existing indexes intact",
+          "passed": true,
+          "details": "Found 32 indexes",
+          "timestamp": "2026-02-07T13:47:45.076Z"
+        },
+        {
+          "name": "New tables don't affect existing queries",
+          "passed": true,
+          "details": "Existing queries work correctly",
+          "timestamp": "2026-02-07T13:47:45.087Z"
+        }
+      ]
+    },
+    "api": {
+      "passed": 3,
+      "failed": 1,
+      "tests": [
+        {
+          "name": "Products list endpoint works",
+          "passed": true,
+          "details": "Endpoint responding",
+          "timestamp": "2026-02-07T13:47:45.130Z"
+        },
+        {
+          "name": "Categories list endpoint works",
+          "passed": true,
+          "details": "Endpoint responding",
+          "timestamp": "2026-02-07T13:47:45.144Z"
+        },
+        {
+          "name": "Brands list endpoint works",
+          "passed": true,
+          "details": "Endpoint responding",
+          "timestamp": "2026-02-07T13:47:45.158Z"
+        },
+        {
+          "name": "Search endpoint works",
+          "passed": false,
+          "details": "Endpoint not responding",
+          "timestamp": "2026-02-07T13:47:45.165Z"
+        }
+      ]
+    },
+    "frontend": {
+      "passed": 5,
+      "failed": 0,
+      "tests": [
+        {
+          "name": "Frontend loads correctly",
+          "passed": true,
+          "details": "Frontend accessible",
+          "timestamp": "2026-02-07T13:47:45.671Z"
+        },
+        {
+          "name": "/products page loads",
+          "passed": true,
+          "details": "Page accessible",
+          "timestamp": "2026-02-07T13:47:45.702Z"
+        },
+        {
+          "name": "/categories page loads",
+          "passed": true,
+          "details": "Page accessible",
+          "timestamp": "2026-02-07T13:47:45.735Z"
+        },
+        {
+          "name": "/brands page loads",
+          "passed": true,
+          "details": "Page accessible",
+          "timestamp": "2026-02-07T13:47:45.855Z"
+        },
+        {
+          "name": "/search page loads",
+          "passed": true,
+          "details": "Page accessible",
+          "timestamp": "2026-02-07T13:47:45.895Z"
+        }
+      ]
+    },
+    "admin": {
+      "passed": 5,
+      "failed": 0,
+      "tests": [
+        {
+          "name": "/admin/products admin page works",
+          "passed": true,
+          "details": "Admin page accessible",
+          "timestamp": "2026-02-07T13:47:46.076Z"
+        },
+        {
+          "name": "/admin/categories admin page works",
+          "passed": true,
+          "details": "Admin page accessible",
+          "timestamp": "2026-02-07T13:47:46.097Z"
+        },
+        {
+          "name": "/admin/brands admin page works",
+          "passed": true,
+          "details": "Admin page accessible",
+          "timestamp": "2026-02-07T13:47:46.108Z"
+        },
+        {
+          "name": "/admin/users admin page works",
+          "passed": true,
+          "details": "Admin page accessible",
+          "timestamp": "2026-02-07T13:47:46.122Z"
+        },
+        {
+          "name": "/admin/search-analytics admin page works",
+          "passed": true,
+          "details": "Admin page accessible",
+          "timestamp": "2026-02-07T13:47:46.143Z"
+        }
+      ]
+    },
+    "performance": {
+      "passed": 3,
+      "failed": 0,
+      "tests": [
+        {
+          "name": "Products API response time",
+          "passed": true,
+          "details": "11ms",
+          "timestamp": "2026-02-07T13:47:46.154Z"
+        },
+        {
+          "name": "Categories API response time",
+          "passed": true,
+          "details": "12ms",
+          "timestamp": "2026-02-07T13:47:46.166Z"
+        },
+        {
+          "name": "Search API response time",
+          "passed": true,
+          "details": "5ms",
+          "timestamp": "2026-02-07T13:47:46.171Z"
+        }
+      ]
+    },
+    "security": {
+      "passed": 1,
+      "failed": 1,
+      "tests": [
+        {
+          "name": "Input validation works",
+          "passed": true,
+          "details": "Malicious input rejected",
+          "timestamp": "2026-02-07T13:47:46.178Z"
+        },
+        {
+          "name": "Authentication security",
+          "passed": false,
+          "details": "Endpoint may be unprotected",
+          "timestamp": "2026-02-07T13:47:46.182Z"
+        }
+      ]
+    },
+    "integration": {
+      "passed": 2,
+      "failed": 0,
+      "tests": [
+        {
+          "name": "Phase 3 authentication integration with cart",
+          "passed": true,
+          "details": "User-cart relationship works",
+          "timestamp": "2026-02-07T13:47:46.199Z"
+        },
+        {
+          "name": "Phase 4 product catalog integration with cart",
+          "passed": true,
+          "details": "Product-cart relationship works",
+          "timestamp": "2026-02-07T13:47:46.230Z"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "totalTests": 49,
+    "passed": 35,
+    "failed": 14,
+    "passRate": 71.43,
+    "regressionDetected": true
+  }
+}

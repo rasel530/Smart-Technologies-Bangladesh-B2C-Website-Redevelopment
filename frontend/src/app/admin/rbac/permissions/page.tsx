@@ -59,8 +59,9 @@ export default function PermissionManagementPage() {
         rbacApi.permissions.getResources(),
       ]);
 
-      setPermissions(permsResponse.data || []);
-      setResources(resourcesResponse.data || []);
+      // API client already unwraps response from { success: true, data: {...} } format
+      setPermissions(Array.isArray(permsResponse) ? permsResponse : []);
+      setResources(Array.isArray(resourcesResponse) ? resourcesResponse : []);
     } catch (error: any) {
       console.error('[PermissionManagement] Error fetching permissions:', error);
       setError(error.message || 'Failed to load permissions');
@@ -73,7 +74,8 @@ export default function PermissionManagementPage() {
     try {
       setError('');
       const response = await rbacApi.permissions.get(permissionId);
-      setSelectedPermission(response.data);
+      // API client already unwraps response from { success: true, data: {...} } format
+      setSelectedPermission(response);
     } catch (error: any) {
       console.error('[PermissionManagement] Error fetching permission details:', error);
       setError(error.message || 'Failed to load permission details');

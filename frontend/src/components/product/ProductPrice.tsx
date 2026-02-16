@@ -62,7 +62,7 @@ export const ProductPrice: React.FC<ProductPriceProps> = ({
   };
 
   const finalPrice = salePrice || regularPrice;
-  const hasDiscount = salePrice !== null && salePrice < regularPrice;
+  const hasDiscount = salePrice !== null && salePrice > 0 && salePrice < regularPrice;
   const taxAmount = calculateTax(finalPrice, taxRate);
   const totalPrice = finalPrice + taxAmount;
 
@@ -75,9 +75,9 @@ export const ProductPrice: React.FC<ProductPriceProps> = ({
           {formatPrice(finalPrice)}
         </span>
 
-        {/* Regular Price (if discounted) */}
+        {/* Original Price (with line-through when discount exists) */}
         {hasDiscount && (
-          <span className="text-sm text-gray-400 line-through">
+          <span className="text-gray-500 line-through">
             {formatPrice(regularPrice)}
           </span>
         )}

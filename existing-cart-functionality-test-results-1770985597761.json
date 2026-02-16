@@ -1,0 +1,52 @@
+{
+  "timestamp": "2026-02-13T12:26:37.761Z",
+  "results": {
+    "total": 24,
+    "passed": 17,
+    "failed": 7,
+    "errors": [
+      {
+        "test": "Test 2.2: POST /api/v1/cart/items - Add item with variant",
+        "error": "400: {\"success\":false,\"error\":\"Validation failed\",\"message\":\"Validation failed\",\"messageBn\":\"যাচাইকরণ ব্যর্থ হয়েছে\",\"details\":[{\"type\":\"field\",\"value\":null,\"msg\":\"Invalid variant ID\",\"path\":\"variantId\",\"location\":\"body\"}]}",
+        "status": 400
+      },
+      {
+        "test": "Test 7.1: GET /api/v1/cart/summary - Get cart summary (authenticated)",
+        "error": "400: {\"success\":false,\"error\":\"Validation failed\",\"message\":\"Validation failed\",\"messageBn\":\"যাচাইকরণ ব্যর্থ হয়েছে\",\"details\":[{\"type\":\"field\",\"value\":\"summary\",\"msg\":\"Invalid cart ID\",\"path\":\"cartId\",\"location\":\"params\"}]}",
+        "status": 400
+      },
+      {
+        "test": "Test 7.2: GET /api/v1/cart/summary - Verify summary fields",
+        "error": "400: {\"success\":false,\"error\":\"Validation failed\",\"message\":\"Validation failed\",\"messageBn\":\"যাচাইকরণ ব্যর্থ হয়েছে\",\"details\":[{\"type\":\"field\",\"value\":\"summary\",\"msg\":\"Invalid cart ID\",\"path\":\"cartId\",\"location\":\"params\"}]}",
+        "status": 400
+      },
+      {
+        "test": "Test 8.1: GET /api/v1/cart/count - Get cart item count (authenticated)",
+        "error": "400: {\"success\":false,\"error\":\"Validation failed\",\"message\":\"Validation failed\",\"messageBn\":\"যাচাইকরণ ব্যর্থ হয়েছে\",\"details\":[{\"type\":\"field\",\"value\":\"count\",\"msg\":\"Invalid cart ID\",\"path\":\"cartId\",\"location\":\"params\"}]}",
+        "status": 400
+      },
+      {
+        "test": "Test 8.2: GET /api/v1/cart/count - Verify count matches cart items",
+        "error": "400: {\"success\":false,\"error\":\"Validation failed\",\"message\":\"Validation failed\",\"messageBn\":\"যাচাইকরণ ব্যর্থ হয়েছে\",\"details\":[{\"type\":\"field\",\"value\":\"count\",\"msg\":\"Invalid cart ID\",\"path\":\"cartId\",\"location\":\"params\"}]}",
+        "status": 400
+      },
+      {
+        "test": "Test 9.1: POST /api/v1/cart/stock/check - Check stock availability",
+        "error": "500: {\"success\":false,\"error\":\"Failed to check stock availability\"}",
+        "status": 500
+      },
+      {
+        "test": "Test 9.2: POST /api/v1/cart/stock/check - Verify stock check fields",
+        "error": "500: {\"success\":false,\"error\":\"Failed to check stock availability\"}",
+        "status": 500
+      }
+    ]
+  },
+  "testData": {
+    "cartId": "2614269d-f61a-4669-b1de-7e8a47370311",
+    "productId": "4010caae-464e-4787-ad8f-ee04096100d0",
+    "variantId": null,
+    "cartItemId": "c2468eca-a0d5-496b-a6b6-ac88ec1b712b",
+    "guestSessionId": "test-guest-session-1770985595610"
+  }
+}

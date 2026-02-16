@@ -124,7 +124,9 @@ const categoryRoutes = require('./routes/categories');
 const brandRoutes = require('./routes/brands');
 const orderRoutes = require('./routes/orders');
 const cartRoutes = require('./routes/cart');
-const wishlistRoutes = require('./routes/wishlist');
+const wishlistRoutes = require('./routes/wishlistRoutes');
+// Import admin cart routes - Fix for Issue 1: GET /api/v1/admin/carts 404 Not Found
+const adminCartRoutes = require('./routes/admin/cart');
 const reviewRoutes = require('./routes/reviews');
 const couponRoutes = require('./routes/coupons');
 const routeIndex = require('./routes/index');
@@ -228,7 +230,7 @@ app.use(cors({
   origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'Pragma'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'Pragma', 'x-session-id'],
   exposedHeaders: ['x-new-token'],
   optionsSuccessStatus: 200
 }));
@@ -274,23 +276,39 @@ app.use(helmet({
 
 app.use(morgan('combined', { stream: loggerService.stream() }));
 
-// Enhanced JSON parsing with error handling - MUST be before routes, but skip for multipart requests
+// JSON parsing diagnostic middleware - before express.json()
 app.use((req, res, next) => {
-  const contentType = req.get('Content-Type');
-  
-  // Skip body parsing for multipart/form-data requests (file uploads)
-  if (contentType && contentType.includes('multipart/form-data')) {
-    return next();
-  }
-  
-  express.json({
-    limit: '10mb',
-    strict: false
-  })(req, res, next);
+  console.log('[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===');
+  console.log('[JSON PARSER DIAGNOSTIC] Content-Type:', req.get('Content-Type'));
+  console.log('[JSON PARSER DIAGNOSTIC] Content-Length:', req.get('Content-Length'));
+  console.log('[JSON PARSER DIAGNOSTIC] Request body before parsing:', req.body);
+  console.log('[JSON PARSER DIAGNOSTIC] Request method:', req.method);
+  console.log('[JSON PARSER DIAGNOSTIC] Request URL:', req.originalUrl);
+  next();
 });
 
+// Enhanced JSON parsing with error handling - MUST be before routes
+app.use(express.json({ limit: '10mb', strict: false }));
+
+// JSON parsing diagnostic middleware - after express.json()
+app.use((req, res, next) => {
+  console.log('[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===');
+  console.log('[JSON PARSER DIAGNOSTIC] Request body after parsing:', req.body);
+  console.log('[JSON PARSER DIAGNOSTIC] Request body type:', typeof req.body);
+  console.log('[JSON PARSER DIAGNOSTIC] Request body keys:', req.body ? Object.keys(req.body) : 'N/A');
+  console.log('[JSON PARSER DIAGNOSTIC] === END ===');
+  next();
+});
+
+// JSON parsing error handler - MUST be after express.json()
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    console.log('[JSON PARSING ERROR] SyntaxError caught:', {
+      message: err.message,
+      status: err.status,
+      path: req.path,
+      method: req.method
+    });
     return res.status(400).json({
       error: 'Invalid JSON',
       message: 'The request body contains invalid JSON',
@@ -301,16 +319,8 @@ app.use((err, req, res, next) => {
   next();
 });
 
-app.use((req, res, next) => {
-  const contentType = req.get('Content-Type');
-  
-  // Skip URL-encoded parsing for multipart/form-data requests (file uploads)
-  if (contentType && contentType.includes('multipart/form-data')) {
-    return next();
-  }
-  
-  express.urlencoded({ extended: true, limit: '10mb' })(req, res, next);
-});
+// URL-encoded form data parser
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve static files from uploads directory with CORS and CORP headers
 app.use('/uploads', (req, res, next) => {
@@ -450,6 +460,9 @@ app.use('/api/v1/rbac/auth', rbacAuthCheckRoutes);
 
 // Corporate account management routes
 app.use('/api/v1/corporate', corporateRoutes);
+
+// Admin cart routes - Fix for Issue 1: GET /api/v1/admin/carts 404 Not Found
+app.use('/api/v1/admin/carts', adminCartRoutes);
 
 // Elasticsearch admin routes
 app.use('/api/v1/admin/elasticsearch', elasticsearchRoutes);

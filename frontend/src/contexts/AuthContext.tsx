@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useReducer, useEffect, useState, ReactNode } from 'react';
 import { useSession, signIn as nextAuthSignIn, signOut as nextAuthSignOut } from 'next-auth/react';
 import { User, AuthContextType, LoginErrorPayload, RegistrationData } from '@/types/auth';
-import { apiClient, setToken, removeToken } from '@/lib/api/client';
+import { apiClient, setToken, removeToken, updateCachedSessionToken } from '@/lib/api/client';
 import SessionTimeoutWarning from '@/components/auth/SessionTimeoutWarning';
 
 // Action types for auth reducer
@@ -262,79 +262,105 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Sync NextAuth session with local state (only after mount to prevent hydration issues)
   useEffect(() => {
-    if (!isMounted) return;
+    (async () => {
+      if (!isMounted) return;
 
-    console.log('[AuthContext] NextAuth session changed:', {
-      status: sessionStatus,
-      previousStatus: prevSessionStatusRef.current,
-      userEmail: session?.user?.email,
-      hasSession: !!session,
-      hasToken: !!session?.backendToken,
-    });
-    
-    // Only logout if we were previously authenticated and now we're not
-    // This prevents logout during initial page load when session is being restored
-    if (sessionStatus === 'unauthenticated' && prevSessionStatusRef.current === 'authenticated') {
-      console.log('[AuthContext] NextAuth session unauthenticated - logging out');
-      dispatch({ type: 'LOGOUT' });
-      dispatch({ type: 'SET_SESSION_TIMEOUT', payload: null });
-      prevUserRef.current = null;
-    }
-    
-    // Update previous status ref
-    prevSessionStatusRef.current = sessionStatus;
-    
-    // Always store token when authenticated (regardless of user change)
-    if (sessionStatus === 'authenticated' && session?.backendToken) {
-      setToken(session.backendToken);
-      console.log('[AuthContext] Backend token stored in localStorage');
-    }
-    
-    // Only sync user state if user has actually changed
-    if (sessionStatus === 'authenticated' && session?.user) {
-      // Convert NextAuth session to User type with type assertions
-      const sessionUser = session.user as any;
+      console.log('[AuthContext] NextAuth session changed:', {
+        status: sessionStatus,
+        previousStatus: prevSessionStatusRef.current,
+        userEmail: session?.user?.email,
+        hasSession: !!session,
+        hasToken: !!session?.backendToken,
+      });
       
-      // Check if user has actually changed to prevent duplicate dispatches
-      // Use field-by-field comparison for more reliable change detection
-      const userChanged = !prevUserRef.current ||
-        prevUserRef.current.id !== sessionUser.id ||
-        prevUserRef.current.email !== sessionUser.email ||
-        prevUserRef.current.firstName !== sessionUser.firstName ||
-        prevUserRef.current.lastName !== sessionUser.lastName ||
-        prevUserRef.current.role !== sessionUser.role;
-      
-      if (userChanged) {
-        console.log('[AuthContext] User changed, syncing to state');
-        
-        const user: User = {
-          id: sessionUser.id,
-          email: sessionUser.email,
-          phone: sessionUser.phone,
-          firstName: sessionUser.firstName,
-          lastName: sessionUser.lastName,
-          role: sessionUser.role,
-          isEmailVerified: !!sessionUser.email,
-          isPhoneVerified: !!sessionUser.phone,
-          preferredLanguage: sessionUser.preferredLanguage || 'en',
-          image: sessionUser.image,
-          createdAt: sessionUser.createdAt,
-          updatedAt: sessionUser.updatedAt,
-        };
-        
-        console.log('[AuthContext] Syncing NextAuth user to state:', user);
-        dispatch({ type: 'LOGIN_SUCCESS', payload: user });
-        
-        // Set session timeout based on remember me
-        const sessionTimeout = session.rememberMe ? 604800 : 86400;
-        dispatch({ type: 'SET_SESSION_TIMEOUT', payload: sessionTimeout });
-      } else {
-        console.log('[AuthContext] User unchanged, skipping sync');
+      // Only logout if we were previously authenticated and now we're not
+      // This prevents logout during initial page load when session is being restored
+      if (sessionStatus === 'unauthenticated' && prevSessionStatusRef.current === 'authenticated') {
+        console.log('[AuthContext] NextAuth session unauthenticated - logging out');
+        dispatch({ type: 'LOGOUT' });
+        dispatch({ type: 'SET_SESSION_TIMEOUT', payload: null });
+        prevUserRef.current = null;
       }
       
-      // Update previous user ref
-      prevUserRef.current = sessionUser;
-    }
+      // Update previous status ref
+      prevSessionStatusRef.current = sessionStatus;
+      
+      // Always store token when authenticated (regardless of user change)
+      if (sessionStatus === 'authenticated' && session?.backendToken) {
+        console.log('[AuthContext] Storing token - DIAGNOSTIC');
+        console.log('[AuthContext] - sessionStatus:', sessionStatus);
+        console.log('[AuthContext] - session.backendToken exists:', !!session?.backendToken);
+        console.log('[AuthContext] - session.backendToken length:', session?.backendToken?.length);
+        console.log('[AuthContext] - localStorage auth_token before:', !!localStorage.getItem('auth_token'));
+        
+        // Before storing token - DIAGNOSTIC LOGGING
+        console.log('[AuthContext] Token received from NextAuth - length:', session.backendToken?.length);
+        console.log('[AuthContext] Token preview:', session.backendToken?.substring(0, 50) + '...');
+        
+        // Await token storage to ensure it completes before proceeding
+        await setToken(session.backendToken);
+        // Update cached token immediately for race condition fix
+        updateCachedSessionToken(session.backendToken);
+        
+        // After storing token - DIAGNOSTIC LOGGING
+        console.log('[AuthContext] Token stored to localStorage - length:', localStorage.getItem('auth_token')?.length);
+        console.log('[AuthContext] Token preview after storage:', localStorage.getItem('auth_token')?.substring(0, 50) + '...');
+        
+        console.log('[AuthContext] - localStorage auth_token after:', !!localStorage.getItem('auth_token'));
+        console.log('[AuthContext] Backend token stored in localStorage and cached');
+      }
+      
+      // Clear cached token when session ends
+      if (sessionStatus === 'unauthenticated') {
+        updateCachedSessionToken(null);
+      }
+      
+      // Only sync user state if user has actually changed
+      if (sessionStatus === 'authenticated' && session?.user) {
+        // Convert NextAuth session to User type with type assertions
+        const sessionUser = session.user as any;
+        
+        // Check if user has actually changed to prevent duplicate dispatches
+        // Use field-by-field comparison for more reliable change detection
+        const userChanged = !prevUserRef.current ||
+          prevUserRef.current.id !== sessionUser.id ||
+          prevUserRef.current.email !== sessionUser.email ||
+          prevUserRef.current.firstName !== sessionUser.firstName ||
+          prevUserRef.current.lastName !== sessionUser.lastName ||
+          prevUserRef.current.role !== sessionUser.role;
+        
+        if (userChanged) {
+          console.log('[AuthContext] User changed, syncing to state');
+          
+          const user: User = {
+            id: sessionUser.id,
+            email: sessionUser.email,
+            phone: sessionUser.phone,
+            firstName: sessionUser.firstName,
+            lastName: sessionUser.lastName,
+            role: sessionUser.role,
+            isEmailVerified: !!sessionUser.email,
+            isPhoneVerified: !!sessionUser.phone,
+            preferredLanguage: sessionUser.preferredLanguage || 'en',
+            image: sessionUser.image,
+            createdAt: sessionUser.createdAt,
+            updatedAt: sessionUser.updatedAt,
+          };
+          
+          console.log('[AuthContext] Syncing NextAuth user to state:', user);
+          dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+          
+          // Set session timeout based on remember me
+          const sessionTimeout = session.rememberMe ? 604800 : 86400;
+          dispatch({ type: 'SET_SESSION_TIMEOUT', payload: sessionTimeout });
+        } else {
+          console.log('[AuthContext] User unchanged, skipping sync');
+        }
+        
+        // Update previous user ref
+        prevUserRef.current = sessionUser;
+      }
+    })();
   }, [session, sessionStatus, isMounted]);
 
   // Login function using NextAuth - returns result with success/error status

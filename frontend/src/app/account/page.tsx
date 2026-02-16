@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { User as UserType } from '@/types/auth';
 import { withAuth } from '@/components/auth/withAuth';
 import { formatDate, getInitials } from '@/lib/utils';
 import { ProfileAPI, UserProfile } from '@/lib/api/profile';
+import { apiClient } from '@/lib/api/client';
 import ProfileEditForm from '@/components/profile/ProfileEditForm';
 import ProfilePictureUpload from '@/components/profile/ProfilePictureUpload';
 import EmailPhoneChange from '@/components/profile/EmailPhoneChange';
@@ -22,14 +24,64 @@ import {
   Heart,
   CreditCard,
   ChevronRight,
-  Edit
+  Edit,
+  FileText,
+  DollarSign,
+  Loader2,
+  ArrowRight
 } from 'lucide-react';
+import Link from 'next/link';
+
+interface Order {
+  id: string;
+  orderDate: string;
+  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
+  total: number;
+  itemCount: number;
+}
+
+const formatCurrency = (amount: number): string => {
+  return `৳${amount.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
+const formatOrderDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
+
+const formatStatus = (status: string): string => {
+  return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+};
+
+const getStatusColor = (status: string): string => {
+  switch (status) {
+    case 'pending':
+    case 'confirmed':
+    case 'processing':
+      return 'bg-blue-100 text-blue-800';
+    case 'shipped':
+      return 'bg-yellow-100 text-yellow-800';
+    case 'delivered':
+      return 'bg-green-100 text-green-800';
+    case 'cancelled':
+      return 'bg-red-100 text-red-800';
+    case 'refunded':
+      return 'bg-gray-100 text-gray-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+};
 
 interface AccountPageProps {}
 
 const AccountPage: React.FC<AccountPageProps> = () => {
   const { user, logout, updateUser } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -44,6 +96,13 @@ const AccountPage: React.FC<AccountPageProps> = () => {
       profileLoadedRef.current = true;
     }
   }, [user]);
+
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['profile', 'orders', 'wishlist', 'payment', 'addresses'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
 
   const loadProfileData = async () => {
     // Only load profile data if not already loaded
@@ -368,20 +427,144 @@ const ProfileTab: React.FC<{ user: UserType | UserProfile | null; language: 'en'
   );
 };
 
-const OrdersTab: React.FC<{ language: 'en' | 'bn' }> = ({ language }) => (
-  <div className="text-center py-12">
-    <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-    <h3 className="text-lg font-medium text-gray-900 mb-2">
-      {language === 'en' ? 'No orders yet' : 'এখনও কোনো অর্ডার নেই'}
-    </h3>
-    <p className="text-gray-600">
-      {language === 'en' 
-        ? 'When you place your first order, it will appear here.'
-        : 'যখনও আপনার প্রথম অর্ডার করবেন, তখনও এখানে দেখাবে।'
-      }
-    </p>
-  </div>
-);
+const OrdersTab: React.FC<{ language: 'en' | 'bn' }> = ({ language }) => {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await apiClient.get('/orders');
+      const orders = response.orders.map((order: any) => ({
+        ...order,
+        orderDate: order.createdAt,
+        itemCount: order.items?.length || 0
+      }));
+      setOrders(orders);
+    } catch (err: any) {
+      console.error('Error fetching orders:', err);
+      setError(language === 'en' ? 'Failed to load orders. Please try again.' : 'অর্ডার লোড করতে ব্যর্থ হয়েছে। আবার চেষ্টা করুন।');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Loading State
+  if (isLoading) {
+    return (
+      <div className="text-center py-12">
+        <Loader2 className="h-12 w-12 text-blue-600 animate-spin mx-auto mb-4" />
+        <p className="text-gray-600">
+          {language === 'en' ? 'Loading your orders...' : 'আপনার অর্ডার লোড হচ্ছে...'}
+        </p>
+      </div>
+    );
+  }
+
+  // Error State
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <FileText className="h-8 w-8 text-red-600" />
+        </div>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          {language === 'en' ? 'Error Loading Orders' : 'অর্ডার লোড করতে সমস্যা হয়েছে'}
+        </h3>
+        <p className="text-gray-600 mb-6">{error}</p>
+        <button
+          onClick={fetchOrders}
+          className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
+        >
+          {language === 'en' ? 'Try Again' : 'আবার চেষ্টা করুন'}
+        </button>
+      </div>
+    );
+  }
+
+  // Empty State
+  if (orders.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          {language === 'en' ? 'No orders yet' : 'এখনও কোনো অর্ডার নেই'}
+        </h3>
+        <p className="text-gray-600">
+          {language === 'en' 
+            ? 'When you place your first order, it will appear here.'
+            : 'যখনও আপনার প্রথম অর্ডার করবেন, তখনও এখানে দেখাবে।'
+          }
+        </p>
+      </div>
+    );
+  }
+
+  // Orders List
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg font-semibold text-gray-900">
+          {language === 'en' ? `Your Orders (${orders.length})` : `আপনার অর্ডার (${orders.length})`}
+        </h2>
+      </div>
+
+      {orders.map((order) => (
+        <div
+          key={order.id}
+          className="bg-gray-50 rounded-lg p-6 hover:shadow-md transition-shadow border border-gray-200"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Order Info */}
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <FileText className="w-5 h-5 text-blue-600" />
+                <span className="font-semibold text-gray-900">{order.id}</span>
+              </div>
+              <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" />
+                  <span>{formatOrderDate(order.orderDate)}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Package className="w-4 h-4" />
+                  <span>{order.itemCount} {order.itemCount === 1 
+                    ? (language === 'en' ? 'item' : 'আইটেম') 
+                    : (language === 'en' ? 'items' : 'আইটেম')}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <DollarSign className="w-4 h-4" />
+                  <span className="font-semibold text-gray-900">{formatCurrency(order.total)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Status Badge and View Button */}
+            <div className="flex items-center gap-3">
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
+                {formatStatus(order.status)}
+              </span>
+              <Link
+                href={`/orders/${order.id}`}
+                className="inline-flex items-center gap-1 px-4 py-2 text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors"
+              >
+                {language === 'en' ? 'View Details' : 'বিস্তারিত দেখুন'}
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const WishlistTab: React.FC<{ language: 'en' | 'bn' }> = ({ language }) => (
   <div className="text-center py-12">

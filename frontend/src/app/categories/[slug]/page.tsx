@@ -14,7 +14,7 @@
 
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { Suspense } from 'react';
+import { Suspense, useMemo } from 'react';
 import { getCategoryBySlugServer, getCategoriesServer, getCategoryProductsServer } from '@/lib/api/server';
 import { getBrandsServer } from '@/lib/api/server';
 import { BreadcrumbNavigation } from '@/components/layout/BreadcrumbNavigation';
@@ -186,12 +186,37 @@ export default async function CategoryPage({
     );
   }
 
+  // Defensive check for category data availability
+  if (!category || !category.category) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Loading...</h1>
+        </div>
+      </div>
+    );
+  }
+
+  // Defensive check for category data availability
+  if (!category || !category.category) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Loading...</h1>
+        </div>
+      </div>
+    );
+  }
+
+  // Generate breadcrumbs at component top level
+  const breadcrumbItems = category ? generateCategoryBreadcrumbs(category.category) : [];
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 py-4">
-          <BreadcrumbNavigation items={generateCategoryBreadcrumbs(category.category)} />
+          <BreadcrumbNavigation items={breadcrumbItems} />
         </div>
       </div>
 

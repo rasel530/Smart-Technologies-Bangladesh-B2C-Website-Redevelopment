@@ -1,12 +1,31 @@
 const express = require('express');
 const { body, param, validationResult } = require('express-validator');
 const { rbacAuthMiddleware } = require('../middleware/rbacAuth');
+const { authMiddleware } = require('../middleware/auth');
 const { rbacUtils } = require('../utils/rbacUtils');
 const { loggerService } = require('../services/logger');
 const Role = require('../models/Role');
 
 const router = express.Router();
 const roleModel = new Role();
+
+// SECURITY FIX: Add rate limiting to RBAC endpoints to prevent brute force attacks
+// Different limits for read vs write operations
+const rbacReadRateLimit = authMiddleware.rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 100, // 100 requests per minute for read operations
+  message: 'Too many requests, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const rbacWriteRateLimit = authMiddleware.rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 20, // 20 requests per minute for write operations
+  message: 'Too many requests, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 // Validation middleware
 const handleValidationErrors = (req, res, next) => {
@@ -38,22 +57,11 @@ const normalizeRoleName = (req, res, next) => {
 /**
  * @route   GET /api/rbac/roles
  * @desc    Get all roles
- * @access  Public (or authenticated based on requirements)
+ * @access  Admin/Super Admin only (SECURITY FIX: Added authorization check)
  */
-router.get('/', rbacAuthMiddleware.authenticate(), async (req, res) => {
+router.get('/', rbacAuthMiddleware.authenticate(), rbacAuthMiddleware.requireAdmin(), async (req, res) => {
   try {
-    // DIAGNOSTIC LOGGING - Check authentication status
-    console.log('[RBAC ROLES GET] Request received');
-    console.log('[RBAC ROLES GET] User authenticated:', !!req.user);
-    console.log('[RBAC ROLES GET] User ID:', req.user?.id);
-    console.log('[RBAC ROLES GET] User roles:', req.user?.roles);
-    
     const roles = await roleModel.findAll();
-    
-    // DIAGNOSTIC LOGGING - Log query results
-    console.log('[RBAC ROLES GET] Roles found:', roles);
-    console.log('[RBAC ROLES GET] Roles count:', roles?.length);
-    console.log('[RBAC ROLES GET] First role:', roles?.[0]);
     
     res.json({
       success: true,
@@ -62,7 +70,6 @@ router.get('/', rbacAuthMiddleware.authenticate(), async (req, res) => {
       count: roles.length
     });
   } catch (error) {
-    console.error('[RBAC ROLES GET] Error:', error);
     loggerService.error('Get roles error', error);
     res.status(500).json({
       error: 'Failed to fetch roles',
@@ -74,9 +81,9 @@ router.get('/', rbacAuthMiddleware.authenticate(), async (req, res) => {
 /**
  * @route   GET /api/rbac/roles/hierarchy
  * @desc    Get role hierarchy
- * @access  Authenticated
+ * @access  Admin/Super Admin only (SECURITY FIX: Added authorization check)
  */
-router.get('/hierarchy', rbacAuthMiddleware.authenticate(), async (req, res) => {
+router.get('/hierarchy', rbacAuthMiddleware.authenticate(), rbacAuthMiddleware.requireAdmin(), async (req, res) => {
   try {
     const hierarchy = await rbacUtils.getRoleHierarchy();
     
@@ -97,7 +104,7 @@ router.get('/hierarchy', rbacAuthMiddleware.authenticate(), async (req, res) => 
 
 /**
  * @route   GET /api/rbac/roles/:id
- * @desc    Get role details
+ * @desc    Get role details with permissions
  * @access  Public (or authenticated based on requirements)
  */
 router.get('/:id', [
@@ -114,10 +121,16 @@ router.get('/:id', [
       });
     }
     
+    // Fetch permissions for this role
+    const permissions = await roleModel.getPermissions(id);
+    
     res.json({
       success: true,
       message: 'Role retrieved successfully',
-      data: role
+      data: {
+        ...role,
+        permissions
+      }
     });
   } catch (error) {
     loggerService.error('Get role error', error);
@@ -255,7 +268,7 @@ rbacAuthMiddleware.requireAdmin(), async (req, res) => {
  * @desc    Delete role
  * @access  Super Admin only
  */
-router.delete('/:id', [
+router.delete('/:id', rbacWriteRateLimit, [
   param('id').isUUID().withMessage('Invalid role ID')
 ], handleValidationErrors, rbacAuthMiddleware.authenticate(),
 rbacAuthMiddleware.requireSuperAdmin(), async (req, res) => {

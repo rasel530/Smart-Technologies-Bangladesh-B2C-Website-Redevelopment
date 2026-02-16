@@ -1,4 +1,4 @@
-'use client';
+ 'use client';
 
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
@@ -34,9 +34,8 @@ function AdminDashboard() {
       title: 'Order Management',
       description: 'View and process orders',
       icon: '🛒',
-      href: '#',
-      color: 'warning' as const,
-      disabled: true
+      href: '/admin/orders',
+      color: 'success' as const
     },
     {
       title: 'Analytics',

@@ -1,0 +1,10 @@
+-- Verify cart permissions were created
+SELECT * FROM permissions WHERE name LIKE 'cart:%' ORDER BY name;
+
+-- Verify permissions were assigned to roles
+SELECT r.name as role, p.name as permission
+FROM role_permissions rp
+JOIN roles r ON rp.role_id = r.id
+JOIN permissions p ON rp.permission_id = p.id
+WHERE p.name LIKE 'cart:%'
+ORDER BY r.name, p.name;

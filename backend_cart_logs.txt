@@ -1,0 +1,300 @@
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: application/json
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/cart
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/cart
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1771004141064
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/cart
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1771004141065
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-13T17:50:41.584Z',
+  method: 'GET',
+  path: '/api/v1/products/c571ed71-fd5b-4158-ad6d-87405e75f046',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'axios/1.13.2'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/products/c571ed71-fd5b-4158-ad6d-87405e75f046',
+  url: '/api/v1/products/c571ed71-fd5b-4158-ad6d-87405e75f046',
+  timestamp: '2026-02-13T17:50:41.584Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: application/json
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/products/c571ed71-fd5b-4158-ad6d-87405e75f046
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/products/c571ed71-fd5b-4158-ad6d-87405e75f046
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1771004141586
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-13T17:50:41.612Z',
+  method: 'POST',
+  path: '/api/v1/cart/items',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'axios/1.13.2'
+}
+[SERVER] Request received: {
+  method: 'POST',
+  path: '/api/v1/cart/items',
+  url: '/api/v1/cart/items',
+  timestamp: '2026-02-13T17:50:41.612Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: application/json
+[JSON PARSER DIAGNOSTIC] Content-Length: 82
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: POST
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/cart/items
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: {
+  productId: 'c571ed71-fd5b-4158-ad6d-87405e75f046',
+  quantity: 1,
+  variantId: null
+}
+[JSON PARSER DIAGNOSTIC] Request body type: object
+[JSON PARSER DIAGNOSTIC] Request body keys: [ 'productId', 'quantity', 'variantId' ]
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/cart/items
+[RATE LIMIT SERVICE] Request method: POST
+[RATE LIMIT SERVICE] req.body before processing: {
+  productId: 'c571ed71-fd5b-4158-ad6d-87405e75f046',
+  quantity: 1,
+  variantId: null
+}
+[RATE LIMIT SERVICE] req.body type: object
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1771004141613
+[RATE LIMIT SERVICE] req.body after key generation: {
+  productId: 'c571ed71-fd5b-4158-ad6d-87405e75f046',
+  quantity: 1,
+  variantId: null
+}
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/cart/items
+[RATE LIMIT SERVICE] Request method: POST
+[RATE LIMIT SERVICE] req.body before processing: {
+  productId: 'c571ed71-fd5b-4158-ad6d-87405e75f046',
+  quantity: 1,
+  variantId: null
+}
+[RATE LIMIT SERVICE] req.body type: object
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1771004141615
+[RATE LIMIT SERVICE] req.body after key generation: {
+  productId: 'c571ed71-fd5b-4158-ad6d-87405e75f046',
+  quantity: 1,
+  variantId: null
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-13T17:50:55.656Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-13T17:50:55.657Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: undefined
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1771004155657
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-13T17:50:55.660Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-13T17:50:55.660Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-13T17:51:25.724Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-13T17:51:25.724Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: undefined
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1771004185725
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-13T17:51:25.734Z
+}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-13T17:51:55.799Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'https://smarttechnologies-bd.com',
+    'https://www.smarttechnologies-bd.com',
+    'https://admin.smarttechnologies-bd.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-13T17:51:55.799Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: undefined
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1771004215799
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-13T17:51:55.821Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-13T17:51:55.822Z
+}

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart Reminder - Smart Technologies Bangladesh</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f4f4f4;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+    }
+    .header {
+      background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .bangla-text {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+    .content {
+      padding: 30px 20px;
+    }
+    .reminder-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .greeting {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+    .bangla-greeting {
+      font-size: 18px;
+      color: #f57c00;
+      margin-bottom: 20px;
+    }
+    .message {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 20px;
+      line-height: 1.8;
+    }
+    .cart-preview {
+      background-color: #fff8e1;
+      border: 2px dashed #ff9800;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .cart-item-mini {
+      display: flex;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #ffe0b2;
+    }
+    .cart-item-mini:last-child {
+      border-bottom: none;
+    }
+    .item-image-mini {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-right: 12px;
+      background-color: #e0e0e0;
+    }
+    .item-details-mini {
+      flex: 1;
+    }
+    .item-name-mini {
+      font-weight: 600;
+      color: #2c3e50;
+      font-size: 14px;
+    }
+    .item-price-mini {
+      color: #f57c00;
+      font-weight: 600;
+    }
+    .cart-total {
+      background-color: #fff3e0;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: #e65100;
+    }
+    .urgency-box {
+      background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+      border-left: 5px solid #f44336;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .urgency-box h3 {
+      color: #c62828;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .urgency-box p {
+      color: #d32f2f;
+      margin: 5px 0;
+    }
+    .stock-warning {
+      background-color: #fff3e0;
+      border: 1px solid #ff9800;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .stock-warning-icon {
+      font-size: 30px;
+    }
+    .stock-warning-text {
+      flex: 1;
+    }
+    .stock-warning-text strong {
+      color: #e65100;
+    }
+    .cta-button {
+      display: block;
+      width: 100%;
+      background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+      color: white;
+      text-align: center;
+      padding: 18px 30px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      margin: 30px 0;
+      box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+      transition: transform 0.2s;
+    }
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+    }
+    .secondary-cta {
+      display: block;
+      width: 100%;
+      background-color: transparent;
+      color: #f57c00;
+      text-align: center;
+      padding: 15px 30px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      margin: 15px 0;
+      border: 2px solid #f57c00;
+      transition: all 0.2s;
+    }
+    .secondary-cta:hover {
+      background-color: #fff3e0;
+    }
+    .help-section {
+      background-color: #f5f5f5;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    .help-section h4 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+    .help-section p {
+      color: #666;
+      font-size: 14px;
+    }
+    .footer {
+      background-color: #2c3e50;
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    .footer-text {
+      font-size: 12px;
+      color: #95a5a6;
+    }
+    .footer-text p {
+      margin: 5px 0;
+    }
+    @media only screen and (max-width: 600px) {
+      .container {
+        width: 100% !important;
+      }
+      .cart-item-mini {
+        flex-direction: column;
+        text-align: center;
+      }
+      .item-image-mini {
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
+      .item-price-mini {
+        margin-top: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">Smart Technologies Bangladesh</div>
+      <div class="bangla-text">স্মার্ট টেকনোলজিস বাংলাদেশ</div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <span class="reminder-badge">⏰ Reminder 1 | অনুস্মারক ১</span>
+      
+      <h1 class="greeting">Hi {{customerName}},</h1>
+      <p class="bangla-greeting">প্রিয় {{customerName}},</p>
+      
+      <div class="message">
+        <p>It's been 24 hours since you visited us. Your cart is still waiting for you! Don't miss out on these great items.</p>
+        <p style="margin-top: 10px; color: #f57c00; font-style: italic;">আমাদের ভিজিট করেছেন ২৪ ঘন্টা হয়ে গেছে। আপনার কার্ট এখনও আপনার জন্য অপেক্ষা করছে!</p>
+      </div>
+
+      <!-- Stock Warning -->
+      <div class="stock-warning">
+        <span class="stock-warning-icon">⚡</span>
+        <div class="stock-warning-text">
+          <strong>Popular Items Selling Fast!</strong><br>
+          <span style="font-size: 14px; color: #666;">জনপ্রিয় আইটেম দ্রুত বিক্রি হচ্ছে!</span>
+        </div>
+      </div>
+
+      <!-- Cart Preview -->
+      <div class="cart-preview">
+        <h3 style="margin-bottom: 15px; color: #e65100;">🛒 Your Cart Summary | আপনার কার্ট সারাংশ</h3>
+        
+        {{#each items}}
+        <div class="cart-item-mini">
+          <img src="{{imageUrl}}" alt="{{name}}" class="item-image-mini" onerror="this.style.display='none'">
+          <div class="item-details-mini">
+            <div class="item-name-mini">{{name}}</div>
+            <div style="font-size: 12px; color: #888;">Qty: {{quantity}}</div>
+          </div>
+          <div class="item-price-mini">{{price}}</div>
+        </div>
+        {{/each}}
+
+        <div class="cart-total">
+          Total: {{total}} | সর্বমোট: {{total}}
+        </div>
+      </div>
+
+      <!-- Urgency Box -->
+      <div class="urgency-box">
+        <h3>
+          <span>⏳</span>
+          <span>Don't Wait Too Long!</span>
+        </h3>
+        <p><strong>24 hours have passed</strong> since you added these items. Prices may change and stock is limited!</p>
+        <p style="font-size: 14px; margin-top: 8px;"><strong>২৪ ঘন্টা পেরিয়ে গেছে</strong> - দাম পরিবর্তন হতে পারে এবং স্টক সীমিত!</p>
+      </div>
+
+      <!-- CTA Button -->
+      <a href="{{recoveryUrl}}" class="cta-button">
+        Complete Your Order Now | এখনই অর্ডার করুন
+      </a>
+
+      <a href="{{viewCartUrl}}" class="secondary-cta">
+        View Full Cart | সম্পূর্ণ কার্ট দেখুন
+      </a>
+
+      <!-- Help Section -->
+      <div class="help-section">
+        <h4>Need Help? | সাহায্য প্রয়োজন?</h4>
+        <p>If you have any questions about your order, our support team is here to help.<br>
+        অর্ডার সম্পর্কে কোনো প্রশ্ন থাকলে, আমাদের সাপোর্ট টীম সাহায্য করতে প্রস্তুত।</p>
+        <p style="margin-top: 10px;">
+          <a href="{{supportUrl}}" style="color: #f57c00; text-decoration: none; font-weight: 600;">Contact Support →</a>
+        </p>
+      </div>
+
+      <p style="text-align: center; color: #888; font-size: 13px; margin-top: 20px;">
+        This is a friendly reminder. This link expires on {{expiryDate}}.<br>
+        এটি একটি বন্ধুত্বপূর্ণ অনুস্মারক। এই লিঙ্ক {{expiryDate}} তারিখে মেয়াদ শেষ হবে।
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-text">
+        <p>Smart Technologies Bangladesh | স্মার্ট টেকনোলজিস বাংলাদেশ</p>
+        <p>House #15, Road #12, Sector #4, Uttara, Dhaka-1230</p>
+        <p style="margin-top: 15px;">
+          If you no longer wish to receive these reminders, <a href="{{unsubscribeUrl}}" style="color: #3498db;">unsubscribe here</a>.<br>
+          এই অনুস্মারক পেতে না চাইলে, <a href="{{unsubscribeUrl}}" style="color: #3498db;">এখানে ক্লিক করুন</a>।
+        </p>
+        <p style="margin-top: 15px;">&copy; {{year}} Smart Technologies Bangladesh. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

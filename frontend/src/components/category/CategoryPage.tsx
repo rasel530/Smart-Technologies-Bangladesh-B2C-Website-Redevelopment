@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { CategoryDetailResponse, CategoryProductsResponse } from '@/types/category';
 import { getCategoryBySlug, getCategoryProducts } from '@/lib/api/categories';
 import { CategoryBreadcrumb } from './CategoryBreadcrumb';
@@ -18,6 +19,7 @@ interface CategoryPageProps {
  * Category page layout with description, image, and product grid
  */
 export const CategoryPage: React.FC<CategoryPageProps> = ({ slug }) => {
+  const router = useRouter();
   const [category, setCategory] = useState<CategoryDetailResponse | null>(null);
   const [productsData, setProductsData] = useState<CategoryProductsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -176,10 +178,19 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({ slug }) => {
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {category.category.children.map((child) => (
-                <a
+                <div
                   key={child.id}
-                  href={`/categories/${child.slug}`}
-                  className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition-all"
+                  className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition-all cursor-pointer"
+                  onClick={() => router.push(`/categories/${child.slug}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      router.push(`/categories/${child.slug}`);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View ${child.name} category`}
                 >
                   {child.iconUrl && (
                     <img
@@ -193,7 +204,7 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({ slug }) => {
                       {child.name}
                     </h3>
                   </div>
-                </a>
+                </div>
               ))}
             </div>
           </div>
@@ -224,10 +235,19 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({ slug }) => {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {productsData.products.map((product: any) => (
-              <a
+              <div
                 key={product.id}
-                href={`/products/${product.slug}`}
-                className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all"
+                className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all cursor-pointer"
+                onClick={() => router.push(`/products/${product.slug}`)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    router.push(`/products/${product.slug}`);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={`View ${product.name} product details`}
               >
                 <div className="relative aspect-square">
                   {product.images?.[0]?.originalUrl && !imageErrors.has(product.id) ? (
@@ -280,7 +300,7 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({ slug }) => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </div>
             ))}
           </div>
 

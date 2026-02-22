@@ -17,6 +17,16 @@ import type {
   ExportOptions,
 } from '@/types/wishlist';
 import wishlistApi from '@/lib/api/wishlist';
+import { ApiError } from '@/lib/api/client';
+
+/**
+ * Result type for addToWishlist operation
+ */
+interface AddToWishlistResult {
+  success: boolean;
+  alreadyExists?: boolean;
+  message?: string;
+}
 
 /**
  * Wishlist Store State Interface
@@ -35,7 +45,26 @@ interface WishlistStoreState {
   
   // Tracking state (for deduplication)
   lastLoadedAt: number | null;
+  
+  // Private wishlist error handling
+  isPrivateWishlistError: boolean;
+  privateWishlistId: string | null;
 }
+
+/**
+ * Utility function to check if error is "This wishlist is private"
+ */
+const isPrivateWishlistError = (error: unknown): boolean => {
+  if (error instanceof ApiError) {
+    return error.message === 'This wishlist is private' || 
+           error.message?.includes('wishlist is private');
+  }
+  if (error instanceof Error) {
+    return error.message === 'This wishlist is private' ||
+           error.message.includes('wishlist is private');
+  }
+  return false;
+};
 
 /**
  * Wishlist Store Actions Interface
@@ -49,7 +78,7 @@ interface WishlistStoreActions {
   deleteWishlist: (id: string) => Promise<void>;
   
   // Item actions
-  addToWishlist: (wishlistId: string, productId: string) => Promise<void>;
+  addToWishlist: (wishlistId: string, productId: string) => Promise<AddToWishlistResult>;
   removeFromWishlist: (wishlistId: string, itemId: string) => Promise<void>;
   moveToCart: (wishlistId: string, itemIds: string[]) => Promise<MoveToCartResponse>;
   
@@ -68,6 +97,7 @@ interface WishlistStoreActions {
   
   // Utility actions
   clearError: () => void;
+  makeWishlistPublic: (wishlistId: string) => Promise<void>;
   invalidateCache: () => void;
   reset: () => void;
 }
@@ -84,6 +114,8 @@ const initialState: WishlistStoreState = {
   error: null,
   selectedItems: [],
   lastLoadedAt: null,
+  isPrivateWishlistError: false,
+  privateWishlistId: null,
 };
 
 /**
@@ -145,8 +177,8 @@ export const useWishlistStore = create<WishlistStoreState & WishlistStoreActions
   },
 
   /**
-   * Load items for a specific wishlist
-   */
+    * Load items for a specific wishlist
+    */
   loadWishlistItems: async (wishlistId: string) => {
     const state = get();
     const requestKey = `loadItems_${wishlistId}`;
@@ -156,7 +188,12 @@ export const useWishlistStore = create<WishlistStoreState & WishlistStoreActions
       return pendingRequests.get(requestKey);
     }
     
-    set({ isLoading: true, error: null });
+    set({ 
+      isLoading: true, 
+      error: null,
+      isPrivateWishlistError: false,
+      privateWishlistId: null,
+    });
     
     const requestPromise = (async () => {
       try {
@@ -166,14 +203,29 @@ export const useWishlistStore = create<WishlistStoreState & WishlistStoreActions
           items: response.items,
           currentWishlistId: wishlistId,
           isLoading: false,
+          isPrivateWishlistError: false,
+          privateWishlistId: null,
         });
            
         return response;
       } catch (error) {
-        set({
-          isLoading: false,
-          error: error instanceof Error ? error.message : 'Failed to load wishlist items',
-        });
+        // Check if this is a private wishlist error
+        if (isPrivateWishlistError(error)) {
+          console.log('[WishlistStore] Private wishlist error detected for:', wishlistId);
+          set({
+            isLoading: false,
+            error: 'This wishlist is private. Please make it public to view its contents.',
+            isPrivateWishlistError: true,
+            privateWishlistId: wishlistId,
+          });
+        } else {
+          set({
+            isLoading: false,
+            error: error instanceof Error ? error.message : 'Failed to load wishlist items',
+            isPrivateWishlistError: false,
+            privateWishlistId: null,
+          });
+        }
         throw error;
       } finally {
         pendingRequests.delete(requestKey);
@@ -260,8 +312,9 @@ export const useWishlistStore = create<WishlistStoreState & WishlistStoreActions
 
   /**
    * Add a product to a wishlist
+   * Returns a result object instead of throwing on duplicate
    */
-  addToWishlist: async (wishlistId: string, productId: string) => {
+  addToWishlist: async (wishlistId: string, productId: string): Promise<AddToWishlistResult> => {
     const state = get();
     
     // Check for duplicates locally
@@ -270,7 +323,12 @@ export const useWishlistStore = create<WishlistStoreState & WishlistStoreActions
     );
     
     if (existingItem) {
-      throw new Error('Product already exists in this wishlist');
+      // Return result instead of throwing
+      return {
+        success: false,
+        alreadyExists: true,
+        message: 'Product already exists in this wishlist',
+      };
     }
     
     set({ isLoading: true, error: null });
@@ -285,11 +343,27 @@ export const useWishlistStore = create<WishlistStoreState & WishlistStoreActions
         items: response.items,
         isLoading: false,
       });
+      
+      return {
+        success: true,
+        message: 'Product added to wishlist',
+      };
     } catch (error) {
       set({
         isLoading: false,
         error: error instanceof Error ? error.message : 'Failed to add to wishlist',
       });
+      
+      // Handle 409 Conflict - product already exists in wishlist
+      if (error instanceof ApiError && error.status === 409) {
+        return {
+          success: false,
+          alreadyExists: true,
+          message: error.message || 'Product already exists in this wishlist',
+        };
+      }
+      
+      // Re-throw other errors for context to handle
       throw error;
     }
   },
@@ -449,23 +523,59 @@ export const useWishlistStore = create<WishlistStoreState & WishlistStoreActions
   },
 
   /**
-   * Clear error
-   */
+    * Clear error
+    */
   clearError: () => {
-    set({ error: null });
+    set({ 
+      error: null,
+      isPrivateWishlistError: false,
+      privateWishlistId: null,
+    });
   },
 
   /**
-   * Invalidate cache - called when user logs out or switches accounts
-   */
+    * Make wishlist public and retry loading
+    * This handles the case where the user's own wishlist is private
+    */
+  makeWishlistPublic: async (wishlistId: string) => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      // Update the wishlist to be public
+      await wishlistApi.updateWishlist(wishlistId, { isPublic: true });
+      
+      // Update local state
+      set((state) => ({
+        wishlists: state.wishlists.map((w) =>
+          w.id === wishlistId ? { ...w, isPublic: true } : w
+        ),
+        isLoading: false,
+        isPrivateWishlistError: false,
+        privateWishlistId: null,
+      }));
+      
+      // Retry loading the items
+      await get().loadWishlistItems(wishlistId);
+    } catch (error) {
+      set({
+        isLoading: false,
+        error: error instanceof Error ? error.message : 'Failed to make wishlist public',
+      });
+      throw error;
+    }
+  },
+
+  /**
+    * Invalidate cache - called when user logs out or switches accounts
+    */
   invalidateCache: () => {
     // Clear pending requests
     pendingRequests.clear();
   },
 
   /**
-   * Reset store to initial state
-   */
+    * Reset store to initial state
+    */
   reset: () => {
     // Clear pending requests when resetting store
     pendingRequests.clear();

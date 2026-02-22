@@ -254,28 +254,8 @@ export default function ProductDetailPage({
     fetchData();
   }, [params.slug]);
   
-  // Handle product not found
-  if (!loading && !product) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <ErrorDisplay 
-          message={error || 'The product you are looking for does not exist or has been removed.'}
-          onRetry={() => window.location.reload()}
-        />
-      </div>
-    );
-  }
-  
-  // Generate variant options from product variants
-  const variantOptions = product?.variants?.map(variant => ({
-    id: variant.id,
-    value: variant.name,
-    type: 'other' as const,
-    isAvailable: variant.isActive && variant.stock > 0,
-    price: variant.price,
-  })) || [];
-
   // Memoize breadcrumbs to prevent infinite loop in BreadcrumbNavigation
+  // MUST be called before any conditional returns to avoid hooks violation
   const breadcrumbs = useMemo(() => {
     if (!product) return [];
 
@@ -287,6 +267,27 @@ export default function ProductDetailPage({
       product.name
     );
   }, [product]);
+  
+  // Generate variant options from product variants
+  const variantOptions = product?.variants?.map(variant => ({
+    id: variant.id,
+    value: variant.name,
+    type: 'other' as const,
+    isAvailable: variant.isActive && variant.stock > 0,
+    price: variant.price,
+  })) || [];
+
+  // Handle product not found
+  if (!loading && !product) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <ErrorDisplay
+          message={error || 'The product you are looking for does not exist or has been removed.'}
+          onRetry={() => window.location.reload()}
+        />
+      </div>
+    );
+  }
   
   // Handle variant selection
   const handleVariantSelect = (variant: any) => {
@@ -387,6 +388,7 @@ export default function ProductDetailPage({
             </h2>
             <ProductGrid
               products={recentlyViewed}
+              onAddToCart={handleAddToCart}
               columns={{
                 mobile: 1,
                 tablet: 2,
@@ -406,6 +408,7 @@ export default function ProductDetailPage({
             </h2>
             <ProductGrid
               products={relatedProducts}
+              onAddToCart={handleAddToCart}
               columns={{
                 mobile: 1,
                 tablet: 2,

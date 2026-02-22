@@ -1769,6 +1769,388 @@ class AdminCartController {
       throw error;
     }
   }
+
+  /**
+   * Get cart analytics dashboard data
+   * GET /api/v1/admin/carts/analytics/dashboard
+   */
+  async getCartAnalyticsDashboard(req, res) {
+    try {
+      const cartAnalyticsService = require('../services/cartAnalyticsService');
+      const data = await cartAnalyticsService.getDashboardData();
+
+      res.json({
+        success: true,
+        message: 'Cart analytics dashboard data retrieved successfully',
+        messageBn: 'কার্ট অ্যানালিটিক্স ড্যাশবোর্ড ডেটা সফলভাবে পাওয়া গেছে',
+        data
+      });
+    } catch (error) {
+      loggerService.error('Error getting cart analytics dashboard', {
+        error: error.message,
+        stack: error.stack
+      });
+
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get cart analytics dashboard',
+        message: 'Failed to get cart analytics dashboard',
+        messageBn: 'কার্ট অ্যানালিটিক্স ড্যাশবোর্ড পেতে ব্যর্থ হয়েছে'
+      });
+    }
+  }
+
+  /**
+   * Get real-time cart analytics
+   * GET /api/v1/admin/carts/analytics/realtime
+   */
+  async getCartRealtimeAnalytics(req, res) {
+    try {
+      const cartAnalyticsService = require('../services/cartAnalyticsService');
+      const data = await cartAnalyticsService.getRealtimeAnalytics();
+
+      res.json({
+        success: true,
+        message: 'Real-time cart analytics retrieved successfully',
+        messageBn: 'রিয়েলটাইম কার্ট অ্যানালিটিক্স সফলভাবে পাওয়া গেছে',
+        data
+      });
+    } catch (error) {
+      loggerService.error('Error getting cart realtime analytics', {
+        error: error.message,
+        stack: error.stack
+      });
+
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get realtime analytics',
+        message: 'Failed to get realtime analytics',
+        messageBn: 'রিয়েলটাইম অ্যানালিটিক্স পেতে ব্যর্থ হয়েছে'
+      });
+    }
+  }
+
+  /**
+   * Get cart trends over time
+   * GET /api/v1/admin/carts/analytics/trends
+   */
+  async getCartTrends(req, res) {
+    try {
+      const days = parseInt(req.query.days) || 30;
+      const cartAnalyticsService = require('../services/cartAnalyticsService');
+      const data = await cartAnalyticsService.getTrends(days);
+
+      res.json({
+        success: true,
+        message: 'Cart trends retrieved successfully',
+        messageBn: 'কার্ট ট্রেন্ড সফলভাবে পাওয়া গেছে',
+        data
+      });
+    } catch (error) {
+      loggerService.error('Error getting cart trends', {
+        error: error.message,
+        stack: error.stack
+      });
+
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get cart trends',
+        message: 'Failed to get cart trends',
+        messageBn: 'কার্ট ট্রেন্ড পেতে ব্যর্থ হয়েছে'
+      });
+    }
+  }
+
+  /**
+   * Get cart optimization recommendations
+   * GET /api/v1/admin/carts/analytics/recommendations
+   */
+  async getCartRecommendations(req, res) {
+    try {
+      const cartAnalyticsService = require('../services/cartAnalyticsService');
+      const data = await cartAnalyticsService.generateOptimizationRecommendations();
+
+      res.json({
+        success: true,
+        message: 'Cart recommendations retrieved successfully',
+        messageBn: 'কার্ট সুপারিশ সফলভাবে পাওয়া গেছে',
+        data
+      });
+    } catch (error) {
+      loggerService.error('Error getting cart recommendations', {
+        error: error.message,
+        stack: error.stack
+      });
+
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get cart recommendations',
+        message: 'Failed to get cart recommendations',
+        messageBn: 'কার্ট সুপারিশ পেতে ব্যর্থ হয়েছে'
+      });
+    }
+  }
+
+  /**
+   * Get cart recovery settings
+   * GET /api/v1/admin/carts/recovery/settings
+   */
+  async getRecoverySettings(req, res) {
+    try {
+      loggerService.info('Fetching cart recovery settings', {
+        userId: req.user?.id
+      });
+
+      // Try to get existing settings from database
+      let settings = await prisma.cartRecoverySettings.findFirst({
+        orderBy: {
+          createdAt: 'desc'
+        }
+      });
+
+      // If no settings exist, create default settings
+      if (!settings) {
+        loggerService.info('No recovery settings found, creating default settings');
+        settings = await prisma.cartRecoverySettings.create({
+          data: {
+            enabled: true,
+            firstEmailDelay: 1,
+            secondEmailDelay: 24,
+            thirdEmailDelay: 72,
+            discountEnabled: true,
+            discountPercentage: 10,
+            discountCode: 'COMEBACK10',
+            maxRecoveryAttempts: 3,
+            minCartValue: 1000,
+            emailFromName: 'Smart Tech',
+            emailFromAddress: 'noreply@smarttech.com',
+            cartAbandonmentThreshold: 30,
+            recoveryTokenExpiry: 7
+          }
+        });
+        loggerService.info('Default recovery settings created', { settingsId: settings.id });
+      }
+
+      res.json({
+        success: true,
+        message: 'Recovery settings retrieved successfully',
+        messageBn: 'পুনরুদ্ধার সেটিংস সফলভাবে পুনরুদ্ধার করা হয়েছে',
+        data: settings
+      });
+    } catch (error) {
+      loggerService.error('Error in getRecoverySettings controller', {
+        error: error.message,
+        stack: error.stack,
+        code: error.code,
+        meta: error.meta
+      });
+
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get recovery settings',
+        message: error.message || 'Failed to get recovery settings',
+        messageBn: 'পুনরুদ্ধার সেটিংস পুনরুদ্ধার করতে ব্যর্থ হয়েছে',
+        ...(process.env.NODE_ENV === 'development' && {
+          details: {
+            code: error.code,
+            meta: error.meta,
+            stack: error.stack
+          }
+        })
+      });
+    }
+  }
+
+  /**
+   * Update cart recovery settings
+   * PUT /api/v1/admin/carts/recovery/settings
+   */
+  async updateRecoverySettings(req, res) {
+    try {
+      const {
+        enabled,
+        firstEmailDelay,
+        secondEmailDelay,
+        thirdEmailDelay,
+        discountEnabled,
+        discountPercentage,
+        discountCode,
+        maxRecoveryAttempts,
+        minCartValue,
+        emailFromName,
+        emailFromAddress,
+        cartAbandonmentThreshold,
+        recoveryTokenExpiry
+      } = req.body;
+
+      loggerService.info('Updating cart recovery settings', {
+        userId: req.user?.id,
+        updates: req.body
+      });
+
+      // Validate input
+      if (firstEmailDelay !== undefined && (firstEmailDelay < 1 || firstEmailDelay > 168)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid first email delay',
+          message: 'First email delay must be between 1 and 168 hours',
+          messageBn: 'প্রথম ইমেল বিলম্ব অবশ্যই ১ থেকে ১৬৮ ঘন্টার মধ্যে হতে হবে'
+        });
+      }
+
+      if (secondEmailDelay !== undefined && (secondEmailDelay < 1 || secondEmailDelay > 168)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid second email delay',
+          message: 'Second email delay must be between 1 and 168 hours',
+          messageBn: 'দ্বিতীয় ইমেল বিলম্ব অবশ্যই ১ থেকে ১৬৮ ঘন্টার মধ্যে হতে হবে'
+        });
+      }
+
+      if (thirdEmailDelay !== undefined && (thirdEmailDelay < 1 || thirdEmailDelay > 168)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid third email delay',
+          message: 'Third email delay must be between 1 and 168 hours',
+          messageBn: 'তৃতীয় ইমেল বিলম্ব অবশ্যই ১ থেকে ১৬৮ ঘন্টার মধ্যে হতে হবে'
+        });
+      }
+
+      if (discountPercentage !== undefined && (discountPercentage < 0 || discountPercentage > 100)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid discount percentage',
+          message: 'Discount percentage must be between 0 and 100',
+          messageBn: 'ডিসকাউন্ট শতাংশ অবশ্যই ০ থেকে ১০০ এর মধ্যে হতে হবে'
+        });
+      }
+
+      if (maxRecoveryAttempts !== undefined && (maxRecoveryAttempts < 1 || maxRecoveryAttempts > 10)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid max recovery attempts',
+          message: 'Max recovery attempts must be between 1 and 10',
+          messageBn: 'সর্বোচ্চ পুনরুদ্ধার প্রচেষ্টা অবশ্যই ১ থেকে ১০ এর মধ্যে হতে হবে'
+        });
+      }
+
+      if (minCartValue !== undefined && minCartValue < 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid minimum cart value',
+          message: 'Minimum cart value must be non-negative',
+          messageBn: 'সর্বনিম্ন কার্ট মান অবশ্যই অ-নেতিবাচক হতে হবে'
+        });
+      }
+
+      if (cartAbandonmentThreshold !== undefined && (cartAbandonmentThreshold < 5 || cartAbandonmentThreshold > 1440)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid cart abandonment threshold',
+          message: 'Cart abandonment threshold must be between 5 and 1440 minutes',
+          messageBn: 'কার্ট পরিত্যাগ থ্রেশহোল্ড অবশ্যই ৫ থেকে ১৪৪০ মিনিটের মধ্যে হতে হবে'
+        });
+      }
+
+      if (recoveryTokenExpiry !== undefined && (recoveryTokenExpiry < 1 || recoveryTokenExpiry > 30)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid recovery token expiry',
+          message: 'Recovery token expiry must be between 1 and 30 days',
+          messageBn: 'পুনরুদ্ধার টোকেন মেয়াদ অবশ্যই ১ থেকে ৩০ দিনের মধ্যে হতে হবে'
+        });
+      }
+
+      if (emailFromAddress !== undefined && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailFromAddress)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid email address',
+          message: 'Please provide a valid email address',
+          messageBn: 'অনুগ্রহ করে একটি বৈধ ইমেল ঠিকানা প্রদান করুন'
+        });
+      }
+
+      // Get existing settings
+      let settings = await prisma.cartRecoverySettings.findFirst({
+        orderBy: {
+          createdAt: 'desc'
+        }
+      });
+
+      // Prepare update data
+      const updateData = {};
+      if (enabled !== undefined) updateData.enabled = enabled;
+      if (firstEmailDelay !== undefined) updateData.firstEmailDelay = firstEmailDelay;
+      if (secondEmailDelay !== undefined) updateData.secondEmailDelay = secondEmailDelay;
+      if (thirdEmailDelay !== undefined) updateData.thirdEmailDelay = thirdEmailDelay;
+      if (discountEnabled !== undefined) updateData.discountEnabled = discountEnabled;
+      if (discountPercentage !== undefined) updateData.discountPercentage = discountPercentage;
+      if (discountCode !== undefined) updateData.discountCode = discountCode;
+      if (maxRecoveryAttempts !== undefined) updateData.maxRecoveryAttempts = maxRecoveryAttempts;
+      if (minCartValue !== undefined) updateData.minCartValue = minCartValue;
+      if (emailFromName !== undefined) updateData.emailFromName = emailFromName;
+      if (emailFromAddress !== undefined) updateData.emailFromAddress = emailFromAddress;
+      if (cartAbandonmentThreshold !== undefined) updateData.cartAbandonmentThreshold = cartAbandonmentThreshold;
+      if (recoveryTokenExpiry !== undefined) updateData.recoveryTokenExpiry = recoveryTokenExpiry;
+
+      // Update or create settings
+      if (settings) {
+        settings = await prisma.cartRecoverySettings.update({
+          where: { id: settings.id },
+          data: updateData
+        });
+        loggerService.info('Recovery settings updated', { settingsId: settings.id });
+      } else {
+        settings = await prisma.cartRecoverySettings.create({
+          data: {
+            enabled: true,
+            firstEmailDelay: 1,
+            secondEmailDelay: 24,
+            thirdEmailDelay: 72,
+            discountEnabled: true,
+            discountPercentage: 10,
+            discountCode: 'COMEBACK10',
+            maxRecoveryAttempts: 3,
+            minCartValue: 1000,
+            emailFromName: 'Smart Tech',
+            emailFromAddress: 'noreply@smarttech.com',
+            cartAbandonmentThreshold: 30,
+            recoveryTokenExpiry: 7,
+            ...updateData
+          }
+        });
+        loggerService.info('Recovery settings created', { settingsId: settings.id });
+      }
+
+      res.json({
+        success: true,
+        message: 'Recovery settings updated successfully',
+        messageBn: 'পুনরুদ্ধার সেটিংস সফলভাবে আপডেট করা হয়েছে',
+        data: settings
+      });
+    } catch (error) {
+      loggerService.error('Error in updateRecoverySettings controller', {
+        error: error.message,
+        stack: error.stack,
+        code: error.code,
+        meta: error.meta
+      });
+
+      res.status(500).json({
+        success: false,
+        error: 'Failed to update recovery settings',
+        message: error.message || 'Failed to update recovery settings',
+        messageBn: 'পুনরুদ্ধার সেটিংস আপডেট করতে ব্যর্থ হয়েছে',
+        ...(process.env.NODE_ENV === 'development' && {
+          details: {
+            code: error.code,
+            meta: error.meta,
+            stack: error.stack
+          }
+        })
+      });
+    }
+  }
 }
 
 // Singleton instance

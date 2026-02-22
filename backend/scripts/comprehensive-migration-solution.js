@@ -132,7 +132,7 @@ async function validateSchemaConsistency() {
     const tables = await getDatabaseTables();
     const requiredTables = [
       'users', 'products', 'categories', 'brands', 'orders', 'carts',
-      'addresses', 'reviews', 'coupons', 'permission', 'role_permission', 'role_hierarchy'
+      'addresses', 'reviews', 'coupons', 'permissions', 'role_permissions', 'role_escalation_requests'
     ];
     
     requiredTables.forEach(table => {

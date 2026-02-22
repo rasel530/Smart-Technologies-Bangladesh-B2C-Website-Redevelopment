@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-02-21T13:32:52.172Z",
+  "tests": [
+    {
+      "name": "Backend server is running",
+      "status": "PASS",
+      "message": "Backend is healthy and running",
+      "details": {
+        "status": "OK",
+        "database": "connected",
+        "redis": "connected"
+      }
+    },
+    {
+      "name": "Create or find admin user",
+      "status": "FAIL",
+      "message": "Failed to create or login admin user",
+      "details": null
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "passed": 1,
+    "failed": 1,
+    "warnings": 0
+  }
+}

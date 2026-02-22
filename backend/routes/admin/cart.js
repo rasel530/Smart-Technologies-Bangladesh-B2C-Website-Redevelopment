@@ -101,6 +101,28 @@ router.get('/analytics/time-in-cart', [
   query('endDate').optional().isISO8601().withMessage('Invalid end date format')
 ], handleValidationErrors, authMiddleware.authenticate(), rbacAuthMiddleware.requirePermission('cart:analytics'), adminCartController.getTimeInCartStatistics);
 
+// GET /api/v1/admin/carts/analytics/dashboard - Get full dashboard data
+// Permission: cart:analytics
+router.get('/analytics/dashboard', [
+  // Query parameters validation
+  query('startDate').optional().isISO8601().withMessage('Invalid start date format'),
+  query('endDate').optional().isISO8601().withMessage('Invalid end date format')
+], handleValidationErrors, authMiddleware.authenticate(), rbacAuthMiddleware.requirePermission('cart:analytics'), adminCartController.getCartAnalyticsDashboard);
+
+// GET /api/v1/admin/carts/analytics/realtime - Get real-time stats
+// Permission: cart:analytics
+router.get('/analytics/realtime', authMiddleware.authenticate(), rbacAuthMiddleware.requirePermission('cart:analytics'), adminCartController.getCartRealtimeAnalytics);
+
+// GET /api/v1/admin/carts/analytics/trends - Get trend data over time
+// Permission: cart:analytics
+router.get('/analytics/trends', [
+  query('days').optional().isInt({ min: 1, max: 365 }).withMessage('Days must be between 1 and 365')
+], handleValidationErrors, authMiddleware.authenticate(), rbacAuthMiddleware.requirePermission('cart:analytics'), adminCartController.getCartTrends);
+
+// GET /api/v1/admin/carts/analytics/recommendations - Get optimization recommendations
+// Permission: cart:analytics
+router.get('/analytics/recommendations', authMiddleware.authenticate(), rbacAuthMiddleware.requirePermission('cart:analytics'), adminCartController.getCartRecommendations);
+
 // DELETE /api/v1/admin/carts/expired - Clean up expired carts
 // Permission: cart:delete
 router.delete('/expired', authMiddleware.authenticate(), rbacAuthMiddleware.requirePermission('cart:delete'), adminCartController.cleanupExpiredCarts);
@@ -184,6 +206,16 @@ router.get('/recovery', [
 });
 
 /**
+ * GET /api/v1/admin/carts/recovery/stats - Get recovery statistics
+ * Permission: cart:read
+ */
+router.get('/recovery/stats', [
+  query('startDate').optional().isISO8601().withMessage('Invalid start date format'),
+  query('endDate').optional().isISO8601().withMessage('Invalid end date format'),
+  query('days').optional().isInt({ min: 1, max: 365 }).withMessage('Days must be between 1 and 365')
+], logRequest, handleValidationErrors, authMiddleware.authenticate(), rbacAuthMiddleware.requirePermission('cart:read'), adminCartRecoveryController.getRecoveryStats);
+
+/**
  * GET /api/v1/admin/carts/discounts - Discount management page endpoint
  * Permission: discount:read
  */
@@ -228,9 +260,31 @@ router.get('/cleanup', [
   });
 });
 
+/**
+ * GET /api/v1/admin/carts/recovery/settings - Get recovery settings
+ * Permission: cart:read
+ */
+console.log('[ROUTES] Registering GET /api/v1/admin/carts/recovery/settings');
+router.get('/recovery/settings', [
+  authMiddleware.authenticate(),
+  rbacAuthMiddleware.requirePermission('cart:read')
+], adminCartController.getRecoverySettings);
+console.log('[ROUTES] GET /api/v1/admin/carts/recovery/settings registered successfully');
+
+/**
+ * PUT /api/v1/admin/carts/recovery/settings - Update recovery settings
+ * Permission: cart:write
+ */
+console.log('[ROUTES] Registering PUT /api/v1/admin/carts/recovery/settings');
+router.put('/recovery/settings', [
+  authMiddleware.authenticate(),
+  rbacAuthMiddleware.requirePermission('cart:write')
+], adminCartController.updateRecoverySettings);
+console.log('[ROUTES] PUT /api/v1/admin/carts/recovery/settings registered successfully');
+
 // ==================== DYNAMIC CART ID ROUTES ====================
 // These routes come AFTER all specific action routes above
-// They require a valid UUID for the cart ID
+// They require a valid UUID for cart ID
 
 // GET /api/v1/admin/carts/:id - Get cart details
 // Permission: cart:read
@@ -271,15 +325,6 @@ router.delete('/:id', [
 router.get('/:id/export', [
   param('id').isUUID().withMessage('Invalid cart ID')
 ], handleValidationErrors, authMiddleware.authenticate(), rbacAuthMiddleware.requirePermission('cart:read'), adminCartController.exportCartById);
-
-// ==================== CART RECOVERY ROUTES ====================
-
-// GET /api/v1/admin/carts/recovery/stats - Get recovery statistics
-// Permission: cart:read
-router.get('/recovery/stats', [
-  query('startDate').optional().isISO8601().withMessage('Invalid start date format'),
-  query('endDate').optional().isISO8601().withMessage('Invalid end date format')
-], handleValidationErrors, authMiddleware.authenticate(), rbacAuthMiddleware.requirePermission('cart:read'), adminCartRecoveryController.getRecoveryStats);
 
 // POST /api/v1/admin/carts/:id/recover - Recover an abandoned cart
 // Permission: cart:write
@@ -482,11 +527,11 @@ router.get('/cleanup/history', [
   query('type').optional().isString().withMessage('Type must be a string')
 ], handleValidationErrors, authMiddleware.authenticate(), rbacAuthMiddleware.requirePermission('cart:read'), adminCleanupController.getCleanupHistory);
 
-// POST /api/v1/admin/carts/cleanup/schedule/start - Start the cleanup scheduler
+// POST /api/v1/admin/carts/cleanup/schedule/start - Start cleanup scheduler
 // Permission: cart:admin
 router.post('/cleanup/schedule/start', handleValidationErrors, authMiddleware.authenticate(), rbacAuthMiddleware.requirePermission('cart:admin'), adminCleanupController.startScheduler);
 
-// POST /api/v1/admin/carts/cleanup/schedule/stop - Stop the cleanup scheduler
+// POST /api/v1/admin/carts/cleanup/schedule/stop - Stop cleanup scheduler
 // Permission: cart:admin
 router.post('/cleanup/schedule/stop', handleValidationErrors, authMiddleware.authenticate(), rbacAuthMiddleware.requirePermission('cart:admin'), adminCleanupController.stopScheduler);
 

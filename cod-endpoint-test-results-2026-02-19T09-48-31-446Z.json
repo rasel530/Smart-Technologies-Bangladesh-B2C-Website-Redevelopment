@@ -1,0 +1,245 @@
+{
+  "timestamp": "2026-02-19T09:48:31.448Z",
+  "totalTests": 10,
+  "passedTests": 8,
+  "failedTests": 2,
+  "successRate": "80.00",
+  "results": [
+    {
+      "testName": "Test Case 1: Basic COD Validation (division=dhaka, amount=75950)",
+      "url": "http://localhost:3001/api/v1/cod/validate?division=dhaka&amount=75950",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedValid": null,
+      "actualValid": false,
+      "response": {
+        "success": true,
+        "message": "COD order validated",
+        "messageBn": "ক্যাশ অন ডেলিভারি অর্ডার যাচাই করা হয়েছে",
+        "data": {
+          "valid": false,
+          "reason": "COD payment is currently disabled",
+          "fee": 0,
+          "deliveryDays": 0,
+          "requiresVerification": {
+            "phone": false,
+            "address": false
+          },
+          "warnings": []
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test Case 2: COD Validation with User ID",
+      "url": "http://localhost:3001/api/v1/cod/validate?userId=2bdca14e-ac33-43ca-b98a-5117c8ecdeb9&division=dhaka&amount=75950",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedValid": null,
+      "actualValid": false,
+      "response": {
+        "success": true,
+        "message": "COD order validated",
+        "messageBn": "ক্যাশ অন ডেলিভারি অর্ডার যাচাই করা হয়েছে",
+        "data": {
+          "valid": false,
+          "reason": "COD payment is currently disabled",
+          "fee": 0,
+          "deliveryDays": 0,
+          "requiresVerification": {
+            "phone": false,
+            "address": false
+          },
+          "warnings": []
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test Case 3: Invalid Division",
+      "url": "http://localhost:3001/api/v1/cod/validate?division=invalid&amount=75950",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedValid": false,
+      "actualValid": false,
+      "response": {
+        "success": true,
+        "message": "COD order validated",
+        "messageBn": "ক্যাশ অন ডেলিভারি অর্ডার যাচাই করা হয়েছে",
+        "data": {
+          "valid": false,
+          "reason": "COD payment is currently disabled",
+          "fee": 0,
+          "deliveryDays": 0,
+          "requiresVerification": {
+            "phone": false,
+            "address": false
+          },
+          "warnings": []
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test Case 4: Amount Below Minimum (negative amount)",
+      "url": "http://localhost:3001/api/v1/cod/validate?division=dhaka&amount=-100",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedValid": null,
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "-100",
+            "msg": "Invalid amount",
+            "path": "amount",
+            "location": "query"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test Case 5: Amount Above Maximum",
+      "url": "http://localhost:3001/api/v1/cod/validate?division=dhaka&amount=1000000",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedValid": false,
+      "actualValid": false,
+      "response": {
+        "success": true,
+        "message": "COD order validated",
+        "messageBn": "ক্যাশ অন ডেলিভারি অর্ডার যাচাই করা হয়েছে",
+        "data": {
+          "valid": false,
+          "reason": "COD payment is currently disabled",
+          "fee": 0,
+          "deliveryDays": 0,
+          "requiresVerification": {
+            "phone": false,
+            "address": false
+          },
+          "warnings": []
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "GET /api/v1/cod/settings",
+      "url": "http://localhost:3001/api/v1/cod/settings",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedValid": null,
+      "response": {
+        "success": true,
+        "message": "COD settings retrieved successfully",
+        "messageBn": "ক্যাশ অন ডেলিভারি সেটিংস সফলভাবে পুনরুন",
+        "data": {
+          "id": "default-cod-settings",
+          "is_enabled": true,
+          "min_amount": "0",
+          "max_amount": "100000",
+          "available_divisions": [
+            "dhaka",
+            "chittagong",
+            "khulna",
+            "rajshahi",
+            "sylhet",
+            "barishal",
+            "rangpur",
+            "mymensingh"
+          ],
+          "unavailable_divisions": [],
+          "additional_fee": "50",
+          "free_above_amount": "1000",
+          "require_phone_verification": false,
+          "require_address_verification": false,
+          "max_daily_orders": 5,
+          "max_weekly_orders": 10,
+          "delivery_days": 3,
+          "notes": "Default COD settings for Bangladesh. Free for orders above BDT 1000, BDT 50 fee for orders below BDT 1000.",
+          "created_at": "2026-02-19T08:48:31.842Z",
+          "updated_at": "2026-02-19T08:48:31.842Z"
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "GET /api/v1/cod/configuration",
+      "url": "http://localhost:3001/api/v1/cod/configuration",
+      "expectedStatus": 200,
+      "actualStatus": 500,
+      "expectedValid": null,
+      "response": {
+        "success": false,
+        "error": "Failed to fetch COD configuration",
+        "message": "Failed to fetch COD configuration",
+        "messageBn": "ক্যাশ অন ডেলিভারি কনফিগারেশন আনতে পারা যায়নি"
+      },
+      "passed": false
+    },
+    {
+      "testName": "GET /api/v1/cod/availability",
+      "url": "http://localhost:3001/api/v1/cod/availability",
+      "expectedStatus": 200,
+      "actualStatus": 400,
+      "expectedValid": null,
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "msg": "Invalid amount",
+            "path": "amount",
+            "location": "query"
+          }
+        ]
+      },
+      "passed": false
+    },
+    {
+      "testName": "GET /api/v1/cod/fee/75950",
+      "url": "http://localhost:3001/api/v1/cod/fee/75950",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedValid": null,
+      "response": {
+        "success": true,
+        "message": "COD fee calculated",
+        "messageBn": "ক্যাশ অন ডেলিভারি ফি হিসাব করা হয়েছে",
+        "data": {
+          "amount": 75950,
+          "fee": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "GET /api/v1/cod/limit/{userId}",
+      "url": "http://localhost:3001/api/v1/cod/limit/2bdca14e-ac33-43ca-b98a-5117c8ecdeb9",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedValid": null,
+      "response": {
+        "success": true,
+        "message": "COD limit checked",
+        "messageBn": "ক্যাশ অন ডেলিভারি সীমা পরীক্ষা করা হয়েছে",
+        "data": {
+          "withinLimit": true,
+          "reason": null,
+          "dailyOrders": 0,
+          "weeklyOrders": 3,
+          "warnings": []
+        }
+      },
+      "passed": true
+    }
+  ]
+}

@@ -11,7 +11,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { BrandWithRelations } from '@/types/brand';
 
 interface BrandCardProps {
@@ -34,6 +34,7 @@ export const BrandCard: React.FC<BrandCardProps> = ({
   className = ''
 }) => {
   const [imageError, setImageError] = useState(false);
+  const router = useRouter();
 
   // Get brand logo or fallback
   const logoUrl = brand.websiteUrl
@@ -50,15 +51,32 @@ export const BrandCard: React.FC<BrandCardProps> = ({
   // Product count
   const productCount = brand._count?.products || 0;
 
+  // Handle click navigation
+  const handleClick = () => {
+    router.push(`/brands/${brand.slug}`);
+  };
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
   return (
-    <Link
-      href={`/brands/${brand.slug}`}
+    <div
       className={`
         group relative bg-white rounded-lg shadow-sm hover:shadow-xl
-        transition-all duration-300 overflow-hidden
+        transition-all duration-300 overflow-hidden cursor-pointer
         ${brand.status !== 'active' ? 'opacity-60' : ''}
         ${className}
       `}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label={`View ${brand.name} brand`}
     >
       {/* Brand Logo/Icon */}
       <div className="relative aspect-square bg-gray-50 p-8 flex items-center justify-center">
@@ -157,7 +175,7 @@ export const BrandCard: React.FC<BrandCardProps> = ({
           </div>
         )}
       </div>
-    </Link>
+    </div>
   );
 };
 

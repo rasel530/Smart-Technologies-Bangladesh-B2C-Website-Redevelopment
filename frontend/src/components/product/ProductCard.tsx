@@ -12,6 +12,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { toast } from 'sonner';
 import { ProductWithRelations } from '@/types/product';
 import { ProductPrice } from './ProductPrice';
 import { getImageUrl } from '@/lib/api/product-images';
@@ -68,12 +69,33 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   if (product.isFeatured) statusBadges.push({ label: 'Featured', color: 'bg-blue-500' });
   if (product.isBestSeller) statusBadges.push({ label: 'Best Seller', color: 'bg-purple-500' });
 
-  // Handle wishlist toggle
-  const handleToggleWishlist = (e: React.MouseEvent) => {
+  // Handle wishlist toggle with error handling
+  const handleToggleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
     if (onToggleWishlist) {
-      onToggleWishlist(product.id);
+      try {
+        await onToggleWishlist(product.id);
+      } catch (error) {
+        // Show toast notification for errors instead of console error
+        toast.error(error instanceof Error ? error.message : 'Failed to update wishlist');
+      }
+    }
+  };
+
+  // Handle add to cart with event prevention
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (onAddToCart) {
+      try {
+        await onAddToCart(product.id);
+        // Success toast is shown by CartContext, no need to show it here
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to add to cart');
+      }
     }
   };
 
@@ -126,17 +148,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Quick Add to Cart Button (visible on hover) */}
         {showAddToCart && !isOutOfStock && (
-          <span
+          <button
+            onClick={handleAddToCart}
             className={`
               absolute bottom-4 left-1/2 -translate-x-1/2
               bg-primary-600 text-white px-4 py-2 rounded-full
-              font-medium text-sm shadow-lg
+              font-medium text-sm shadow-lg cursor-pointer
               transform transition-all duration-200
+              hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500
               ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
             `}
+            aria-label="Add to cart"
           >
             Add to Cart
-          </span>
+          </button>
         )}
       </Link>
 

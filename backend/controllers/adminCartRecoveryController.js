@@ -13,6 +13,7 @@
 const { PrismaClient } = require('@prisma/client');
 const { loggerService } = require('../services/logger');
 const { cartRecoveryService } = require('../services/cartRecoveryService');
+const cartAnalyticsService = require('../services/cartAnalyticsService');
 
 // Create Prisma client instance at module level
 const prisma = new PrismaClient();
@@ -20,7 +21,6 @@ const prisma = new PrismaClient();
 class AdminCartRecoveryController {
   constructor() {
     this.prisma = prisma;
-    this.logger = loggerService;
     this.recoveryService = cartRecoveryService;
   }
 
@@ -70,7 +70,7 @@ class AdminCartRecoveryController {
         data: result
       });
     } catch (error) {
-      this.logger.error('Error in recoverCart controller', {
+      loggerService.error('Error in recoverCart controller', {
         cartId: req.params.id,
         error: error.message,
         stack: error.stack
@@ -167,7 +167,7 @@ class AdminCartRecoveryController {
         }
       });
     } catch (error) {
-      this.logger.error('Error in generateShareLink controller', {
+      loggerService.error('Error in generateShareLink controller', {
         cartId: req.params.id,
         error: error.message,
         stack: error.stack
@@ -230,7 +230,7 @@ class AdminCartRecoveryController {
         }
       });
     } catch (error) {
-      this.logger.error('Error in generateRecoveryToken controller', {
+      loggerService.error('Error in generateRecoveryToken controller', {
         cartId: req.params.id,
         error: error.message,
         stack: error.stack
@@ -300,7 +300,7 @@ class AdminCartRecoveryController {
         }
       });
     } catch (error) {
-      this.logger.error('Error in validateRecoveryToken controller', {
+      loggerService.error('Error in validateRecoveryToken controller', {
         error: error.message,
         stack: error.stack
       });
@@ -369,7 +369,7 @@ class AdminCartRecoveryController {
         data: result
       });
     } catch (error) {
-      this.logger.error('Error in bulkRecoverCarts controller', {
+      loggerService.error('Error in bulkRecoverCarts controller', {
         cartIds: req.body.cartIds,
         error: error.message,
         stack: error.stack
@@ -405,21 +405,33 @@ class AdminCartRecoveryController {
    */
   async getRecoveryStats(req, res) {
     try {
-      const { startDate, endDate } = req.query;
+      const { startDate, endDate, days } = req.query;
+      
+      const daysNum = days ? parseInt(days) : 30;
 
-      const stats = await this.recoveryService.getRecoveryStats({
-        startDate,
-        endDate
-      });
+      // Get comprehensive recovery statistics using analytics service
+      const [summary, dailyStats, templateStats, discountStats, hourlyStats] = await Promise.all([
+        cartAnalyticsService.getRecoveryStatistics(daysNum),
+        cartAnalyticsService.getDailyRecoveryStats(daysNum),
+        cartAnalyticsService.getTemplateStats(daysNum),
+        cartAnalyticsService.getDiscountStats(daysNum),
+        cartAnalyticsService.getHourlyStats(daysNum)
+      ]);
 
       res.json({
         success: true,
         message: 'Recovery statistics retrieved successfully',
         messageBn: 'পুনরুদ্ধার পরিসংখ্যান সফলভাবে পুনরুদ্ধার করা হয়েছে',
-        data: stats
+        data: {
+          ...summary,
+          dailyStats,
+          templateStats,
+          discountStats,
+          hourlyStats
+        }
       });
     } catch (error) {
-      this.logger.error('Error in getRecoveryStats controller', {
+      loggerService.error('Error in getRecoveryStats controller', {
         error: error.message,
         stack: error.stack
       });
@@ -464,7 +476,7 @@ class AdminCartRecoveryController {
         data: history
       });
     } catch (error) {
-      this.logger.error('Error in getRecoveryHistory controller', {
+      loggerService.error('Error in getRecoveryHistory controller', {
         cartId: req.params.id,
         error: error.message,
         stack: error.stack
@@ -510,7 +522,7 @@ class AdminCartRecoveryController {
         data: result
       });
     } catch (error) {
-      this.logger.error('Error in invalidateRecoveryToken controller', {
+      loggerService.error('Error in invalidateRecoveryToken controller', {
         cartId: req.params.id,
         error: error.message,
         stack: error.stack
@@ -599,7 +611,7 @@ class AdminCartRecoveryController {
         }
       });
     } catch (error) {
-      this.logger.error('Error in sendRecoveryNotification controller', {
+      loggerService.error('Error in sendRecoveryNotification controller', {
         cartId: req.params.id,
         error: error.message,
         stack: error.stack

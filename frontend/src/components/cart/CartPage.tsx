@@ -1,14 +1,51 @@
 'use client';
 
-import React from 'react';
-import { ShoppingBag, ArrowRight, Loader2 } from 'lucide-react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { ShoppingBag, ArrowRight, Loader2, Heart, Smartphone, Calculator, CreditCard, Truck, Info, ChevronDown, X } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import CartItem from './CartItem';
 import CartSummary from './CartSummary';
+import { BulkMoveToWishlist } from './BulkMoveToWishlist';
+import { CartWishlistSyncIndicator } from '@/components/cartWishlist/CartWishlistSyncIndicator';
 import { CartPageProps } from '@/types/cart';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useCartWishlistStore } from '@/store/cartWishlistStore';
+import cartWishlistApi from '@/lib/api/cartWishlistApi';
+import { toast } from 'sonner';
+
+// EMI Components
+import EmiDisplay from './EmiDisplay';
+import EmiSelector from './EmiSelector';
+import EmiSummary from './EmiSummary';
+
+// COD Components
+import CodAvailabilityIndicator from './CodAvailabilityIndicator';
+import CodFeeDisplay from './CodFeeDisplay';
+import CodWarningBanner from './CodWarningBanner';
+
+// Local Payment Components
+import LocalPaymentMethodSelector from './LocalPaymentMethodSelector';
+import LocalPaymentFeeDisplay from './LocalPaymentFeeDisplay';
+import LocalPaymentInstructions from './LocalPaymentInstructions';
+
+// UI Components
+import Modal from '@/components/ui/Modal';
+import Accordion from '@/components/ui/Accordion';
+import Tabs from '@/components/ui/Tabs';
+
+// Mobile Components
+import MobileCartView from './MobileCartView';
+import MobileCartItem from './MobileCartItem';
+import MobileCartSummary from './MobileCartSummary';
+
+// Offline Component
+import OfflineCartIndicator from './OfflineCartIndicator';
+
+// Types
+import { EmiPlan, EmiDetails } from '@/types/emi';
+import { LocalPaymentMethod, PaymentFeeResult } from '@/types/localPayment';
 
 const CartPage: React.FC<CartPageProps> = ({ language = 'en' }) => {
   const router = useRouter();
@@ -29,19 +66,214 @@ const CartPage: React.FC<CartPageProps> = ({ language = 'en' }) => {
     applyDiscount,
     removeDiscount,
     setShippingMethod,
+    loadCart,
   } = useCart();
+
+  // Cart-wishlist integration state
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [showSyncQueue, setShowSyncQueue] = useState(false);
+  
+  // Get sync status from store
+  const storeSyncStatus = useCartWishlistStore((state) => state.syncStatus);
+  const offlineQueue = useCartWishlistStore((state) => state.offlineQueue);
+
+  // Mobile/Offline State
+  const [isMobile, setIsMobile] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+
+  // EMI State
+  const [emiAvailable, setEmiAvailable] = useState<boolean | null>(null);
+  const [emiPlans, setEmiPlans] = useState<EmiPlan[]>([]);
+  const [selectedEmiPlanId, setSelectedEmiPlanId] = useState<string | null>(null);
+  const [emiDetails, setEmiDetails] = useState<EmiDetails | null>(null);
+
+  // COD State
+  const [codFee, setCodFee] = useState<number>(0);
+
+  // Local Payment State
+  const [selectedLocalPaymentMethod, setSelectedLocalPaymentMethod] = useState<LocalPaymentMethod | null>(null);
+  const [localPaymentFee, setLocalPaymentFee] = useState<PaymentFeeResult | null>(null);
+  const [showLocalPaymentInstructions, setShowLocalPaymentInstructions] = useState(false);
+
+  // Tabs State
+  const [activeTab, setActiveTab] = useState('payment');
+
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Check online/offline status
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      setLastSyncTime(new Date().toISOString());
+    };
+    
+    const handleOffline = () => {
+      setIsOnline(false);
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    // Set initial online status
+    setIsOnline(navigator.onLine);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Load EMI plans when total changes
+  useEffect(() => {
+    const loadEmiPlans = async () => {
+      try {
+        console.log('[CartPage] Loading EMI plans for amount:', total);
+        const { getAvailableEmiPlans } = await import('@/lib/api/emi');
+        const response = await getAvailableEmiPlans(total);
+        
+        console.log('[CartPage] EMI API response:', JSON.stringify(response, null, 2));
+        
+        if (response.success && response.data) {
+          console.log('[CartPage] EMI plans found:', response.data.plans?.length || 0);
+          setEmiPlans(response.data.plans);
+          setEmiAvailable(response.data.plans.length > 0);
+        } else {
+          console.error('[CartPage] EMI API response invalid:', response);
+          setEmiAvailable(false);
+        }
+      } catch (error) {
+        console.error('[CartPage] Error loading EMI plans:', error);
+        setEmiAvailable(false);
+      }
+    };
+
+    console.log('[CartPage] EMI useEffect triggered - total:', total, 'emiAvailable:', emiAvailable);
+    if (total >= 5000) { // EMI minimum amount
+      loadEmiPlans();
+    } else {
+      console.log('[CartPage] Total below EMI minimum (5000), setting emiAvailable to false');
+      setEmiAvailable(false);
+      setEmiPlans([]);
+    }
+  }, [total]);
+
+  // Calculate COD fee when total changes
+  useEffect(() => {
+    const calculateCodFee = async () => {
+      try {
+        const { getCodFee } = await import('@/lib/api/cod');
+        const fee = await getCodFee(total);
+        setCodFee(fee);
+      } catch (error) {
+        console.error('Error calculating COD fee:', error);
+        setCodFee(0);
+      }
+    };
+
+    calculateCodFee();
+  }, [total]);
 
   // Calculate tax rate as percentage
   const taxRate = subtotal > 0 ? (tax / subtotal) * 100 : 0;
 
+  // Check if all items are selected
+  const isAllSelected = useMemo(() => {
+    return items.length > 0 && selectedItems.length === items.length;
+  }, [items.length, selectedItems.length]);
+
+  // Handle checkout
   const handleCheckout = () => {
     router.push('/checkout');
   };
 
+  // Handle continue shopping
   const handleContinueShopping = () => {
     router.push('/products');
   };
 
+  // Handle item selection
+  const handleSelectItem = useCallback((itemId: string) => {
+    setSelectedItems((prev) =>
+      prev.includes(itemId) ? prev.filter((id) => id !== itemId) : [...prev, itemId]
+    );
+  }, []);
+
+  // Handle select all
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(items.map((item) => item.id));
+    }
+  };
+
+  // Handle clear selection
+  const handleClearSelection = () => {
+    setSelectedItems([]);
+  };
+
+  // Helper function to get product image URL
+  const getProductImageUrl = (item: any): string | null => {
+    if (!item.product?.images || !item.product.images[0]) return null;
+    const img = item.product.images[0];
+    if (typeof img === 'string') return img;
+    if (typeof img === 'object' && img !== null) {
+      return (img as any).url || (img as any).originalUrl || null;
+    }
+    return null;
+  };
+
+  // EMI Handlers
+  const handleEmiPlanSelect = async (planId: string, emiDetails: EmiDetails) => {
+    try {
+      console.log('[CartPage] EMI plan selected:', planId, emiDetails);
+      setSelectedEmiPlanId(planId);
+      setEmiDetails(emiDetails);
+    } catch (error) {
+      console.error('[CartPage] Error handling EMI plan selection:', error);
+      toast.error('Failed to select EMI plan');
+    }
+  };
+
+  // Local Payment Handlers
+  const handleLocalPaymentMethodSelect = async (method: LocalPaymentMethod, feeResult?: PaymentFeeResult) => {
+    console.log('[CartPage] Local payment method selected:', method, 'feeResult:', feeResult);
+    setSelectedLocalPaymentMethod(method);
+    setLocalPaymentFee(feeResult || null);
+    if (feeResult) {
+      setShowLocalPaymentInstructions(true);
+    }
+  };
+
+  // Mobile/Offline Handlers
+  const handleSync = async () => {
+    setIsSyncing(true);
+    try {
+      // Simulate sync process - in real implementation this would sync offline queue
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setLastSyncTime(new Date().toISOString());
+      toast.success(language === 'bn' ? 'কার্ট সিঙ্ক হয়েছে' : 'Cart synced successfully');
+    } catch (error) {
+      console.error('Error syncing cart:', error);
+      toast.error(language === 'bn' ? 'কার্ট সিঙ্ক করতে ব্যর্থ হয়েছে' : 'Failed to sync cart');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -52,6 +284,70 @@ const CartPage: React.FC<CartPageProps> = ({ language = 'en' }) => {
           </p>
         </div>
       </div>
+    );
+  }
+
+  // Mobile View
+  if (isMobile) {
+    return (
+      <MobileCartView
+        itemCount={itemCount}
+        totalAmount={total}
+        onCheckout={handleCheckout}
+        language={language}
+      >
+        {/* Mobile Cart Items */}
+        {items.length > 0 && (
+          <div className="space-y-3">
+            {items.map((item) => (
+              <MobileCartItem
+                    key={item.id}
+                    id={item.id}
+                    name={item.product?.name || 'Unknown Product'}
+                    price={item.price}
+                    quantity={item.quantity}
+                    image={getProductImageUrl(item)}
+                    variant={item.variantId || undefined}
+                    onQuantityChange={(id, qty) => updateQuantity(id, qty)}
+                    onRemove={(id) => removeItem(id)}
+                    language={language}
+                    swipeToDelete={true}
+                  />
+            ))}
+          </div>
+        )}
+
+        {/* Mobile Cart Summary */}
+        {items.length > 0 && (
+          <div className="mt-4">
+            <MobileCartSummary
+              subtotal={subtotal}
+              shippingFee={shippingCost}
+              codFee={codFee}
+              tax={tax}
+              discount={discount}
+              total={total}
+              onCheckout={handleCheckout}
+              language={language}
+              showPaymentOptions={true}
+              showShippingInfo={false}
+            />
+          </div>
+        )}
+
+        {/* Mobile Offline Indicator */}
+        {!isOnline && (
+          <div className="mt-4">
+            <OfflineCartIndicator
+              isOnline={isOnline}
+              lastSyncTime={lastSyncTime}
+              isSyncing={isSyncing}
+              onSync={handleSync}
+              language={language}
+            />
+          </div>
+        )}
+      </MobileCartView>
     );
   }
 
@@ -86,14 +382,19 @@ const CartPage: React.FC<CartPageProps> = ({ language = 'en' }) => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-2">
-            {language === 'bn' ? 'শপিং কার্ট' : 'Shopping Cart'}
-          </h1>
-          <p className="text-gray-600">
-            {language === 'bn' ? `${itemCount} আইটেম` : `${itemCount} ${itemCount === 1 ? 'item' : 'items'}`}
-          </p>
+        {/* Page Header with Sync Indicator */}
+        <div className="mb-8 flex items-start justify-between flex-wrap gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-2">
+              {language === 'bn' ? 'শপিং কার্ট' : 'Shopping Cart'}
+            </h1>
+            <p className="text-gray-600">
+              {language === 'bn' ? `${itemCount} আইটেম` : `${itemCount} ${itemCount === 1 ? 'item' : 'items'}`}
+            </p>
+          </div>
+
+          {/* Sync Status Indicator */}
+          <CartWishlistSyncIndicator language={language} />
         </div>
 
         {/* Error Message */}
@@ -103,21 +404,110 @@ const CartPage: React.FC<CartPageProps> = ({ language = 'en' }) => {
           </div>
         )}
 
+        {/* Offline Cart Indicator - Replaces basic offline queue warning */}
+        {!isOnline || offlineQueue.length > 0 && (
+          <div className="mb-6">
+            <OfflineCartIndicator
+                  isOnline={isOnline}
+                  lastSyncTime={lastSyncTime}
+                  isSyncing={isSyncing}
+                  onSync={handleSync}
+                  language={language}
+                  showSyncProgress={isSyncing}
+                  syncProgress={isSyncing ? 50 : 0}
+                />
+          </div>
+        )}
+
         {/* Cart Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2">
+            {/* Bulk Actions Bar */}
+            {items.length > 0 && (
+              <div className="mb-4 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                  {/* Select All Checkbox */}
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isAllSelected}
+                      onChange={handleSelectAll}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      aria-label={
+                        language === 'bn'
+                          ? 'সব নির্বাচন করুন'
+                          : 'Select all items'
+                      }
+                    />
+                    <span className="text-sm text-gray-700">
+                      {language === 'bn' ? 'সব নির্বাচন করুন' : 'Select All'}
+                    </span>
+                  </label>
+
+                  {/* Selected Items Count */}
+                  {selectedItems.length > 0 && (
+                    <span className="text-sm text-gray-600">
+                      {language === 'bn'
+                        ? `${selectedItems.length}টি নির্বাচিত`
+                        : `${selectedItems.length} selected`}
+                    </span>
+                  )}
+
+                  {/* Bulk Actions */}
+                  {selectedItems.length > 0 && (
+                    <div className="flex items-center gap-2">
+                      <BulkMoveToWishlist
+                        selectedItems={selectedItems}
+                        onSuccess={() => {
+                          handleClearSelection();
+                          loadCart();
+                        }}
+                        onClearSelection={handleClearSelection}
+                        language={language}
+                      />
+                      <button
+                        onClick={handleClearSelection}
+                        className="text-sm text-gray-600 hover:text-gray-800 px-3 py-1.5 rounded hover:bg-gray-100 transition-colors"
+                      >
+                        {language === 'bn' ? 'বাতিল করুন' : 'Clear'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Cart Items List */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               {items.map((item) => (
-                <CartItem
-                  key={item.id}
-                  item={item}
-                  onUpdateQuantity={updateQuantity}
-                  onRemove={removeItem}
-                  language={language}
-                  showTax={tax > 0}
-                  taxRate={taxRate}
-                />
+                <div key={item.id} className="border-b border-gray-200 last:border-b-0">
+                  <div className="flex items-center p-4">
+                    {/* Checkbox for bulk selection */}
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.includes(item.id)}
+                      onChange={() => handleSelectItem(item.id)}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-4 flex-shrink-0"
+                      aria-label={
+                        language === 'bn'
+                          ? `${item.product?.name || 'আইটেম'} নির্বাচন করুন`
+                          : `Select ${item.product?.name || 'item'}`
+                      }
+                    />
+                    <div className="flex-1">
+                      <CartItem
+                        item={item}
+                        onUpdateQuantity={updateQuantity}
+                        onRemove={removeItem}
+                        onLoadCart={() => loadCart()}
+                        language={language}
+                        showTax={tax > 0}
+                        taxRate={taxRate}
+                      />
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
 
@@ -158,6 +548,109 @@ const CartPage: React.FC<CartPageProps> = ({ language = 'en' }) => {
                 language={language}
                 isLoading={isLoading}
               />
+              
+              {/* Quick Wishlist Access */}
+              <div className="mt-4 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <Link
+                  href="/wishlist"
+                  className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-pink-50 text-pink-700 font-medium rounded-md hover:bg-pink-100 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-1"
+                >
+                  <Heart className="w-4 h-4" />
+                  {language === 'bn' ? 'উইশলিস্ট দেখুন' : 'View Wishlist'}
+                </Link>
+              </div>
+
+              {/* EMI Display - Full component with providers */}
+              <EmiDisplay
+                amount={total}
+                onPlanSelect={handleEmiPlanSelect}
+                language={language}
+                showCalculator={true}
+              />
+
+              {/* EMI Summary */}
+              {emiDetails && (
+                <div className="mt-4">
+                  <EmiSummary
+                        emiDetails={emiDetails}
+                        language={language}
+                        showBreakdown={true}
+                      />
+                </div>
+              )}
+
+              {/* COD Availability - Collapsible */}
+              <Accordion
+                title={
+                  <div className="flex items-center gap-2">
+                    <Truck className="w-4 h-4 text-gray-600" />
+                    {language === 'bn' ? 'ক্যাশ অন ডেলিভারি' : 'Cash on Delivery'}
+                  </div>
+                }
+                defaultOpen={false}
+              >
+                <div className="space-y-3">
+                  <CodAvailabilityIndicator
+                    amount={total}
+                    onAvailabilityChange={() => {}}
+                    language={language}
+                    showDeliveryInfo={true}
+                    autoCheck={true}
+                  />
+                  {codFee > 0 && (
+                    <CodFeeDisplay
+                      amount={total}
+                      fee={codFee}
+                      language={language}
+                      showBreakdown={true}
+                    />
+                  )}
+                  <CodWarningBanner
+                    amount={total}
+                    language={language}
+                    showAlternatives={true}
+                    autoCheck={true}
+                  />
+                </div>
+              </Accordion>
+
+              {/* Local Payment Method Selector - Collapsible */}
+              <Accordion
+                title={
+                  <div className="flex items-center gap-2">
+                    <Smartphone className="w-4 h-4 text-gray-600" />
+                    {language === 'bn' ? 'লোকাল পেমেন্ট' : 'Local Payment'}
+                  </div>
+                }
+                defaultOpen={false}
+              >
+                <LocalPaymentMethodSelector
+                  amount={total}
+                  selectedMethodCode={selectedLocalPaymentMethod?.code || undefined}
+                  onMethodSelect={handleLocalPaymentMethodSelect}
+                  language={language}
+                  showFee={true}
+                />
+                {localPaymentFee && (
+                  <div className="mt-3">
+                    <LocalPaymentFeeDisplay
+                      amount={total}
+                      methodCode={selectedLocalPaymentMethod?.code || ''}
+                      feeResult={localPaymentFee}
+                      language={language}
+                      showBreakdown={true}
+                    />
+                  </div>
+                )}
+                {showLocalPaymentInstructions && selectedLocalPaymentMethod && (
+                  <div className="mt-3">
+                    <LocalPaymentInstructions
+                      methodCode={selectedLocalPaymentMethod.code}
+                      language={language}
+                    />
+                  </div>
+                )}
+              </Accordion>
             </div>
           </div>
         </div>
@@ -228,6 +721,7 @@ const CartPage: React.FC<CartPageProps> = ({ language = 'en' }) => {
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );

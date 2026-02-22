@@ -1,0 +1,172 @@
+{
+  "timestamp": "2026-02-21T13:41:19.324Z",
+  "tests": [
+    {
+      "name": "Backend server is running",
+      "status": "PASS",
+      "message": "Backend is healthy and running",
+      "details": {
+        "status": "OK",
+        "database": "connected",
+        "redis": "connected"
+      }
+    },
+    {
+      "name": "Create or find admin user",
+      "status": "PASS",
+      "message": "Admin user logged in successfully",
+      "details": {
+        "userId": "ea59bf47-4b66-431d-ba63-a0a69437798f",
+        "email": "admin@smarttech.com",
+        "role": "admin"
+      }
+    },
+    {
+      "name": "Mobile analytics endpoint is accessible (with auth)",
+      "status": "PASS",
+      "message": "Mobile analytics endpoint is accessible",
+      "details": {
+        "statusCode": 200,
+        "hasData": true
+      }
+    },
+    {
+      "name": "Mobile performance endpoint is accessible (with auth)",
+      "status": "PASS",
+      "message": "Mobile performance endpoint is accessible",
+      "details": {
+        "statusCode": 200,
+        "hasData": true
+      }
+    },
+    {
+      "name": "Mobile analytics export endpoint is accessible (with auth)",
+      "status": "PASS",
+      "message": "Mobile analytics export endpoint is accessible",
+      "details": {
+        "statusCode": 200,
+        "contentType": "application/json; charset=utf-8"
+      }
+    },
+    {
+      "name": "Mobile analytics endpoint requires authentication",
+      "status": "PASS",
+      "message": "Mobile analytics endpoint properly requires authentication",
+      "details": {
+        "statusCode": 401
+      }
+    },
+    {
+      "name": "Mobile performance endpoint requires authentication",
+      "status": "PASS",
+      "message": "Mobile performance endpoint properly requires authentication",
+      "details": {
+        "statusCode": 401
+      }
+    },
+    {
+      "name": "Fetch mobile analytics data",
+      "status": "WARNING",
+      "message": "Missing expected fields: totalUsers, activeUsers, offlineUsers, totalCarts, syncedCarts, pendingSync, averageSyncTime, platformBreakdown",
+      "details": {
+        "missingFields": [
+          "totalUsers",
+          "activeUsers",
+          "offlineUsers",
+          "totalCarts",
+          "syncedCarts",
+          "pendingSync",
+          "averageSyncTime",
+          "platformBreakdown"
+        ]
+      }
+    },
+    {
+      "name": "Fetch mobile analytics data",
+      "status": "PASS",
+      "message": "Mobile analytics data retrieved successfully",
+      "details": {
+        "totalUsers": 0,
+        "activeUsers": 0,
+        "offlineUsers": 0,
+        "totalCarts": 0,
+        "syncedCarts": 0,
+        "pendingSync": 0,
+        "platformBreakdown": {}
+      }
+    },
+    {
+      "name": "Fetch mobile performance metrics",
+      "status": "PASS",
+      "message": "Mobile performance metrics retrieved successfully",
+      "details": {
+        "totalEvents": 0,
+        "platformBreakdown": {
+          "mobile": 0,
+          "desktop": 0,
+          "tablet": 0
+        },
+        "averageMetrics": {
+          "duration": 0,
+          "touchCount": 0
+        }
+      }
+    },
+    {
+      "name": "Test period filter: 24h",
+      "status": "PASS",
+      "message": "Period filter 24h works correctly",
+      "details": {
+        "period": "24h",
+        "startDate": "2026-02-20T13:41:21.748Z",
+        "endDate": "2026-02-21T13:41:21.748Z",
+        "hasData": true
+      }
+    },
+    {
+      "name": "Test period filter: 7d",
+      "status": "PASS",
+      "message": "Period filter 7d works correctly",
+      "details": {
+        "period": "7d",
+        "startDate": "2026-02-14T13:41:21.881Z",
+        "endDate": "2026-02-21T13:41:21.881Z",
+        "hasData": true
+      }
+    },
+    {
+      "name": "Test period filter: 30d",
+      "status": "PASS",
+      "message": "Period filter 30d works correctly",
+      "details": {
+        "period": "30d",
+        "startDate": "2026-01-22T13:41:22.019Z",
+        "endDate": "2026-02-21T13:41:22.019Z",
+        "hasData": true
+      }
+    },
+    {
+      "name": "Test period filter: 90d",
+      "status": "PASS",
+      "message": "Period filter 90d works correctly",
+      "details": {
+        "period": "90d",
+        "startDate": "2025-11-23T13:41:22.196Z",
+        "endDate": "2026-02-21T13:41:22.196Z",
+        "hasData": true
+      }
+    },
+    {
+      "name": "Handle invalid date format",
+      "status": "FAIL",
+      "message": "Unexpected response for invalid date: 500",
+      "details": null
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "passed": 13,
+    "failed": 1,
+    "warnings": 1
+  }
+}

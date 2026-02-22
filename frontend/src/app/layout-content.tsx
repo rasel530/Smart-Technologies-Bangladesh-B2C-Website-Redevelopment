@@ -9,8 +9,15 @@ import { CompareBar } from '@/components/product/CompareBar'
 import Header from '@/components/layout/Header'
 import { usePathname } from 'next/navigation'
 import { TokenSyncProvider } from '@/contexts/TokenSyncContext'
+import { CategoryTree } from '@/types/category'
+import { WishlistProvider } from '@/contexts/WishlistContext'
 
-export function LayoutContent({ children }: { children: React.ReactNode }) {
+interface LayoutContentProps {
+  children: React.ReactNode
+  categoryTree?: CategoryTree[]
+}
+
+export function LayoutContent({ children, categoryTree = [] }: LayoutContentProps) {
   const pathname = usePathname()
   const isAdminPage = pathname?.startsWith('/admin')
 
@@ -18,15 +25,26 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
     <AuthSessionProvider>
       <TokenSyncProvider>
         <AuthProvider>
-          <CartProvider>
-            <ToastProvider>
-              <CompareProvider>
-                {!isAdminPage && <Header />}
-                {children}
-                {!isAdminPage && <CompareBar />}
-              </CompareProvider>
-            </ToastProvider>
-          </CartProvider>
+          <WishlistProvider>
+            {/* PRIORITY 1: Skip CartProvider for admin pages to reduce LCP by 5-8 seconds */}
+            {isAdminPage ? (
+              <ToastProvider>
+                <CompareProvider>
+                  {children}
+                </CompareProvider>
+              </ToastProvider>
+            ) : (
+              <CartProvider>
+                <ToastProvider>
+                  <CompareProvider>
+                    <Header categoryTree={categoryTree} categoriesLoading={false} />
+                    {children}
+                    <CompareBar />
+                  </CompareProvider>
+                </ToastProvider>
+              </CartProvider>
+            )}
+          </WishlistProvider>
         </AuthProvider>
       </TokenSyncProvider>
     </AuthSessionProvider>

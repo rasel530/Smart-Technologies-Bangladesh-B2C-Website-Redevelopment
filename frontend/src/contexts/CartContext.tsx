@@ -63,6 +63,15 @@ const cartLogger = {
 };
 
 /**
+ * Validate if a string is a valid UUID
+ */
+const isValidUUID = (str: string | null | undefined): boolean => {
+  if (!str) return false;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+};
+
+/**
  * Zustand Store for Cart State Management
  * 
  * This store manages all cart-related state including:
@@ -173,6 +182,19 @@ export const useCartStore = create<CartStore>((set, get) => ({
     const { sessionId, cart } = get();
     const { onSuccess, navigateToCart } = options || {};
 
+    console.log('[CartContext] addItem called:', {
+      product,
+      productId: product?.id,
+      productIdType: typeof product?.id,
+      productIdLength: product?.id?.length,
+      productName: product?.name,
+      quantity,
+      variantId,
+      user,
+      sessionId,
+      cartId: cart?.id
+    });
+
     try {
       set({ isLoading: true, error: null });
 
@@ -182,7 +204,10 @@ export const useCartStore = create<CartStore>((set, get) => ({
         // CRIT-001: Authentication required for adding items to logged-in cart
         // Get cartId from current cart or fetch it
         let cartId = cart?.id;
-        if (!cartId) {
+
+        // FIX: If cartId is invalid (e.g., "guest" from guest cart), fetch a new cart from backend
+        if (!cartId || !isValidUUID(cartId)) {
+          console.log('[CartContext] Invalid or missing cartId, fetching cart from backend:', cartId);
           // CRIT-003: Add null check when fetching cart
           const fetchedCart = await cartApi.getCart();
           if (!fetchedCart) {
@@ -198,6 +223,16 @@ export const useCartStore = create<CartStore>((set, get) => ({
             cartId = fetchedCart.id;
           }
         }
+
+        console.log('[CartContext] About to call cartApi.addToCart with:', {
+          cartId,
+          productId: product?.id,
+          productIdType: typeof product?.id,
+          productIdLength: product?.id?.length,
+          productName: product?.name,
+          quantity,
+          variantId
+        });
 
         // Add to cart with cartId and variantId
         updatedCart = await cartApi.addToCart(cartId, product.id, quantity, variantId);
@@ -238,54 +273,41 @@ export const useCartStore = create<CartStore>((set, get) => ({
           
           saveGuestCartToStorageUtil(guestCartUpdated);
 
-          // HIGH-001: Reload cart from localStorage instead of empty cart
-          const reloadedCart = loadGuestCartFromStorageUtil();
-          if (reloadedCart) {
-            const cartWithSession = await getCartFromStorageData(reloadedCart);
-            get().setCart(cartWithSession);
-            updatedCart = cartWithSession;
-            
-            // Dispatch cart-updated event so Header and other components can update
-            if (typeof window !== 'undefined') {
-              window.dispatchEvent(new Event('cart-updated'));
-            }
-          } else {
-            // Create new cart data and add the item
-            const newCartData = createEmptyGuestCartUtil(sessionId || 'guest');
-            const hasValidSalePrice = product.salePrice && Number(product.salePrice) > 0 && 
-              Number(product.salePrice) < Number(product.regularPrice);
-            const guestCartWithItem = addItemToGuestCartUtil(
-              newCartData,
-              product.id,
-              quantity,
-              variantId || null,
-              hasValidSalePrice ? Number(product.salePrice) : Number(product.regularPrice)
-            );
-            
-            // Save and sync to backend
-            saveGuestCartToStorageUtil(guestCartWithItem);
-            try {
-              await createOrUpdateGuestCartBackend(guestCartWithItem.items, guestCartWithItem.sessionId);
-            } catch (error) {
-              console.error('[CartContext] Failed to sync new guest cart to backend:', error);
-            }
-            
-            // Reload and set cart
-            const reloadedCart = loadGuestCartFromStorageUtil();
-            if (reloadedCart) {
-              const cartWithSession = await getCartFromStorageData(reloadedCart);
-              get().setCart(cartWithSession);
-              updatedCart = cartWithSession;
-              
-              // Dispatch cart-updated event so Header and other components can update
-              if (typeof window !== 'undefined') {
-                window.dispatchEvent(new Event('cart-updated'));
-              }
-            }
+          // BUG-FIX: Use the already-modified guestCartUpdated instead of reloading from localStorage.
+          // Reloading was causing race conditions where storage access could fail or return stale data.
+          const cartWithSession = await getCartFromStorageData(guestCartUpdated);
+          get().setCart(cartWithSession);
+          updatedCart = cartWithSession;
+          
+          // Dispatch cart-updated event so Header and other components can update
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('cart-updated'));
           }
         } else {
-          updatedCart = getEmptyCart(sessionId || 'guest');
-          get().setCart(updatedCart);
+          // No existing cart - create new cart with the item
+          const newCartData = createEmptyGuestCartUtil(sessionId || 'guest');
+          const hasValidSalePrice = product.salePrice && Number(product.salePrice) > 0 &&
+            Number(product.salePrice) < Number(product.regularPrice);
+          const guestCartWithItem = addItemToGuestCartUtil(
+            newCartData,
+            product.id,
+            quantity,
+            variantId || null,
+            hasValidSalePrice ? Number(product.salePrice) : Number(product.regularPrice)
+          );
+          
+          // Save and sync to backend
+          saveGuestCartToStorageUtil(guestCartWithItem);
+          try {
+            await createOrUpdateGuestCartBackend(guestCartWithItem.items, guestCartWithItem.sessionId);
+          } catch (error) {
+            console.error('[CartContext] Failed to sync new guest cart to backend:', error);
+          }
+          
+          // Use the already-modified cart data directly
+          const cartWithSession = await getCartFromStorageData(guestCartWithItem);
+          get().setCart(cartWithSession);
+          updatedCart = cartWithSession;
           
           // Dispatch cart-updated event so Header and other components can update
           if (typeof window !== 'undefined') {
@@ -318,9 +340,16 @@ export const useCartStore = create<CartStore>((set, get) => ({
   },
 
   // Remove item from cart
+  // BUG-FIX: Comprehensive fix for state desynchronization after product removal
   removeItem: async (itemId, user, options = {}) => {
     const { sessionId, cart } = get();
     const { onSuccess } = options || {};
+
+    // Prevent concurrent removal operations
+    if (get().isLoading) {
+      console.warn('[CartContext] Removal already in progress, skipping');
+      return;
+    }
 
     try {
       set({ isLoading: true, error: null });
@@ -328,20 +357,36 @@ export const useCartStore = create<CartStore>((set, get) => ({
       let updatedCart: Cart | null = null;
 
       if (user) {
-        // Remove from cart via backend for logged-in user
+        // AUTHENTICATED USER: Remove from cart via backend
+        // BUG-FIX: Backend now returns full updated cart instead of just { success: true }
+        // API client automatically unwraps { success: true, data: cart } to cart
         updatedCart = await cartApi.removeCartItem(itemId);
+        
+        // BUG-FIX: Add null check to prevent error if backend returns null
+        if (!updatedCart) {
+          throw new Error('Failed to remove item: Server returned null cart');
+        }
+        
+        if (!updatedCart.items) {
+          throw new Error('Invalid cart response from server');
+        }
+        
+        // BUG-FIX: Set cart BEFORE turning off loading to prevent "empty cart" flash
         get().setCart(updatedCart);
         
         // Dispatch cart-updated event so Header and other components can update
         if (typeof window !== 'undefined') {
-          window.dispatchEvent(new Event('cart-updated'));
+          window.dispatchEvent(new CustomEvent('cart-updated', {
+            detail: { itemCount: updatedCart.items.length }
+          }));
         }
       } else {
-        // For guest users, update local storage using utility functions
+        // GUEST USER: Update local storage using utility functions
         const storageData = loadGuestCartFromStorageUtil();
         if (storageData && cart) {
           const item = (cart.items || []).find(i => i.id === itemId);
           if (item) {
+            // BUG-FIX: Remove item and save to storage BEFORE any async operations
             removeItemFromGuestCartUtil(
               storageData,
               item.productId,
@@ -349,37 +394,45 @@ export const useCartStore = create<CartStore>((set, get) => ({
             );
             saveGuestCartToStorageUtil(storageData);
             
-            // CRIT-002: Sync to backend with await
-            try {
-              await createOrUpdateGuestCartBackend(storageData.items, storageData.sessionId);
-            } catch (error) {
-              console.error('[CartContext] Failed to sync guest cart after remove:', error);
-            }
+            // CRIT-002: Sync to backend with await (non-blocking for UI)
+            createOrUpdateGuestCartBackend(storageData.items, storageData.sessionId)
+              .catch((error) => {
+                console.error('[CartContext] Failed to sync guest cart after remove:', error);
+              });
           }
         }
 
-        // HIGH-001: Reload cart from localStorage instead of using old cart state
-        const reloadedStorage = loadGuestCartFromStorageUtil();
-        if (reloadedStorage) {
-          const cartWithSession = await getCartFromStorageData(reloadedStorage);
-          get().setCart(cartWithSession);
+        // BUG-FIX: Use the already-modified storageData instead of reloading from localStorage.
+        // Reloading was causing race conditions where storage access could fail or return stale data,
+        // resulting in incorrectly showing "empty cart" when items still existed.
+        if (storageData) {
+          // BUG-FIX: Set cart immediately with local data for instant UI update
+          const cartWithSession = await getCartFromStorageData(storageData);
           updatedCart = cartWithSession;
           
-          // Dispatch cart-updated event so Header and other components can update
-          if (typeof window !== 'undefined') {
-            window.dispatchEvent(new Event('cart-updated'));
-          }
-        } else {
-          updatedCart = getEmptyCart(sessionId || 'guest');
+          // Set cart BEFORE turning off loading
           get().setCart(updatedCart);
           
           // Dispatch cart-updated event so Header and other components can update
           if (typeof window !== 'undefined') {
-            window.dispatchEvent(new Event('cart-updated'));
+            window.dispatchEvent(new CustomEvent('cart-updated', {
+              detail: { itemCount: updatedCart.items.length }
+            }));
+          }
+        } else {
+          // Only create empty cart if there truly was no storage data to begin with
+          updatedCart = getEmptyCart(sessionId || 'guest');
+          get().setCart(updatedCart);
+          
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('cart-updated', {
+              detail: { itemCount: 0 }
+            }));
           }
         }
       }
 
+      // BUG-FIX: Only turn off loading AFTER cart state is fully updated
       set({ isLoading: false, error: null });
 
       // Show success toast
@@ -398,10 +451,17 @@ export const useCartStore = create<CartStore>((set, get) => ({
   },
 
   // Update item quantity
+  // BUG-FIX: Comprehensive fix for state desynchronization after quantity update
   // CRIT-006: Added stock validation for guest users
   updateQuantity: async (itemId, quantity, user, options = {}) => {
     const { sessionId, cart } = get();
     const { onSuccess } = options || {};
+
+    // Prevent concurrent update operations
+    if (get().isLoading) {
+      console.warn('[CartContext] Update already in progress, skipping');
+      return;
+    }
 
     try {
       set({ isLoading: true, error: null });
@@ -409,15 +469,25 @@ export const useCartStore = create<CartStore>((set, get) => ({
       let updatedCart: Cart | null = null;
 
       if (user) {
-        // Update quantity via backend for logged-in user
+        // AUTHENTICATED USER: Update quantity via backend
         updatedCart = await cartApi.updateCartItemQuantity(itemId, quantity);
+        
+        // BUG-FIX: Add null check to prevent error if backend returns null
+        if (!updatedCart) {
+          throw new Error('Failed to update quantity: Server returned null cart');
+        }
+        
+        // BUG-FIX: Set cart BEFORE turning off loading to prevent UI flicker
         get().setCart(updatedCart);
         
         // Dispatch cart-updated event so Header and other components can update
         if (typeof window !== 'undefined') {
-          window.dispatchEvent(new Event('cart-updated'));
+          window.dispatchEvent(new CustomEvent('cart-updated', {
+            detail: { itemCount: updatedCart.items?.length || 0 }
+          }));
         }
       } else {
+        // GUEST USER: Update local storage using utility functions
         // CRIT-006: Validate stock for guest users before updating quantity
         const item = cart?.items?.find(i => i.id === itemId);
         if (item) {
@@ -433,6 +503,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
         if (storageData && cart) {
           const item = (cart.items || []).find(i => i.id === itemId);
           if (item) {
+            // BUG-FIX: Update quantity and save to storage BEFORE any async operations
             updateItemQuantityInGuestCartUtil(
               storageData,
               item.productId,
@@ -441,38 +512,44 @@ export const useCartStore = create<CartStore>((set, get) => ({
             );
             saveGuestCartToStorageUtil(storageData);
             
-            // CRIT-002: Sync to backend with await
-            try {
-              await createOrUpdateGuestCartBackend(storageData.items, storageData.sessionId);
-            } catch (error) {
-              console.error('[CartContext] Failed to sync guest cart after quantity update:', error);
-            }
+            // CRIT-002: Sync to backend (non-blocking for UI)
+            createOrUpdateGuestCartBackend(storageData.items, storageData.sessionId)
+              .catch((error) => {
+                console.error('[CartContext] Failed to sync guest cart after quantity update:', error);
+              });
           }
         }
 
-        // HIGH-001: Reload cart from localStorage instead of using old cart state
-        const reloadedStorage = loadGuestCartFromStorageUtil();
-        if (reloadedStorage) {
-          const cartWithSession = await getCartFromStorageData(reloadedStorage);
-          get().setCart(cartWithSession);
+        // BUG-FIX: Use the already-modified storageData instead of reloading from localStorage.
+        // Reloading was causing race conditions where storage access could fail or return stale data.
+        if (storageData) {
+          const cartWithSession = await getCartFromStorageData(storageData);
           updatedCart = cartWithSession;
+          
+          // BUG-FIX: Set cart BEFORE turning off loading
+          get().setCart(updatedCart);
           
           // Dispatch cart-updated event so Header and other components can update
           if (typeof window !== 'undefined') {
-            window.dispatchEvent(new Event('cart-updated'));
+            window.dispatchEvent(new CustomEvent('cart-updated', {
+              detail: { itemCount: updatedCart.items?.length || 0 }
+            }));
           }
         } else {
+          // Only create empty cart if there truly was no storage data to begin with
           updatedCart = getEmptyCart(sessionId || 'guest');
           get().setCart(updatedCart);
+          
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('cart-updated', {
+              detail: { itemCount: 0 }
+            }));
+          }
         }
       }
 
+      // BUG-FIX: Only turn off loading AFTER cart state is fully updated
       set({ isLoading: false, error: null });
-
-      // Dispatch cart-updated event so Header and other components can update
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('cart-updated'));
-      }
 
       // Show success toast
       toast.success('Quantity updated');
@@ -790,33 +867,49 @@ export const useCartStore = create<CartStore>((set, get) => ({
 
       // Check if user has changed (logout/login scenario)
       if (previousUserId !== currentUserId) {
-        cartLogger.info('User changed, clearing cart state', {
+        cartLogger.info('User changed, updating previous user ID', {
           previousUserId,
           currentUserId
         });
 
-        // Clear cart state when user changes
-        const emptyCart = getEmptyCart('guest');
-        get().setCart(emptyCart);
-        set({
-          isGuest: true,
-          sessionId: null,
-          discountCode: null,
-          shippingMethod: 'standard'
-        });
-
-        // Clear guest storage
-        removeGuestSessionIdUtil();
-        clearGuestCartFromStorageUtil();
-
-        // Update previous user ID
+        // FIX: Don't clear cart state when user logs in - let existing cart persist
+        // until backend cart is fetched. Only update previousUserId.
+        // This prevents "No token provided" error when fetching cart from backend.
         previousUserId = currentUserId;
       }
 
       if (user) {
         // Load cart from backend for logged-in user
-        const cart = await cartApi.getCart();
-        get().setCart(cart);
+        // FIX: Add retry mechanism to handle race condition where token is not yet available
+        let cart = null;
+        let retryCount = 0;
+        const maxRetries = 3;
+
+        while (!cart && retryCount < maxRetries) {
+          try {
+            cart = await cartApi.getCart();
+            if (cart) {
+              break;
+            }
+          } catch (error) {
+            console.warn(`[CartContext] Cart fetch attempt ${retryCount + 1} failed:`, error.message);
+            if (retryCount < maxRetries - 1) {
+              // Wait 500ms before retrying to allow token to become available
+              await new Promise(resolve => setTimeout(resolve, 500));
+            }
+          }
+          retryCount++;
+        }
+
+        // FIX: Verify that the returned cart has a valid UUID ID
+        if (cart && cart.id && isValidUUID(cart.id)) {
+          get().setCart(cart);
+        } else {
+          // If backend returns invalid cart ID, create a new cart
+          console.warn('[CartContext] Backend returned invalid cart ID, creating new cart');
+          const newCart = await cartApi.getCart();
+          get().setCart(newCart);
+        }
         set({ isGuest: false, sessionId: null, isLoading: false, isInitializing: false, error: null });
         removeGuestSessionIdUtil();
         clearGuestCartFromStorageUtil();
@@ -1048,16 +1141,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     setIsMounted(true);
   }, []);
 
-  // CRIT-007: Track auth readiness by waiting for user state to stabilize
-  useEffect(() => {
-    // Give auth context time to initialize
-    const timer = setTimeout(() => {
-      setAuthReady(true);
-    }, 200);
-    return () => clearTimeout(timer);
-  }, [user]);
-
-  // CRIT-007: Async initialization with proper auth state tracking (replaced setTimeout with authReady)
+  // PRIORITY 3 & 4: Removed artificial delay and defer cart initialization
+  // Use requestIdleCallback to initialize cart in background after initial paint
   useEffect(() => {
     let isMounted = true;
 
@@ -1091,14 +1176,33 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       }
     };
 
-    if (isMounted && authReady) {
-      initializeCartAsync();
+    // PRIORITY 4: Defer cart initialization using requestIdleCallback
+    // This allows initial paint to complete before cart initialization starts
+    const scheduleInitialization = () => {
+      if (typeof requestIdleCallback !== 'undefined') {
+        requestIdleCallback(() => {
+          if (isMounted) {
+            initializeCartAsync();
+          }
+        }, { timeout: 2000 }); // Fallback timeout if idle callback never fires
+      } else {
+        // Fallback for browsers without requestIdleCallback
+        setTimeout(() => {
+          if (isMounted) {
+            initializeCartAsync();
+          }
+        }, 100);
+      }
+    };
+
+    if (isMounted) {
+      scheduleInitialization();
     }
 
     return () => {
       isMounted = false;
     };
-  }, [user, authReady, initializeCart, setCart]);
+  }, [user, initializeCart, setCart]);
 
   // Merge guest cart on login
   useEffect(() => {

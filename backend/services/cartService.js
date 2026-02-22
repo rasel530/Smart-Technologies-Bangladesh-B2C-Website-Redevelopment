@@ -2,11 +2,35 @@ const { PrismaClient } = require('@prisma/client');
 const { redisConnectionPool } = require('./redisConnectionPool');
 const { loggerService } = require('./logger');
 const { stockValidationService, BACKORDER_CONFIG } = require('./stockValidationService');
+const { cartCacheService } = require('./cartCacheService');
+const { cartQueueService } = require('./cartQueueService');
+const { cartPerformanceService } = require('./cartPerformanceService');
 const crypto = require('crypto');
 
 class CartService {
   constructor() {
-    this.prisma = new PrismaClient();
+    // Fix 1: Configure Prisma connection pool with reasonable limits
+    this.prisma = new PrismaClient({
+      log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL
+        }
+      }
+    });
+    
+    // Configure connection pool settings
+    this.prisma.$connect()
+      .then(() => {
+        this.logger.info('[CartService] Database connection established successfully');
+      })
+      .catch((error) => {
+        this.logger.error('[CartService] Failed to connect to database', {
+          error: error.message,
+          code: error.code
+        });
+      });
+    
     this.redis = redisConnectionPool.getClient('cartService');
     this.logger = loggerService;
     // Use environment variables with fallback defaults
@@ -14,6 +38,272 @@ class CartService {
     this.guestCartTTL = parseInt(process.env.CART_GUEST_TTL) || (30 * 24 * 60 * 60); // 30 days for guest carts
     this.taxRate = parseFloat(process.env.CART_TAX_RATE) || 0.15; // 15% tax rate
     this.shippingCost = parseFloat(process.env.CART_SHIPPING_COST) || 100; // Fixed shipping cost
+    
+    // Performance optimization: Initialize cache service
+    this.cacheService = cartCacheService;
+    this.queueService = cartQueueService;
+    this.performanceService = cartPerformanceService;
+    
+    // Initialize services asynchronously
+    this.initializeServices();
+    
+    // Fix 2: Circuit breaker state for Redis operations
+    // Temporarily disables cache after repeated failures
+    this.redisCircuitBreaker = {
+      isOpen: false,
+      failureCount: 0,
+      lastFailureTime: null,
+      failureThreshold: 5,      // Number of consecutive failures before opening circuit
+      resetTimeout: 60000,   // Time in ms to wait before trying again (60 seconds)
+      successCount: 0,
+      successThreshold: 3      // Number of successes needed to close circuit
+    };
+  }
+  
+  /**
+   * Initialize performance optimization services
+   */
+  async initializeServices() {
+    try {
+      await Promise.all([
+        this.cacheService.initialize(),
+        this.queueService.initialize(),
+        this.performanceService.initialize()
+      ]);
+      this.logger.info('[CartService] Performance optimization services initialized');
+    } catch (error) {
+      this.logger.warn('[CartService] Some optimization services failed to initialize', { error: error.message });
+      // Continue without optimization services
+    }
+  }
+
+  /**
+   * Fix 1: Check database connection health
+   * @returns {Promise<boolean>} True if database is healthy
+   */
+  async checkDatabaseConnection() {
+    try {
+      // Simple query to check connection
+      await this.prisma.$queryRaw`SELECT 1`;
+      return true;
+    } catch (error) {
+      this.logger.error('[checkDatabaseConnection] Database connection check failed', {
+        error: error.message,
+        code: error.code
+      });
+      return false;
+    }
+  }
+
+  /**
+   * Fix 1: Execute database query with retry logic
+   * @param {Function} queryFn - Function that executes the database query
+   * @param {Object} options - Retry options
+   * @returns {Promise<any>} Query result
+   */
+  async executeWithRetry(queryFn, options = {}) {
+    const {
+      maxRetries = 3,
+      baseDelay = 100, // Base delay in ms
+      maxDelay = 5000, // Maximum delay in ms
+      operationName = 'database operation'
+    } = options;
+
+    let lastError;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        // Check database connection before attempting query
+        const isHealthy = await this.checkDatabaseConnection();
+        if (!isHealthy) {
+          throw new Error('Database connection is not healthy');
+        }
+        
+        // Execute the query
+        const result = await queryFn();
+        
+        // Log successful retry if not first attempt
+        if (attempt > 1) {
+          this.logger.info(`[executeWithRetry] ${operationName} succeeded on attempt ${attempt}`, {
+            operationName,
+            attempt,
+            totalAttempts: maxRetries
+          });
+        }
+        
+        return result;
+      } catch (error) {
+        lastError = error;
+        
+        // Check if error is retryable
+        const isRetryable = this.isRetryableError(error);
+        
+        if (!isRetryable || attempt === maxRetries) {
+          // Don't retry or max retries reached
+          this.logger.error(`[executeWithRetry] ${operationName} failed after ${attempt} attempt(s)`, {
+            operationName,
+            attempt,
+            maxRetries,
+            error: error.message,
+            code: error.code,
+            isRetryable
+          });
+          throw error;
+        }
+        
+        // Calculate exponential backoff delay
+        const delay = Math.min(baseDelay * Math.pow(2, attempt - 1), maxDelay);
+        
+        this.logger.warn(`[executeWithRetry] ${operationName} failed on attempt ${attempt}, retrying in ${delay}ms`, {
+          operationName,
+          attempt,
+          maxRetries,
+          delay,
+          error: error.message,
+          code: error.code
+        });
+        
+        // Wait before retrying
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+    
+    // This should never be reached, but just in case
+    throw lastError;
+  }
+
+  /**
+   * Fix 1: Check if error is retryable
+   * @param {Error} error - Error to check
+   * @returns {boolean} True if error is retryable
+   */
+  isRetryableError(error) {
+    const retryableCodes = ['P1001', 'P1002', 'P1008', 'P1017', 'ECONNREFUSED', 'ETIMEDOUT'];
+    const retryableMessages = [
+      'connection',
+      'timeout',
+      'network',
+      'database is locked',
+      'too many connections'
+    ];
+    
+    // Check error code
+    if (error.code && retryableCodes.includes(error.code)) {
+      return true;
+    }
+    
+    // Check error message
+    const errorMessage = error.message?.toLowerCase() || '';
+    return retryableMessages.some(msg => errorMessage.includes(msg));
+  }
+
+  /**
+   * Fix 2: Check if Redis circuit breaker is open
+   * @returns {boolean} True if circuit is open (cache disabled)
+   */
+  isRedisCircuitBreakerOpen() {
+    const { isOpen, lastFailureTime, resetTimeout } = this.redisCircuitBreaker;
+    
+    // If circuit is open, check if enough time has passed to attempt reset
+    if (isOpen) {
+      const timeSinceLastFailure = Date.now() - lastFailureTime;
+      if (timeSinceLastFailure > resetTimeout) {
+        // Try to reset the circuit
+        this.logger.info('[isRedisCircuitBreakerOpen] Attempting to reset circuit breaker after timeout', {
+          timeSinceLastFailure,
+          resetTimeout
+        });
+        return false; // Allow attempt
+      }
+      return true; // Circuit still open
+    }
+    
+    return false; // Circuit is closed
+  }
+
+  /**
+   * Fix 2: Record Redis operation success
+   * Used to close circuit breaker after enough successes
+   */
+  recordRedisSuccess() {
+    const { isOpen, successCount, successThreshold } = this.redisCircuitBreaker;
+    
+    if (isOpen) {
+      // Increment success count
+      this.redisCircuitBreaker.successCount++;
+      
+      this.logger.info('[recordRedisSuccess] Redis operation succeeded', {
+        successCount: this.redisCircuitBreaker.successCount,
+        successThreshold
+      });
+      
+      // Check if we have enough successes to close the circuit
+      if (this.redisCircuitBreaker.successCount >= successThreshold) {
+        this.redisCircuitBreaker.isOpen = false;
+        this.redisCircuitBreaker.failureCount = 0;
+        this.redisCircuitBreaker.successCount = 0;
+        this.redisCircuitBreaker.lastFailureTime = null;
+        
+        this.logger.info('[recordRedisSuccess] Redis circuit breaker closed', {
+          successCount: this.redisCircuitBreaker.successCount
+        });
+      }
+    } else {
+      // Reset success count if circuit is closed
+      this.redisCircuitBreaker.successCount = 0;
+    }
+  }
+
+  /**
+   * Fix 2: Record Redis operation failure
+   * Used to open circuit breaker after too many failures
+   */
+  recordRedisFailure(error) {
+    const { isOpen, failureCount, failureThreshold } = this.redisCircuitBreaker;
+    
+    // Increment failure count
+    this.redisCircuitBreaker.failureCount++;
+    this.redisCircuitBreaker.lastFailureTime = Date.now();
+    
+    this.logger.warn('[recordRedisFailure] Redis operation failed', {
+      failureCount: this.redisCircuitBreaker.failureCount,
+      failureThreshold,
+      error: error.message,
+      errorName: error.name
+    });
+    
+    // Check if we should open the circuit
+    if (!isOpen && this.redisCircuitBreaker.failureCount >= failureThreshold) {
+      this.redisCircuitBreaker.isOpen = true;
+      this.redisCircuitBreaker.successCount = 0;
+      
+      this.logger.error('[recordRedisFailure] Redis circuit breaker opened due to repeated failures', {
+        failureCount: this.redisCircuitBreaker.failureCount,
+        failureThreshold
+      });
+    }
+  }
+
+  /**
+   * Fix 2: Check Redis connection health
+   * @returns {Promise<boolean>} True if Redis is healthy
+   */
+  async checkRedisConnection() {
+    try {
+      if (!this.redis) {
+        return false;
+      }
+      
+      // Simple ping to check connection
+      const result = await this.redis.ping();
+      return result === 'PONG';
+    } catch (error) {
+      this.logger.warn('[checkRedisConnection] Redis connection check failed', {
+        error: error.message,
+        errorName: error.name
+      });
+      return false;
+    }
   }
 
   // Generate cache key for cart
@@ -26,109 +316,149 @@ class CartService {
     return `cart:${cartId}:items`;
   }
 
-  // Get cart for user or guest
-  async getCart(userId, sessionId) {
-    // Fix for Issue 3: GET /api/v1/cart 500 Internal Server Error
-    // Added detailed logging and error handling for database operations
+  /**
+   * Get cart by cart ID with performance optimization
+   * Uses cache-first pattern with fallback to database
+   * @param {string} cartId - The cart ID to fetch
+   * @returns {Promise<Object>} The cart with items and totals
+   */
+  async getCartById(cartId) {
+    const startTime = Date.now();
+    
     try {
-      this.logger.info('Fetching cart from database', { userId, sessionId });
+      this.logger.info('Fetching cart by ID', { cartId });
       
-      let cart;
+      // Performance optimization: Try cache first
+      let cart = null;
+      let cacheHit = false;
+      
+      if (this.cacheService.isInitialized) {
+        try {
+          const cachedCart = await this.cacheService.getCart(cartId, { isGuest: false });
+          if (cachedCart) {
+            cart = cachedCart;
+            cacheHit = true;
+            this.logger.info('[getCartById] Cart served from cache', { cartId });
+          }
+        } catch (cacheError) {
+          this.logger.warn('[getCartById] Cache retrieval failed, falling back to database', { error: cacheError.message });
+        }
+      }
+      
+      // Fetch from database with retry logic if cache miss
+      if (!cart) {
+        cart = await this.executeWithRetry(
+          () => this._fetchCartByIdFromDatabase(cartId),
+          {
+            maxRetries: 3,
+            baseDelay: 100,
+            maxDelay: 5000,
+            operationName: 'fetchCartByIdFromDatabase'
+          }
+        );
+        
+        // Cache result for future requests
+        if (cart && this.cacheService.isInitialized) {
+          try {
+            await this.cacheService.setCart(cart.id, cart, { isGuest: false });
+          } catch (cacheError) {
+            this.logger.warn('[getCartById] Failed to cache cart', { error: cacheError.message });
+          }
+        }
+      }
+      
+      // Track performance metrics
+      const duration = Date.now() - startTime;
+      if (this.performanceService.isInitialized) {
+        this.performanceService.trackCartLoadTime(duration, {
+          cartId,
+          cacheHit,
+          itemCount: cart?.items?.length || 0
+        });
+      }
+      
+      return cart;
+    } catch (error) {
+      this.logger.error('Error fetching cart by ID', { 
+        cartId, 
+        error: error.message,
+        errorName: error.name,
+        errorCode: error.code,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
+      throw error;
+    }
+  }
 
-      // DEBUG: Log cache status
-      this.logger.info('[getCart] Checking cache before fetching cart', { userId, sessionId });
-
-      if (userId) {
-        // Get user's cart
-        this.logger.info('Fetching user cart', { userId });
-        cart = await this.prisma.cart.findUnique({
-          where: { userId },
-          include: {
-            items: {
-              include: {
-                product: {
-                  include: {
-                    images: {
-                      where: { displayOrder: 0 },
-                      take: 1,
-                      select: { id: true, originalUrl: true, optimizedUrl: true, thumbnailUrl: true, altTextEn: true, altTextBn: true }
-                    }
+  /**
+   * Internal method to fetch cart by ID from database
+   * @private
+   */
+  async _fetchCartByIdFromDatabase(cartId) {
+    try {
+      // Get cart by ID using optimized query
+      const cart = await this.prisma.cart.findUnique({
+        where: { id: cartId },
+        include: {
+          items: {
+            include: {
+              product: {
+                select: {
+                  id: true,
+                  name: true,
+                  nameEn: true,
+                  nameBn: true,
+                  regularPrice: true,
+                  salePrice: true,
+                  stockQuantity: true,
+                  images: {
+                    where: { displayOrder: 0 },
+                    take: 1,
+                    select: { id: true, originalUrl: true, optimizedUrl: true, thumbnailUrl: true, altTextEn: true, altTextBn: true }
                   }
-                },
-                variant: true
+                }
+              },
+              variant: {
+                select: {
+                  id: true,
+                  sku: true,
+                  price: true,
+                  stock: true
+                }
+              }
+            },
+            orderBy: { addedAt: 'desc' }
           },
-          orderBy: { addedAt: 'desc' }
-        },
-        analytics: true
-      }
-        });
-        this.logger.info('User cart fetched', { userId, cartFound: !!cart });
-        // Debug logging for Fix 2: Cart items from database
-        this.logger.info('[getCart] Cart items from database', {
-          userId,
-          sessionId,
-          itemCount: cart?.items?.length
-        });
-      } else if (sessionId) {
-        // Get guest cart
-        this.logger.info('Fetching guest cart', { sessionId });
-        cart = await this.prisma.cart.findFirst({
-          where: { sessionId },
-          include: {
-            items: {
-              include: {
-                product: {
-                  include: {
-                    images: {
-                      where: { displayOrder: 0 },
-                      take: 1,
-                      select: { id: true, originalUrl: true, optimizedUrl: true, thumbnailUrl: true, altTextEn: true, altTextBn: true }
-                    }
-                  }
-                },
-                variant: true
-          },
-          orderBy: { addedAt: 'desc' }
-        },
-        analytics: true
-      }
-        });
-        this.logger.info('Guest cart fetched', { sessionId, cartFound: !!cart });
-        // Debug logging for Fix 2: Cart items from database
-        this.logger.info('[getCart] Cart items from database', {
-          userId,
-          sessionId,
-          itemCount: cart?.items?.length
-        });
-      }
+          analytics: true
+        }
+      });
 
       if (!cart) {
-        this.logger.info('No cart found in database', { userId, sessionId });
+        this.logger.info('No cart found in database by ID', { cartId });
         return null;
       }
 
-      // FIX: Recalculate cart item prices based on current product sale prices FIRST
-      // This ensures existing items show correct discounted prices BEFORE calculating totals
-      this.logger.info('[getCart] Recalculating cart item prices', { cartId: cart.id });
+      // Recalculate cart item prices based on current product sale prices
+      this.logger.info('[getCartById] Recalculating cart item prices', { cartId });
       const priceRecalculationResult = await this.recalculateCartItemPrices(cart.id);
       
-      // SAFEGUARD: Log price recalculation summary
-      this.logger.info('[getCart] Price recalculation summary', {
-        cartId: cart.id,
+      // Log price recalculation summary
+      this.logger.info('[getCartById] Price recalculation summary', {
+        cartId,
         itemsUpdated: priceRecalculationResult.itemsUpdated,
         timestamp: new Date().toISOString()
       });
 
-      // Calculate totals AFTER prices have been updated
-      this.logger.info('[getCart] Calculating cart totals', { cartId: cart.id });
+      // Calculate totals after prices have been updated
+      this.logger.info('[getCartById] Calculating cart totals', { cartId });
       const totals = await this.calculateCartTotals(cart.id);
       
-      // SAFEGUARD: Verify totals match expected values based on item prices
+      // Verify totals match expected values based on item prices
       const expectedSubtotal = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       const subtotalMatches = Math.abs(totals.subtotal - expectedSubtotal) < 0.01;
       
-      this.logger.info('[getCart] Cart totals calculated and verified', {
-        cartId: cart.id,
+      this.logger.info('[getCartById] Cart totals calculated and verified', {
+        cartId,
         calculatedSubtotal: totals.subtotal,
         expectedSubtotal: expectedSubtotal,
         subtotalMatches,
@@ -137,10 +467,10 @@ class CartService {
         timestamp: new Date().toISOString()
       });
 
-      // SAFEGUARD: If subtotal doesn't match, recalculate again
+      // If subtotal doesn't match, recalculate again
       if (!subtotalMatches) {
-        this.logger.warn('[getCart] Subtotal mismatch detected, recalculating...', {
-          cartId: cart.id,
+        this.logger.warn('[getCartById] Subtotal mismatch detected, recalculating...', {
+          cartId,
           calculatedSubtotal: totals.subtotal,
           expectedSubtotal: expectedSubtotal,
           difference: totals.subtotal - expectedSubtotal
@@ -148,8 +478,8 @@ class CartService {
         
         // Force recalculate totals
         const correctedTotals = await this.calculateCartTotals(cart.id);
-        this.logger.info('[getCart] Corrected totals after mismatch', {
-          cartId: cart.id,
+        this.logger.info('[getCartById] Corrected totals after mismatch', {
+          cartId,
           originalSubtotal: totals.subtotal,
           correctedSubtotal: correctedTotals.subtotal
         });
@@ -165,9 +495,8 @@ class CartService {
         ...totals
       };
     } catch (error) {
-      this.logger.error('Error fetching cart from database', {
-        userId,
-        sessionId,
+      this.logger.error('Error fetching cart from database by ID', {
+        cartId,
         error: error.message,
         errorType: error.name,
         stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
@@ -182,7 +511,280 @@ class CartService {
     }
   }
 
-  // Create new cart
+  /**
+   * Get cart for user or guest with performance optimization
+   * Uses cache-first pattern with fallback to database
+   */
+  async getCart(userId, sessionId) {
+    const startTime = Date.now();
+    const cartId = userId || sessionId;
+    
+    try {
+      this.logger.info('Fetching cart', { userId, sessionId });
+      
+      // Performance optimization: Try cache first
+      let cart = null;
+      let cacheHit = false;
+      
+      if (this.cacheService.isInitialized) {
+        try {
+          const cachedCart = await this.cacheService.getCart(cartId, { isGuest: !userId });
+          if (cachedCart) {
+            cart = cachedCart;
+            cacheHit = true;
+            this.logger.info('[getCart] Cart served from cache', { userId, sessionId });
+          }
+        } catch (cacheError) {
+          this.logger.warn('[getCart] Cache retrieval failed, falling back to database', { error: cacheError.message });
+        }
+      }
+      
+      // Fix 1: Fetch from database with retry logic if cache miss
+      if (!cart) {
+        cart = await this.executeWithRetry(
+          () => this._fetchCartFromDatabase(userId, sessionId),
+          {
+            maxRetries: 3,
+            baseDelay: 100,
+            maxDelay: 5000,
+            operationName: 'fetchCartFromDatabase'
+          }
+        );
+        
+        // Cache the result for future requests
+        if (cart && this.cacheService.isInitialized) {
+          try {
+            await this.cacheService.setCart(cart.id, cart, { isGuest: !userId });
+          } catch (cacheError) {
+            this.logger.warn('[getCart] Failed to cache cart', { error: cacheError.message });
+          }
+        }
+      }
+      
+      // Track performance metrics
+      const duration = Date.now() - startTime;
+      if (this.performanceService.isInitialized) {
+        this.performanceService.trackCartLoadTime(duration, {
+          userId,
+          sessionId,
+          cacheHit,
+          itemCount: cart?.items?.length || 0
+        });
+      }
+      
+      // Calculate and verify cart totals
+      if (cart && cart.items) {
+        const calculatedSubtotal = cart.items.reduce((sum, item) => {
+          const price = parseFloat(item.price || item.product?.price || 0);
+          const quantity = parseInt(item.quantity) || 0;
+          return sum + (price * quantity);
+        }, 0);
+        
+        const calculatedTotal = calculatedSubtotal + (cart.shippingCost || this.shippingCost);
+        
+        this.logger.info('[getCart] Cart totals calculated', {
+          calculatedSubtotal,
+          calculatedTotal,
+          dbSubtotal: cart.subtotal,
+          dbTotal: cart.total
+        });
+        
+        // Return cart with calculated totals for consistency
+        return {
+          ...cart,
+          subtotal: calculatedSubtotal,
+          total: calculatedTotal,
+          calculatedAt: new Date().toISOString()
+        };
+      }
+      
+      return cart;
+    } catch (error) {
+      // Fix 1: Enhanced error logging with full error details
+      this.logger.error('Error fetching cart', { 
+        userId, 
+        sessionId, 
+        error: error.message,
+        errorName: error.name,
+        errorCode: error.code,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
+      throw error;
+    }
+  }
+  
+  /**
+   * Internal method to fetch cart from database
+   * @private
+   */
+  async _fetchCartFromDatabase(userId, sessionId) {
+    let cart;
+    
+    if (userId) {
+      // Get user's cart using optimized query
+      cart = await this.prisma.cart.findUnique({
+        where: { userId },
+        include: {
+          items: {
+            include: {
+              product: {
+                select: {
+                  id: true,
+                  name: true,
+                  nameEn: true,
+                  nameBn: true,
+                  regularPrice: true,
+                  salePrice: true,
+                  stockQuantity: true,
+                  images: {
+                    where: { displayOrder: 0 },
+                    take: 1,
+                    select: { id: true, originalUrl: true, optimizedUrl: true, thumbnailUrl: true, altTextEn: true, altTextBn: true }
+                  }
+                }
+              },
+              variant: {
+                select: {
+                  id: true,
+                  sku: true,
+                  price: true,
+                  stock: true
+                }
+              }
+            },
+            orderBy: { addedAt: 'desc' }
+          },
+          analytics: true
+        }
+      });
+    } else if (sessionId) {
+      // Get guest cart using optimized query
+      cart = await this.prisma.cart.findFirst({
+        where: { sessionId },
+        include: {
+          items: {
+            include: {
+              product: {
+                select: {
+                  id: true,
+                  name: true,
+                  nameEn: true,
+                  nameBn: true,
+                  regularPrice: true,
+                  salePrice: true,
+                  stockQuantity: true,
+                  images: {
+                    where: { displayOrder: 0 },
+                    take: 1,
+                    select: { id: true, originalUrl: true, optimizedUrl: true, thumbnailUrl: true, altTextEn: true, altTextBn: true }
+                  }
+                }
+              },
+              variant: {
+                select: {
+                  id: true,
+                  sku: true,
+                  price: true,
+                  stock: true
+                }
+              }
+            },
+            orderBy: { addedAt: 'desc' }
+          },
+          analytics: true
+        }
+      });
+    }
+
+    // Debug logging for Fix 2: Cart items from database
+    this.logger.info('[getCart] Cart items from database', {
+      userId,
+      sessionId,
+      itemCount: cart?.items?.length
+    });
+
+    if (!cart) {
+      this.logger.info('No cart found in database', { userId, sessionId });
+      return null;
+    }
+
+    // FIX: Recalculate cart item prices based on current product sale prices FIRST
+    // This ensures existing items show correct discounted prices BEFORE calculating totals
+    this.logger.info('[getCart] Recalculating cart item prices', { cartId: cart.id });
+    const priceRecalculationResult = await this.recalculateCartItemPrices(cart.id);
+    
+    // SAFEGUARD: Log price recalculation summary
+    this.logger.info('[getCart] Price recalculation summary', {
+      cartId: cart.id,
+      itemsUpdated: priceRecalculationResult.itemsUpdated,
+      timestamp: new Date().toISOString()
+    });
+
+    // Calculate totals AFTER prices have been updated
+    this.logger.info('[getCart] Calculating cart totals', { cartId: cart.id });
+    const totals = await this.calculateCartTotals(cart.id);
+    
+    // SAFEGUARD: Verify totals match expected values based on item prices
+    const expectedSubtotal = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const subtotalMatches = Math.abs(totals.subtotal - expectedSubtotal) < 0.01;
+    
+    this.logger.info('[getCart] Cart totals calculated and verified', {
+      cartId: cart.id,
+      calculatedSubtotal: totals.subtotal,
+      expectedSubtotal: expectedSubtotal,
+      subtotalMatches,
+      itemCount: totals.itemCount,
+      totalItems: totals.totalItems,
+      timestamp: new Date().toISOString()
+    });
+
+    // SAFEGUARD: If subtotal doesn't match, recalculate again
+    if (!subtotalMatches) {
+      this.logger.warn('[getCart] Subtotal mismatch detected, recalculating...', {
+        cartId: cart.id,
+        calculatedSubtotal: totals.subtotal,
+        expectedSubtotal: expectedSubtotal,
+        difference: totals.subtotal - expectedSubtotal
+      });
+      
+      // Force recalculate totals
+      const correctedTotals = await this.calculateCartTotals(cart.id);
+      this.logger.info('[getCart] Corrected totals after mismatch', {
+        cartId: cart.id,
+        originalSubtotal: totals.subtotal,
+        correctedSubtotal: correctedTotals.subtotal
+      });
+      
+      return {
+        ...cart,
+        ...correctedTotals
+      };
+    }
+
+    return {
+      ...cart,
+      ...totals
+    };
+  } catch (error) {
+    this.logger.error('Error fetching cart from database', {
+      userId,
+      sessionId,
+      error: error.message,
+      errorType: error.name,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+    
+    // Check if it's a database connection error
+    if (error.message.includes('connect') || error.message.includes('ECONNREFUSED') || error.code === 'P1001') {
+      throw new Error('Database connection failed. Please try again later.');
+    }
+    
+    throw error;
+  }
+
+  /**
+   * Create new cart
+   */
   async createCart(userId, sessionId) {
     try {
       const cartData = {
@@ -589,7 +1191,8 @@ class CartService {
         cartId: result.cartId
       });
 
-      return { success: true };
+      // Return cartId so controller can fetch the updated cart
+      return { success: true, cartId: result.cartId };
     } catch (error) {
       this.logger.error('Error removing cart item', {
         cartItemId,
@@ -1610,14 +2213,26 @@ class CartService {
 
   // Invalidate cart cache
   async invalidateCartCache(cartId) {
-    // Fix for Issue 3: GET /api/v1/cart 500 Internal Server Error
-    // Added detailed logging and error handling for Redis operations
+    // Fix 2: Performance optimization with circuit breaker pattern
     try {
+      if (this.cacheService?.isInitialized) {
+        await this.cacheService.invalidateCart(cartId);
+        this.logger.info('[invalidateCartCache] Cache invalidated via cartCacheService', { cartId });
+        return;
+      }
+      
+      // Fix 2: Check if Redis circuit breaker is open
+      if (this.isRedisCircuitBreakerOpen()) {
+        this.logger.warn('[invalidateCartCache] Redis circuit breaker is open, skipping cache invalidation', { cartId });
+        return;
+      }
+      
+      // Fallback to legacy Redis client
       if (!this.redis) {
         this.logger.warn('Redis client not available for invalidating cart cache', { cartId });
         return;
       }
-
+      
       // Check if Redis is connected before attempting to invalidate
       try {
         await this.redis.ping();
@@ -1626,15 +2241,17 @@ class CartService {
           cartId,
           error: pingError.message
         });
+        this.recordRedisFailure(pingError);
         return;
       }
-
+      
       const cacheKey = this.getCacheKey(cartId);
       const itemsCacheKey = this.getCartItemsCacheKey(cartId);
-
+      
       await this.redis.del(cacheKey);
       await this.redis.del(itemsCacheKey);
       this.logger.info('Cart cache invalidated successfully', { cartId });
+      this.recordRedisSuccess();
     } catch (error) {
       this.logger.warn('Error invalidating cart cache, continuing without cache', {
         cartId,
@@ -1642,6 +2259,7 @@ class CartService {
         errorType: error.name,
         stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
       });
+      this.recordRedisFailure(error);
       // Continue execution even if cache invalidation fails
     }
   }
@@ -1692,14 +2310,20 @@ class CartService {
 
   // Get cart from cache
   async getCartFromCache(cartId) {
-    // Fix for Issue 3: GET /api/v1/cart 500 Internal Server Error
-    // Added detailed logging and error handling for Redis operations
+    // Fix 2: GET /api/v1/cart 500 Internal Server Error
+    // Added circuit breaker pattern and enhanced error handling for Redis operations
     try {
+      // Fix 2: Check if Redis circuit breaker is open
+      if (this.isRedisCircuitBreakerOpen()) {
+        this.logger.warn('[getCartFromCache] Redis circuit breaker is open, skipping cache', { cartId });
+        return null;
+      }
+      
       if (!this.redis) {
         this.logger.warn('Redis client not available for cart cache', { cartId });
         return null;
       }
-
+      
       // Check if Redis is connected
       try {
         await this.redis.ping();
@@ -1708,17 +2332,19 @@ class CartService {
           cartId,
           error: pingError.message
         });
+        this.recordRedisFailure(pingError);
         return null;
       }
-
+      
       const cacheKey = this.getCacheKey(cartId);
       const cachedData = await this.redis.get(cacheKey);
-
+      
       if (cachedData) {
         this.logger.info('Cart retrieved from cache', { cartId });
+        this.recordRedisSuccess();
         return JSON.parse(cachedData);
       }
-
+      
       this.logger.info('Cart not found in cache', { cartId });
       return null;
     } catch (error) {
@@ -1728,20 +2354,27 @@ class CartService {
         errorType: error.name,
         stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
       });
+      this.recordRedisFailure(error);
       return null;
     }
   }
 
   // Set cart in cache
   async setCartInCache(cartId, cartData) {
-    // Fix for Issue 3: GET /api/v1/cart 500 Internal Server Error
-    // Added detailed logging and error handling for Redis operations
+    // Fix 2: GET /api/v1/cart 500 Internal Server Error
+    // Added circuit breaker pattern and enhanced error handling for Redis operations
     try {
+      // Fix 2: Check if Redis circuit breaker is open
+      if (this.isRedisCircuitBreakerOpen()) {
+        this.logger.warn('[setCartInCache] Redis circuit breaker is open, skipping cache operation', { cartId });
+        return;
+      }
+      
       if (!this.redis) {
         this.logger.warn('Redis client not available for setting cart cache', { cartId });
         return;
       }
-
+      
       // Check if Redis is connected before attempting to cache
       try {
         await this.redis.ping();
@@ -1750,12 +2383,14 @@ class CartService {
           cartId,
           error: pingError.message
         });
+        this.recordRedisFailure(pingError);
         return;
       }
-
+      
       const cacheKey = this.getCacheKey(cartId);
       await this.redis.setEx(cacheKey, this.cacheTTL, JSON.stringify(cartData));
       this.logger.info('Cart cached successfully', { cartId, ttl: this.cacheTTL });
+      this.recordRedisSuccess();
     } catch (error) {
       this.logger.warn('Error setting cart in cache, continuing without cache', {
         cartId,
@@ -1763,6 +2398,7 @@ class CartService {
         errorType: error.name,
         stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
       });
+      this.recordRedisFailure(error);
       // Continue execution even if caching fails
     }
   }
@@ -2285,6 +2921,246 @@ class CartService {
         error: error.message
       });
       return { allowed: false, error: error.message };
+    }
+  }
+  
+  /**
+   * Performance optimization: Queue-based cart operations
+   * These methods use the cart queue service for high-throughput scenarios
+   */
+  
+  /**
+   * Queue an add item operation for async processing
+   * Useful for bulk operations or high-traffic scenarios
+   */
+  async queueAddItem(cartId, productId, quantity, variantId = null, options = {}) {
+    const startTime = Date.now();
+    
+    try {
+      if (!this.queueService?.isInitialized) {
+        // Fallback to synchronous operation
+        return await this.addItemToCart(cartId, productId, quantity, variantId);
+      }
+      
+      const job = await this.queueService.enqueueOperation(cartId, 'addItem', {
+        productId,
+        quantity,
+        variantId
+      }, options);
+      
+      // Track performance
+      if (this.performanceService?.isInitialized) {
+        this.performanceService.trackDatabaseQueryTime(Date.now() - startTime, {
+          operation: 'queueAddItem',
+          cartId
+        });
+      }
+      
+      return {
+        queued: true,
+        jobId: job.id,
+        status: job.status,
+        message: 'Item addition queued for processing'
+      };
+    } catch (error) {
+      this.logger.error('[queueAddItem] Failed to queue operation', {
+        cartId,
+        productId,
+        error: error.message
+      });
+      // Fallback to synchronous operation
+      return await this.addItemToCart(cartId, productId, quantity, variantId);
+    }
+  }
+  
+  /**
+   * Queue an update item operation for async processing
+   */
+  async queueUpdateItem(cartItemId, quantity, options = {}) {
+    const startTime = Date.now();
+    
+    try {
+      if (!this.queueService?.isInitialized) {
+        return await this.updateCartItemQuantity(cartItemId, quantity);
+      }
+      
+      // Get cart item to find cartId
+      const cartItem = await this.prisma.cartItem.findUnique({
+        where: { id: cartItemId },
+        select: { cartId: true }
+      });
+      
+      if (!cartItem) {
+        throw new Error('Cart item not found');
+      }
+      
+      const job = await this.queueService.enqueueOperation(cartItem.cartId, 'updateItem', {
+        cartItemId,
+        quantity
+      }, options);
+      
+      if (this.performanceService?.isInitialized) {
+        this.performanceService.trackDatabaseQueryTime(Date.now() - startTime, {
+          operation: 'queueUpdateItem',
+          cartItemId
+        });
+      }
+      
+      return {
+        queued: true,
+        jobId: job.id,
+        status: job.status,
+        message: 'Item update queued for processing'
+      };
+    } catch (error) {
+      this.logger.error('[queueUpdateItem] Failed to queue operation', {
+        cartItemId,
+        error: error.message
+      });
+      return await this.updateCartItemQuantity(cartItemId, quantity);
+    }
+  }
+  
+  /**
+   * Queue a remove item operation for async processing
+   */
+  async queueRemoveItem(cartItemId, options = {}) {
+    const startTime = Date.now();
+    
+    try {
+      if (!this.queueService?.isInitialized) {
+        return await this.removeCartItem(cartItemId);
+      }
+      
+      // Get cart item to find cartId
+      const cartItem = await this.prisma.cartItem.findUnique({
+        where: { id: cartItemId },
+        select: { cartId: true }
+      });
+      
+      if (!cartItem) {
+        throw new Error('Cart item not found');
+      }
+      
+      const job = await this.queueService.enqueueOperation(cartItem.cartId, 'removeItem', {
+        cartItemId
+      }, options);
+      
+      if (this.performanceService?.isInitialized) {
+        this.performanceService.trackDatabaseQueryTime(Date.now() - startTime, {
+          operation: 'queueRemoveItem',
+          cartItemId
+        });
+      }
+      
+      return {
+        queued: true,
+        jobId: job.id,
+        status: job.status,
+        message: 'Item removal queued for processing'
+      };
+    } catch (error) {
+      this.logger.error('[queueRemoveItem] Failed to queue operation', {
+        cartItemId,
+        error: error.message
+      });
+      return await this.removeCartItem(cartItemId);
+    }
+  }
+  
+  /**
+   * Batch update multiple cart items
+   * Uses queue service for efficient processing
+   */
+  async batchUpdateCartItems(cartId, updates, options = {}) {
+    const startTime = Date.now();
+    
+    try {
+      if (!this.queueService?.isInitialized) {
+        // Process synchronously
+        const results = [];
+        for (const update of updates) {
+          const result = await this.updateCartItemQuantity(update.cartItemId, update.quantity);
+          results.push(result);
+        }
+        return { processed: results.length, results };
+      }
+      
+      // Use batch update via queue service
+      const result = await this.queueService.batchUpdateCart(cartId, updates, options);
+      
+      // Invalidate cache after batch update
+      await this.invalidateCartCache(cartId);
+      
+      if (this.performanceService?.isInitialized) {
+        this.performanceService.trackDatabaseQueryTime(Date.now() - startTime, {
+          operation: 'batchUpdateCartItems',
+          cartId,
+          itemCount: updates.length
+        });
+      }
+      
+      return result;
+    } catch (error) {
+      this.logger.error('[batchUpdateCartItems] Failed to process batch update', {
+        cartId,
+        error: error.message
+      });
+      throw error;
+    }
+  }
+  
+  /**
+   * Get performance metrics for cart operations
+   */
+  getPerformanceMetrics() {
+    const metrics = {
+      cache: this.cacheService?.getStats() || null,
+      queue: this.queueService?.getQueueStatus() || null,
+      performance: this.performanceService?.getMetrics() || null
+    };
+    
+    return metrics;
+  }
+  
+  /**
+   * Warm cache for frequently accessed carts
+   */
+  async warmCacheForActiveCarts(limit = 100) {
+    try {
+      if (!this.cacheService?.isInitialized) {
+        this.logger.warn('[warmCacheForActiveCarts] Cache service not initialized');
+        return { warmed: 0 };
+      }
+      
+      // Get recently active carts
+      const activeCarts = await this.prisma.cart.findMany({
+        where: {
+          updatedAt: {
+            gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // Last 24 hours
+          }
+        },
+        take: limit,
+        select: { id: true, userId: true, sessionId: true }
+      });
+      
+      const results = await this.cacheService.warmCache(activeCarts.map(c => ({
+        cartId: c.id,
+        isGuest: !c.userId
+      })));
+      
+      this.logger.info('[warmCacheForActiveCarts] Cache warming completed', {
+        requested: activeCarts.length,
+        warmed: results.warmed,
+        errors: results.errors
+      });
+      
+      return results;
+    } catch (error) {
+      this.logger.error('[warmCacheForActiveCarts] Failed to warm cache', {
+        error: error.message
+      });
+      return { warmed: 0, errors: 1, error: error.message };
     }
   }
 }

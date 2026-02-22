@@ -127,6 +127,7 @@ const cartRoutes = require('./routes/cart');
 const wishlistRoutes = require('./routes/wishlistRoutes');
 // Import admin cart routes - Fix for Issue 1: GET /api/v1/admin/carts 404 Not Found
 const adminCartRoutes = require('./routes/admin/cart');
+const analyticsCartRoutes = require('./routes/analytics/cart');
 const reviewRoutes = require('./routes/reviews');
 const couponRoutes = require('./routes/coupons');
 const routeIndex = require('./routes/index');
@@ -153,6 +154,18 @@ const { router: searchPerformanceRoutes, initializeSearchPerformanceController }
 const { router: searchOptimizationRoutes, initializeSearchOptimizationController } = require('./routes/searchOptimization');
 const { router: searchPersonalizationRoutes, initializeSearchPersonalizationController } = require('./routes/searchPersonalization');
 const { router: searchTrendingRoutes, initializeSearchTrendingController } = require('./routes/searchTrending');
+
+// Import Milestone 5 Bangladesh-Specific Cart Features routes
+const emiRoutes = require('./routes/emi');
+const codRoutes = require('./routes/cod');
+const localPaymentRoutes = require('./routes/localPayment');
+const adminCodRoutes = require('./routes/admin/cod');
+const adminEmiRoutes = require('./routes/admin/emi');
+const adminLocalPaymentRoutes = require('./routes/admin/localPayment');
+const adminMobileRoutes = require('./routes/admin/mobileCart');
+
+// Import Mobile Optimization routes
+const mobileRoutes = require('./routes/mobile');
 
 const app = express();
 const PORT = configService.get('PORT');
@@ -288,7 +301,7 @@ app.use((req, res, next) => {
 });
 
 // Enhanced JSON parsing with error handling - MUST be before routes
-app.use(express.json({ limit: '10mb', strict: false }));
+app.use(express.json({ limit: '10mb', strict: false, type: 'application/json' }));
 
 // JSON parsing diagnostic middleware - after express.json()
 app.use((req, res, next) => {
@@ -382,61 +395,6 @@ app.use(authMiddleware.requestId());
 // General rate limiting
 app.use(authMiddleware.rateLimit());
 
-// Multer error handler middleware - MUST be before routes that use file uploads
-app.use((err, req, res, next) => {
-  // Check if this is a Multer-related error
-  const isMulterError = err.name === 'MulterError' || 
-                        err.code === 'LIMIT_FILE_SIZE' || 
-                        err.code === 'LIMIT_UNEXPECTED_FILE' || 
-                        err.code === 'LIMIT_FILE_COUNT' ||
-                        err.code === 'INVALID_FILE_TYPE' ||
-                        (err.message && err.message.includes('Invalid file type'));
-
-  if (isMulterError) {
-    console.error('[MULTER ERROR HANDLER] Multer error caught:', {
-      name: err.name,
-      code: err.code,
-      message: err.message,
-      field: err.fieldName || err.field,
-      url: req.originalUrl,
-      method: req.method,
-      timestamp: new Date().toISOString()
-    });
-
-    let statusCode = 400;
-    let errorMessage = 'File upload error';
-
-    if (err.code === 'LIMIT_FILE_SIZE') {
-      statusCode = 413; // Payload Too Large
-      errorMessage = 'File size exceeds 10MB limit';
-    } else if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-      statusCode = 400;
-      errorMessage = 'Unexpected file field';
-    } else if (err.code === 'LIMIT_FILE_COUNT') {
-      statusCode = 400;
-      errorMessage = 'Too many files uploaded';
-    } else if (err.code === 'INVALID_FILE_TYPE') {
-      statusCode = 400;
-      errorMessage = err.message || 'Invalid file type. Only PDF, DOC, DOCX, JPG, PNG, and TXT files are allowed.';
-    } else if (err.message && err.message.includes('Invalid file type')) {
-      statusCode = 400;
-      errorMessage = err.message || 'Invalid file type. Only PDF, DOC, DOCX, JPG, PNG, and TXT files are allowed.';
-    }
-
-    return res.status(statusCode).json({
-      error: errorMessage,
-      code: err.code,
-      field: err.fieldName || err.field,
-      details: process.env.NODE_ENV === 'development' ? {
-        originalName: err.originalName,
-        mimetype: err.mimetype,
-        message: err.message
-      } : undefined
-    });
-  }
-
-  next(err); // Pass to next error handler if not a Multer error
-});
 
 // API routes - Mount with /api prefix
 app.use('/api', routeIndex);
@@ -464,6 +422,9 @@ app.use('/api/v1/corporate', corporateRoutes);
 // Admin cart routes - Fix for Issue 1: GET /api/v1/admin/carts 404 Not Found
 app.use('/api/v1/admin/carts', adminCartRoutes);
 
+// Cart analytics routes
+app.use('/api/v1/analytics/cart', analyticsCartRoutes);
+
 // Elasticsearch admin routes
 app.use('/api/v1/admin/elasticsearch', elasticsearchRoutes);
 
@@ -482,12 +443,26 @@ app.use('/api/v1/admin/search', adminSearchRoutes);
 // Admin product image management routes
 app.use('/api/v1/admin/products', adminProductImagesRoutes);
 
+// Milestone 5 Bangladesh-Specific Cart Features - Admin routes
+app.use('/api/v1/admin/cod', adminCodRoutes);
+app.use('/api/v1/admin/emi', adminEmiRoutes);
+app.use('/api/v1/admin/local-payment', adminLocalPaymentRoutes);
+app.use('/api/v1/admin/mobile', adminMobileRoutes);
+
 // Search analytics, performance, optimization, personalization, and trending routes
 app.use('/api/v1/search-analytics', searchAnalyticsRoutes);
 app.use('/api/v1/search-performance', searchPerformanceRoutes);
 app.use('/api/v1/search-optimization', searchOptimizationRoutes);
 app.use('/api/v1/search-personalization', searchPersonalizationRoutes);
 app.use('/api/v1/search-trending', searchTrendingRoutes);
+
+// Milestone 5 Bangladesh-Specific Cart Features - Public routes
+app.use('/api/v1/emi', emiRoutes);
+app.use('/api/v1/cod', codRoutes);
+app.use('/api/v1/local-payment', localPaymentRoutes);
+
+// Mobile Optimization routes
+app.use('/api/v1/mobile', mobileRoutes);
 
 // Basic route
 app.get('/', (req, res) => {
@@ -672,6 +647,62 @@ app.get('/api-docs', (req, res) => {
       timestamp: new Date().toISOString()
     });
   }
+});
+
+// Multer error handler middleware - MUST be after routes and before other error handlers
+app.use((err, req, res, next) => {
+  // Check if this is a Multer-related error
+  const isMulterError = err.name === 'MulterError' ||
+                        err.code === 'LIMIT_FILE_SIZE' ||
+                        err.code === 'LIMIT_UNEXPECTED_FILE' ||
+                        err.code === 'LIMIT_FILE_COUNT' ||
+                        err.code === 'INVALID_FILE_TYPE' ||
+                        (err.message && err.message.includes('Invalid file type'));
+
+  if (isMulterError) {
+    console.error('[MULTER ERROR HANDLER] Multer error caught:', {
+      name: err.name,
+      code: err.code,
+      message: err.message,
+      field: err.fieldName || err.field,
+      url: req.originalUrl,
+      method: req.method,
+      timestamp: new Date().toISOString()
+    });
+
+    let statusCode = 400;
+    let errorMessage = 'File upload error';
+
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      statusCode = 413; // Payload Too Large
+      errorMessage = 'File size exceeds 10MB limit';
+    } else if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      statusCode = 400;
+      errorMessage = 'Unexpected file field';
+    } else if (err.code === 'LIMIT_FILE_COUNT') {
+      statusCode = 400;
+      errorMessage = 'Too many files uploaded';
+    } else if (err.code === 'INVALID_FILE_TYPE') {
+      statusCode = 400;
+      errorMessage = err.message || 'Invalid file type. Only PDF, DOC, DOCX, JPG, PNG, and TXT files are allowed.';
+    } else if (err.message && err.message.includes('Invalid file type')) {
+      statusCode = 400;
+      errorMessage = err.message || 'Invalid file type. Only PDF, DOC, DOCX, JPG, PNG, and TXT files are allowed.';
+    }
+
+    return res.status(statusCode).json({
+      error: errorMessage,
+      code: err.code,
+      field: err.fieldName || err.field,
+      details: process.env.NODE_ENV === 'development' ? {
+        originalName: err.originalName,
+        mimetype: err.mimetype,
+        message: err.message
+      } : undefined
+    });
+  }
+
+  next(err); // Pass to next error handler if not a Multer error
 });
 
 // Error handling middleware
@@ -861,7 +892,16 @@ app.use((req, res) => {
         optimizationSuggestions: '/api/v1/admin/products/:productId/images/optimization-suggestions'
       },
       health: '/api/v1/health',
-      docs: '/api-docs'
+      docs: '/api-docs',
+      mobile: {
+        syncOffline: '/api/v1/mobile/cart/sync-offline',
+        syncStatus: '/api/v1/mobile/cart/sync-status/:userId',
+        cartSummary: '/api/v1/mobile/cart/summary/:userId',
+        cartItems: '/api/v1/mobile/cart/items/:userId',
+        subscribeSms: '/api/v1/mobile/cart/subscribe-sms',
+        unsubscribeSms: '/api/v1/mobile/cart/unsubscribe-sms',
+        smsStatus: '/api/v1/mobile/cart/sms-status/:userId'
+      }
     }
   });
 });

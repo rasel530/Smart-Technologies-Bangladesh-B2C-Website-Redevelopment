@@ -15,7 +15,18 @@ import {
   Layers,
   Search,
   BarChart3,
-  Heart
+  Heart,
+  RefreshCw,
+  Activity,
+  AlertTriangle,
+  TrendingUp,
+  ArrowRightLeft,
+  User as UserIcon,
+  Calendar,
+  CreditCard,
+  DollarSign,
+  Smartphone,
+  MessageSquare,
 } from 'lucide-react';
 import Link from 'next/link';
 import { ButtonDanger } from '@/components/design-system';
@@ -74,9 +85,64 @@ function AdminLayout({ children }: AdminLayoutProps) {
       icon: BarChart3,
     },
     {
+      href: '/admin/cart/recovery',
+      label: 'Cart Recovery',
+      icon: RefreshCw,
+    },
+    {
       href: '/admin/wishlists',
       label: 'Wishlists',
       icon: Heart,
+    },
+    {
+      href: '/admin/cart-wishlist/sync-dashboard',
+      label: 'Cart-Wishlist Sync',
+      icon: RefreshCw,
+    },
+    {
+      href: '/admin/cart-wishlist/conflicts',
+      label: 'Sync Conflicts',
+      icon: AlertTriangle,
+    },
+    {
+      href: '/admin/cart-wishlist/analytics',
+      label: 'Cart-Wishlist Analytics',
+      icon: BarChart3,
+    },
+    {
+      href: '/admin/cart-wishlist/move-history',
+      label: 'Move History',
+      icon: ArrowRightLeft,
+    },
+    {
+      href: '/admin/cart-wishlist/user-behavior',
+      label: 'User Behavior',
+      icon: UserIcon,
+    },
+    {
+      href: '/admin/emi',
+      label: 'EMI Management',
+      icon: CreditCard,
+    },
+    {
+      href: '/admin/cod',
+      label: 'COD Settings',
+      icon: DollarSign,
+    },
+    {
+      href: '/admin/local-payment',
+      label: 'Local Payment',
+      icon: Smartphone,
+    },
+    {
+      href: '/admin/local-payment/subscriptions',
+      label: 'SMS Subscriptions',
+      icon: MessageSquare,
+    },
+    {
+      href: '/admin/mobile',
+      label: 'Mobile Analytics',
+      icon: Activity,
     },
     {
       href: '/admin/rbac',

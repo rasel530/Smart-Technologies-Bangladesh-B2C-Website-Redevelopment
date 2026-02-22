@@ -97,11 +97,19 @@ class AuthMiddleware {
         return false;
       }
       const key = this.tokenBlacklistPrefix + this.getTokenHash(token);
-      const result = await redis.get(key);
+      
+      // Add timeout to prevent hanging - use Promise.race for 5-second timeout
+      const result = await Promise.race([
+        redis.get(key),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Redis timeout')), 5000)
+        )
+      ]);
+      
       return result !== null;
     } catch (error) {
       this.logger.error('Error checking token blacklist', error);
-      return false;
+      return false; // Allow request to proceed if Redis fails or times out
     }
   }
 
@@ -299,12 +307,17 @@ class AuthMiddleware {
         // Fetch RBAC roles from user_roles table
         const { rbacUtils } = require('../utils/rbacUtils');
         try {
-          const rbacRoles = await rbacUtils.getUserRoles(user.id);
+          const rbacRoles = await Promise.race([
+            rbacUtils.getUserRoles(user.id),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('RBAC timeout after 5000ms')), 5000)
+            )
+          ]);
           req.user.rbacRoles = rbacRoles;
           
           // Set highest level role as primary RBAC role
           if (rbacRoles.length > 0) {
-            const maxLevelRole = rbacRoles.reduce((max, role) => 
+            const maxLevelRole = rbacRoles.reduce((max, role) =>
               role.hierarchy_level > max.hierarchy_level ? role : max
             , rbacRoles[0]);
             req.user.rbacRole = maxLevelRole.role_name;
@@ -318,10 +331,7 @@ class AuthMiddleware {
             roleLevel: req.user.rbacRoleLevel
           });
         } catch (error) {
-          this.logger.warn('Failed to fetch RBAC roles', {
-            userId: user.id,
-            error: error.message
-          });
+          this.logger.warn('RBAC role fetch timed out or failed, using empty roles:', error.message);
           req.user.rbacRoles = [];
           req.user.rbacRole = null;
           req.user.rbacRoleLevel = 0;
@@ -947,5 +957,7 @@ const authMiddleware = new AuthMiddleware();
 
 module.exports = {
   AuthMiddleware,
-  authMiddleware
+  authMiddleware,
+  authenticate: authMiddleware.authenticate.bind(authMiddleware),
+  authorize: authMiddleware.authorize.bind(authMiddleware)
 };

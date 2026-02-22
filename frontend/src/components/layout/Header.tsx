@@ -6,7 +6,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { User } from '@/types/auth';
 import { CategoryTree } from '@/types/category';
 import { cn } from '@/lib/utils';
-import { getCategoryTree } from '@/lib/api/categories';
 import UtilityBar from './UtilityBar';
 import MainHeaderRow from './MainHeaderRow';
 import NavigationBar from './NavigationBar';
@@ -15,17 +14,19 @@ import { useCart } from '@/contexts/CartContext';
 
 interface HeaderProps {
   className?: string;
+  categoryTree?: CategoryTree[];
+  categoriesLoading?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ className }) => {
+const Header: React.FC<HeaderProps> = ({ className, categoryTree: initialCategoryTree = [], categoriesLoading: initialCategoriesLoading = false }) => {
   const { user, logout } = useAuth();
   const { itemCount } = useCart();
   const router = useRouter();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
-  const [categoryTree, setCategoryTree] = useState<CategoryTree[]>([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoryTree, setCategoryTree] = useState<CategoryTree[]>(initialCategoryTree);
+  const [categoriesLoading, setCategoriesLoading] = useState(initialCategoriesLoading);
   const [localCartCount, setLocalCartCount] = useState(0);
   const [isGuestCartMounted, setIsGuestCartMounted] = useState(false);
 
@@ -84,24 +85,6 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
   // Use CartContext itemCount for ALL users (both guest and logged-in)
   // Zustand store handles reactivity automatically
   const displayCartCount = itemCount;
-
-  // Fetch category tree for navigation dropdown with multi-level hierarchy
-  useEffect(() => {
-    const fetchCategoryTree = async () => {
-      try {
-        const response = await getCategoryTree('active');
-        if (response && response.tree) {
-          setCategoryTree(response.tree);
-        }
-      } catch (error) {
-        console.error('Error fetching category tree for navigation:', error);
-      } finally {
-        setCategoriesLoading(false);
-      }
-    };
-
-    fetchCategoryTree();
-  }, []);
 
   const handleLogout = async () => {
     try {

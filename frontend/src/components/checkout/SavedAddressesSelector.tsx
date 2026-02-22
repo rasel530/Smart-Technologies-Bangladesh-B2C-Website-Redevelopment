@@ -33,7 +33,7 @@ interface SavedAddressesSelectorProps {
   language: 'en' | 'bn';
   
   /** Address type to filter (optional) */
-  addressType?: 'SHIPPING' | 'BILLING';
+  addressType?: 'SHIPPING' | 'BILLING' | 'HOME' | 'WORK' | 'OTHER';
   
   /** Loading state */
   isLoading?: boolean;
@@ -82,7 +82,7 @@ export const SavedAddressesSelector: React.FC<SavedAddressesSelectorProps> = ({
   const filteredAddresses = React.useMemo(() => {
     let result = addresses;
     if (addressType) {
-      result = result.filter(addr => addr.type === addressType || addr.type === 'SHIPPING');
+      result = result.filter(addr => addr.type === addressType);
     }
     return result;
   }, [addresses, addressType]);
@@ -208,9 +208,11 @@ export const SavedAddressesSelector: React.FC<SavedAddressesSelectorProps> = ({
                 <div className="flex items-center gap-2">
                   <span className={cn(
                     'px-2 py-1 text-xs font-medium rounded',
-                    address.type === 'SHIPPING'
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-purple-100 text-purple-800'
+                    address.type === 'SHIPPING' ? 'bg-blue-100 text-blue-800' :
+                    address.type === 'BILLING' ? 'bg-purple-100 text-purple-800' :
+                    address.type === 'HOME' ? 'bg-green-100 text-green-800' :
+                    address.type === 'WORK' ? 'bg-orange-100 text-orange-800' :
+                    'bg-gray-100 text-gray-800'
                   )}>
                     {getAddressTypeLabel(address.type, language)}
                   </span>

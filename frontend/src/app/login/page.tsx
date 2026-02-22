@@ -13,6 +13,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
 import { useShowToast } from '@/components/ui/Toast';
 import { useSession } from 'next-auth/react';
+import GuestCartMergePrompt from '@/components/checkout/GuestCartMergePrompt';
+import { apiClient } from '@/lib/api/client';
+import type { GuestCart, UserCart } from '@/types/guestCheckout';
 
 function LoginPageContent() {
   const { login, error, clearError } = useAuth();
@@ -25,6 +28,12 @@ function LoginPageContent() {
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
   const toast = useShowToast();
 
+  // Guest cart merge state
+  const [guestCart, setGuestCart] = useState<GuestCart | null>(null);
+  const [userCart, setUserCart] = useState<UserCart | null>(null);
+  const [showCartMergePrompt, setShowCartMergePrompt] = useState(false);
+  const [isCheckingGuestCart, setIsCheckingGuestCart] = useState(false);
+
   // Load language preference from localStorage on mount
   useEffect(() => {
     const savedLanguage = localStorage.getItem('preferredLanguage');
@@ -33,29 +42,76 @@ function LoginPageContent() {
     }
   }, []);
 
+  // Check for guest cart on component mount
+  useEffect(() => {
+    const checkGuestCart = async () => {
+      try {
+        setIsCheckingGuestCart(true);
+        const guestSessionId = localStorage.getItem('guest_session_id');
+
+        if (guestSessionId) {
+          // Load guest cart
+          const guestCartResponse = await apiClient.get(`/cart/guest/${guestSessionId}`);
+          if (guestCartResponse.success && guestCartResponse.data?.items?.length > 0) {
+            setGuestCart(guestCartResponse.data);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking guest cart:', error);
+      } finally {
+        setIsCheckingGuestCart(false);
+      }
+    };
+
+    checkGuestCart();
+  }, []);
+
+  // Load user cart after successful login
+  useEffect(() => {
+    const loadUserCart = async () => {
+      if (status === 'authenticated' && session?.user?.id && guestCart) {
+        try {
+          const userCartResponse = await apiClient.get(`/cart/user/${session.user.id}`);
+          if (userCartResponse.success) {
+            setUserCart(userCartResponse.data);
+
+            // Show merge prompt if both carts exist
+            if (guestCart.items.length > 0 || userCartResponse.data?.items?.length > 0) {
+              setShowCartMergePrompt(true);
+            }
+          }
+        } catch (error) {
+          console.error('Error loading user cart:', error);
+        }
+      }
+    };
+
+    loadUserCart();
+  }, [status, session, guestCart]);
+
   // Handle role-based redirect after session is loaded
   useEffect(() => {
     console.log('[LoginPage] Session status:', status);
     console.log('[LoginPage] Session data:', session);
     console.log('[LoginPage] Session user:', session?.user);
     console.log('[LoginPage] Session user role:', session?.user?.role);
-    
-    // Only redirect if authenticated and session is loaded
-    if (status === 'authenticated' && session?.user?.role) {
+
+    // Only redirect if authenticated, session is loaded, and no cart merge prompt is shown
+    if (status === 'authenticated' && session?.user?.role && !showCartMergePrompt) {
       const role = session.user.role;
       console.log('[LoginPage] User role:', role);
-      
+
       // Check for redirect query parameter
       const redirectTarget = searchParams.get('redirect');
       console.log('[LoginPage] Redirect query parameter:', redirectTarget);
-      
+
       // Validate redirect target to prevent loops
       const safeRedirects = ['/admin', '/account', '/dashboard', '/register', '/checkout'];
-      const isSafeRedirect = redirectTarget && 
-        redirectTarget !== '/' && 
+      const isSafeRedirect = redirectTarget &&
+        redirectTarget !== '/' &&
         redirectTarget !== '/login' &&
         safeRedirects.some(safe => redirectTarget === safe || redirectTarget.startsWith(safe + '/'));
-      
+
       // Prevent redirect loop: if redirect is '/' (root path) or unsafe, ignore it and redirect based on role
       if (isSafeRedirect) {
         console.log('[LoginPage] Redirecting to safe target:', redirectTarget);
@@ -74,11 +130,64 @@ function LoginPageContent() {
     } else if (status === 'authenticated') {
       console.log('[LoginPage] Authenticated but role not available yet');
     }
-  }, [status, session, router, searchParams]);
+  }, [status, session, router, searchParams, showCartMergePrompt]);
 
   const handleLanguageChange = (newLanguage: 'en' | 'bn') => {
     setLanguage(newLanguage);
     localStorage.setItem('preferredLanguage', newLanguage);
+  };
+
+  // Handle cart merge action
+  const handleCartMerge = async (mergeOption: 'merge' | 'keep_user' | 'keep_guest') => {
+    if (!session?.user?.id || !guestCart) return;
+
+    try {
+      const guestSessionId = localStorage.getItem('guest_session_id');
+      if (!guestSessionId) return;
+
+      // Call merge API
+      const mergeResponse = await apiClient.post('/cart/merge', {
+        guestSessionId,
+        userId: session.user.id,
+        mergeOption
+      });
+
+      if (mergeResponse.success) {
+        toast.success(
+          language === 'bn' ? 'কার্ট মার্জ সফল হয়েছে' : 'Cart merged successfully',
+          language === 'bn' ? 'সফল' : 'Success'
+        );
+
+        // Clear guest session
+        localStorage.removeItem('guest_session_id');
+
+        // Close merge prompt
+        setShowCartMergePrompt(false);
+
+        // Redirect to checkout if that was the original intent
+        const redirectTarget = searchParams.get('redirect');
+        if (redirectTarget === '/checkout') {
+          router.push('/checkout');
+        }
+      }
+    } catch (error) {
+      console.error('Error merging carts:', error);
+      toast.error(
+        language === 'bn' ? 'কার্ট মার্জ করতে ব্যর্থ হয়েছে' : 'Failed to merge carts',
+        language === 'bn' ? 'ত্রুটি' : 'Error'
+      );
+    }
+  };
+
+  // Handle skip cart merge
+  const handleSkipMerge = () => {
+    setShowCartMergePrompt(false);
+
+    // Redirect to checkout if that was the original intent
+    const redirectTarget = searchParams.get('redirect');
+    if (redirectTarget === '/checkout') {
+      router.push('/checkout');
+    }
   };
 
   const {
@@ -451,6 +560,17 @@ function LoginPageContent() {
             </p>
           </div>
         </form>
+
+        {/* Guest Cart Merge Prompt */}
+        {showCartMergePrompt && guestCart && userCart && (
+          <GuestCartMergePrompt
+            guestCart={guestCart}
+            userCart={userCart}
+            onMerge={handleCartMerge}
+            onSkip={handleSkipMerge}
+            language={language}
+          />
+        )}
       </div>
     </div>
   );

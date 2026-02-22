@@ -100,7 +100,7 @@ class WishlistService {
                   images: {
                     where: { displayOrder: 0 },
                     take: 1,
-                    select: { id: true, originalUrl: true, optimizedUrl: true, thumbnailUrl: true, altTextEn: true, altTextBn: true }
+                    select: { id: true, productId: true, originalUrl: true, optimizedUrl: true, thumbnailUrl: true, altTextEn: true, altTextBn: true }
                   }
                 }
               }
@@ -502,6 +502,49 @@ class WishlistService {
       // Recalculate cart totals
       const totals = await cartService.calculateCartTotals(cart.id);
 
+      // FIX: Fetch updated cart with full item details
+      const updatedCart = await this.prisma.cart.findUnique({
+        where: { id: cart.id },
+        include: {
+          items: {
+            include: {
+              product: {
+                select: {
+                  id: true,
+                  name: true,
+                  nameEn: true,
+                  nameBn: true,
+                  regularPrice: true,
+                  salePrice: true,
+                  stockQuantity: true,
+                  images: {
+                    where: { displayOrder: 0 },
+                    take: 1,
+                    select: {
+                      id: true,
+                      originalUrl: true,
+                      optimizedUrl: true,
+                      thumbnailUrl: true,
+                      altTextEn: true,
+                      altTextBn: true
+                    }
+                  }
+                }
+              },
+              variant: {
+                select: {
+                  id: true,
+                  sku: true,
+                  price: true,
+                  stock: true
+                }
+              }
+            },
+            orderBy: { addedAt: 'desc' }
+          }
+        }
+      });
+
       this.logger.info('Items moved to cart', { wishlistId, movedCount: movedItems.length, failedCount: failedItems.length });
 
       return {
@@ -509,7 +552,9 @@ class WishlistService {
         cartId: cart.id,
         movedItems,
         failedItems,
-        totals
+        totals,
+        items: updatedCart.items,
+        cart: updatedCart
       };
     } catch (error) {
       this.logger.error('Error moving items to cart', { wishlistId, itemIds, error: error.message });

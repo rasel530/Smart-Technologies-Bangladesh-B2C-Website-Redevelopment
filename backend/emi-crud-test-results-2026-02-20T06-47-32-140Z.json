@@ -1,0 +1,1708 @@
+{
+  "timestamp": "2026-02-20T06:47:32.141Z",
+  "totalTests": 59,
+  "passedTests": 49,
+  "failedTests": 10,
+  "successRate": "83.05",
+  "results": [
+    {
+      "testName": "Test 1.1: GET all EMI providers",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/providers",
+      "expectedStatus": 200,
+      "actualStatus": 500,
+      "expectedFields": [],
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "Failed to fetch EMI providers",
+        "message": "Failed to fetch EMI providers",
+        "messageBn": "ইএমআই প্রোভাইডার তালিকা আনতে পারা যায়নি"
+      },
+      "passed": false
+    },
+    {
+      "testName": "Test 1.2: POST create new EMI provider - Valid data",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/providers",
+      "expectedStatus": 201,
+      "actualStatus": 201,
+      "expectedFields": [
+        "id",
+        "name",
+        "logoUrl",
+        "website",
+        "minAmount",
+        "maxAmount",
+        "processingFee",
+        "interestRate",
+        "isActive"
+      ],
+      "body": {
+        "name": "Test Bank",
+        "logoUrl": "https://example.com/logo.png",
+        "website": "https://testbank.com",
+        "minAmount": 5000,
+        "maxAmount": 100000,
+        "processingFee": 100,
+        "interestRate": 12,
+        "isActive": true
+      },
+      "response": {
+        "success": true,
+        "message": "EMI provider created successfully",
+        "messageBn": "ইএমআই প্রোভাইডার সফলভাবে তৈরি করা হয়েছে",
+        "data": {
+          "id": "81f31729-0645-4645-a087-711852629a10",
+          "name": "Test Bank",
+          "logoUrl": "https://example.com/logo.png",
+          "website": "https://testbank.com",
+          "isActive": true,
+          "minAmount": "5000",
+          "maxAmount": "100000",
+          "processingFee": "100",
+          "interestRate": "12",
+          "createdAt": "2026-02-20T06:47:31.025Z",
+          "updatedAt": "2026-02-20T06:47:31.025Z"
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 1.3: POST create provider - Missing required field (name)",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/providers",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "logoUrl": "https://example.com/logo.png",
+        "website": "https://testbank.com"
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "",
+            "msg": "Provider name is required",
+            "path": "name",
+            "location": "body"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 1.4: POST create provider - Invalid logo URL",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/providers",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "name": "Invalid URL Provider",
+        "logoUrl": "not-a-valid-url",
+        "website": "https://testbank.com"
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "not-a-valid-url",
+            "msg": "Logo URL must be a valid URL",
+            "path": "logoUrl",
+            "location": "body"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 1.5: POST create provider - Negative minAmount",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/providers",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "name": "Negative Amount Provider",
+        "minAmount": -1000,
+        "maxAmount": 100000
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": -1000,
+            "msg": "Minimum amount must be a positive number",
+            "path": "minAmount",
+            "location": "body"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 1.6: POST create provider - Min amount >= Max amount",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/providers",
+      "expectedStatus": 400,
+      "actualStatus": 500,
+      "expectedFields": null,
+      "body": {
+        "name": "Invalid Range Provider",
+        "minAmount": 100000,
+        "maxAmount": 50000
+      },
+      "response": {
+        "success": false,
+        "error": "Failed to create EMI provider",
+        "message": "Failed to create EMI provider",
+        "messageBn": "ইএমআই প্রোভাইডার তৈরি করতে ব্যর্থ হয়েছে"
+      },
+      "passed": false
+    },
+    {
+      "testName": "Test 1.7: GET provider by ID - Valid ID",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/providers/81f31729-0645-4645-a087-711852629a10",
+      "expectedStatus": 200,
+      "actualStatus": 500,
+      "expectedFields": [
+        "id",
+        "name",
+        "logoUrl",
+        "website",
+        "minAmount",
+        "maxAmount",
+        "processingFee",
+        "interestRate",
+        "isActive"
+      ],
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "Failed to fetch EMI provider",
+        "message": "Failed to fetch EMI provider",
+        "messageBn": "ইএমআই প্রোভাইডার তথ্য আনতে পারা যায়নি"
+      },
+      "passed": false
+    },
+    {
+      "testName": "Test 1.8: GET provider by ID - Invalid UUID",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/providers/not-a-uuid",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "not-a-uuid",
+            "msg": "Invalid provider ID",
+            "path": "providerId",
+            "location": "params"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 1.9: GET provider by ID - Non-existent provider",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/providers/00000000-0000-0000-0000-000000000000",
+      "expectedStatus": 404,
+      "actualStatus": 500,
+      "expectedFields": null,
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "Failed to fetch EMI provider",
+        "message": "Failed to fetch EMI provider",
+        "messageBn": "ইএমআই প্রোভাইডার তথ্য আনতে পারা যায়নি"
+      },
+      "passed": false
+    },
+    {
+      "testName": "Test 1.10: PUT update provider - Valid update",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/emi/providers/81f31729-0645-4645-a087-711852629a10",
+      "expectedStatus": 200,
+      "actualStatus": 400,
+      "expectedFields": [
+        "id",
+        "name"
+      ],
+      "body": {
+        "name": "Test Bank Updated",
+        "processingFee": 150,
+        "interestRate": 10
+      },
+      "response": {
+        "success": false,
+        "error": "Minimum amount must be less than maximum amount",
+        "message": "Minimum amount must be less than maximum amount",
+        "messageBn": "Minimum amount must be less than maximum amount"
+      },
+      "passed": false
+    },
+    {
+      "testName": "Test 1.11: PUT update provider - Empty name",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/emi/providers/81f31729-0645-4645-a087-711852629a10",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "name": "   "
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "",
+            "msg": "Provider name cannot be empty",
+            "path": "name",
+            "location": "body"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 1.12: PUT update provider - Invalid UUID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/emi/providers/not-a-uuid",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "name": "Test"
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "not-a-uuid",
+            "msg": "Invalid provider ID",
+            "path": "providerId",
+            "location": "params"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 1.13: PUT update provider - Non-existent provider",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/emi/providers/00000000-0000-0000-0000-000000000000",
+      "expectedStatus": 404,
+      "actualStatus": 404,
+      "expectedFields": null,
+      "body": {
+        "name": "Non-existent"
+      },
+      "response": {
+        "success": false,
+        "error": "EMI provider not found",
+        "message": "EMI provider not found",
+        "messageBn": "EMI provider not found"
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 1.14: PUT update provider - Negative processing fee",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/emi/providers/81f31729-0645-4645-a087-711852629a10",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "processingFee": -50
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": -50,
+            "msg": "Processing fee must be a positive number",
+            "path": "processingFee",
+            "location": "body"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 1.15: PUT update provider - Min amount >= Max amount",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/emi/providers/81f31729-0645-4645-a087-711852629a10",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "minAmount": 100000,
+        "maxAmount": 50000
+      },
+      "response": {
+        "success": false,
+        "error": "Minimum amount must be less than maximum amount",
+        "message": "Minimum amount must be less than maximum amount",
+        "messageBn": "Minimum amount must be less than maximum amount"
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 1.16: DELETE provider - Valid ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/emi/providers/81f31729-0645-4645-a087-711852629a10",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedFields": [
+        "id",
+        "name"
+      ],
+      "body": null,
+      "response": {
+        "success": true,
+        "message": "EMI provider deleted successfully",
+        "messageBn": "ইএমআই প্রোভাইডার সফলভাবে মুছে ফেলা হয়েছে",
+        "data": {
+          "id": "81f31729-0645-4645-a087-711852629a10",
+          "name": "Test Bank",
+          "logoUrl": "https://example.com/logo.png",
+          "website": "https://testbank.com",
+          "isActive": true,
+          "minAmount": "5000",
+          "maxAmount": "100000",
+          "processingFee": "100",
+          "interestRate": "12",
+          "createdAt": "2026-02-20T06:47:31.025Z",
+          "updatedAt": "2026-02-20T06:47:31.025Z"
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 1.17: DELETE provider - Invalid UUID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/emi/providers/not-a-uuid",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "not-a-uuid",
+            "msg": "Invalid provider ID",
+            "path": "providerId",
+            "location": "params"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 1.18: DELETE provider - Non-existent provider",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/emi/providers/00000000-0000-0000-0000-000000000000",
+      "expectedStatus": 404,
+      "actualStatus": 404,
+      "expectedFields": null,
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "EMI provider not found",
+        "message": "EMI provider not found",
+        "messageBn": "EMI provider not found"
+      },
+      "passed": true
+    },
+    {
+      "testName": "Setup: Create provider for plan tests",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/providers",
+      "expectedStatus": 201,
+      "actualStatus": 201,
+      "expectedFields": [
+        "id",
+        "name"
+      ],
+      "body": {
+        "name": "Plan Test Bank",
+        "logoUrl": "https://example.com/plantest.png",
+        "website": "https://plantestbank.com",
+        "minAmount": 5000,
+        "maxAmount": 200000,
+        "processingFee": 100,
+        "interestRate": 12,
+        "isActive": true
+      },
+      "response": {
+        "success": true,
+        "message": "EMI provider created successfully",
+        "messageBn": "ইএমআই প্রোভাইডার সফলভাবে তৈরি করা হয়েছে",
+        "data": {
+          "id": "38e64d36-0d71-45a1-9e93-b1217f74695d",
+          "name": "Plan Test Bank",
+          "logoUrl": "https://example.com/plantest.png",
+          "website": "https://plantestbank.com",
+          "isActive": true,
+          "minAmount": "5000",
+          "maxAmount": "200000",
+          "processingFee": "100",
+          "interestRate": "12",
+          "createdAt": "2026-02-20T06:47:31.231Z",
+          "updatedAt": "2026-02-20T06:47:31.231Z"
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.1: GET all EMI plans",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/plans",
+      "expectedStatus": 200,
+      "actualStatus": 500,
+      "expectedFields": [],
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "Failed to fetch EMI plans",
+        "message": "Failed to fetch EMI plans",
+        "messageBn": "ইএমআই প্ল্যানগুলি আনতে পারা যায়নি"
+      },
+      "passed": false
+    },
+    {
+      "testName": "Test 2.2: POST create new EMI plan - Valid data",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/plans",
+      "expectedStatus": 201,
+      "actualStatus": 201,
+      "expectedFields": [
+        "id",
+        "providerId",
+        "name",
+        "duration",
+        "interestRate",
+        "minAmount",
+        "maxAmount",
+        "processingFee",
+        "downPayment",
+        "isActive",
+        "displayOrder"
+      ],
+      "body": {
+        "providerId": "38e64d36-0d71-45a1-9e93-b1217f74695d",
+        "name": "3 Months Plan",
+        "duration": 3,
+        "interestRate": 10,
+        "minAmount": 5000,
+        "maxAmount": 50000,
+        "processingFee": 100,
+        "downPayment": 0,
+        "isActive": true,
+        "displayOrder": 1
+      },
+      "response": {
+        "success": true,
+        "message": "EMI plan created successfully",
+        "messageBn": "ইএমআই প্ল্যান সফলভাবে তৈরি করা হয়েছে",
+        "data": {
+          "id": "e76c8314-7a86-41f9-a64f-55d74eb24247",
+          "providerId": "38e64d36-0d71-45a1-9e93-b1217f74695d",
+          "name": "3 Months Plan",
+          "duration": 3,
+          "interestRate": "10",
+          "minAmount": "5000",
+          "maxAmount": "50000",
+          "processingFee": "100",
+          "downPayment": "0",
+          "isActive": true,
+          "displayOrder": 1,
+          "createdAt": "2026-02-20T06:47:31.275Z",
+          "updatedAt": "2026-02-20T06:47:31.275Z",
+          "provider": {
+            "id": "38e64d36-0d71-45a1-9e93-b1217f74695d",
+            "name": "Plan Test Bank",
+            "logoUrl": "https://example.com/plantest.png",
+            "website": "https://plantestbank.com",
+            "isActive": true,
+            "minAmount": "5000",
+            "maxAmount": "200000",
+            "processingFee": "100",
+            "interestRate": "12",
+            "createdAt": "2026-02-20T06:47:31.231Z",
+            "updatedAt": "2026-02-20T06:47:31.231Z"
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.3: POST create plan - Missing required field (providerId)",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/plans",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "name": "Test Plan",
+        "duration": 6,
+        "interestRate": 12,
+        "minAmount": 5000,
+        "maxAmount": 100000
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "msg": "Invalid provider ID",
+            "path": "providerId",
+            "location": "body"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.4: POST create plan - Invalid providerId (not UUID)",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/plans",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "providerId": "not-a-uuid",
+        "name": "Test Plan",
+        "duration": 6,
+        "interestRate": 12,
+        "minAmount": 5000,
+        "maxAmount": 100000
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "not-a-uuid",
+            "msg": "Invalid provider ID",
+            "path": "providerId",
+            "location": "body"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.5: POST create plan - Non-existent provider",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/plans",
+      "expectedStatus": 404,
+      "actualStatus": 404,
+      "expectedFields": null,
+      "body": {
+        "providerId": "00000000-0000-0000-0000-000000000000",
+        "name": "Test Plan",
+        "duration": 6,
+        "interestRate": 12,
+        "minAmount": 5000,
+        "maxAmount": 100000
+      },
+      "response": {
+        "success": false,
+        "error": "EMI provider not found",
+        "message": "EMI provider not found",
+        "messageBn": "EMI provider not found"
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.6: POST create plan - Missing required field (name)",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/plans",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "providerId": "38e64d36-0d71-45a1-9e93-b1217f74695d",
+        "duration": 6,
+        "interestRate": 12,
+        "minAmount": 5000,
+        "maxAmount": 100000
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "",
+            "msg": "Plan name is required",
+            "path": "name",
+            "location": "body"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.7: POST create plan - Invalid duration (zero)",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/plans",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "providerId": "38e64d36-0d71-45a1-9e93-b1217f74695d",
+        "name": "Invalid Duration Plan",
+        "duration": 0,
+        "interestRate": 12,
+        "minAmount": 5000,
+        "maxAmount": 100000
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": 0,
+            "msg": "Duration must be a positive integer",
+            "path": "duration",
+            "location": "body"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.8: POST create plan - Negative interest rate",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/plans",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "providerId": "38e64d36-0d71-45a1-9e93-b1217f74695d",
+        "name": "Negative Interest Plan",
+        "duration": 6,
+        "interestRate": -5,
+        "minAmount": 5000,
+        "maxAmount": 100000
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": -5,
+            "msg": "Interest rate must be a positive number",
+            "path": "interestRate",
+            "location": "body"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.9: POST create plan - Negative minAmount",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/plans",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "providerId": "38e64d36-0d71-45a1-9e93-b1217f74695d",
+        "name": "Negative Min Plan",
+        "duration": 6,
+        "interestRate": 12,
+        "minAmount": -1000,
+        "maxAmount": 100000
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": -1000,
+            "msg": "Minimum amount must be a positive number",
+            "path": "minAmount",
+            "location": "body"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.10: POST create plan - Min amount >= Max amount",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/plans",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "providerId": "38e64d36-0d71-45a1-9e93-b1217f74695d",
+        "name": "Invalid Range Plan",
+        "duration": 6,
+        "interestRate": 12,
+        "minAmount": 100000,
+        "maxAmount": 50000
+      },
+      "response": {
+        "success": false,
+        "error": "Minimum amount must be less than maximum amount",
+        "message": "Minimum amount must be less than maximum amount",
+        "messageBn": "Minimum amount must be less than maximum amount"
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.11: POST create plan - Negative processing fee",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/plans",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "providerId": "38e64d36-0d71-45a1-9e93-b1217f74695d",
+        "name": "Negative Fee Plan",
+        "duration": 6,
+        "interestRate": 12,
+        "minAmount": 5000,
+        "maxAmount": 100000,
+        "processingFee": -50
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": -50,
+            "msg": "Processing fee must be a positive number",
+            "path": "processingFee",
+            "location": "body"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.12: POST create plan - Negative down payment",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/plans",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "providerId": "38e64d36-0d71-45a1-9e93-b1217f74695d",
+        "name": "Negative Down Payment Plan",
+        "duration": 6,
+        "interestRate": 12,
+        "minAmount": 5000,
+        "maxAmount": 100000,
+        "downPayment": -100
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": -100,
+            "msg": "Down payment must be a positive number",
+            "path": "downPayment",
+            "location": "body"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.13: GET plan by ID - Valid ID",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/plans/e76c8314-7a86-41f9-a64f-55d74eb24247",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedFields": [
+        "id",
+        "providerId",
+        "name",
+        "duration",
+        "interestRate",
+        "minAmount",
+        "maxAmount",
+        "processingFee",
+        "downPayment",
+        "isActive",
+        "displayOrder",
+        "provider"
+      ],
+      "body": null,
+      "response": {
+        "success": true,
+        "message": "EMI plan retrieved successfully",
+        "messageBn": "ইএমআই প্ল্যানটি সফলভাবে পুনরুন",
+        "data": {
+          "id": "e76c8314-7a86-41f9-a64f-55d74eb24247",
+          "providerId": "38e64d36-0d71-45a1-9e93-b1217f74695d",
+          "name": "3 Months Plan",
+          "duration": 3,
+          "interestRate": "10",
+          "minAmount": "5000",
+          "maxAmount": "50000",
+          "processingFee": "100",
+          "downPayment": "0",
+          "isActive": true,
+          "displayOrder": 1,
+          "createdAt": "2026-02-20T06:47:31.275Z",
+          "updatedAt": "2026-02-20T06:47:31.275Z",
+          "provider": {
+            "id": "38e64d36-0d71-45a1-9e93-b1217f74695d",
+            "name": "Plan Test Bank",
+            "logoUrl": "https://example.com/plantest.png",
+            "website": "https://plantestbank.com",
+            "isActive": true,
+            "minAmount": "5000",
+            "maxAmount": "200000",
+            "processingFee": "100",
+            "interestRate": "12",
+            "createdAt": "2026-02-20T06:47:31.231Z",
+            "updatedAt": "2026-02-20T06:47:31.231Z"
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.14: GET plan by ID - Invalid UUID",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/plans/not-a-uuid",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "not-a-uuid",
+            "msg": "Invalid plan ID",
+            "path": "planId",
+            "location": "params"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.15: GET plan by ID - Non-existent plan",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/plans/00000000-0000-0000-0000-000000000000",
+      "expectedStatus": 404,
+      "actualStatus": 404,
+      "expectedFields": null,
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "EMI plan not found",
+        "message": "EMI plan not found",
+        "messageBn": "ইএমআই প্ল্যানটি পাওয়া যায়নি"
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.16: PUT update plan - Valid update",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/emi/plans/e76c8314-7a86-41f9-a64f-55d74eb24247",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedFields": [
+        "id",
+        "name"
+      ],
+      "body": {
+        "name": "3 Months Plan Updated",
+        "interestRate": 8,
+        "processingFee": 150
+      },
+      "response": {
+        "success": true,
+        "message": "EMI plan updated successfully",
+        "messageBn": "ইএমআই প্ল্যান সফলভাবে আপডেট করা হয়েছে",
+        "data": {
+          "id": "e76c8314-7a86-41f9-a64f-55d74eb24247",
+          "providerId": "38e64d36-0d71-45a1-9e93-b1217f74695d",
+          "name": "3 Months Plan Updated",
+          "duration": 3,
+          "interestRate": "8",
+          "minAmount": "5000",
+          "maxAmount": "50000",
+          "processingFee": "150",
+          "downPayment": "0",
+          "isActive": true,
+          "displayOrder": 1,
+          "createdAt": "2026-02-20T06:47:31.275Z",
+          "updatedAt": "2026-02-20T06:47:31.462Z",
+          "provider": {
+            "id": "38e64d36-0d71-45a1-9e93-b1217f74695d",
+            "name": "Plan Test Bank",
+            "logoUrl": "https://example.com/plantest.png",
+            "website": "https://plantestbank.com",
+            "isActive": true,
+            "minAmount": "5000",
+            "maxAmount": "200000",
+            "processingFee": "100",
+            "interestRate": "12",
+            "createdAt": "2026-02-20T06:47:31.231Z",
+            "updatedAt": "2026-02-20T06:47:31.231Z"
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.17: PUT update plan - Empty name",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/emi/plans/e76c8314-7a86-41f9-a64f-55d74eb24247",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "name": "   "
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "",
+            "msg": "Plan name cannot be empty",
+            "path": "name",
+            "location": "body"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.18: PUT update plan - Invalid UUID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/emi/plans/not-a-uuid",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "name": "Test"
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "not-a-uuid",
+            "msg": "Invalid plan ID",
+            "path": "planId",
+            "location": "params"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.19: PUT update plan - Non-existent plan",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/emi/plans/00000000-0000-0000-0000-000000000000",
+      "expectedStatus": 404,
+      "actualStatus": 404,
+      "expectedFields": null,
+      "body": {
+        "name": "Non-existent"
+      },
+      "response": {
+        "success": false,
+        "error": "EMI plan not found",
+        "message": "EMI plan not found",
+        "messageBn": "EMI plan not found"
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.20: PUT update plan - Invalid duration (zero)",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/emi/plans/e76c8314-7a86-41f9-a64f-55d74eb24247",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "duration": 0
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": 0,
+            "msg": "Duration must be a positive integer",
+            "path": "duration",
+            "location": "body"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.21: PUT update plan - Negative interest rate",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/emi/plans/e76c8314-7a86-41f9-a64f-55d74eb24247",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "interestRate": -5
+      },
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": -5,
+            "msg": "Interest rate must be a positive number",
+            "path": "interestRate",
+            "location": "body"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.22: PUT update plan - Min amount >= Max amount",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/emi/plans/e76c8314-7a86-41f9-a64f-55d74eb24247",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": {
+        "minAmount": 100000,
+        "maxAmount": 50000
+      },
+      "response": {
+        "success": false,
+        "error": "Minimum amount must be less than maximum amount",
+        "message": "Minimum amount must be less than maximum amount",
+        "messageBn": "Minimum amount must be less than maximum amount"
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.23: DELETE plan - Valid ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/emi/plans/e76c8314-7a86-41f9-a64f-55d74eb24247",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedFields": [
+        "id",
+        "name"
+      ],
+      "body": null,
+      "response": {
+        "success": true,
+        "message": "EMI plan deleted successfully",
+        "messageBn": "ইএমআই প্ল্যান সফলভাবে মুছে ফেলা হয়েছে",
+        "data": {
+          "id": "e76c8314-7a86-41f9-a64f-55d74eb24247",
+          "providerId": "38e64d36-0d71-45a1-9e93-b1217f74695d",
+          "name": "3 Months Plan Updated",
+          "duration": 3,
+          "interestRate": "8",
+          "minAmount": "5000",
+          "maxAmount": "50000",
+          "processingFee": "150",
+          "downPayment": "0",
+          "isActive": true,
+          "displayOrder": 1,
+          "createdAt": "2026-02-20T06:47:31.275Z",
+          "updatedAt": "2026-02-20T06:47:31.462Z"
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.24: DELETE plan - Invalid UUID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/emi/plans/not-a-uuid",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "not-a-uuid",
+            "msg": "Invalid plan ID",
+            "path": "planId",
+            "location": "params"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 2.25: DELETE plan - Non-existent plan",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/emi/plans/00000000-0000-0000-0000-000000000000",
+      "expectedStatus": 404,
+      "actualStatus": 404,
+      "expectedFields": null,
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "EMI plan not found",
+        "message": "EMI plan not found",
+        "messageBn": "EMI plan not found"
+      },
+      "passed": true
+    },
+    {
+      "testName": "Setup: Create provider for cascade delete test",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/providers",
+      "expectedStatus": 201,
+      "actualStatus": 201,
+      "expectedFields": [
+        "id",
+        "name"
+      ],
+      "body": {
+        "name": "Cascade Test Bank",
+        "logoUrl": "https://example.com/cascade.png",
+        "website": "https://cascadetestbank.com",
+        "minAmount": 5000,
+        "maxAmount": 200000,
+        "processingFee": 100,
+        "interestRate": 12,
+        "isActive": true
+      },
+      "response": {
+        "success": true,
+        "message": "EMI provider created successfully",
+        "messageBn": "ইএমআই প্রোভাইডার সফলভাবে তৈরি করা হয়েছে",
+        "data": {
+          "id": "c55e0392-d99a-42dd-89ac-741c71d5074c",
+          "name": "Cascade Test Bank",
+          "logoUrl": "https://example.com/cascade.png",
+          "website": "https://cascadetestbank.com",
+          "isActive": true,
+          "minAmount": "5000",
+          "maxAmount": "200000",
+          "processingFee": "100",
+          "interestRate": "12",
+          "createdAt": "2026-02-20T06:47:31.633Z",
+          "updatedAt": "2026-02-20T06:47:31.633Z"
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Setup: Create plan 1 for cascade delete test",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/plans",
+      "expectedStatus": 201,
+      "actualStatus": 201,
+      "expectedFields": [
+        "id"
+      ],
+      "body": {
+        "providerId": "c55e0392-d99a-42dd-89ac-741c71d5074c",
+        "name": "Cascade Plan 1",
+        "duration": 3,
+        "interestRate": 10,
+        "minAmount": 5000,
+        "maxAmount": 50000,
+        "processingFee": 100,
+        "downPayment": 0,
+        "isActive": true,
+        "displayOrder": 1
+      },
+      "response": {
+        "success": true,
+        "message": "EMI plan created successfully",
+        "messageBn": "ইএমআই প্ল্যান সফলভাবে তৈরি করা হয়েছে",
+        "data": {
+          "id": "013b442e-1c80-44ad-ba4b-959b8d28b033",
+          "providerId": "c55e0392-d99a-42dd-89ac-741c71d5074c",
+          "name": "Cascade Plan 1",
+          "duration": 3,
+          "interestRate": "10",
+          "minAmount": "5000",
+          "maxAmount": "50000",
+          "processingFee": "100",
+          "downPayment": "0",
+          "isActive": true,
+          "displayOrder": 1,
+          "createdAt": "2026-02-20T06:47:31.664Z",
+          "updatedAt": "2026-02-20T06:47:31.664Z",
+          "provider": {
+            "id": "c55e0392-d99a-42dd-89ac-741c71d5074c",
+            "name": "Cascade Test Bank",
+            "logoUrl": "https://example.com/cascade.png",
+            "website": "https://cascadetestbank.com",
+            "isActive": true,
+            "minAmount": "5000",
+            "maxAmount": "200000",
+            "processingFee": "100",
+            "interestRate": "12",
+            "createdAt": "2026-02-20T06:47:31.633Z",
+            "updatedAt": "2026-02-20T06:47:31.633Z"
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Setup: Create plan 2 for cascade delete test",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/emi/plans",
+      "expectedStatus": 201,
+      "actualStatus": 201,
+      "expectedFields": [
+        "id"
+      ],
+      "body": {
+        "providerId": "c55e0392-d99a-42dd-89ac-741c71d5074c",
+        "name": "Cascade Plan 2",
+        "duration": 6,
+        "interestRate": 12,
+        "minAmount": 10000,
+        "maxAmount": 100000,
+        "processingFee": 150,
+        "downPayment": 0,
+        "isActive": true,
+        "displayOrder": 2
+      },
+      "response": {
+        "success": true,
+        "message": "EMI plan created successfully",
+        "messageBn": "ইএমআই প্ল্যান সফলভাবে তৈরি করা হয়েছে",
+        "data": {
+          "id": "3fe80471-3b65-4c16-8eb8-7e8df12f0a3c",
+          "providerId": "c55e0392-d99a-42dd-89ac-741c71d5074c",
+          "name": "Cascade Plan 2",
+          "duration": 6,
+          "interestRate": "12",
+          "minAmount": "10000",
+          "maxAmount": "100000",
+          "processingFee": "150",
+          "downPayment": "0",
+          "isActive": true,
+          "displayOrder": 2,
+          "createdAt": "2026-02-20T06:47:31.742Z",
+          "updatedAt": "2026-02-20T06:47:31.742Z",
+          "provider": {
+            "id": "c55e0392-d99a-42dd-89ac-741c71d5074c",
+            "name": "Cascade Test Bank",
+            "logoUrl": "https://example.com/cascade.png",
+            "website": "https://cascadetestbank.com",
+            "isActive": true,
+            "minAmount": "5000",
+            "maxAmount": "200000",
+            "processingFee": "100",
+            "interestRate": "12",
+            "createdAt": "2026-02-20T06:47:31.633Z",
+            "updatedAt": "2026-02-20T06:47:31.633Z"
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 3.1: Verify plan 1 exists before cascade delete",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/plans/013b442e-1c80-44ad-ba4b-959b8d28b033",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedFields": [
+        "id",
+        "name"
+      ],
+      "body": null,
+      "response": {
+        "success": true,
+        "message": "EMI plan retrieved successfully",
+        "messageBn": "ইএমআই প্ল্যানটি সফলভাবে পুনরুন",
+        "data": {
+          "id": "013b442e-1c80-44ad-ba4b-959b8d28b033",
+          "providerId": "c55e0392-d99a-42dd-89ac-741c71d5074c",
+          "name": "Cascade Plan 1",
+          "duration": 3,
+          "interestRate": "10",
+          "minAmount": "5000",
+          "maxAmount": "50000",
+          "processingFee": "100",
+          "downPayment": "0",
+          "isActive": true,
+          "displayOrder": 1,
+          "createdAt": "2026-02-20T06:47:31.664Z",
+          "updatedAt": "2026-02-20T06:47:31.664Z",
+          "provider": {
+            "id": "c55e0392-d99a-42dd-89ac-741c71d5074c",
+            "name": "Cascade Test Bank",
+            "logoUrl": "https://example.com/cascade.png",
+            "website": "https://cascadetestbank.com",
+            "isActive": true,
+            "minAmount": "5000",
+            "maxAmount": "200000",
+            "processingFee": "100",
+            "interestRate": "12",
+            "createdAt": "2026-02-20T06:47:31.633Z",
+            "updatedAt": "2026-02-20T06:47:31.633Z"
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 3.2: Verify plan 2 exists before cascade delete",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/plans/3fe80471-3b65-4c16-8eb8-7e8df12f0a3c",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedFields": [
+        "id",
+        "name"
+      ],
+      "body": null,
+      "response": {
+        "success": true,
+        "message": "EMI plan retrieved successfully",
+        "messageBn": "ইএমআই প্ল্যানটি সফলভাবে পুনরুন",
+        "data": {
+          "id": "3fe80471-3b65-4c16-8eb8-7e8df12f0a3c",
+          "providerId": "c55e0392-d99a-42dd-89ac-741c71d5074c",
+          "name": "Cascade Plan 2",
+          "duration": 6,
+          "interestRate": "12",
+          "minAmount": "10000",
+          "maxAmount": "100000",
+          "processingFee": "150",
+          "downPayment": "0",
+          "isActive": true,
+          "displayOrder": 2,
+          "createdAt": "2026-02-20T06:47:31.742Z",
+          "updatedAt": "2026-02-20T06:47:31.742Z",
+          "provider": {
+            "id": "c55e0392-d99a-42dd-89ac-741c71d5074c",
+            "name": "Cascade Test Bank",
+            "logoUrl": "https://example.com/cascade.png",
+            "website": "https://cascadetestbank.com",
+            "isActive": true,
+            "minAmount": "5000",
+            "maxAmount": "200000",
+            "processingFee": "100",
+            "interestRate": "12",
+            "createdAt": "2026-02-20T06:47:31.633Z",
+            "updatedAt": "2026-02-20T06:47:31.633Z"
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 3.3: DELETE provider (cascade delete associated plans)",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/emi/providers/c55e0392-d99a-42dd-89ac-741c71d5074c",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedFields": [
+        "id",
+        "name"
+      ],
+      "body": null,
+      "response": {
+        "success": true,
+        "message": "EMI provider deleted successfully",
+        "messageBn": "ইএমআই প্রোভাইডার সফলভাবে মুছে ফেলা হয়েছে",
+        "data": {
+          "id": "c55e0392-d99a-42dd-89ac-741c71d5074c",
+          "name": "Cascade Test Bank",
+          "logoUrl": "https://example.com/cascade.png",
+          "website": "https://cascadetestbank.com",
+          "isActive": true,
+          "minAmount": "5000",
+          "maxAmount": "200000",
+          "processingFee": "100",
+          "interestRate": "12",
+          "createdAt": "2026-02-20T06:47:31.633Z",
+          "updatedAt": "2026-02-20T06:47:31.633Z"
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 3.4: Verify plan 1 is deleted after cascade",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/plans/013b442e-1c80-44ad-ba4b-959b8d28b033",
+      "expectedStatus": 404,
+      "actualStatus": 404,
+      "expectedFields": null,
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "EMI plan not found",
+        "message": "EMI plan not found",
+        "messageBn": "ইএমআই প্ল্যানটি পাওয়া যায়নি"
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 3.5: Verify plan 2 is deleted after cascade",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/plans/3fe80471-3b65-4c16-8eb8-7e8df12f0a3c",
+      "expectedStatus": 404,
+      "actualStatus": 404,
+      "expectedFields": null,
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "EMI plan not found",
+        "message": "EMI plan not found",
+        "messageBn": "ইএমআই প্ল্যানটি পাওয়া যায়নি"
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 4.1: GET EMI configuration",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/configuration",
+      "expectedStatus": 200,
+      "actualStatus": 500,
+      "expectedFields": [
+        "minAmount",
+        "maxAmount",
+        "defaultDurations",
+        "providers"
+      ],
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "Failed to fetch EMI configuration",
+        "message": "Failed to fetch EMI configuration",
+        "messageBn": "ইএমআই কনফিগারেশন আনতে পারা যায়নি"
+      },
+      "passed": false
+    },
+    {
+      "testName": "Test 4.2: GET EMI eligibility for amount 50000",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/eligibility/50000",
+      "expectedStatus": 200,
+      "actualStatus": 500,
+      "expectedFields": [
+        "eligible",
+        "minAmount",
+        "maxAmount"
+      ],
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "Failed to check EMI eligibility",
+        "message": "Failed to check EMI eligibility",
+        "messageBn": "ইএমআই যোগ্যতা পরীক্ষা করতে ব্যর্থ হয়েছে"
+      },
+      "passed": false
+    },
+    {
+      "testName": "Test 4.3: GET EMI eligibility - Below minimum amount",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/eligibility/1000",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedFields": [
+        "eligible",
+        "reason"
+      ],
+      "body": null,
+      "response": {
+        "success": true,
+        "message": "EMI eligibility checked",
+        "messageBn": "ইএমআই যোগ্যতা পরীক্ষা করা হয়েছে",
+        "data": {
+          "eligible": false,
+          "reason": "Minimum amount for EMI is BDT 5,000",
+          "availablePlans": [],
+          "minAmount": 5000,
+          "maxAmount": 500000
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 4.4: GET EMI eligibility - Above maximum amount",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/eligibility/1000000",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedFields": [
+        "eligible",
+        "reason"
+      ],
+      "body": null,
+      "response": {
+        "success": true,
+        "message": "EMI eligibility checked",
+        "messageBn": "ইএমআই যোগ্যতা পরীক্ষা করা হয়েছে",
+        "data": {
+          "eligible": false,
+          "reason": "Maximum amount for EMI is BDT 500,000",
+          "availablePlans": [],
+          "minAmount": 5000,
+          "maxAmount": 500000
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "Test 4.5: GET available EMI plans for amount 50000",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/available/50000",
+      "expectedStatus": 200,
+      "actualStatus": 500,
+      "expectedFields": [
+        "amount",
+        "plans"
+      ],
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "Failed to fetch available EMI plans",
+        "message": "Failed to fetch available EMI plans",
+        "messageBn": "উপলব্ধ ইএমআই প্ল্যানগুলি আনতে পারা যায়নি"
+      },
+      "passed": false
+    },
+    {
+      "testName": "Test 4.6: GET EMI calculate - All available plans",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/calculate?amount=50000",
+      "expectedStatus": 200,
+      "actualStatus": 500,
+      "expectedFields": [
+        "amount",
+        "availablePlans"
+      ],
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "Failed to calculate EMI",
+        "message": "Failed to calculate EMI",
+        "messageBn": "ইএমআই হিসাব করতে ব্যর্থ হয়েছে"
+      },
+      "passed": false
+    },
+    {
+      "testName": "Test 4.7: GET EMI calculate - Invalid negative amount",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/emi/calculate?amount=-100",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "expectedFields": null,
+      "body": null,
+      "response": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "-100",
+            "msg": "Invalid amount",
+            "path": "amount",
+            "location": "query"
+          }
+        ]
+      },
+      "passed": true
+    }
+  ]
+}

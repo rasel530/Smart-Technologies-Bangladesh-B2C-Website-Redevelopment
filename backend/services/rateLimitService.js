@@ -121,22 +121,38 @@ class RateLimitService {
       // Get oldest request timestamp for reset time
       pipeline.zRange(key, 0, 0);
       
-      const results = await pipeline.exec();
-      const count = results[2][1] || 0;
-      const oldestRequest = results[3][1] || [];
+      // Add timeout to pipeline execution to prevent indefinite hanging
+      const pipelineTimeout = 5000; // 5 seconds
+      let timeoutId;
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new Error('Redis pipeline timeout'));
+        }, pipelineTimeout);
+      });
       
-      const exceeded = count > config.maxRequests;
-      const resetTime = oldestRequest.length > 0 
-        ? parseInt(oldestRequest[0]) + config.windowMs 
-        : now + config.windowMs;
+      try {
+        const results = await Promise.race([pipeline.exec(), timeoutPromise]);
+        clearTimeout(timeoutId);
+        
+        const count = results[2][1] || 0;
+        const oldestRequest = results[3][1] || [];
+        
+        const exceeded = count > config.maxRequests;
+        const resetTime = oldestRequest.length > 0
+          ? parseInt(oldestRequest[0]) + config.windowMs
+          : now + config.windowMs;
 
-      return {
-        count,
-        exceeded,
-        resetTime,
-        windowStart,
-        windowEnd: now + config.windowMs
-      };
+        return {
+          count,
+          exceeded,
+          resetTime,
+          windowStart,
+          windowEnd: now + config.windowMs
+        };
+      } catch (error) {
+        if (timeoutId) clearTimeout(timeoutId);
+        throw error;
+      }
     } catch (error) {
       loggerService.error('Redis rate limiting error, falling back to memory', error);
       this.isRedisAvailable = false;
@@ -276,17 +292,33 @@ class RateLimitService {
         pipeline.zCard(key);
         pipeline.zRange(key, 0, 0);
         
-        const results = await pipeline.exec();
-        const count = results[1][1] || 0;
-        const oldestRequest = results[2][1] || [];
+        // Add timeout to pipeline execution to prevent indefinite hanging
+        const pipelineTimeout = 5000; // 5 seconds
+        let timeoutId;
+        const timeoutPromise = new Promise((_, reject) => {
+          timeoutId = setTimeout(() => {
+            reject(new Error('Redis pipeline timeout'));
+          }, pipelineTimeout);
+        });
         
-        return {
-          count,
-          resetTime: oldestRequest.length > 0 
-            ? parseInt(oldestRequest[0]) + (config.windowMs || 15 * 60 * 1000)
-            : now + (config.windowMs || 15 * 60 * 1000),
-          isRedisAvailable: true
-        };
+        try {
+          const results = await Promise.race([pipeline.exec(), timeoutPromise]);
+          clearTimeout(timeoutId);
+          
+          const count = results[1][1] || 0;
+          const oldestRequest = results[2][1] || [];
+          
+          return {
+            count,
+            resetTime: oldestRequest.length > 0
+              ? parseInt(oldestRequest[0]) + (config.windowMs || 15 * 60 * 1000)
+              : now + (config.windowMs || 15 * 60 * 1000),
+            isRedisAvailable: true
+          };
+        } catch (error) {
+          if (timeoutId) clearTimeout(timeoutId);
+          throw error;
+        }
       } else {
         const requests = this.memoryStore.get(key) || [];
         const validRequests = requests.filter(timestamp => timestamp > windowStart);

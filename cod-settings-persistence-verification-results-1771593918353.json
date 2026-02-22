@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-02-20T13:25:16.185Z",
+  "tests": [
+    {
+      "testName": "GET /api/v1/admin/cod/settings",
+      "status": "FAIL",
+      "details": "Unexpected status code: 401",
+      "error": null,
+      "timestamp": "2026-02-20T13:25:16.284Z"
+    },
+    {
+      "testName": "PUT /api/v1/admin/cod/settings",
+      "status": "FAIL",
+      "details": "Unexpected status code: 401",
+      "error": null,
+      "timestamp": "2026-02-20T13:25:17.324Z"
+    },
+    {
+      "testName": "Persistence Verification - GET after PUT",
+      "status": "FAIL",
+      "details": "Failed to retrieve settings after save. Status: 401",
+      "error": null,
+      "timestamp": "2026-02-20T13:25:18.351Z"
+    }
+  ],
+  "overallStatus": "FAIL"
+}

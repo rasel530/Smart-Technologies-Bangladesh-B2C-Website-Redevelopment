@@ -1,0 +1,226 @@
+{
+  "timestamp": "2026-02-18T05:20:26.733Z",
+  "summary": {
+    "cartLoadTime": {
+      "average": 0,
+      "min": 0,
+      "max": 0,
+      "meetsTarget": true,
+      "all": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "apiResponseTimes": {
+      "Get Cart": {
+        "average": 46,
+        "min": 17,
+        "max": 225,
+        "meetsTarget": true,
+        "all": [
+          225,
+          35,
+          38,
+          21,
+          28,
+          19,
+          18,
+          27,
+          17,
+          27
+        ]
+      },
+      "Get Abandonment Metrics": {
+        "average": 18,
+        "min": 9,
+        "max": 57,
+        "meetsTarget": true,
+        "all": [
+          57,
+          11,
+          13,
+          17,
+          22,
+          17,
+          10,
+          10,
+          9,
+          17
+        ]
+      },
+      "Get Conversion Funnel": {
+        "average": 9,
+        "min": 6,
+        "max": 13,
+        "meetsTarget": true,
+        "all": [
+          11,
+          9,
+          7,
+          9,
+          11,
+          7,
+          6,
+          8,
+          12,
+          13
+        ]
+      },
+      "Get Average Cart Value": {
+        "average": 13,
+        "min": 7,
+        "max": 23,
+        "meetsTarget": true,
+        "all": [
+          10,
+          16,
+          12,
+          11,
+          23,
+          19,
+          12,
+          7,
+          8,
+          13
+        ]
+      },
+      "Get Popular Products": {
+        "average": 11,
+        "min": 7,
+        "max": 17,
+        "meetsTarget": true,
+        "all": [
+          7,
+          9,
+          9,
+          9,
+          12,
+          7,
+          9,
+          17,
+          10,
+          16
+        ]
+      }
+    },
+    "databaseQueries": {
+      "Simple Cart Lookup": {
+        "average": 3,
+        "min": 3,
+        "max": 4,
+        "meetsTarget": true,
+        "all": [
+          3,
+          4,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
+      },
+      "Cart with Items": {
+        "average": 6,
+        "min": 5,
+        "max": 10,
+        "meetsTarget": true,
+        "all": [
+          10,
+          5,
+          6,
+          6,
+          5,
+          6,
+          5,
+          5,
+          5,
+          5
+        ]
+      },
+      "Cart with Items and Products": {
+        "average": 10,
+        "min": 7,
+        "max": 29,
+        "meetsTarget": true,
+        "all": [
+          29,
+          7,
+          8,
+          8,
+          7,
+          8,
+          8,
+          10,
+          9,
+          8
+        ]
+      },
+      "Cart Events Query": {
+        "average": 3,
+        "min": 2,
+        "max": 9,
+        "meetsTarget": true,
+        "all": [
+          9,
+          3,
+          2,
+          3,
+          2,
+          3,
+          3,
+          3,
+          2,
+          3
+        ]
+      },
+      "Analytics Aggregation": {
+        "average": 0,
+        "min": null,
+        "max": 0,
+        "meetsTarget": true,
+        "all": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "cacheMetrics": {
+      "hitRate": 50,
+      "avgHitTime": 3,
+      "avgMissTime": 3,
+      "meetsTarget": false,
+      "performanceGain": 0
+    },
+    "concurrentOperations": {
+      "concurrentRequests": 5,
+      "totalTime": 46,
+      "avgPerRequest": 9,
+      "meetsTarget": true
+    }
+  },
+  "details": {
+    "cartLoadTimes": [],
+    "apiResponseTimes": [],
+    "databaseQueryTimes": [],
+    "cacheMetrics": {}
+  }
+}

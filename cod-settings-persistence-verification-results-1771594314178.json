@@ -1,0 +1,35 @@
+{
+  "timestamp": "2026-02-20T13:31:50.366Z",
+  "tests": [
+    {
+      "testName": "Admin Authentication",
+      "status": "PASS",
+      "details": "Successfully authenticated. Token received (first 20 chars: eyJhbGciOiJIUzI1NiIs...)",
+      "error": null,
+      "timestamp": "2026-02-20T13:31:51.069Z"
+    },
+    {
+      "testName": "GET /api/v1/admin/cod/settings",
+      "status": "PASS",
+      "details": "Successfully retrieved COD settings. Status: 200",
+      "error": null,
+      "timestamp": "2026-02-20T13:31:52.117Z"
+    },
+    {
+      "testName": "PUT /api/v1/admin/cod/settings",
+      "status": "PASS",
+      "details": "Successfully saved COD settings. Status: 200",
+      "error": null,
+      "timestamp": "2026-02-20T13:31:53.150Z"
+    },
+    {
+      "testName": "Persistence Verification - GET after PUT",
+      "status": "PASS",
+      "details": "All settings match. Data persisted correctly to database.",
+      "error": null,
+      "timestamp": "2026-02-20T13:31:54.177Z"
+    }
+  ],
+  "overallStatus": "PASS",
+  "authToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlYTU5YmY0Ny00YjY2LTQzMWQtYmE2My1hMGE2OTQzNzc5OGYiLCJlbWFpbCI6ImFkbWluQHNtYXJ0dGVjaC5jb20iLCJwaG9uZSI6bnVsbCwicm9sZSI6ImFkbWluIiwic2Vzc2lvbklkIjoiYmY1M2M5ZjM3M2YzYmZiNTI1YzJiNjYxNWY2NDIwNWEzMGNlMDhiYzkxYjdmM2U2ZmZhMjY5ODI3NjNmZmVlMCIsImlhdCI6MTc3MTU5NDMxMSwiZXhwIjoxNzcyMTk5MTExLCJhdWQiOiJzbWFydC1lY29tbWVyY2UtY2xpZW50cyIsImlzcyI6InNtYXJ0LWVjb21tZXJjZS1hcGkifQ.d6z8l-WiDKYEkgkMFzkDGUez8_8gulActqAcw62eEeE"
+}

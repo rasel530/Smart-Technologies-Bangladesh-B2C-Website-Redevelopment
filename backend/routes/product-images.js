@@ -169,20 +169,29 @@ const sendErrorResponse = (res, statusCode, errorEn, errorBn, details = null) =>
  *         description: Internal server error
  */
 router.post('/:id/images', [
-  param('id').isUUID(),
+  param('id').isUUID()
+], authMiddleware.authenticate(), authMiddleware.adminOnly(), upload.array('images', 10), [
   body('images').optional(),
   body('imagesData').optional(),
   body('images.*.altTextBn').optional().isString().trim(),
   body('images.*.altTextEn').optional().isString().trim(),
   body('images.*.displayOrder').optional().isInt({ min: 0 })
-], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), upload.array('images', 10), async (req, res) => {
+], handleValidationErrors, async (req, res) => {
   try {
     const { id: productId } = req.params;
     console.log(`[ProductImages] Starting image upload for product: ${productId}`);
+    console.log('[ProductImages] DEBUG: req.body exists?', !!req.body);
+    console.log('[ProductImages] DEBUG: req.body value:', req.body);
+    console.log('[ProductImages] DEBUG: req.files exists?', !!req.files);
+    console.log('[ProductImages] DEBUG: req.files length:', req.files?.length);
 
     // Parse metadata from imagesData if provided
-    let imagesMetadata = req.body.images;
-    if (req.body.imagesData && typeof req.body.imagesData === 'string') {
+    console.log('[ProductImages] DEBUG: About to access req.body.images');
+    // FIX: Add null check for req.body before accessing its properties
+    let imagesMetadata = req.body && req.body.images ? req.body.images : [];
+    console.log('[ProductImages] DEBUG: imagesMetadata:', imagesMetadata);
+    // FIX: Add null check for req.body before accessing its properties
+    if (req.body && req.body.imagesData && typeof req.body.imagesData === 'string') {
       try {
         imagesMetadata = JSON.parse(req.body.imagesData);
       } catch (error) {
@@ -222,7 +231,9 @@ router.post('/:id/images', [
     const currentCount = parseInt(existingImages[0].count);
 
     // Validate image count
-    const countValidation = validateImageCount(currentCount, req.files.length);
+    // FIX: Add null check for req.files
+    const filesLength = req.files ? req.files.length : 0;
+    const countValidation = validateImageCount(currentCount, filesLength);
     if (!countValidation.isValid && !countValidation.error?.includes('Warning')) {
       return sendErrorResponse(
         res,
@@ -238,7 +249,8 @@ router.post('/:id/images', [
       WHERE product_id = ${productId} AND processing_status != 'deleted'
     `;
     const currentTotalBytes = parseInt(currentUsage[0].total) || 0;
-    const newImageBytes = req.files.reduce((sum, file) => sum + file.size, 0);
+    // FIX: Add null check for req.files
+    const newImageBytes = req.files ? req.files.reduce((sum, file) => sum + file.size, 0) : 0;
     
     const quotaValidation = validateStorageQuota(currentTotalBytes, newImageBytes);
     if (!quotaValidation.isValid) {
@@ -253,6 +265,16 @@ router.post('/:id/images', [
     const uploadedImages = [];
     const failedImages = [];
     const processingResults = [];
+
+    // FIX: Add null check for req.files
+    if (!req.files || req.files.length === 0) {
+      return sendErrorResponse(
+        res,
+        400,
+        'No files uploaded',
+        'কোনো ফাইল আপলোড করা হয়নি'
+      );
+    }
 
     // Process each uploaded image
     for (let i = 0; i < req.files.length; i++) {
@@ -390,13 +412,14 @@ router.post('/:id/images', [
     console.log(`[ProductImages] Upload complete: ${uploadedImages.length} successful, ${failedImages.length} failed`);
 
     const statusCode = uploadedImages.length === 0 ? 500 : (failedImages.length === 0 ? 201 : 207);
+    // FIX: Add null check for req.files
     res.status(statusCode).json({
       message: 'Images uploaded successfully',
       messageBn: 'ইমেজ সফলভাবে হয়েছে',
       messageEn: 'Images uploaded successfully',
       uploaded: uploadedImages,
       failed: failedImages,
-      total: req.files.length,
+      total: req.files ? req.files.length : 0,
       processing: processingResults
     });
 

@@ -1,0 +1,300 @@
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   url: '/api/v1/health',
+smarttech_backend  |   timestamp: '2026-02-21T10:21:57.014Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1771668417014
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-02-21T10:21:57.024Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 127.0.0.1 - - [21/Feb/2026:10:21:57 +0000] "GET /api/v1/health HTTP/1.1" 200 1029 "-" "curl/8.17.0" {"timestamp":"2026-02-21T10:21:57.025Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-02-21T10:22:27.120Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.17.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   url: '/api/v1/health',
+smarttech_backend  |   timestamp: '2026-02-21T10:22:27.121Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1771668447122
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-02-21T10:22:27.132Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-02-21T10:22:27.133Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 127.0.0.1 - - [21/Feb/2026:10:22:27 +0000] "GET /api/v1/health HTTP/1.1" 200 1028 "-" "curl/8.17.0" {"timestamp":"2026-02-21T10:22:27.134Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-02-21T10:22:57.229Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.17.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   url: '/api/v1/health',
+smarttech_backend  |   timestamp: '2026-02-21T10:22:57.229Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1771668477229
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-02-21T10:22:57.243Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-02-21T10:22:57.243Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 127.0.0.1 - - [21/Feb/2026:10:22:57 +0000] "GET /api/v1/health HTTP/1.1" 200 1029 "-" "curl/8.17.0" {"timestamp":"2026-02-21T10:22:57.245Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-02-21T10:22:58.496Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/wishlist',
+smarttech_backend  |   origin: 'http://localhost:3000',
+smarttech_backend  |   referer: 'http://localhost:3000/',
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': true,
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/wishlist',
+smarttech_backend  |   url: '/api/v1/wishlist',
+smarttech_backend  |   timestamp: '2026-02-21T10:22:58.496Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: application/json
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/wishlist
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/wishlist
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1771668478497
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-02-21T10:22:58.497Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/wishlist',
+smarttech_backend  |   origin: 'http://localhost:3000',
+smarttech_backend  |   referer: 'http://localhost:3000/',
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': true,
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/wishlist',
+smarttech_backend  |   url: '/api/v1/wishlist',
+smarttech_backend  |   timestamp: '2026-02-21T10:22:58.497Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: application/json
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/wishlist
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/wishlist
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1771668478498
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | [32minfo[39m: Authentication attempt {"authHeaderPrefix":"Bearer eyJ","hasAuthHeader":true,"method":"GET","path":"/","timestamp":"2026-02-21T10:22:58.511Z"}
+smarttech_backend  | [32minfo[39m: Token extracted {"timestamp":"2026-02-21T10:22:58.512Z","tokenLength":455,"tokenPrefix":"eyJhbGciOiJIUzI1NiIs..."}
+smarttech_backend  | [AUTH MIDDLEWARE] Token verification attempt: {
+smarttech_backend  |   tokenLength: 455,
+smarttech_backend  |   tokenPreview: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...',
+smarttech_backend  |   timestamp: '2026-02-21T10:22:58.512Z'
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: Authentication attempt {"authHeaderPrefix":"Bearer eyJ","hasAuthHeader":true,"method":"GET","path":"/","timestamp":"2026-02-21T10:22:58.512Z"}
+smarttech_backend  | [32minfo[39m: Token extracted {"timestamp":"2026-02-21T10:22:58.512Z","tokenLength":455,"tokenPrefix":"eyJhbGciOiJIUzI1NiIs..."}
+smarttech_backend  | [AUTH MIDDLEWARE] Token verification attempt: {
+smarttech_backend  |   tokenLength: 455,
+smarttech_backend  |   tokenPreview: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...',
+smarttech_backend  |   timestamp: '2026-02-21T10:22:58.512Z'
+smarttech_backend  | }
+smarttech_backend  | [AUTH MIDDLEWARE] Token verified successfully: {
+smarttech_backend  |   userId: 'ea59bf47-4b66-431d-ba63-a0a69437798f',
+smarttech_backend  |   email: 'admin@smarttech.com',
+smarttech_backend  |   role: 'admin',
+smarttech_backend  |   exp: 1772268678,
+smarttech_backend  |   iat: 1771663878
+smarttech_backend  | }
+smarttech_backend  | [AUTH MIDDLEWARE] Token verified successfully: {
+smarttech_backend  |   userId: 'ea59bf47-4b66-431d-ba63-a0a69437798f',
+smarttech_backend  |   email: 'admin@smarttech.com',
+smarttech_backend  |   role: 'admin',
+smarttech_backend  |   exp: 1772268678,
+smarttech_backend  |   iat: 1771663878
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: Token verified {"exp":1772268678,"timestamp":"2026-02-21T10:22:58.515Z","userId":"ea59bf47-4b66-431d-ba63-a0a69437798f"}
+smarttech_backend  | [32minfo[39m: Token verified {"exp":1772268678,"timestamp":"2026-02-21T10:22:58.515Z","userId":"ea59bf47-4b66-431d-ba63-a0a69437798f"}
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT "public"."users"."id", "public"."users"."email", "public"."users"."phone", "public"."users"."firstName", "public"."users"."lastName", "public"."users"."role"::text, "public"."users"."status"::text, "public"."users"."emailVerified", "public"."users"."phoneVerified", "public"."users"."createdAt", "public"."users"."updatedAt" FROM "public"."users" WHERE "public"."users"."id" IN ($1,$2) OFFSET $3',
+smarttech_backend  |   params: '["ea59bf47-4b66-431d-ba63-a0a69437798f","ea59bf47-4b66-431d-ba63-a0a69437798f",0]',
+smarttech_backend  |   duration: '3ms',
+smarttech_backend  |   timestamp: 2026-02-21T10:22:58.521Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: User status check {"comparingWith":"active","comparisonResult":false,"email":"admin@smarttech.com","status":"active","statusType":"string","timestamp":"2026-02-21T10:22:58.521Z","userId":"ea59bf47-4b66-431d-ba63-a0a69437798f"}
+smarttech_backend  | [32minfo[39m: User status check {"comparingWith":"active","comparisonResult":false,"email":"admin@smarttech.com","status":"active","statusType":"string","timestamp":"2026-02-21T10:22:58.522Z","userId":"ea59bf47-4b66-431d-ba63-a0a69437798f"}
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT "public"."user_roles"."id", "public"."user_roles"."user_id", "public"."user_roles"."role_id", "public"."user_roles"."assigned_by", "public"."user_roles"."assigned_at", "public"."user_roles"."expires_at", "public"."user_roles"."is_active" FROM "public"."user_roles" LEFT JOIN "public"."roles" AS "orderby_1" ON ("orderby_1"."id") = ("public"."user_roles"."role_id") WHERE ("public"."user_roles"."user_id" = $1 AND "public"."user_roles"."is_active" = $2 AND ("public"."user_roles"."expires_at" IS NULL OR "public"."user_roles"."expires_at" > $3)) ORDER BY "orderby_1"."hierarchy_level" DESC, "public"."user_roles"."assigned_at" DESC OFFSET $4',
+smarttech_backend  |   params: '["ea59bf47-4b66-431d-ba63-a0a69437798f",true,"2026-02-21 10:22:58.522 UTC",0]',
+smarttech_backend  |   duration: '7ms',
+smarttech_backend  |   timestamp: 2026-02-21T10:22:58.531Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT "public"."roles"."id", "public"."roles"."name", "public"."roles"."description", "public"."roles"."hierarchy_level" FROM "public"."roles" WHERE "public"."roles"."id" IN ($1) OFFSET $2',
+smarttech_backend  |   params: '["4d0cd4a1-3c74-4782-a766-8020f0296e00",0]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-02-21T10:22:58.532Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: RBAC roles fetched {"primaryRole":"ADMIN","rbacRoles":["ADMIN"],"roleLevel":4,"timestamp":"2026-02-21T10:22:58.533Z","userId":"ea59bf47-4b66-431d-ba63-a0a69437798f"}
+smarttech_backend  | [32minfo[39m: Authentication successful {"email":"admin@smarttech.com","legacyRole":"admin","rbacRole":"ADMIN","timestamp":"2026-02-21T10:22:58.533Z","userId":"ea59bf47-4b66-431d-ba63-a0a69437798f"}
+smarttech_backend  | [AUTH DEBUG] User authenticated successfully: {
+smarttech_backend  |   userId: 'ea59bf47-4b66-431d-ba63-a0a69437798f',
+smarttech_backend  |   email: 'admin@smarttech.com',
+smarttech_backend  |   role: 'admin',
+smarttech_backend  |   timestamp: '2026-02-21T10:22:58.533Z'
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT "public"."user_roles"."id", "public"."user_roles"."user_id", "public"."user_roles"."role_id", "public"."user_roles"."assigned_by", "public"."user_roles"."assigned_at", "public"."user_roles"."expires_at", "public"."user_roles"."is_active" FROM "public"."user_roles" LEFT JOIN "public"."roles" AS "orderby_1" ON ("orderby_1"."id") = ("public"."user_roles"."role_id") WHERE ("public"."user_roles"."user_id" = $1 AND "public"."user_roles"."is_active" = $2 AND ("public"."user_roles"."expires_at" IS NULL OR "public"."user_roles"."expires_at" > $3)) ORDER BY "orderby_1"."hierarchy_level" DESC, "public"."user_roles"."assigned_at" DESC OFFSET $4',
+smarttech_backend  |   params: '["ea59bf47-4b66-431d-ba63-a0a69437798f",true,"2026-02-21 10:22:58.522 UTC",0]',
+smarttech_backend  |   duration: '7ms',
+smarttech_backend  |   timestamp: 2026-02-21T10:22:58.542Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT "public"."roles"."id", "public"."roles"."name", "public"."roles"."description", "public"."roles"."hierarchy_level" FROM "public"."roles" WHERE "public"."roles"."id" IN ($1) OFFSET $2',
+smarttech_backend  |   params: '["4d0cd4a1-3c74-4782-a766-8020f0296e00",0]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-02-21T10:22:58.543Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: RBAC roles fetched {"primaryRole":"ADMIN","rbacRoles":["ADMIN"],"roleLevel":4,"timestamp":"2026-02-21T10:22:58.543Z","userId":"ea59bf47-4b66-431d-ba63-a0a69437798f"}
+smarttech_backend  | [32minfo[39m: Authentication successful {"email":"admin@smarttech.com","legacyRole":"admin","rbacRole":"ADMIN","timestamp":"2026-02-21T10:22:58.543Z","userId":"ea59bf47-4b66-431d-ba63-a0a69437798f"}
+smarttech_backend  | [AUTH DEBUG] User authenticated successfully: {
+smarttech_backend  |   userId: 'ea59bf47-4b66-431d-ba63-a0a69437798f',
+smarttech_backend  |   email: 'admin@smarttech.com',
+smarttech_backend  |   role: 'admin',
+smarttech_backend  |   timestamp: '2026-02-21T10:22:58.543Z'
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 172.18.0.1 - - [21/Feb/2026:10:22:58 +0000] "GET /api/v1/wishlist HTTP/1.1" 200 561 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36" {"timestamp":"2026-02-21T10:22:58.556Z"}
+smarttech_backend  | [32minfo[39m: 172.18.0.1 - - [21/Feb/2026:10:22:58 +0000] "GET /api/v1/wishlist HTTP/1.1" 200 561 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36" {"timestamp":"2026-02-21T10:22:58.563Z"}

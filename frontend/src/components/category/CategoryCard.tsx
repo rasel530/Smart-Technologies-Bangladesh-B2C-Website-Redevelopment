@@ -11,7 +11,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { CategoryWithRelations, CategoryStatus } from '@/types/category';
 import { getImageUrl } from '@/lib/utils/image';
 
@@ -37,9 +37,23 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   className = ''
 }) => {
   const [imageError, setImageError] = useState(false);
+  const router = useRouter();
 
   // Get category icon or banner image using getImageUrl to ensure correct backend URL
   const imageUrl = getImageUrl(category.bannerImage || category.iconUrl) || '';
+
+  // Handle click navigation
+  const handleClick = () => {
+    router.push(`/categories/${category.slug}`);
+  };
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
 
   // Truncate description
   const truncatedDescription = category.description
@@ -53,14 +67,18 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   const subcategoryCount = category._count?.subcategories || 0;
 
   return (
-    <Link
-      href={`/categories/${category.slug}`}
+    <div
       className={`
         group relative bg-white rounded-lg shadow-sm hover:shadow-xl
-        transition-all duration-300 overflow-hidden
+        transition-all duration-300 overflow-hidden cursor-pointer
         ${category.status !== CategoryStatus.ACTIVE ? 'opacity-60' : ''}
         ${className}
       `}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label={`View ${category.name} category`}
     >
       {/* Category Image/Icon */}
       <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden">
@@ -189,7 +207,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           </div>
         )}
       </div>
-    </Link>
+    </div>
   );
 };
 

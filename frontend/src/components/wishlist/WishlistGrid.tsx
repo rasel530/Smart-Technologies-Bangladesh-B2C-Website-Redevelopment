@@ -66,7 +66,7 @@ export const WishlistGrid: React.FC<WishlistGridProps> = ({
           onSelect={() => onSelectItem(item.id)}
           onRemove={() => onRemoveItem(item.id)}
           onMoveToCart={() => onMoveToCart(item.id)}
-          onViewProduct={() => onViewProduct(item.productId)}
+          onViewProduct={() => onViewProduct(item.product.slug)}
           language={language}
         />
       ))}

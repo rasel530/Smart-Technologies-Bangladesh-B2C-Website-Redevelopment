@@ -1,0 +1,106 @@
+{
+  "timestamp": "2026-02-20T16:11:56.946Z",
+  "tests": [
+    {
+      "test": "Admin Authentication",
+      "status": "PASS",
+      "details": "Token received: eyJhbGciOiJIUzI1NiIs...",
+      "timestamp": "2026-02-20T16:11:57.518Z"
+    },
+    {
+      "test": "GET Endpoint - Success response",
+      "status": "PASS",
+      "details": "Status: 200",
+      "timestamp": "2026-02-20T16:11:57.550Z"
+    },
+    {
+      "test": "GET Endpoint - All expected fields present",
+      "status": "PASS",
+      "details": "All 16 fields present",
+      "timestamp": "2026-02-20T16:11:57.550Z"
+    },
+    {
+      "test": "GET Endpoint - No snake_case fields",
+      "status": "PASS",
+      "details": "All fields are in camelCase format",
+      "timestamp": "2026-02-20T16:11:57.551Z"
+    },
+    {
+      "test": "GET Endpoint - No unexpected fields",
+      "status": "PASS",
+      "details": "Only expected fields present",
+      "timestamp": "2026-02-20T16:11:57.551Z"
+    },
+    {
+      "test": "PUT Endpoint - Success response",
+      "status": "PASS",
+      "details": "Status: 200",
+      "timestamp": "2026-02-20T16:11:57.593Z"
+    },
+    {
+      "test": "PUT Endpoint - All expected fields present",
+      "status": "PASS",
+      "details": "All 16 fields present",
+      "timestamp": "2026-02-20T16:11:57.593Z"
+    },
+    {
+      "test": "PUT Endpoint - No snake_case fields",
+      "status": "PASS",
+      "details": "All fields are in camelCase format",
+      "timestamp": "2026-02-20T16:11:57.593Z"
+    },
+    {
+      "test": "PUT Endpoint - No unexpected fields",
+      "status": "PASS",
+      "details": "Only expected fields present",
+      "timestamp": "2026-02-20T16:11:57.593Z"
+    },
+    {
+      "test": "PUT Endpoint - Data saved correctly",
+      "status": "PASS",
+      "details": "All test data fields match",
+      "timestamp": "2026-02-20T16:11:57.594Z"
+    },
+    {
+      "test": "Persistence Flow - GET after PUT",
+      "status": "PASS",
+      "details": "Status: 200",
+      "timestamp": "2026-02-20T16:11:57.618Z"
+    },
+    {
+      "test": "Persistence Flow - All expected fields present",
+      "status": "PASS",
+      "details": "All 16 fields present",
+      "timestamp": "2026-02-20T16:11:57.618Z"
+    },
+    {
+      "test": "Persistence Flow - No snake_case fields",
+      "status": "PASS",
+      "details": "All fields are in camelCase format",
+      "timestamp": "2026-02-20T16:11:57.618Z"
+    },
+    {
+      "test": "Persistence Flow - No unexpected fields",
+      "status": "PASS",
+      "details": "Only expected fields present",
+      "timestamp": "2026-02-20T16:11:57.618Z"
+    },
+    {
+      "test": "Persistence Flow - Data matches saved values",
+      "status": "PASS",
+      "details": "All persisted fields match",
+      "timestamp": "2026-02-20T16:11:57.618Z"
+    },
+    {
+      "test": "Persistence Flow - Settings updated",
+      "status": "PASS",
+      "details": "Settings were successfully updated",
+      "timestamp": "2026-02-20T16:11:57.618Z"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "passed": 16,
+    "failed": 0
+  }
+}

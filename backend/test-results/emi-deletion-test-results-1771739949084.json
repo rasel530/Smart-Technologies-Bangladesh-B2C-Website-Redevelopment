@@ -1,0 +1,116 @@
+{
+  "timestamp": "2026-02-22T05:59:08.297Z",
+  "environment": {
+    "backend": "http://localhost:3001",
+    "frontend": "http://localhost:3000"
+  },
+  "tests": [
+    {
+      "test": "Health Check",
+      "passed": true,
+      "timestamp": "2026-02-22T05:59:08.345Z",
+      "message": "Backend server is healthy and responding",
+      "statusCode": 200,
+      "response": {
+        "status": "OK"
+      }
+    },
+    {
+      "test": "Admin Authentication",
+      "passed": true,
+      "timestamp": "2026-02-22T05:59:08.755Z",
+      "message": "Successfully authenticated admin user",
+      "statusCode": 200,
+      "response": {
+        "token": "eyJhbGciOiJIUzI1NiIs..."
+      }
+    },
+    {
+      "test": "List EMI Providers",
+      "passed": true,
+      "timestamp": "2026-02-22T05:59:08.803Z",
+      "message": "Successfully retrieved 7 providers",
+      "statusCode": 200,
+      "response": {
+        "count": 7
+      }
+    },
+    {
+      "test": "List EMI Plans",
+      "passed": true,
+      "timestamp": "2026-02-22T05:59:08.867Z",
+      "message": "Successfully retrieved 20 plans",
+      "statusCode": 200,
+      "response": {
+        "count": 20
+      }
+    },
+    {
+      "test": "Delete Provider by Code",
+      "passed": true,
+      "timestamp": "2026-02-22T05:59:08.912Z",
+      "message": "Successfully deleted provider with code: dutch-bangla-bank-emi-1",
+      "statusCode": 200,
+      "response": {
+        "code": "dutch-bangla-bank-emi-1"
+      }
+    },
+    {
+      "test": "Delete Provider by UUID",
+      "passed": true,
+      "timestamp": "2026-02-22T05:59:08.948Z",
+      "message": "Successfully deleted provider with UUID: dc4eee49...",
+      "statusCode": 200,
+      "response": {
+        "uuid": "dc4eee49..."
+      }
+    },
+    {
+      "test": "Delete Plan by UUID",
+      "passed": true,
+      "timestamp": "2026-02-22T05:59:08.990Z",
+      "message": "Successfully deleted plan with UUID: 328a0371...",
+      "statusCode": 200,
+      "response": {
+        "uuid": "328a0371..."
+      }
+    },
+    {
+      "test": "Delete Non-existent Provider",
+      "passed": true,
+      "timestamp": "2026-02-22T05:59:09.023Z",
+      "message": "Correctly returned 404 for non-existent provider: non-existent-provider-code-12345",
+      "statusCode": 404,
+      "response": {
+        "code": "non-existent-provider-code-12345"
+      }
+    },
+    {
+      "test": "Delete with Invalid Identifier Format",
+      "passed": true,
+      "timestamp": "2026-02-22T05:59:09.036Z",
+      "message": "Correctly returned 400 for invalid identifier format: invalid@identifier#format",
+      "statusCode": 400,
+      "response": {
+        "identifier": "invalid@identifier#format"
+      }
+    },
+    {
+      "test": "Cascade Delete",
+      "passed": true,
+      "timestamp": "2026-02-22T05:59:09.083Z",
+      "message": "Successfully deleted provider with 10 associated plans (cascade delete)",
+      "statusCode": 200,
+      "response": {
+        "code": "dutch-bangla-bank-emi",
+        "plansDeleted": 10
+      }
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "passRate": "100.00%"
+  }
+}

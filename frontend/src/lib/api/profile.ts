@@ -162,7 +162,7 @@ export class ProfileAPI {
 export interface Address {
   id: string;
   userId: string;
-  type: 'SHIPPING' | 'BILLING';
+  type: 'SHIPPING' | 'BILLING' | 'HOME' | 'WORK' | 'OTHER';
   firstName: string;
   lastName: string;
   phone?: string;
@@ -177,7 +177,7 @@ export interface Address {
 }
 
 export interface CreateAddressRequest {
-  type?: 'SHIPPING' | 'BILLING';
+  type?: 'SHIPPING' | 'BILLING' | 'HOME' | 'WORK' | 'OTHER';
   firstName: string;
   lastName: string;
   phone?: string;

@@ -18,6 +18,7 @@ import { ProductGrid } from '@/components/product/ProductGrid';
 import { FilterSidebar } from '@/components/product/FilterSidebar';
 import { SortDropdown } from '@/components/product/SortDropdown';
 import { useWishlist } from '@/hooks/useWishlist';
+import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 
 interface Category {
@@ -68,6 +69,17 @@ export function CategoryPageClient({
   // Wishlist
   const { isInWishlist, addToDefaultWishlist, removeFromWishlist, items } =
     useWishlist();
+  
+  // Cart
+  const { addItem } = useCart();
+  
+  // Handle add to cart
+  const handleAddToCart = (productId: string, variantId?: string) => {
+    const product = initialProducts.find(p => p.id === productId);
+    if (product) {
+      addItem(product, 1, variantId);
+    }
+  };
 
   // View mode state
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -205,6 +217,7 @@ export function CategoryPageClient({
           {/* Product Grid */}
           <ProductGrid
             products={initialProducts}
+            onAddToCart={handleAddToCart}
             columns={{
               mobile: 1,
               tablet: 2,

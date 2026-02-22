@@ -43,12 +43,13 @@ const AuthWrapper: React.FC<AuthWrapperProps & WithAuthProps> = ({ children, use
     }
   }, [sessionStatus, mounted, redirectTo, router]);
 
-  // Show loading state
-  // Only check if user is not available (more reliable than checking isLoading)
+  // PRIORITY 2: Progressive Rendering - Show skeleton while auth loads
+  // Instead of blocking the entire page, show a minimal loading indicator
+  // This allows the H1 element to render before auth is fully complete
   if (isLoading || !user || !mounted) {
     return fallback || (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-t-2 border-primary-600"></div>
+      <div className="flex items-center justify-center min-h-[200px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-t-2 border-primary-600"></div>
       </div>
     );
   }
@@ -58,8 +59,8 @@ const AuthWrapper: React.FC<AuthWrapperProps & WithAuthProps> = ({ children, use
   // which causes 401 Unauthorized errors
   if (sessionStatus === 'authenticated' && !getToken()) {
     return fallback || (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-t-2 border-primary-600"></div>
+      <div className="flex items-center justify-center min-h-[200px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-t-2 border-primary-600"></div>
       </div>
     );
   }

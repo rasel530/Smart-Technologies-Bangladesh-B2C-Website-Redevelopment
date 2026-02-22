@@ -1,0 +1,910 @@
+{
+  "total": 94,
+  "passed": 93,
+  "failed": 1,
+  "skipped": 0,
+  "tests": [
+    {
+      "name": "Analytics - Without authentication - Authentication required",
+      "status": "PASS",
+      "message": "Endpoint should require authentication",
+      "details": {
+        "statusCode": 401,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      },
+      "timestamp": "2026-02-21T13:00:16.854Z"
+    },
+    {
+      "name": "Analytics - With authentication (no filters) - Status code",
+      "status": "PASS",
+      "message": "Should return 200 OK",
+      "details": {
+        "statusCode": 200
+      },
+      "timestamp": "2026-02-21T13:00:17.261Z"
+    },
+    {
+      "name": "Analytics - With authentication (no filters) - Response is object",
+      "status": "PASS",
+      "message": "Response should be an object",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:17.262Z"
+    },
+    {
+      "name": "Analytics - With authentication (no filters) - Success flag",
+      "status": "PASS",
+      "message": "Response should have success: true",
+      "details": {
+        "success": true
+      },
+      "timestamp": "2026-02-21T13:00:17.262Z"
+    },
+    {
+      "name": "Analytics - With authentication (no filters) - Data is array",
+      "status": "PASS",
+      "message": "Response data should be an array",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:17.262Z"
+    },
+    {
+      "name": "Analytics - With authentication (no filters) - Count field",
+      "status": "PASS",
+      "message": "Response should have a count field",
+      "details": {
+        "count": 0,
+        "countType": "number"
+      },
+      "timestamp": "2026-02-21T13:00:17.262Z"
+    },
+    {
+      "name": "Analytics - With platform filter (mobile) - Status code",
+      "status": "PASS",
+      "message": "Should return 200 OK",
+      "details": {
+        "statusCode": 200
+      },
+      "timestamp": "2026-02-21T13:00:17.354Z"
+    },
+    {
+      "name": "Analytics - With platform filter (mobile) - Response is object",
+      "status": "PASS",
+      "message": "Response should be an object",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:17.354Z"
+    },
+    {
+      "name": "Analytics - With platform filter (mobile) - Success flag",
+      "status": "PASS",
+      "message": "Response should have success: true",
+      "details": {
+        "success": true
+      },
+      "timestamp": "2026-02-21T13:00:17.355Z"
+    },
+    {
+      "name": "Analytics - With platform filter (mobile) - Data is array",
+      "status": "PASS",
+      "message": "Response data should be an array",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:17.355Z"
+    },
+    {
+      "name": "Analytics - With platform filter (mobile) - Count field",
+      "status": "PASS",
+      "message": "Response should have a count field",
+      "details": {
+        "count": 0,
+        "countType": "number"
+      },
+      "timestamp": "2026-02-21T13:00:17.355Z"
+    },
+    {
+      "name": "Analytics - With platform filter (desktop) - Status code",
+      "status": "PASS",
+      "message": "Should return 200 OK",
+      "details": {
+        "statusCode": 200
+      },
+      "timestamp": "2026-02-21T13:00:17.504Z"
+    },
+    {
+      "name": "Analytics - With platform filter (desktop) - Response is object",
+      "status": "PASS",
+      "message": "Response should be an object",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:17.504Z"
+    },
+    {
+      "name": "Analytics - With platform filter (desktop) - Success flag",
+      "status": "PASS",
+      "message": "Response should have success: true",
+      "details": {
+        "success": true
+      },
+      "timestamp": "2026-02-21T13:00:17.504Z"
+    },
+    {
+      "name": "Analytics - With platform filter (desktop) - Data is array",
+      "status": "PASS",
+      "message": "Response data should be an array",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:17.504Z"
+    },
+    {
+      "name": "Analytics - With platform filter (desktop) - Count field",
+      "status": "PASS",
+      "message": "Response should have a count field",
+      "details": {
+        "count": 0,
+        "countType": "number"
+      },
+      "timestamp": "2026-02-21T13:00:17.505Z"
+    },
+    {
+      "name": "Analytics - With action filter (view) - Status code",
+      "status": "PASS",
+      "message": "Should return 200 OK",
+      "details": {
+        "statusCode": 200
+      },
+      "timestamp": "2026-02-21T13:00:17.719Z"
+    },
+    {
+      "name": "Analytics - With action filter (view) - Response is object",
+      "status": "PASS",
+      "message": "Response should be an object",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:17.719Z"
+    },
+    {
+      "name": "Analytics - With action filter (view) - Success flag",
+      "status": "PASS",
+      "message": "Response should have success: true",
+      "details": {
+        "success": true
+      },
+      "timestamp": "2026-02-21T13:00:17.719Z"
+    },
+    {
+      "name": "Analytics - With action filter (view) - Data is array",
+      "status": "PASS",
+      "message": "Response data should be an array",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:17.719Z"
+    },
+    {
+      "name": "Analytics - With action filter (view) - Count field",
+      "status": "PASS",
+      "message": "Response should have a count field",
+      "details": {
+        "count": 0,
+        "countType": "number"
+      },
+      "timestamp": "2026-02-21T13:00:17.719Z"
+    },
+    {
+      "name": "Analytics - With action filter (checkout) - Status code",
+      "status": "PASS",
+      "message": "Should return 200 OK",
+      "details": {
+        "statusCode": 200
+      },
+      "timestamp": "2026-02-21T13:00:17.924Z"
+    },
+    {
+      "name": "Analytics - With action filter (checkout) - Response is object",
+      "status": "PASS",
+      "message": "Response should be an object",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:17.925Z"
+    },
+    {
+      "name": "Analytics - With action filter (checkout) - Success flag",
+      "status": "PASS",
+      "message": "Response should have success: true",
+      "details": {
+        "success": true
+      },
+      "timestamp": "2026-02-21T13:00:17.925Z"
+    },
+    {
+      "name": "Analytics - With action filter (checkout) - Data is array",
+      "status": "PASS",
+      "message": "Response data should be an array",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:17.926Z"
+    },
+    {
+      "name": "Analytics - With action filter (checkout) - Count field",
+      "status": "PASS",
+      "message": "Response should have a count field",
+      "details": {
+        "count": 0,
+        "countType": "number"
+      },
+      "timestamp": "2026-02-21T13:00:17.927Z"
+    },
+    {
+      "name": "Analytics - With period 24h - Status code",
+      "status": "PASS",
+      "message": "Should return 200 OK",
+      "details": {
+        "statusCode": 200
+      },
+      "timestamp": "2026-02-21T13:00:18.133Z"
+    },
+    {
+      "name": "Analytics - With period 24h - Response is object",
+      "status": "PASS",
+      "message": "Response should be an object",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:18.133Z"
+    },
+    {
+      "name": "Analytics - With period 24h - Success flag",
+      "status": "PASS",
+      "message": "Response should have success: true",
+      "details": {
+        "success": true
+      },
+      "timestamp": "2026-02-21T13:00:18.133Z"
+    },
+    {
+      "name": "Analytics - With period 24h - Data is array",
+      "status": "PASS",
+      "message": "Response data should be an array",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:18.133Z"
+    },
+    {
+      "name": "Analytics - With period 24h - Count field",
+      "status": "PASS",
+      "message": "Response should have a count field",
+      "details": {
+        "count": 0,
+        "countType": "number"
+      },
+      "timestamp": "2026-02-21T13:00:18.133Z"
+    },
+    {
+      "name": "Analytics - With period 7d - Status code",
+      "status": "PASS",
+      "message": "Should return 200 OK",
+      "details": {
+        "statusCode": 200
+      },
+      "timestamp": "2026-02-21T13:00:18.276Z"
+    },
+    {
+      "name": "Analytics - With period 7d - Response is object",
+      "status": "PASS",
+      "message": "Response should be an object",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:18.276Z"
+    },
+    {
+      "name": "Analytics - With period 7d - Success flag",
+      "status": "PASS",
+      "message": "Response should have success: true",
+      "details": {
+        "success": true
+      },
+      "timestamp": "2026-02-21T13:00:18.276Z"
+    },
+    {
+      "name": "Analytics - With period 7d - Data is array",
+      "status": "PASS",
+      "message": "Response data should be an array",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:18.276Z"
+    },
+    {
+      "name": "Analytics - With period 7d - Count field",
+      "status": "PASS",
+      "message": "Response should have a count field",
+      "details": {
+        "count": 0,
+        "countType": "number"
+      },
+      "timestamp": "2026-02-21T13:00:18.276Z"
+    },
+    {
+      "name": "Analytics - With period 30d - Status code",
+      "status": "PASS",
+      "message": "Should return 200 OK",
+      "details": {
+        "statusCode": 200
+      },
+      "timestamp": "2026-02-21T13:00:18.404Z"
+    },
+    {
+      "name": "Analytics - With period 30d - Response is object",
+      "status": "PASS",
+      "message": "Response should be an object",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:18.404Z"
+    },
+    {
+      "name": "Analytics - With period 30d - Success flag",
+      "status": "PASS",
+      "message": "Response should have success: true",
+      "details": {
+        "success": true
+      },
+      "timestamp": "2026-02-21T13:00:18.404Z"
+    },
+    {
+      "name": "Analytics - With period 30d - Data is array",
+      "status": "PASS",
+      "message": "Response data should be an array",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:18.404Z"
+    },
+    {
+      "name": "Analytics - With period 30d - Count field",
+      "status": "PASS",
+      "message": "Response should have a count field",
+      "details": {
+        "count": 0,
+        "countType": "number"
+      },
+      "timestamp": "2026-02-21T13:00:18.405Z"
+    },
+    {
+      "name": "Analytics - With period 90d - Status code",
+      "status": "PASS",
+      "message": "Should return 200 OK",
+      "details": {
+        "statusCode": 200
+      },
+      "timestamp": "2026-02-21T13:00:18.525Z"
+    },
+    {
+      "name": "Analytics - With period 90d - Response is object",
+      "status": "PASS",
+      "message": "Response should be an object",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:18.525Z"
+    },
+    {
+      "name": "Analytics - With period 90d - Success flag",
+      "status": "PASS",
+      "message": "Response should have success: true",
+      "details": {
+        "success": true
+      },
+      "timestamp": "2026-02-21T13:00:18.525Z"
+    },
+    {
+      "name": "Analytics - With period 90d - Data is array",
+      "status": "PASS",
+      "message": "Response data should be an array",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:18.525Z"
+    },
+    {
+      "name": "Analytics - With period 90d - Count field",
+      "status": "PASS",
+      "message": "Response should have a count field",
+      "details": {
+        "count": 0,
+        "countType": "number"
+      },
+      "timestamp": "2026-02-21T13:00:18.525Z"
+    },
+    {
+      "name": "Performance - Without authentication - Authentication required",
+      "status": "PASS",
+      "message": "Endpoint should require authentication",
+      "details": {
+        "statusCode": 401,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      },
+      "timestamp": "2026-02-21T13:00:18.558Z"
+    },
+    {
+      "name": "Performance - With authentication - Status code",
+      "status": "PASS",
+      "message": "Should return 200 OK",
+      "details": {
+        "statusCode": 200
+      },
+      "timestamp": "2026-02-21T13:00:18.643Z"
+    },
+    {
+      "name": "Performance - With authentication - Response is object",
+      "status": "PASS",
+      "message": "Response should be an object",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:18.643Z"
+    },
+    {
+      "name": "Performance - With authentication - Success flag",
+      "status": "PASS",
+      "message": "Response should have success: true",
+      "details": {
+        "success": true
+      },
+      "timestamp": "2026-02-21T13:00:18.643Z"
+    },
+    {
+      "name": "Performance - With authentication - Data is object",
+      "status": "PASS",
+      "message": "Response data should be an object",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:18.643Z"
+    },
+    {
+      "name": "Performance - With authentication - Total events",
+      "status": "PASS",
+      "message": "Metrics should have totalEvents field",
+      "details": {
+        "totalEvents": 0
+      },
+      "timestamp": "2026-02-21T13:00:18.643Z"
+    },
+    {
+      "name": "Performance - With authentication - Platform breakdown",
+      "status": "PASS",
+      "message": "Metrics should have platformBreakdown object",
+      "details": {
+        "platformBreakdown": {
+          "mobile": 0,
+          "desktop": 0,
+          "tablet": 0
+        }
+      },
+      "timestamp": "2026-02-21T13:00:18.643Z"
+    },
+    {
+      "name": "Performance - With authentication - Action breakdown",
+      "status": "PASS",
+      "message": "Metrics should have actionBreakdown object",
+      "details": {
+        "actionBreakdown": {}
+      },
+      "timestamp": "2026-02-21T13:00:18.643Z"
+    },
+    {
+      "name": "Performance - With authentication - Average metrics",
+      "status": "PASS",
+      "message": "Metrics should have averageMetrics object",
+      "details": {
+        "averageMetrics": {
+          "duration": 0,
+          "touchCount": 0
+        }
+      },
+      "timestamp": "2026-02-21T13:00:18.643Z"
+    },
+    {
+      "name": "Performance - With authentication - Period",
+      "status": "PASS",
+      "message": "Metrics should have period object",
+      "details": {
+        "period": {
+          "startDate": "2026-02-14T13:00:18.625Z",
+          "endDate": "2026-02-21T13:00:18.636Z"
+        }
+      },
+      "timestamp": "2026-02-21T13:00:18.643Z"
+    },
+    {
+      "name": "Performance - With authentication - Mobile events",
+      "status": "PASS",
+      "message": "Platform breakdown should have mobile count",
+      "details": {
+        "mobile": 0
+      },
+      "timestamp": "2026-02-21T13:00:18.643Z"
+    },
+    {
+      "name": "Performance - With authentication - Desktop events",
+      "status": "PASS",
+      "message": "Platform breakdown should have desktop count",
+      "details": {
+        "desktop": 0
+      },
+      "timestamp": "2026-02-21T13:00:18.643Z"
+    },
+    {
+      "name": "Performance - With authentication - Tablet events",
+      "status": "PASS",
+      "message": "Platform breakdown should have tablet count",
+      "details": {
+        "tablet": 0
+      },
+      "timestamp": "2026-02-21T13:00:18.644Z"
+    },
+    {
+      "name": "Performance - With authentication - Average duration",
+      "status": "PASS",
+      "message": "Average metrics should have duration",
+      "details": {
+        "duration": 0
+      },
+      "timestamp": "2026-02-21T13:00:18.644Z"
+    },
+    {
+      "name": "Performance - With authentication - Average touch count",
+      "status": "PASS",
+      "message": "Average metrics should have touchCount",
+      "details": {
+        "touchCount": 0
+      },
+      "timestamp": "2026-02-21T13:00:18.644Z"
+    },
+    {
+      "name": "Export - Without authentication - Authentication required",
+      "status": "PASS",
+      "message": "Endpoint should require authentication",
+      "details": {
+        "statusCode": 401,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      },
+      "timestamp": "2026-02-21T13:00:18.666Z"
+    },
+    {
+      "name": "Export - With authentication (no filters) - Status code",
+      "status": "PASS",
+      "message": "Should return 200 OK",
+      "details": {
+        "statusCode": 200
+      },
+      "timestamp": "2026-02-21T13:00:18.751Z"
+    },
+    {
+      "name": "Export - With authentication (no filters) - Content-Type header",
+      "status": "PASS",
+      "message": "Response should have Content-Type: application/json",
+      "details": {
+        "contentType": "application/json; charset=utf-8"
+      },
+      "timestamp": "2026-02-21T13:00:18.751Z"
+    },
+    {
+      "name": "Export - With authentication (no filters) - Content-Disposition header",
+      "status": "PASS",
+      "message": "Response should have Content-Disposition with attachment",
+      "details": {
+        "contentDisposition": "attachment; filename=mobile-analytics-export.json"
+      },
+      "timestamp": "2026-02-21T13:00:18.751Z"
+    },
+    {
+      "name": "Export - With authentication (no filters) - Data is array",
+      "status": "PASS",
+      "message": "Export data should be a JSON array",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:18.751Z"
+    },
+    {
+      "name": "Export - With period 7d - Status code",
+      "status": "PASS",
+      "message": "Should return 200 OK",
+      "details": {
+        "statusCode": 200
+      },
+      "timestamp": "2026-02-21T13:00:18.828Z"
+    },
+    {
+      "name": "Export - With period 7d - Content-Type header",
+      "status": "PASS",
+      "message": "Response should have Content-Type: application/json",
+      "details": {
+        "contentType": "application/json; charset=utf-8"
+      },
+      "timestamp": "2026-02-21T13:00:18.829Z"
+    },
+    {
+      "name": "Export - With period 7d - Content-Disposition header",
+      "status": "PASS",
+      "message": "Response should have Content-Disposition with attachment",
+      "details": {
+        "contentDisposition": "attachment; filename=mobile-analytics-export.json"
+      },
+      "timestamp": "2026-02-21T13:00:18.829Z"
+    },
+    {
+      "name": "Export - With period 7d - Data is array",
+      "status": "PASS",
+      "message": "Export data should be a JSON array",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:18.829Z"
+    },
+    {
+      "name": "Export - With period 30d - Status code",
+      "status": "PASS",
+      "message": "Should return 200 OK",
+      "details": {
+        "statusCode": 200
+      },
+      "timestamp": "2026-02-21T13:00:18.899Z"
+    },
+    {
+      "name": "Export - With period 30d - Content-Type header",
+      "status": "PASS",
+      "message": "Response should have Content-Type: application/json",
+      "details": {
+        "contentType": "application/json; charset=utf-8"
+      },
+      "timestamp": "2026-02-21T13:00:18.899Z"
+    },
+    {
+      "name": "Export - With period 30d - Content-Disposition header",
+      "status": "PASS",
+      "message": "Response should have Content-Disposition with attachment",
+      "details": {
+        "contentDisposition": "attachment; filename=mobile-analytics-export.json"
+      },
+      "timestamp": "2026-02-21T13:00:18.900Z"
+    },
+    {
+      "name": "Export - With period 30d - Data is array",
+      "status": "PASS",
+      "message": "Export data should be a JSON array",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:18.900Z"
+    },
+    {
+      "name": "Data Structure - Performance has totalEvents field",
+      "status": "PASS",
+      "message": "Performance metrics should have totalEvents field",
+      "details": {
+        "field": "totalEvents",
+        "value": 0
+      },
+      "timestamp": "2026-02-21T13:00:19.058Z"
+    },
+    {
+      "name": "Data Structure - Performance has platformBreakdown field",
+      "status": "PASS",
+      "message": "Performance metrics should have platformBreakdown field",
+      "details": {
+        "field": "platformBreakdown",
+        "value": {
+          "mobile": 0,
+          "desktop": 0,
+          "tablet": 0
+        }
+      },
+      "timestamp": "2026-02-21T13:00:19.059Z"
+    },
+    {
+      "name": "Data Structure - Performance has actionBreakdown field",
+      "status": "PASS",
+      "message": "Performance metrics should have actionBreakdown field",
+      "details": {
+        "field": "actionBreakdown",
+        "value": {}
+      },
+      "timestamp": "2026-02-21T13:00:19.059Z"
+    },
+    {
+      "name": "Data Structure - Performance has averageMetrics field",
+      "status": "PASS",
+      "message": "Performance metrics should have averageMetrics field",
+      "details": {
+        "field": "averageMetrics",
+        "value": {
+          "duration": 0,
+          "touchCount": 0
+        }
+      },
+      "timestamp": "2026-02-21T13:00:19.059Z"
+    },
+    {
+      "name": "Data Structure - Performance has period field",
+      "status": "PASS",
+      "message": "Performance metrics should have period field",
+      "details": {
+        "field": "period",
+        "value": {
+          "startDate": "2026-02-14T13:00:19.035Z",
+          "endDate": "2026-02-21T13:00:19.054Z"
+        }
+      },
+      "timestamp": "2026-02-21T13:00:19.059Z"
+    },
+    {
+      "name": "Error Handling - Invalid platform filter",
+      "status": "PASS",
+      "message": "Should return 400 for Invalid platform filter",
+      "details": {
+        "statusCode": 400,
+        "expectedStatus": 400
+      },
+      "timestamp": "2026-02-21T13:00:19.088Z"
+    },
+    {
+      "name": "Error Handling - Invalid platform filter - Error response",
+      "status": "PASS",
+      "message": "Error response should be an object",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:19.089Z"
+    },
+    {
+      "name": "Error Handling - Invalid platform filter - Error message",
+      "status": "PASS",
+      "message": "Error response should have error or message field",
+      "details": {
+        "error": "Validation failed",
+        "message": "Validation failed"
+      },
+      "timestamp": "2026-02-21T13:00:19.089Z"
+    },
+    {
+      "name": "Error Handling - Invalid action filter",
+      "status": "PASS",
+      "message": "Should return 400 for Invalid action filter",
+      "details": {
+        "statusCode": 400,
+        "expectedStatus": 400
+      },
+      "timestamp": "2026-02-21T13:00:19.118Z"
+    },
+    {
+      "name": "Error Handling - Invalid action filter - Error response",
+      "status": "PASS",
+      "message": "Error response should be an object",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:19.119Z"
+    },
+    {
+      "name": "Error Handling - Invalid action filter - Error message",
+      "status": "PASS",
+      "message": "Error response should have error or message field",
+      "details": {
+        "error": "Validation failed",
+        "message": "Validation failed"
+      },
+      "timestamp": "2026-02-21T13:00:19.119Z"
+    },
+    {
+      "name": "Error Handling - Invalid date format",
+      "status": "FAIL",
+      "message": "Should return 400 for Invalid date format",
+      "details": {
+        "statusCode": 500,
+        "expectedStatus": 400
+      },
+      "timestamp": "2026-02-21T13:00:19.209Z"
+    },
+    {
+      "name": "Error Handling - Invalid date format - Error response",
+      "status": "PASS",
+      "message": "Error response should be an object",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:19.210Z"
+    },
+    {
+      "name": "Error Handling - Invalid date format - Error message",
+      "status": "PASS",
+      "message": "Error response should have error or message field",
+      "details": {
+        "error": "Internal server error",
+        "message": "An unexpected error occurred"
+      },
+      "timestamp": "2026-02-21T13:00:19.210Z"
+    },
+    {
+      "name": "Error Handling - Invalid auth token",
+      "status": "PASS",
+      "message": "Should return 401 for Invalid auth token",
+      "details": {
+        "statusCode": 401,
+        "expectedStatus": 401
+      },
+      "timestamp": "2026-02-21T13:00:19.226Z"
+    },
+    {
+      "name": "Error Handling - Invalid auth token - Error response",
+      "status": "PASS",
+      "message": "Error response should be an object",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:19.226Z"
+    },
+    {
+      "name": "Error Handling - Invalid auth token - Error message",
+      "status": "PASS",
+      "message": "Error response should have error or message field",
+      "details": {
+        "error": "Authentication failed",
+        "message": "jwt malformed"
+      },
+      "timestamp": "2026-02-21T13:00:19.226Z"
+    },
+    {
+      "name": "Error Handling - Missing auth header",
+      "status": "PASS",
+      "message": "Should return 401 for Missing auth header",
+      "details": {
+        "statusCode": 401,
+        "expectedStatus": 401
+      },
+      "timestamp": "2026-02-21T13:00:19.245Z"
+    },
+    {
+      "name": "Error Handling - Missing auth header - Error response",
+      "status": "PASS",
+      "message": "Error response should be an object",
+      "details": {
+        "dataType": "object"
+      },
+      "timestamp": "2026-02-21T13:00:19.246Z"
+    },
+    {
+      "name": "Error Handling - Missing auth header - Error message",
+      "status": "PASS",
+      "message": "Error response should have error or message field",
+      "details": {
+        "error": "Authentication required",
+        "message": "No token provided"
+      },
+      "timestamp": "2026-02-21T13:00:19.246Z"
+    }
+  ]
+}

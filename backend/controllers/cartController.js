@@ -50,6 +50,80 @@ const validateCartItemId = (req, res, next) => {
 };
 
 // ============================================================================
+// CRIT-001: Cart Item Ownership Verification Middleware
+// ============================================================================
+// Verify that the cart item belongs to the authenticated user or session
+// BUG-FIX: Added to prevent users from deleting items from other users' carts
+const verifyCartItemOwnership = async (req, res, next) => {
+  const { id } = req.params;
+  const userId = req.user?.id || null;
+  const sessionId = req.headers['x-session-id'] || null;
+
+  try {
+    // Get the cart item with its associated cart
+    const cartItem = await cartService.prisma.cartItem.findUnique({
+      where: { id },
+      include: {
+        cart: true
+      }
+    });
+
+    if (!cartItem) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          message: 'Cart item not found',
+          code: 404,
+          details: null
+        }
+      });
+    }
+
+    // Check ownership: cart must belong to user or session
+    const cart = cartItem.cart;
+    const userMatch = userId && cart.userId === userId;
+    const sessionMatch = sessionId && cart.sessionId === sessionId;
+
+    if (!userMatch && !sessionMatch) {
+      loggerService.warn('Cart item ownership verification failed', {
+        cartItemId: id,
+        cartId: cart.id,
+        userId,
+        sessionId,
+        cartUserId: cart.userId,
+        cartSessionId: cart.sessionId
+      });
+      return res.status(403).json({
+        success: false,
+        error: {
+          message: 'Not authorized to modify this cart item',
+          code: 403,
+          details: null
+        }
+      });
+    }
+
+    // Attach cart item to request for use in controller
+    req.cartItem = cartItem;
+    next();
+  } catch (error) {
+    loggerService.error('Error in cart item ownership verification', {
+      cartItemId: id,
+      error: error.message,
+      stack: error.stack
+    });
+    return res.status(500).json({
+      success: false,
+      error: {
+        message: 'Error verifying cart item ownership',
+        code: 500,
+        details: process.env.NODE_ENV === 'development' ? error.message : null
+      }
+    });
+  }
+};
+
+// ============================================================================
 // CRIT-001: Cart Ownership Verification Middleware
 // ============================================================================
 // Verify that the cart belongs to the authenticated user or session
@@ -236,27 +310,78 @@ class CartController {
         data: cart
       });
     } catch (error) {
-      loggerService.error('Error in getCart controller', {
-        error: error.message,
-        stack: error.stack,
+      // Enhanced error logging with full error details
+      const errorDetails = {
+        errorName: error.name,
+        errorMessage: error.message,
+        errorCode: error.code,
+        errorStack: error.stack,
         userId: req.user?.id,
         sessionId: req.headers['x-session-id'],
+        hasUser: !!req.user,
         timestamp: new Date().toISOString()
+      };
+
+      loggerService.error('Error in getCart controller', errorDetails);
+
+      // Console log for immediate debugging
+      console.error('[getCart] ERROR DETAILS:', {
+        errorName: error.name,
+        errorMessage: error.message,
+        errorCode: error.code,
+        userId: req.user?.id,
+        sessionId: req.headers['x-session-id']
       });
 
-      // Provide more specific error information
+      // Provide more specific error information with enhanced error type detection
       let errorMessage = 'Failed to retrieve cart';
       let errorMessageBn = 'কার্ট পুনরুদ্ধার করতে ব্যর্থ হয়েছে';
-      let details = {};
+      let details = {
+        errorName: error.name,
+        errorCode: error.code
+      };
 
-      if (error.message.includes('Redis') || error.message.includes('ECONNREFUSED') || error.message.includes('ETIMEDOUT')) {
+      // Distinguish between different error types
+      if (error.message.includes('Redis') || 
+          error.message.includes('ECONNREFUSED') || 
+          error.message.includes('ETIMEDOUT') ||
+          error.code === 'ECONNREFUSED' ||
+          error.code === 'ETIMEDOUT') {
         errorMessage = 'Cache service unavailable, please try again';
         errorMessageBn = 'ক্যাশ সার্ভিস অনুপলব্ধ, অনুগ্রহ করে আবার চেষ্টা করুন';
-        details = { cacheError: true, originalError: error.message };
-      } else if (error.message.includes('database') || error.message.includes('Prisma')) {
+        details = { 
+          ...details,
+          cacheError: true, 
+          originalError: error.message,
+          errorType: 'REDIS_ERROR'
+        };
+      } else if (error.message.includes('database') || 
+                 error.message.includes('Prisma') ||
+                 error.code?.startsWith('P')) {
         errorMessage = 'Database error occurred, please try again';
         errorMessageBn = 'ডাটাবেস ত্রুটি ঘটেছে, অনুগ্রহ করে আবার চেষ্টা করুন';
-        details = { databaseError: true, originalError: error.message };
+        details = { 
+          ...details,
+          databaseError: true, 
+          originalError: error.message,
+          errorType: 'DATABASE_ERROR',
+          prismaCode: error.code
+        };
+      } else if (error.message.includes('connect') || error.code === 'P1001') {
+        errorMessage = 'Database connection failed, please try again';
+        errorMessageBn = 'ডাটাবেস সংযোগ ব্যর্থ হয়েছে, অনুগ্রহ করে আবার চেষ্টা করুন';
+        details = { 
+          ...details,
+          connectionError: true, 
+          originalError: error.message,
+          errorType: 'CONNECTION_ERROR'
+        };
+      } else {
+        details = { 
+          ...details,
+          originalError: error.message,
+          errorType: 'UNKNOWN_ERROR'
+        };
       }
 
       res.status(500).json({
@@ -506,11 +631,31 @@ class CartController {
 
       const result = await cartService.removeCartItem(id);
 
+      // BUG-FIX: Return the full updated cart instead of just success
+      // This ensures frontend state stays synchronized after removal
+      let updatedCart = await cartService.getCartById(result.cartId);
+
+      // BUG-FIX: If cart is null (all items removed), return empty cart structure
+      // to prevent "Invalid cart response from server" error on frontend
+      if (!updatedCart) {
+        updatedCart = {
+          id: result.cartId,
+          items: [],
+          subtotal: 0,
+          tax: 0,
+          shippingCost: 0,
+          discount: 0,
+          total: 0,
+          itemCount: 0,
+          totalItems: 0
+        };
+      }
+
       res.json({
         success: true,
         message: 'Item removed from cart successfully',
         messageBn: 'আইটেম কার্ট থেকে সফলভাবে সরানো হয়েছে',
-        data: result
+        data: updatedCart
       });
     } catch (error) {
       loggerService.error('Error in removeCartItem controller', {
@@ -555,11 +700,16 @@ class CartController {
 
       const cartItem = await cartService.updateCartItemQuantity(id, quantity);
 
+      // BUG-FIX: Return the full updated cart instead of just the cart item
+      // This ensures frontend state stays synchronized after quantity update
+      // FIX: Use getCartById instead of getCart to properly fetch by cartId
+      const updatedCart = await cartService.getCartById(cartItem.cartId);
+
       res.json({
         success: true,
         message: 'Item quantity updated successfully',
         messageBn: 'আইটেম পরিমাণ সফলভাবে আপডেট করা হয়েছে',
-        data: cartItem
+        data: updatedCart
       });
     } catch (error) {
       loggerService.error('Error in updateItemQuantity controller', {
@@ -1501,5 +1651,6 @@ module.exports = {
   cartController,
   validateCartId,
   validateCartItemId,
-  verifyCartOwnership
+  verifyCartOwnership,
+  verifyCartItemOwnership
 };

@@ -1,13 +1,13 @@
 /**
  * Server-Side API Client
- * 
+ *
  * This file contains API client functions specifically for Server Components.
  * These functions make direct HTTP requests to the backend without relying on
  * client-side features like localStorage.
  */
 
 import { BrandWithRelations } from '@/types/brand';
-import { CategoryDetailResponse } from '@/types/category';
+import { CategoryDetailResponse, CategoryTreeResponse } from '@/types/category';
 
 const API_BASE_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3001/api/v1';
 
@@ -277,6 +277,32 @@ export async function getCategoryProductsServer(
     return await fetchAPI(endpoint);
   } catch (error) {
     console.error(`[Server API] Error fetching products for category ${id}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Get category tree structure (Server-Side)
+ *
+ * @param status - Optional status filter
+ * @returns Promise with category tree
+ */
+export async function getCategoryTreeServer(status?: 'active' | 'inactive'): Promise<CategoryTreeResponse> {
+  try {
+    const filters: any = {};
+    if (status) filters.status = status;
+    
+    const queryString = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryString.append(key, String(value));
+      }
+    });
+
+    const endpoint = `/categories/tree${queryString.toString() ? `?${queryString.toString()}` : ''}`;
+    return await fetchAPI<CategoryTreeResponse>(endpoint);
+  } catch (error) {
+    console.error('[Server API] Error fetching category tree:', error);
     throw error;
   }
 }

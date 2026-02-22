@@ -1,9 +1,11 @@
 /**
  * Wishlist Types
- * 
+ *
  * Complete type definitions for the Wishlist feature
  * following Milestone 2 specifications
  */
+
+import type { ProductImage } from '@/types/product-image';
 
 /**
  * Wishlist entity
@@ -57,13 +59,9 @@ export interface WishlistItemWithProduct {
 
 /**
  * Product image
+ * NOTE: This must match the backend response structure from product_images table
  */
-export interface ProductImage {
-  id: string;
-  url: string;
-  altText?: string;
-  isPrimary: boolean;
-}
+export type { ProductImage } from './product-image';
 
 /**
  * Create wishlist request
@@ -117,6 +115,15 @@ export interface MoveToCartResponse {
 }
 
 /**
+ * Add to wishlist result
+ */
+export interface AddToWishlistResult {
+  success: boolean;
+  alreadyExists?: boolean;
+  message?: string;
+}
+
+/**
  * Export options
  */
 export interface ExportOptions {
@@ -148,8 +155,8 @@ export interface UseWishlistReturn {
   createWishlist: (name: string, isPublic?: boolean) => Promise<Wishlist>;
   updateWishlist: (id: string, updates: Partial<Wishlist>) => Promise<void>;
   deleteWishlist: (id: string) => Promise<void>;
-  addToWishlist: (wishlistId: string, productId: string) => Promise<void>;
-  addToDefaultWishlist: (productId: string) => Promise<void>;
+  addToWishlist: (wishlistId: string, productId: string) => Promise<AddToWishlistResult>;
+  addToDefaultWishlist: (productId: string) => Promise<AddToWishlistResult>;
   removeFromWishlist: (wishlistId: string, itemId: string) => Promise<void>;
   moveToCart: (wishlistId: string, itemIds: string[]) => Promise<MoveToCartResponse>;
   shareWishlist: (wishlistId: string) => Promise<ShareWishlistResponse>;
@@ -214,7 +221,7 @@ export interface WishlistGridProps {
   onSelectItem: (itemId: string) => void;
   onRemoveItem: (itemId: string) => Promise<void>;
   onMoveToCart: (itemId: string) => Promise<void>;
-  onViewProduct: (productId: string) => void;
+  onViewProduct: (productSlug: string) => void;
   isLoading: boolean;
   language?: 'en' | 'bn';
 }
@@ -230,6 +237,7 @@ export interface WishlistItemCardProps {
   onMoveToCart: () => Promise<void>;
   onViewProduct: () => void;
   language?: 'en' | 'bn';
+  isInCart?: boolean;
 }
 
 /**

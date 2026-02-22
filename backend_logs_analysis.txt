@@ -1,0 +1,500 @@
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: undefined
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1771685284433
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-21T15:03:04.436Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-21T15:03:04.436Z
+}
+[32minfo[39m: 127.0.0.1 - - [21/Feb/2026:15:03:04 +0000] "GET /api/v1/health HTTP/1.1" 200 1030 "-" "curl/8.17.0" {"timestamp":"2026-02-21T15:03:04.438Z"}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-21T15:03:34.526Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-21T15:03:34.526Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: undefined
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1771685314526
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-21T15:03:34.530Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-21T15:03:34.531Z
+}
+[32minfo[39m: 127.0.0.1 - - [21/Feb/2026:15:03:34 +0000] "GET /api/v1/health HTTP/1.1" 200 1030 "-" "curl/8.17.0" {"timestamp":"2026-02-21T15:03:34.533Z"}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-21T15:04:04.618Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-21T15:04:04.618Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: undefined
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1771685344620
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '2ms',
+  timestamp: 2026-02-21T15:04:04.626Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-21T15:04:04.626Z
+}
+[32minfo[39m: 127.0.0.1 - - [21/Feb/2026:15:04:04 +0000] "GET /api/v1/health HTTP/1.1" 200 1030 "-" "curl/8.17.0" {"timestamp":"2026-02-21T15:04:04.629Z"}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-21T15:04:34.774Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-21T15:04:34.775Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: undefined
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1771685374778
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '8ms',
+  timestamp: 2026-02-21T15:04:34.844Z
+}
+[32minfo[39m: 127.0.0.1 - - [21/Feb/2026:15:04:34 +0000] "GET /api/v1/health HTTP/1.1" 200 1031 "-" "curl/8.17.0" {"timestamp":"2026-02-21T15:04:34.847Z"}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-21T15:04:40.689Z',
+  method: 'GET',
+  path: '/api/v1/admin/local-payment/methods',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': undefined
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/admin/local-payment/methods',
+  url: '/api/v1/admin/local-payment/methods',
+  timestamp: '2026-02-21T15:04:40.689Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: application/json
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/admin/local-payment/methods
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/admin/local-payment/methods
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1771685380690
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+[DEBUG] Rate limit middleware disabled - bypassing to prevent timeout
+[32minfo[39m: 172.18.0.1 - - [21/Feb/2026:15:04:50 +0000] "GET /api/v1/admin/local-payment/methods HTTP/1.1" - - "-" "-" {"timestamp":"2026-02-21T15:04:50.696Z"}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-21T15:05:04.982Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-21T15:05:04.983Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: undefined
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1771685404988
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-21T15:05:04.994Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-21T15:05:04.995Z
+}
+[32minfo[39m: 127.0.0.1 - - [21/Feb/2026:15:05:04 +0000] "GET /api/v1/health HTTP/1.1" 200 1031 "-" "curl/8.17.0" {"timestamp":"2026-02-21T15:05:04.998Z"}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-21T15:05:35.197Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-21T15:05:35.198Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: undefined
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1771685435200
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-21T15:05:35.209Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-21T15:05:35.211Z
+}
+[32minfo[39m: 127.0.0.1 - - [21/Feb/2026:15:05:35 +0000] "GET /api/v1/health HTTP/1.1" 200 1031 "-" "curl/8.17.0" {"timestamp":"2026-02-21T15:05:35.219Z"}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-21T15:06:05.282Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-21T15:06:05.282Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: undefined
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1771685465283
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-21T15:06:05.287Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-21T15:06:05.288Z
+}
+[32minfo[39m: 127.0.0.1 - - [21/Feb/2026:15:06:05 +0000] "GET /api/v1/health HTTP/1.1" 200 1031 "-" "curl/8.17.0" {"timestamp":"2026-02-21T15:06:05.289Z"}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-21T15:06:35.354Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-21T15:06:35.355Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: undefined
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1771685495355
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-21T15:06:35.369Z
+}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '0ms',
+  timestamp: 2026-02-21T15:06:35.369Z
+}
+[32minfo[39m: 127.0.0.1 - - [21/Feb/2026:15:06:35 +0000] "GET /api/v1/health HTTP/1.1" 200 1031 "-" "curl/8.17.0" {"timestamp":"2026-02-21T15:06:35.371Z"}
+[CORS DIAGNOSTIC] {
+  timestamp: '2026-02-21T15:07:05.499Z',
+  method: 'GET',
+  path: '/api/v1/health',
+  origin: undefined,
+  referer: undefined,
+  'allowed-origins': [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://host.docker.internal:3000',
+    'http://host.docker.internal:3001'
+  ],
+  'origin-allowed': 'no-origin-header',
+  credentials: 'no-cookies',
+  'user-agent': 'curl/8.17.0'
+}
+[SERVER] Request received: {
+  method: 'GET',
+  path: '/api/v1/health',
+  url: '/api/v1/health',
+  timestamp: '2026-02-21T15:07:05.500Z'
+}
+[JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+[JSON PARSER DIAGNOSTIC] Content-Type: undefined
+[JSON PARSER DIAGNOSTIC] Content-Length: undefined
+[JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request method: GET
+[JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+[JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+[JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+[JSON PARSER DIAGNOSTIC] Request body type: undefined
+[JSON PARSER DIAGNOSTIC] Request body keys: N/A
+[JSON PARSER DIAGNOSTIC] === END ===
+[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+[RATE LIMIT SERVICE] Request method: GET
+[RATE LIMIT SERVICE] req.body before processing: undefined
+[RATE LIMIT SERVICE] req.body type: undefined
+[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1771685525502
+[RATE LIMIT SERVICE] req.body after key generation: undefined
+🔍 Query: {
+  query: 'SELECT 1',
+  params: '[]',
+  duration: '1ms',
+  timestamp: 2026-02-21T15:07:05.509Z
+}
+[32minfo[39m: 127.0.0.1 - - [21/Feb/2026:15:07:05 +0000] "GET /api/v1/health HTTP/1.1" 200 1031 "-" "curl/8.17.0" {"timestamp":"2026-02-21T15:07:05.515Z"}
+🔍 Query: {
+  query: 'SELECT 1 as status, NOW() as server_time',
+  params: '[]',
+  duration: '1ms',
+  timestamp: 2026-02-21T15:07:05.516Z
+}

@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useCallback, ReactNode } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { useWishlistStore } from '@/stores/wishlistStore';
-import type { Wishlist, WishlistItemWithProduct } from '@/types/wishlist';
+import type { Wishlist, WishlistItemWithProduct, AddToWishlistResult } from '@/types/wishlist';
 import { wishlistMessages } from '@/types/wishlist';
 
 interface WishlistProviderProps {
@@ -35,13 +35,15 @@ interface WishlistContextType {
   selectedItems: string[];
   defaultWishlist: Wishlist | null;
   currentWishlistItems: WishlistItemWithProduct[];
+  isPrivateWishlistError: boolean;
+  privateWishlistId: string | null;
   isInWishlist: (productId: string, wishlistId?: string) => boolean;
   loadWishlists: () => Promise<void>;
   setCurrentWishlist: (id: string | null) => Promise<void>;
   createWishlist: (name: string, isPublic?: boolean) => Promise<Wishlist>;
   updateWishlist: (id: string, updates: Partial<Wishlist>) => Promise<void>;
   deleteWishlist: (id: string) => Promise<void>;
-  addToWishlist: (productId: string, wishlistId?: string) => Promise<void>;
+  addToWishlist: (productId: string, wishlistId?: string) => Promise<AddToWishlistResult>;
   removeFromWishlist: (itemId: string) => Promise<void>;
   moveToCart: (itemIds: string[]) => Promise<void>;
   shareWishlist: (wishlistId?: string) => Promise<string>;
@@ -51,6 +53,7 @@ interface WishlistContextType {
   clearSelection: () => void;
   selectAll: () => void;
   clearError: () => void;
+  makeWishlistPublic: (wishlistId: string) => Promise<void>;
 }
 
 const WishlistContext = React.createContext<WishlistContextType | null>(null);
@@ -75,6 +78,8 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
   const isInitializing = useWishlistStore((state) => state.isInitializing);
   const error = useWishlistStore((state) => state.error);
   const selectedItems = useWishlistStore((state) => state.selectedItems);
+  const isPrivateWishlistError = useWishlistStore((state) => state.isPrivateWishlistError);
+  const privateWishlistId = useWishlistStore((state) => state.privateWishlistId);
   
   // Store actions (stable references - using getState() pattern to avoid render-time selector calls)
   const loadWishlists = useCallback(async () => {
@@ -135,6 +140,10 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
   
   const clearErrorAction = useCallback(() => {
     useWishlistStore.getState().clearError();
+  }, []);
+  
+  const makeWishlistPublicAction = useCallback(async (wishlistId: string) => {
+    return useWishlistStore.getState().makeWishlistPublic(wishlistId);
   }, []);
   
   const setCurrentWishlistAction = useCallback(async (id: string | null) => {
@@ -213,6 +222,8 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     selectedItems,
     defaultWishlist,
     currentWishlistItems,
+    isPrivateWishlistError,
+    privateWishlistId,
     isInWishlist,
     
     loadWishlists,
@@ -260,23 +271,26 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     ),
     
     addToWishlist: useCallback(
-      async (productId: string, wishlistId?: string) => {
+      async (productId: string, wishlistId?: string): Promise<AddToWishlistResult> => {
         const targetId = wishlistId || defaultWishlist?.id;
         if (!targetId) {
-          throw new Error(wishlistMessages.en.error.noWishlist);
+          const result: AddToWishlistResult = {
+            success: false,
+            message: wishlistMessages.en.error.noWishlist,
+          };
+          return result;
         }
         
-        try {
-          await addToWishlistAction(targetId, productId);
+        const result = await addToWishlistAction(targetId, productId);
+        
+        // Handle the result - show appropriate toast
+        if (result.success) {
           toast.success(wishlistMessages.en.success.added);
-        } catch (error) {
-          if (error instanceof Error && error.message.includes('already exists')) {
-            toast.info(wishlistMessages.en.info.alreadyInWishlist);
-          } else {
-            toast.error(error instanceof Error ? error.message : wishlistMessages.en.error.add);
-          }
-          throw error;
+        } else if (result.alreadyExists) {
+          toast.info(wishlistMessages.en.info.alreadyInWishlist);
         }
+        
+        return result;
       },
       [addToWishlistAction, defaultWishlist]
     ),
@@ -380,6 +394,19 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     clearError: useCallback(() => {
       clearErrorAction();
     }, [clearErrorAction]),
+    
+    makeWishlistPublic: useCallback(
+      async (wishlistId: string) => {
+        try {
+          await makeWishlistPublicAction(wishlistId);
+          toast.success('Wishlist is now public');
+        } catch (error) {
+          toast.error(error instanceof Error ? error.message : 'Failed to make wishlist public');
+          throw error;
+        }
+      },
+      [makeWishlistPublicAction]
+    ),
   };
   
   return (

@@ -32,6 +32,20 @@ const comparisonsGuestRoutes = require('./comparisons-guest');
 const adminComparisonsRoutes = require('./admin/comparisons');
 const adminDiscountRoutes = require('./admin/discount');
 const adminWishlistRoutes = require('./adminWishlistRoutes');
+// Cart-Wishlist Integration Routes (Phase 6 Milestone 3)
+const cartWishlistIntegrationRoutes = require('./cartWishlist/cartWishlistIntegration.routes');
+const cartWishlistSyncRoutes = require('./cartWishlist/cartWishlistSync.routes');
+const cartWishlistAnalyticsRoutes = require('./cartWishlist/cartWishlistAnalytics.routes');
+const adminCartWishlistRoutes = require('./cartWishlist/adminCartWishlist.routes');
+const codRoutes = require('./cod');
+const adminCodRoutes = require('./admin/cod');
+const emiRoutes = require('./emi');
+
+// Cart Analytics Routes (Phase 6 Milestone 4)
+const cartAnalyticsRoutes = require('./analytics/cart');
+
+// Cart Recovery Routes (Phase 6 Milestone 4 - Task 3)
+const cartRecoveryRoutes = require('./cart/recovery');
 
 const router = express.Router();
 
@@ -65,13 +79,21 @@ router.use('/rbac/auth', rbacAuthCheckRoutes);
 // Corporate account management routes
 router.use('/v1/corporate', corporateRoutes);
 
+// COD validation routes
+router.use('/v1/cod', codRoutes);
+
+// EMI routes
+router.use('/v1/emi', emiRoutes);
+
+// Admin COD management routes
+router.use('/v1/admin/cod', adminCodRoutes);
+
 // Admin Elasticsearch management routes
 router.use('/v1/admin/elasticsearch', adminElasticsearchRoutes);
 
 // Admin cart management routes
 router.use('/v1/admin/carts', adminCartRoutes);
-
-// Admin inventory management routes
+// Admin inventory management routes (mounted under /v1/admin/carts for inventory-impact endpoints)
 router.use('/v1/admin/carts', adminInventoryRoutes);
 
 // Admin discount management routes
@@ -79,6 +101,18 @@ router.use('/v1/admin', adminDiscountRoutes);
 
 // Admin wishlist management routes
 router.use('/v1/admin/wishlists', adminWishlistRoutes);
+
+// Cart-Wishlist Integration Routes (Phase 6 Milestone 3)
+router.use('/v1', cartWishlistIntegrationRoutes);
+router.use('/v1', cartWishlistSyncRoutes);
+router.use('/v1', cartWishlistAnalyticsRoutes);
+router.use('/v1', adminCartWishlistRoutes);
+
+// Cart Analytics Routes (Phase 6 Milestone 4)
+router.use('/v1/analytics/cart', cartAnalyticsRoutes);
+
+// Cart Recovery Routes (Phase 6 Milestone 4 - Task 3)
+router.use('/v1/cart', cartRecoveryRoutes);
 
 // Product comparison routes
 router.use('/v1/comparisons', comparisonsRoutes);
@@ -111,7 +145,9 @@ router.get('/', (req, res) => {
         privacy: '/api/v1/profile/preferences/privacy',
         accountManagement: '/api/v1/profile/account',
         roles: '/api/v1/roles',
-        corporate: '/api/v1/corporate'
+        corporate: '/api/v1/corporate',
+        cod: '/api/v1/cod',
+        emi: '/api/v1/emi'
       },
       rbac: {
         roles: '/api/rbac/roles',
@@ -123,11 +159,39 @@ router.get('/', (req, res) => {
       },
       admin: {
         elasticsearch: '/api/v1/admin/elasticsearch',
-        comparisons: '/api/v1/admin/comparisons'
+        comparisons: '/api/v1/admin/comparisons',
+        cod: '/api/v1/admin/cod'
       },
       comparisons: {
         comparisons: '/api/v1/comparisons',
         guest: '/api/v1/comparisons/guest'
+      },
+      cartWishlist: {
+        integration: '/api/v1/cart',
+        sync: '/api/v1/cart-wishlist',
+        analytics: '/api/v1/cart-wishlist/analytics',
+        reports: '/api/v1/cart-wishlist/reports',
+        admin: '/api/v1/admin/cart-wishlist'
+      },
+      cartAnalytics: {
+        base: '/api/v1/analytics/cart',
+        events: '/api/v1/analytics/cart/events',
+        dashboard: '/api/v1/analytics/cart/dashboard',
+        realtime: '/api/v1/analytics/cart/realtime',
+        trends: '/api/v1/analytics/cart/trends',
+        recommendations: '/api/v1/analytics/cart/recommendations'
+      },
+      cartRecovery: {
+        recover: '/api/v1/cart/recover/:token',
+        abandon: '/api/v1/cart/abandon',
+        stats: '/api/v1/cart/recovery/stats',
+        schedule: '/api/v1/cart/recovery/schedule',
+        cancel: '/api/v1/cart/recovery/cancel/:cartId',
+        admin: {
+          abandoned: '/api/v1/admin/carts/abandoned',
+          stats: '/api/v1/admin/carts/recovery/stats',
+          sendRecovery: '/api/v1/admin/carts/:cartId/send-recovery'
+        }
       }
     },
     documentation: '/api-docs'

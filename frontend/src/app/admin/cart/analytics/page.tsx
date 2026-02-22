@@ -1,11 +1,11 @@
 'use client';
 
 import React from 'react';
-import CartAnalytics from '@/components/admin/cart/CartAnalytics';
+import CartAnalyticsDashboard from '@/components/admin/cart/CartAnalyticsDashboard';
 import { withAuth } from '@/components/auth/withAuth';
 
 function CartAnalyticsPage() {
-  return <CartAnalytics />;
+  return <CartAnalyticsDashboard />;
 }
 
 export default withAuth(CartAnalyticsPage, {

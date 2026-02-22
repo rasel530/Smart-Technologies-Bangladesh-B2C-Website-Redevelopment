@@ -209,7 +209,12 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
   return (
     <div
       className="fixed inset-0 bg-black/95 z-50 flex flex-col"
-      onClick={onClose}
+      onClick={(e) => {
+        // Only close if clicking directly on the background, not on content
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4">
@@ -283,12 +288,12 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
       {/* Main Image Container */}
       <div
         ref={containerRef}
-        className="flex-1 relative overflow-hidden flex items-center justify-center"
+        className="flex-1 relative flex items-center justify-center py-8"
         onWheel={handleWheel}
       >
         <div
           ref={imageRef}
-          className="relative cursor-grab active:cursor-grabbing"
+          className="relative cursor-grab active:cursor-grabbing max-w-full max-h-full"
           style={{
             transform: `scale(${zoom}) translate(${pan.x}px, ${pan.y}px)`,
             transition: isDragging ? 'none' : 'transform 0.2s ease-out'
@@ -305,7 +310,7 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
             alt={getAltText(currentImage) || `${productName} - Image ${currentIndex + 1}`}
             width={currentImage.width || 1200}
             height={currentImage.height || 1200}
-            className="max-w-full max-h-full object-contain"
+            className="max-w-full max-h-[70vh] w-auto h-auto object-contain"
             draggable={false}
             priority
           />
@@ -316,25 +321,29 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
           <>
             <button
               onClick={(e) => {
+                e.preventDefault();
                 e.stopPropagation();
                 onPrevious();
               }}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white transition-colors z-50 pointer-events-auto cursor-pointer"
               aria-label="Previous image"
+              type="button"
             >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <button
               onClick={(e) => {
+                e.preventDefault();
                 e.stopPropagation();
                 onNext();
               }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white transition-colors z-50 pointer-events-auto cursor-pointer"
               aria-label="Next image"
+              type="button"
             >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>

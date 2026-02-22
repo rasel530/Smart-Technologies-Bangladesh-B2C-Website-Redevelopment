@@ -1,0 +1,286 @@
+{
+  "timestamp": "2026-02-17T10:40:43.213Z",
+  "tests": [
+    {
+      "test": "Conversion Analytics - Result exists",
+      "passed": true,
+      "message": "Result object exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.371Z"
+    },
+    {
+      "test": "Conversion Analytics - Has funnel object",
+      "passed": true,
+      "message": "funnel object exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.371Z"
+    },
+    {
+      "test": "Conversion Analytics - funnel.views exists",
+      "passed": true,
+      "message": "funnel.views exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.371Z"
+    },
+    {
+      "test": "Conversion Analytics - funnel.cartAdds exists",
+      "passed": true,
+      "message": "funnel.cartAdds exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.372Z"
+    },
+    {
+      "test": "Conversion Analytics - funnel.wishlistAdds exists",
+      "passed": true,
+      "message": "funnel.wishlistAdds exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.372Z"
+    },
+    {
+      "test": "Conversion Analytics - funnel.cartToWishlistMoves exists",
+      "passed": true,
+      "message": "funnel.cartToWishlistMoves exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.372Z"
+    },
+    {
+      "test": "Conversion Analytics - funnel.wishlistToCartMoves exists",
+      "passed": true,
+      "message": "funnel.wishlistToCartMoves exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.372Z"
+    },
+    {
+      "test": "Conversion Analytics - funnel.checkouts exists",
+      "passed": true,
+      "message": "funnel.checkouts exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.372Z"
+    },
+    {
+      "test": "Conversion Analytics - Has conversionRates object",
+      "passed": true,
+      "message": "conversionRates object exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.372Z"
+    },
+    {
+      "test": "Conversion Analytics - conversionRates.viewToCart exists",
+      "passed": true,
+      "message": "conversionRates.viewToCart exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.372Z"
+    },
+    {
+      "test": "Conversion Analytics - conversionRates.viewToWishlist exists",
+      "passed": true,
+      "message": "conversionRates.viewToWishlist exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.372Z"
+    },
+    {
+      "test": "Conversion Analytics - conversionRates.cartToCheckout exists",
+      "passed": true,
+      "message": "conversionRates.cartToCheckout exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.372Z"
+    },
+    {
+      "test": "Conversion Analytics - conversionRates.wishlistToCart exists",
+      "passed": true,
+      "message": "conversionRates.wishlistToCart exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.373Z"
+    },
+    {
+      "test": "Conversion Analytics - conversionRates.wishlistToCheckout exists",
+      "passed": true,
+      "message": "conversionRates.wishlistToCheckout exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.373Z"
+    },
+    {
+      "test": "Conversion Analytics - Has topConvertedProducts array",
+      "passed": true,
+      "message": "topConvertedProducts array exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.373Z"
+    },
+    {
+      "test": "Conversion Analytics - Complete structure matches expected",
+      "passed": true,
+      "message": "Structure matches expected format",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.373Z"
+    },
+    {
+      "test": "Abandonment Analytics - Result exists",
+      "passed": true,
+      "message": "Result object exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.395Z"
+    },
+    {
+      "test": "Abandonment Analytics - Has cartAbandonment object (FRONTEND EXPECTED)",
+      "message": "cartAbandonment object missing - THIS WILL CAUSE FRONTEND ERROR",
+      "details": {
+        "actualStructure": [
+          "abandonedCarts",
+          "abandonmentRate",
+          "abandonmentReasons",
+          "averageTimeBeforeAbandonment"
+        ]
+      },
+      "timestamp": "2026-02-17T10:40:43.395Z"
+    },
+    {
+      "test": "Abandonment Analytics - Has wishlistAbandonment object (FRONTEND EXPECTED)",
+      "message": "wishlistAbandonment object missing - THIS WILL CAUSE FRONTEND ERROR",
+      "details": {
+        "actualStructure": [
+          "abandonedCarts",
+          "abandonmentRate",
+          "abandonmentReasons",
+          "averageTimeBeforeAbandonment"
+        ]
+      },
+      "timestamp": "2026-02-17T10:40:43.395Z"
+    },
+    {
+      "test": "Abandonment Analytics - Has abandonedCarts (BACKEND ACTUAL)",
+      "passed": true,
+      "message": "abandonedCarts exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.395Z"
+    },
+    {
+      "test": "Abandonment Analytics - Has abandonmentRate (BACKEND ACTUAL)",
+      "passed": true,
+      "message": "abandonmentRate exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.395Z"
+    },
+    {
+      "test": "Abandonment Analytics - Has abandonmentTrend array (FRONTEND EXPECTED)",
+      "passed": false,
+      "message": "abandonmentTrend missing or not an array",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.395Z"
+    },
+    {
+      "test": "Abandonment Analytics - Has topAbandonedProducts array (FRONTEND EXPECTED)",
+      "passed": false,
+      "message": "topAbandonedProducts missing or not an array",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.395Z"
+    },
+    {
+      "test": "Abandonment Analytics - Complete structure matches frontend expected",
+      "passed": false,
+      "message": "CRITICAL: Structure does not match frontend expected format - THIS WILL CAUSE TYPEERROR",
+      "details": {
+        "errors": [
+          "cartAbandonment should be an object but is undefined",
+          "wishlistAbandonment should be an object but is undefined",
+          "abandonmentTrend should be an array but is undefined",
+          "topAbandonedProducts should be an array but is undefined"
+        ],
+        "actualStructure": [
+          "abandonedCarts",
+          "abandonmentRate",
+          "abandonmentReasons",
+          "averageTimeBeforeAbandonment"
+        ]
+      },
+      "timestamp": "2026-02-17T10:40:43.395Z"
+    },
+    {
+      "test": "Behavior Analytics - No errors thrown",
+      "passed": false,
+      "message": "Error thrown: \nInvalid `this.prisma.user.findMany()` invocation in\ne:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\services\\cartWishlist\\cartWishlistAnalytics.service.js:50:42\n\n  47 \n  48 // Get user names for each user\n  49 const userIds = userBehaviorData.map(u => u.userId);\n→ 50 const users = await this.prisma.user.findMany({\n       where: {\n         id: {\n           in: []\n         }\n       },\n       select: {\n         id: true,\n         name: true,\n         ~~~~\n         email: true,\n     ?   emailVerified?: true,\n     ?   phone?: true,\n     ?   phoneVerified?: true,\n     ?   password?: true,\n     ?   firstName?: true,\n     ?   lastName?: true,\n     ?   dateOfBirth?: true,\n     ?   gender?: true,\n     ?   role?: true,\n     ?   status?: true,\n     ?   image?: true,\n     ?   createdAt?: true,\n     ?   updatedAt?: true,\n     ?   lastLoginAt?: true,\n     ?   preferredLanguage?: true,\n     ?   accountStatus?: true,\n     ?   deletionRequestedAt?: true,\n     ?   deletionReason?: true,\n     ?   deletedAt?: true,\n     ?   accountDeletionRequests?: true,\n     ?   addresses?: true,\n     ?   cart?: true,\n     ?   comparisonHistory?: true,\n     ?   corporate_accounts_corporate_accounts_account_manager_idTousers?: true,\n     ?   corporate_accounts_corporate_accounts_user_idTousers?: true,\n     ?   corporate_users?: true,\n     ?   emailVerificationTokens?: true,\n     ?   orders?: true,\n     ?   passwordHistory?: true,\n     ?   phoneOTPs?: true,\n     ?   comparisons?: true,\n     ?   reviews?: true,\n     ?   role_escalation_requests?: true,\n     ?   searchAnalytics?: true,\n     ?   searchLogs?: true,\n     ?   searchRecommendations?: true,\n     ?   communicationPreferences?: true,\n     ?   userDataExports?: true,\n     ?   notificationPreferences?: true,\n     ?   privacySettings?: true,\n     ?   user_roles?: true,\n     ?   userSearchPreferences?: true,\n     ?   userSessions?: true,\n     ?   socialAccounts?: true,\n     ?   wishlists?: true,\n     ?   wishlistAnalytics?: true,\n     ?   cartWishlistSyncs?: true,\n     ?   cartWishlistMoveHistories?: true,\n     ?   _count?: true\n       }\n     })\n\nUnknown field `name` for select statement on model `User`. Available options are marked with ?.",
+      "details": {
+        "error": "\nInvalid `this.prisma.user.findMany()` invocation in\ne:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\services\\cartWishlist\\cartWishlistAnalytics.service.js:50:42\n\n  47 \n  48 // Get user names for each user\n  49 const userIds = userBehaviorData.map(u => u.userId);\n→ 50 const users = await this.prisma.user.findMany({\n       where: {\n         id: {\n           in: []\n         }\n       },\n       select: {\n         id: true,\n         name: true,\n         ~~~~\n         email: true,\n     ?   emailVerified?: true,\n     ?   phone?: true,\n     ?   phoneVerified?: true,\n     ?   password?: true,\n     ?   firstName?: true,\n     ?   lastName?: true,\n     ?   dateOfBirth?: true,\n     ?   gender?: true,\n     ?   role?: true,\n     ?   status?: true,\n     ?   image?: true,\n     ?   createdAt?: true,\n     ?   updatedAt?: true,\n     ?   lastLoginAt?: true,\n     ?   preferredLanguage?: true,\n     ?   accountStatus?: true,\n     ?   deletionRequestedAt?: true,\n     ?   deletionReason?: true,\n     ?   deletedAt?: true,\n     ?   accountDeletionRequests?: true,\n     ?   addresses?: true,\n     ?   cart?: true,\n     ?   comparisonHistory?: true,\n     ?   corporate_accounts_corporate_accounts_account_manager_idTousers?: true,\n     ?   corporate_accounts_corporate_accounts_user_idTousers?: true,\n     ?   corporate_users?: true,\n     ?   emailVerificationTokens?: true,\n     ?   orders?: true,\n     ?   passwordHistory?: true,\n     ?   phoneOTPs?: true,\n     ?   comparisons?: true,\n     ?   reviews?: true,\n     ?   role_escalation_requests?: true,\n     ?   searchAnalytics?: true,\n     ?   searchLogs?: true,\n     ?   searchRecommendations?: true,\n     ?   communicationPreferences?: true,\n     ?   userDataExports?: true,\n     ?   notificationPreferences?: true,\n     ?   privacySettings?: true,\n     ?   user_roles?: true,\n     ?   userSearchPreferences?: true,\n     ?   userSessions?: true,\n     ?   socialAccounts?: true,\n     ?   wishlists?: true,\n     ?   wishlistAnalytics?: true,\n     ?   cartWishlistSyncs?: true,\n     ?   cartWishlistMoveHistories?: true,\n     ?   _count?: true\n       }\n     })\n\nUnknown field `name` for select statement on model `User`. Available options are marked with ?.",
+        "stack": "PrismaClientValidationError: \nInvalid `this.prisma.user.findMany()` invocation in\ne:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\services\\cartWishlist\\cartWishlistAnalytics.service.js:50:42\n\n  47 \n  48 // Get user names for each user\n  49 const userIds = userBehaviorData.map(u => u.userId);\n→ 50 const users = await this.prisma.user.findMany({\n       where: {\n         id: {\n           in: []\n         }\n       },\n       select: {\n         id: true,\n         name: true,\n         ~~~~\n         email: true,\n     ?   emailVerified?: true,\n     ?   phone?: true,\n     ?   phoneVerified?: true,\n     ?   password?: true,\n     ?   firstName?: true,\n     ?   lastName?: true,\n     ?   dateOfBirth?: true,\n     ?   gender?: true,\n     ?   role?: true,\n     ?   status?: true,\n     ?   image?: true,\n     ?   createdAt?: true,\n     ?   updatedAt?: true,\n     ?   lastLoginAt?: true,\n     ?   preferredLanguage?: true,\n     ?   accountStatus?: true,\n     ?   deletionRequestedAt?: true,\n     ?   deletionReason?: true,\n     ?   deletedAt?: true,\n     ?   accountDeletionRequests?: true,\n     ?   addresses?: true,\n     ?   cart?: true,\n     ?   comparisonHistory?: true,\n     ?   corporate_accounts_corporate_accounts_account_manager_idTousers?: true,\n     ?   corporate_accounts_corporate_accounts_user_idTousers?: true,\n     ?   corporate_users?: true,\n     ?   emailVerificationTokens?: true,\n     ?   orders?: true,\n     ?   passwordHistory?: true,\n     ?   phoneOTPs?: true,\n     ?   comparisons?: true,\n     ?   reviews?: true,\n     ?   role_escalation_requests?: true,\n     ?   searchAnalytics?: true,\n     ?   searchLogs?: true,\n     ?   searchRecommendations?: true,\n     ?   communicationPreferences?: true,\n     ?   userDataExports?: true,\n     ?   notificationPreferences?: true,\n     ?   privacySettings?: true,\n     ?   user_roles?: true,\n     ?   userSearchPreferences?: true,\n     ?   userSessions?: true,\n     ?   socialAccounts?: true,\n     ?   wishlists?: true,\n     ?   wishlistAnalytics?: true,\n     ?   cartWishlistSyncs?: true,\n     ?   cartWishlistMoveHistories?: true,\n     ?   _count?: true\n       }\n     })\n\nUnknown field `name` for select statement on model `User`. Available options are marked with ?.\n    at wn (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\node_modules\\@prisma\\client\\runtime\\library.js:29:1363)\n    at $n.handleRequestError (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\node_modules\\@prisma\\client\\runtime\\library.js:121:6958)\n    at $n.handleAndLogRequestError (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\node_modules\\@prisma\\client\\runtime\\library.js:121:6623)\n    at $n.request (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\node_modules\\@prisma\\client\\runtime\\library.js:121:6307)\n    at async l (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\node_modules\\@prisma\\client\\runtime\\library.js:130:9633)\n    at async CartWishlistAnalyticsService.getBehaviorAnalytics (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\services\\cartWishlist\\cartWishlistAnalytics.service.js:50:19)\n    at async testBehaviorAnalytics (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\cart-wishlist-analytics-verification.test.js:322:20)\n    at async runTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\cart-wishlist-analytics-verification.test.js:556:5)"
+      },
+      "timestamp": "2026-02-17T10:40:43.409Z"
+    },
+    {
+      "test": "System Analytics - Result exists",
+      "passed": true,
+      "message": "Result object exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.437Z"
+    },
+    {
+      "test": "System Analytics - Has cartActivity object",
+      "message": "cartActivity object missing or invalid",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.437Z"
+    },
+    {
+      "test": "System Analytics - Has wishlistActivity object",
+      "message": "wishlistActivity object missing or invalid",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.437Z"
+    },
+    {
+      "test": "System Analytics - Has moveOperations object",
+      "message": "moveOperations object missing or invalid",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.437Z"
+    },
+    {
+      "test": "System Analytics - Has syncStats object",
+      "message": "syncStats object missing or invalid",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.437Z"
+    },
+    {
+      "test": "System Analytics - Has conflictStats object",
+      "message": "conflictStats object missing or invalid",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.437Z"
+    },
+    {
+      "test": "Performance Metrics - Result exists",
+      "passed": true,
+      "message": "Result object exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.444Z"
+    },
+    {
+      "test": "Performance Metrics - Has averageSyncTime",
+      "passed": true,
+      "message": "averageSyncTime exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.444Z"
+    },
+    {
+      "test": "Performance Metrics - Has failedSyncs",
+      "passed": true,
+      "message": "failedSyncs exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.445Z"
+    },
+    {
+      "test": "Performance Metrics - Has successfulMoves",
+      "passed": true,
+      "message": "successfulMoves exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.445Z"
+    },
+    {
+      "test": "Performance Metrics - Has failedMoves",
+      "passed": true,
+      "message": "failedMoves exists",
+      "details": null,
+      "timestamp": "2026-02-17T10:40:43.445Z"
+    }
+  ],
+  "summary": {
+    "total": 36,
+    "passed": 25,
+    "failed": 11,
+    "warnings": 0
+  }
+}

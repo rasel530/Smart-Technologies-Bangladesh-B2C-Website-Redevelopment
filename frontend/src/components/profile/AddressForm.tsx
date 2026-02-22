@@ -24,7 +24,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
   const isEditMode = !!address;
 
   const [formData, setFormData] = useState<CreateAddressRequest>({
-    type: 'SHIPPING',
+    type: 'SHIPPING' as 'SHIPPING' | 'BILLING' | 'HOME' | 'WORK' | 'OTHER',
     firstName: '',
     lastName: '',
     phone: '',
@@ -119,10 +119,11 @@ const AddressForm: React.FC<AddressFormProps> = ({
       newErrorsBn.district = 'জেলা প্রয়োজনীয়';
     }
 
-    if (!formData.upazila) {
-      newErrors.upazila = language === 'en' ? 'Upazila is required' : 'উপজেলা প্রয়োজনীয়';
-      newErrorsBn.upazila = 'উপজেলা প্রয়োজনীয়';
-    }
+    // Upazila is optional, no validation required
+    // if (!formData.upazila) {
+    //   newErrors.upazila = language === 'en' ? 'Upazila is required' : 'উপজেলা প্রয়োজনীয়';
+    //   newErrorsBn.upazila = 'উপজেলা প্রয়োজনীয়';
+    // }
 
     setErrors(newErrors);
     setErrorsBn(newErrorsBn);
@@ -293,6 +294,15 @@ const AddressForm: React.FC<AddressFormProps> = ({
             </option>
             <option value="BILLING">
               {language === 'en' ? 'Billing Address' : 'বিলিং ঠিকানা'}
+            </option>
+            <option value="HOME">
+              {language === 'en' ? 'Home Address' : 'বাসার ঠিকানা'}
+            </option>
+            <option value="WORK">
+              {language === 'en' ? 'Work Address' : 'কর্মস্থলের ঠিকানা'}
+            </option>
+            <option value="OTHER">
+              {language === 'en' ? 'Other Address' : 'অন্যান্য ঠিকানা'}
             </option>
           </select>
         </div>

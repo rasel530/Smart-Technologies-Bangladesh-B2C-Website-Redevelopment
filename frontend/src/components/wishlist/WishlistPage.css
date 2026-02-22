@@ -1338,6 +1338,75 @@
   outline-offset: var(--wishlist-focus-ring-offset);
 }
 
+/* Private Wishlist Error Styles */
+.private-wishlist-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wishlist-spacing-md);
+  align-items: center;
+}
+
+.private-wishlist-info {
+  font-size: var(--wishlist-font-size-sm);
+  color: var(--wishlist-text-secondary);
+  margin: 0;
+  max-width: 300px;
+}
+
+.make-public-button {
+  padding: var(--wishlist-spacing-md) var(--wishlist-spacing-xl);
+  background-color: var(--wishlist-color-secondary);
+  color: var(--wishlist-text-inverse);
+  border: none;
+  border-radius: var(--wishlist-radius-md);
+  font-size: var(--wishlist-font-size-base);
+  font-weight: var(--wishlist-font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--wishlist-transition-fast);
+}
+
+.make-public-button:hover:not(:disabled) {
+  background-color: var(--wishlist-color-secondary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--wishlist-shadow-md);
+}
+
+.make-public-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.make-public-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.make-public-button:focus-visible {
+  outline: var(--wishlist-focus-ring-width) solid var(--wishlist-focus-ring-color);
+  outline-offset: var(--wishlist-focus-ring-offset);
+}
+
+.cancel-button {
+  padding: var(--wishlist-spacing-sm) var(--wishlist-spacing-lg);
+  background-color: transparent;
+  color: var(--wishlist-text-secondary);
+  border: 1px solid var(--wishlist-border-color);
+  border-radius: var(--wishlist-radius-md);
+  font-size: var(--wishlist-font-size-sm);
+  font-weight: var(--wishlist-font-weight-medium);
+  cursor: pointer;
+  transition: all var(--wishlist-transition-fast);
+}
+
+.cancel-button:hover {
+  background-color: var(--wishlist-bg-tertiary);
+  border-color: var(--wishlist-border-hover);
+}
+
+.cancel-button:focus-visible {
+  outline: var(--wishlist-focus-ring-width) solid var(--wishlist-focus-ring-color);
+  outline-offset: var(--wishlist-focus-ring-offset);
+}
+
 /* ============================================
    ACCESSIBILITY
    ============================================ */

@@ -4,18 +4,38 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, CreditCard, Truck, MapPin, CheckCircle, Shield, AlertCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, CreditCard, Truck, MapPin, CheckCircle, Shield, AlertCircle, Loader2, Info, Smartphone, Wifi, User as UserIcon } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCheckoutAddresses } from '@/hooks/useCheckoutAddresses';
+import { useCheckout } from '@/hooks/useCheckout';
 import { User } from '@/types/auth';
+import type { CheckoutStep, CheckoutValidationError } from '@/types/checkout';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { addressToShippingAddress, ShippingAddress } from '@/lib/utils/address';
 import { apiClient } from '@/lib/api/client';
+import { validateCodOrder, getCodFee } from '@/lib/api/cod';
 import SavedAddressesSelector from '@/components/checkout/SavedAddressesSelector';
 import BillingAddressToggle from '@/components/checkout/BillingAddressToggle';
+import CheckoutProgress from '@/components/checkout/CheckoutProgress';
+import CheckoutStepContainer from '@/components/checkout/CheckoutStepContainer';
+import CheckoutSecurityBadge from '@/components/checkout/CheckoutSecurityBadge';
+import CheckoutAbandonmentWarning from '@/components/checkout/CheckoutAbandonmentWarning';
 import { districts } from '@/data/bangladesh-data';
+import { CodValidationResult } from '@/types/cod';
+import { EmiDetails, EmiPlan } from '@/types/emi';
+import { LocalPaymentMethod, PaymentFeeResult } from '@/types/localPayment';
+import EmiDisplay from '@/components/cart/EmiDisplay';
+import EmiSelector from '@/components/cart/EmiSelector';
+import EmiSummary from '@/components/cart/EmiSummary';
+import CodAvailabilityIndicator from '@/components/cart/CodAvailabilityIndicator';
+import CodFeeDisplay from '@/components/cart/CodFeeDisplay';
+import CodWarningBanner from '@/components/cart/CodWarningBanner';
+import LocalPaymentMethodSelector from '@/components/cart/LocalPaymentMethodSelector';
+import LocalPaymentFeeDisplay from '@/components/cart/LocalPaymentFeeDisplay';
+import LocalPaymentInstructions from '@/components/cart/LocalPaymentInstructions';
+import OfflineCartIndicator from '@/components/cart/OfflineCartIndicator';
 
 const CDN_URL = process.env.NEXT_PUBLIC_CDN_URL || '';
 
@@ -44,9 +64,33 @@ const paymentMethods: PaymentMethod[] = [
     icon: <CreditCard className="w-5 h-5" />,
   },
   {
+    id: 'emi',
+    name: 'EMI (Installments)',
+    nameBn: 'ইএমআই (কিস্তি)',
+    icon: <CreditCard className="w-5 h-5" />,
+  },
+  {
     id: 'bkash',
     name: 'bKash',
     nameBn: 'বিকাশ',
+    icon: <CreditCard className="w-5 h-5" />,
+  },
+  {
+    id: 'nagad',
+    name: 'Nagad',
+    nameBn: 'নগদ',
+    icon: <CreditCard className="w-5 h-5" />,
+  },
+  {
+    id: 'rocket',
+    name: 'Rocket',
+    nameBn: 'রকেট',
+    icon: <CreditCard className="w-5 h-5" />,
+  },
+  {
+    id: 'mcash',
+    name: 'MCash',
+    nameBn: 'এমক্যাশ',
     icon: <CreditCard className="w-5 h-5" />,
   },
 ];
@@ -58,6 +102,28 @@ export default function CheckoutPage() {
   const { user, isLoading: authLoading } = useAuth();
   const isAuthenticated = !!user;
   const { items, subtotal, tax, shippingCost, discount, total, isLoading, isInitializing, setShippingMethod, clearCart } = useCart();
+  
+  // Use new checkout hook
+  const {
+    session,
+    progress,
+    security,
+    isLoading: isCheckoutLoading,
+    error: checkoutError,
+    isAbandoned,
+    abandonmentReason,
+    initializeSession,
+    updateStep,
+    saveProgress,
+    validateStep,
+    completeCheckout,
+    abandonCheckout,
+    recoverCheckout,
+    extendSession,
+    clearSession,
+    setSecurityWarning,
+    dismissSecurityWarning,
+  } = useCheckout();
 
   // Helper function to get product image URL with proper CDN/backend URL handling
   const getProductImage = (imageUrl?: string | null | any): string => {
@@ -111,11 +177,43 @@ export default function CheckoutPage() {
     useSameAddress,
     getSelectedShippingAddressAsShippingAddress,
   } = useCheckoutAddresses();
-  const [step, setStep] = useState<'shipping' | 'payment' | 'review'>('shipping');
+  // Update to 4-step checkout process
+  const [step, setStep] = useState<CheckoutStep>('address');
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<string>('cod');
   const [hasAutoSelectedDefault, setHasAutoSelectedDefault] = useState(false);
   const [isPopulatingAddress, setIsPopulatingAddress] = useState(false);
+  const [codValidation, setCodValidation] = useState<CodValidationResult | null>(null);
+  const [codFee, setCodFee] = useState<number>(0);
+  const [isValidatingCod, setIsValidatingCod] = useState(false);
+  const [stepErrors, setStepErrors] = useState<CheckoutValidationError[]>([]);
+  const [showAbandonmentWarning, setShowAbandonmentWarning] = useState(false);
+  
+  // EMI State
+  const [emiAvailable, setEmiAvailable] = useState(false);
+  const [emiPlans, setEmiPlans] = useState<EmiPlan[]>([]);
+  const [selectedEmiPlanId, setSelectedEmiPlanId] = useState<string | null>(null);
+  const [selectedEmiPlan, setSelectedEmiPlan] = useState<EmiPlan | null>(null);
+  const [emiDetails, setEmiDetails] = useState<EmiDetails | null>(null);
+  const [isLoadingEmi, setIsLoadingEmi] = useState(false);
+  
+  // Local Payment State
+  const [localPaymentMethods, setLocalPaymentMethods] = useState<LocalPaymentMethod[]>([]);
+  const [selectedLocalPaymentMethod, setSelectedLocalPaymentMethod] = useState<LocalPaymentMethod | null>(null);
+  const [localPaymentFee, setLocalPaymentFee] = useState<PaymentFeeResult | null>(null);
+  const [localPaymentPhone, setLocalPaymentPhone] = useState('');
+  const [localPaymentPin, setLocalPaymentPin] = useState('');
+  const [isLoadingLocalPayment, setIsLoadingLocalPayment] = useState(false);
+  
+  // Mobile/Offline State
+  const [isMobile, setIsMobile] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+  const [language, setLanguage] = useState<'en' | 'bn'>('en');
+
+  // Guest checkout state
+  const [showGuestCheckoutOption, setShowGuestCheckoutOption] = useState(false);
 
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     fullName: user ? `${user.firstName} ${user.lastName}` : '',
@@ -145,19 +243,18 @@ export default function CheckoutPage() {
   useEffect(() => {
     // Only redirect when authLoading is complete AND user is definitely not authenticated
     // This prevents the race condition where authLoading is false but session is still loading
-    if (!authLoading && !isAuthenticated) {
+    if (!authLoading && !isAuthenticated && !showGuestCheckoutOption) {
       // Add a small delay to ensure session is fully stabilized
       const timer = setTimeout(() => {
         // Double-check authentication after delay to confirm
         if (!isAuthenticated) {
-          toast.error('Please login to continue');
-          router.push('/login?redirect=/checkout');
+          setShowGuestCheckoutOption(true);
         }
       }, 100);
-      
+
       return () => clearTimeout(timer);
     }
-  }, [authLoading, isAuthenticated, router]);
+  }, [authLoading, isAuthenticated, router, showGuestCheckoutOption]);
 
   // Redirect if cart is empty (only after initialization completes)
   useEffect(() => {
@@ -166,6 +263,27 @@ export default function CheckoutPage() {
       router.push('/cart');
     }
   }, [items.length, isLoading, isInitializing, router]);
+
+  // Initialize checkout session when component mounts
+  useEffect(() => {
+    if (!authLoading && isAuthenticated && !isInitializing && items.length > 0) {
+      initializeSession(user?.id || null);
+    }
+  }, [authLoading, isAuthenticated, isInitializing, items.length, user?.id, initializeSession]);
+
+  // Handle abandonment warning
+  useEffect(() => {
+    if (isAbandoned && abandonmentReason) {
+      setShowAbandonmentWarning(true);
+    }
+  }, [isAbandoned, abandonmentReason]);
+
+  // Handle step changes
+  useEffect(() => {
+    if (session) {
+      setStep(session.currentStep);
+    }
+  }, [session]);
 
   // Fetch saved addresses on mount
   useEffect(() => {
@@ -192,12 +310,237 @@ export default function CheckoutPage() {
     }
   }, [useSameAddress, shippingAddress]);
 
+  // Validate COD when payment method or address changes
+  useEffect(() => {
+    const validateCOD = async () => {
+      if (selectedPayment === 'cod' && shippingAddress.district) {
+        setIsValidatingCod(true);
+        try {
+          const validation = await validateCodOrder(
+            user?.id,
+            {
+              division: getDivisionFromDistrict(shippingAddress.district),
+              district: shippingAddress.district,
+              city: shippingAddress.city,
+              address: shippingAddress.addressLine1
+            },
+            total
+          );
+          setCodValidation(validation.data);
+
+          // Calculate COD fee
+          const feeResponse = await getCodFee(total);
+          setCodFee(feeResponse);
+        } catch (error) {
+          console.error('Error validating COD:', error);
+          setCodValidation(null);
+          setCodFee(0);
+        } finally {
+          setIsValidatingCod(false);
+        }
+      } else {
+        setCodValidation(null);
+        setCodFee(0);
+      }
+    };
+
+    validateCOD();
+  }, [selectedPayment, shippingAddress.district, shippingAddress.city, total, user?.id]);
+
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Check online/offline status
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      setLastSyncTime(new Date().toISOString());
+    };
+    
+    const handleOffline = () => {
+      setIsOnline(false);
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    // Set initial online status
+    setIsOnline(navigator.onLine);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Load EMI plans when total changes
+  useEffect(() => {
+    const loadEmiPlans = async () => {
+      try {
+        setIsLoadingEmi(true);
+        const { getAvailableEmiPlans } = await import('@/lib/api/emi');
+        const response = await getAvailableEmiPlans(total);
+        
+        if (response.success && response.data) {
+          setEmiPlans(response.data.plans);
+          setEmiAvailable(response.data.plans.length > 0);
+        }
+      } catch (error) {
+        console.error('Error loading EMI plans:', error);
+        setEmiAvailable(false);
+      } finally {
+        setIsLoadingEmi(false);
+      }
+    };
+
+    if (total >= 5000) { // EMI minimum amount
+      loadEmiPlans();
+    } else {
+      setEmiAvailable(false);
+      setEmiPlans([]);
+    }
+  }, [total]);
+
+  // Helper function to get division from district
+  const getDivisionFromDistrict = (district: string): string => {
+    const divisionMap: { [key: string]: string } = {
+      'Dhaka': 'dhaka',
+      'Faridpur': 'dhaka',
+      'Gazipur': 'dhaka',
+      'Gopalganj': 'dhaka',
+      'Jamalpur': 'dhaka',
+      'Kishoreganj': 'dhaka',
+      'Madaripur': 'dhaka',
+      'Manikganj': 'dhaka',
+      'Munshiganj': 'dhaka',
+      'Mymensingh': 'mymensingh',
+      'Netrokona': 'mymensingh',
+      'Sherpur': 'mymensingh',
+      'Chittagong': 'chittagong',
+      'Brahmanbaria': 'chittagong',
+      'Chandpur': 'chittagong',
+      'Comilla': 'chittagong',
+      'Coxs Bazar': 'chittagong',
+      'Feni': 'chittagong',
+      'Khagrachhari': 'chittagong',
+      'Lakshmipur': 'chittagong',
+      'Noakhali': 'chittagong',
+      'Rangamati': 'chittagong',
+      'Rajshahi': 'rajshahi',
+      'Bogra': 'rajshahi',
+      'Joypurhat': 'rajshahi',
+      'Naogaon': 'rajshahi',
+      'Natore': 'rajshahi',
+      'Nawabganj': 'rajshahi',
+      'Pabna': 'rajshahi',
+      'Sirajganj': 'rajshahi',
+      'Dinajpur': 'rangpur',
+      'Gaibandha': 'rangpur',
+      'Kurigram': 'rangpur',
+      'Lalmonirhat': 'rangpur',
+      'Nilphamari': 'rangpur',
+      'Panchagarh': 'rangpur',
+      'Rangpur': 'rangpur',
+      'Thakurgaon': 'rangpur',
+      'Khulna': 'khulna',
+      'Bagerhat': 'khulna',
+      'Chuadanga': 'khulna',
+      'Jessore': 'khulna',
+      'Jhenaidah': 'khulna',
+      'Kushtia': 'khulna',
+      'Magura': 'khulna',
+      'Meherpur': 'khulna',
+      'Narail': 'khulna',
+      'Satkhira': 'khulna',
+      'Barishal': 'barishal',
+      'Barguna': 'barishal',
+      'Bhola': 'barishal',
+      'Jhalokati': 'barishal',
+      'Patuakhali': 'barishal',
+      'Pirojpur': 'barishal',
+      'Sylhet': 'sylhet',
+      'Habiganj': 'sylhet',
+      'Moulvibazar': 'sylhet',
+      'Sunamganj': 'sylhet'
+    };
+    return divisionMap[district] || 'dhaka';
+  };
+
   // Handle billing address selection
   const handleBillingAddressSelect = (address: any) => {
     selectBillingAddress(address.id);
     const checkoutAddress = addressToShippingAddress(address);
     setBillingAddress(checkoutAddress);
     setErrors({});
+  };
+
+  // EMI Handler
+  const handleEmiPlanSelect = async (planId: string, plan: EmiPlan) => {
+    try {
+      setSelectedEmiPlanId(planId);
+      setSelectedEmiPlan(plan);
+      
+      // Calculate EMI details
+      const { calculateEmi } = await import('@/lib/api/emi');
+      const response = await calculateEmi(total, planId);
+      
+      if (response.success && response.data && 'planId' in response.data) {
+        setEmiDetails(response.data as EmiDetails);
+      }
+    } catch (error) {
+      console.error('Error calculating EMI:', error);
+      toast.error('Failed to calculate EMI');
+    }
+  };
+
+  // Local Payment Handlers
+  const handleLocalPaymentMethodSelect = async (method: LocalPaymentMethod, feeResult?: PaymentFeeResult) => {
+    setSelectedLocalPaymentMethod(method);
+    setLocalPaymentFee(feeResult || null);
+  };
+
+  // Auto-select first available local payment method when methods are loaded
+  useEffect(() => {
+    if (['bkash', 'nagad', 'rocket'].includes(selectedPayment) && 
+        localPaymentMethods.length > 0 && 
+        !selectedLocalPaymentMethod) {
+      // Auto-select the first available method
+      const firstMethod = localPaymentMethods[0];
+      handleLocalPaymentMethodSelect(firstMethod);
+    }
+  }, [selectedPayment, localPaymentMethods, selectedLocalPaymentMethod]);
+
+  const handleLocalPaymentPhoneChange = (value: string) => {
+    setLocalPaymentPhone(value);
+  };
+
+  const handleLocalPaymentPinChange = (value: string) => {
+    setLocalPaymentPin(value);
+  };
+
+  // Mobile/Offline Handlers
+  const handleSync = async () => {
+    setIsSyncing(true);
+    try {
+      // Simulate sync process
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setLastSyncTime(new Date().toISOString());
+      toast.success('Cart synced successfully');
+    } catch (error) {
+      console.error('Error syncing cart:', error);
+      toast.error('Failed to sync cart');
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   // Handle billing address field changes
@@ -312,6 +655,44 @@ export default function CheckoutPage() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  // Validate EMI selection
+  const validateEmi = (): boolean => {
+    if (selectedPayment === 'emi') {
+      if (!selectedEmiPlanId || !emiDetails) {
+        toast.error('Please select an EMI plan');
+        return false;
+      }
+    }
+    return true;
+  };
+
+  // Validate Local Payment
+  const validateLocalPayment = (): boolean => {
+    if (['bkash', 'nagad', 'rocket'].includes(selectedPayment)) {
+      if (!selectedLocalPaymentMethod) {
+        const paymentName = selectedPayment.charAt(0).toUpperCase() + selectedPayment.slice(1);
+        toast.error(`Please select a ${paymentName} payment method from the options below`);
+        return false;
+      }
+      
+      if (selectedLocalPaymentMethod.requiresPhone && !localPaymentPhone.trim()) {
+        toast.error('Phone number is required for this payment method');
+        return false;
+      }
+      
+      if (selectedLocalPaymentMethod.requiresPhone && !/^01[3-9]\d{8}$/.test(localPaymentPhone)) {
+        toast.error('Invalid phone number format. Must be 11 digits starting with 01');
+        return false;
+      }
+      
+      if (selectedLocalPaymentMethod.requiresPin && !localPaymentPin.trim()) {
+        toast.error('PIN is required for this payment method');
+        return false;
+      }
+    }
+    return true;
+  };
   
   const handleShippingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -321,6 +702,24 @@ export default function CheckoutPage() {
   };
   
   const handlePaymentSubmit = () => {
+    // Validate COD before proceeding to review
+    if (selectedPayment === 'cod') {
+      if (!codValidation || !codValidation.valid) {
+        toast.error(codValidation?.reason || 'COD is not available for this order');
+        return;
+      }
+    }
+
+    // Validate EMI selection
+    if (!validateEmi()) {
+      return;
+    }
+
+    // Validate Local Payment
+    if (!validateLocalPayment()) {
+      return;
+    }
+
     setStep('review');
   };
   
@@ -338,19 +737,64 @@ export default function CheckoutPage() {
       }));
       
       // Determine payment method enum value
-      const paymentMethodMap = {
+      const paymentMethodMap: Record<string, string> = {
         'cod': 'CASH_ON_DELIVERY',
         'card': 'CREDIT_CARD',
-        'bkash': 'BKASH'
+        'emi': 'EMI',
+        'mcash': 'MCASH',
+        'bkash': 'BKASH',
+        'nagad': 'NAGAD',
+        'rocket': 'ROCKET'
       };
       
-      // Call the backend API to create an order
-      const response = await apiClient.post('/orders', {
+      // Build order data with Milestone 5 features
+      const orderData: any = {
         addressId: selectedShippingAddressId,
         items: orderItems,
         paymentMethod: paymentMethodMap[selectedPayment] || 'CASH_ON_DELIVERY',
-        notes: ''
-      });
+        notes: '',
+        // Mobile optimization flags
+        isMobileOrder: isMobile,
+        platform: isMobile ? 'mobile' : 'desktop',
+        // Milestone 5 payment details
+        paymentDetails: {}
+      };
+
+      // Add EMI details if selected
+      if (selectedPayment === 'emi' && emiDetails && selectedEmiPlan) {
+        orderData.paymentDetails = {
+          emiPlanId: selectedEmiPlan.id,
+          emiProviderId: emiDetails.provider.id,
+          emiAmount: emiDetails.emiAmount,
+          emiDuration: emiDetails.duration,
+          emiInterestRate: emiDetails.interestRate,
+          totalPayable: emiDetails.totalPayable,
+          processingFee: emiDetails.processingFee
+        };
+      }
+
+      // Add COD details if selected
+      if (selectedPayment === 'cod' && codValidation) {
+        orderData.paymentDetails = {
+          codFee: codFee,
+          deliveryDays: codValidation.deliveryDays,
+          requiresPhoneVerification: codValidation.requiresVerification.phone,
+          requiresAddressVerification: codValidation.requiresVerification.address
+        };
+      }
+
+      // Add local payment details if selected
+      if (['bkash', 'nagad', 'rocket'].includes(selectedPayment) && selectedLocalPaymentMethod) {
+        orderData.paymentDetails = {
+          paymentMethodCode: selectedLocalPaymentMethod.code,
+          phoneNumber: localPaymentPhone,
+          paymentFee: localPaymentFee?.totalFee || 0,
+          totalAmount: localPaymentFee?.totalAmount || total
+        };
+      }
+      
+      // Call the backend API to create an order
+      const response = await apiClient.post('/orders', orderData);
       
       toast.success('Order placed successfully!');
       
@@ -377,7 +821,126 @@ export default function CheckoutPage() {
   }
   
   if (!isAuthenticated) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <Link href="/cart" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+                <ArrowLeft className="w-5 h-5" />
+                <span>Back to Cart</span>
+              </Link>
+              <h1 className="text-xl font-bold text-gray-900">Checkout</h1>
+              <div className="w-24"></div>
+            </div>
+          </div>
+        </header>
+
+        {/* Guest Checkout Option */}
+        <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+            <div className="text-center mb-8">
+              <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                <UserIcon className="w-8 h-8 text-blue-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Continue Your Checkout
+              </h2>
+              <p className="text-gray-600">
+                Choose how you'd like to proceed with your order
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Login Option */}
+              <Link
+                href="/login?redirect=/checkout"
+                className="group relative flex flex-col items-center p-6 border-2 border-gray-200 rounded-lg hover:border-blue-500 transition-all duration-200"
+              >
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-blue-200 transition-colors">
+                  <UserIcon className="w-6 h-6 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Login to Your Account
+                </h3>
+                <p className="text-sm text-gray-600 text-center mb-4">
+                  Access your saved addresses, order history, and more
+                </p>
+                <div className="mt-auto w-full">
+                  <button className="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors">
+                    Login
+                  </button>
+                </div>
+              </Link>
+
+              {/* Guest Checkout Option */}
+              <Link
+                href="/checkout/guest"
+                className="group relative flex flex-col items-center p-6 border-2 border-gray-200 rounded-lg hover:border-green-500 transition-all duration-200"
+              >
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-green-200 transition-colors">
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Continue as Guest
+                </h3>
+                <p className="text-sm text-gray-600 text-center mb-4">
+                  Complete your order quickly without creating an account
+                </p>
+                <div className="mt-auto w-full">
+                  <button className="w-full px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 transition-colors">
+                    Continue as Guest
+                  </button>
+                </div>
+              </Link>
+            </div>
+
+            {/* Benefits Section */}
+            <div className="mt-8 pt-8 border-t border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
+                Why Create an Account?
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Truck className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 text-sm">Track Orders</h4>
+                    <p className="text-xs text-gray-600 mt-1">
+                      View order history and status
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 text-sm">Save Addresses</h4>
+                    <p className="text-xs text-gray-600 mt-1">
+                      Quick checkout with saved addresses
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Shield className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 text-sm">Exclusive Offers</h4>
+                    <p className="text-xs text-gray-600 mt-1">
+                      Get special discounts and promotions
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
   }
   
   // Show loading indicator during cart initialization
@@ -406,49 +969,23 @@ export default function CheckoutPage() {
         </div>
       </header>
       
-      {/* Progress Steps */}
+      {/* Progress Steps - Using new CheckoutProgress component */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-center gap-4">
-            <div className={cn(
-              "flex items-center gap-2",
-              step === 'shipping' ? "text-blue-600" : "text-green-600"
-            )}>
-              <div className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center",
-                step === 'shipping' ? "bg-blue-600 text-white" : "bg-green-600 text-white"
-              )}>
-                {step === 'shipping' ? '1' : <CheckCircle className="w-5 h-5" />}
-              </div>
-              <span className="font-medium">Shipping</span>
-            </div>
-            <div className="w-16 h-0.5 bg-gray-300"></div>
-            <div className={cn(
-              "flex items-center gap-2",
-              step === 'payment' ? "text-blue-600" : step === 'review' ? "text-green-600" : "text-gray-400"
-            )}>
-              <div className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center",
-                step === 'payment' ? "bg-blue-600 text-white" : step === 'review' ? "bg-green-600 text-white" : "bg-gray-300 text-gray-600"
-              )}>
-                {step === 'review' ? <CheckCircle className="w-5 h-5" /> : '2'}
-              </div>
-              <span className="font-medium">Payment</span>
-            </div>
-            <div className="w-16 h-0.5 bg-gray-300"></div>
-            <div className={cn(
-              "flex items-center gap-2",
-              step === 'review' ? "text-blue-600" : "text-gray-400"
-            )}>
-              <div className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center",
-                step === 'review' ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-600"
-              )}>
-                '3'
-              </div>
-              <span className="font-medium">Review</span>
-            </div>
-          </div>
+          <CheckoutProgress
+            currentStep={step}
+            completedSteps={progress.completedSteps}
+            onStepClick={async (newStep) => {
+              if (progress.canNavigateBack || progress.canNavigateForward) {
+                setStep(newStep);
+                await updateStep(newStep);
+              }
+            }}
+            language={language}
+            showLabels={true}
+            showDescriptions={false}
+            clickable={progress.canNavigateBack || progress.canNavigateForward}
+          />
         </div>
       </div>
       
@@ -771,43 +1308,271 @@ export default function CheckoutPage() {
             
             {/* Payment Method Selection */}
             {step === 'payment' && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center gap-3 mb-6">
-                  <CreditCard className="w-6 h-6 text-blue-600" />
-                  <h2 className="text-lg font-semibold text-gray-900">Payment Method</h2>
+              <div className="space-y-6">
+                {/* Offline Cart Indicator */}
+                {!isOnline && (
+                  <OfflineCartIndicator
+                    isOnline={isOnline}
+                    lastSyncTime={lastSyncTime}
+                    isSyncing={isSyncing}
+                    onSync={handleSync}
+                    language={language}
+                    className="mb-4"
+                  />
+                )}
+
+                {/* Basic Payment Methods */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <CreditCard className="w-6 h-6 text-blue-600" />
+                    <h2 className="text-lg font-semibold text-gray-900">Payment Method</h2>
+                  </div>
+
+                  <div className="space-y-3">
+                    {paymentMethods.map((method) => (
+                      <button
+                        key={method.id}
+                        type="button"
+                        onClick={() => setSelectedPayment(method.id)}
+                        disabled={method.id === 'cod' && isValidatingCod}
+                        className={cn(
+                          "w-full flex items-center gap-4 p-4 border rounded-lg transition-colors",
+                          selectedPayment === method.id
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-200 hover:border-gray-300",
+                          method.id === 'cod' && !codValidation?.valid && codValidation !== null
+                            ? "border-red-300 bg-red-50"
+                            : ""
+                        )}
+                      >
+                        <div className={cn(
+                          "w-5 h-5 rounded-full border-2 flex items-center justify-center",
+                          selectedPayment === method.id ? "border-blue-600" : "border-gray-300"
+                        )}>
+                          {selectedPayment === method.id && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          {method.icon}
+                          <span className="font-medium text-gray-900">{method.name}</span>
+                        </div>
+                        {method.id === 'cod' && codFee > 0 && (
+                          <span className="text-sm text-gray-600">(+৳{codFee.toFixed(0)})</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                
-                <div className="space-y-3">
-                  {paymentMethods.map((method) => (
-                    <button
-                      key={method.id}
-                      type="button"
-                      onClick={() => setSelectedPayment(method.id)}
-                      className={cn(
-                        "w-full flex items-center gap-4 p-4 border rounded-lg transition-colors",
-                        selectedPayment === method.id
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-gray-200 hover:border-gray-300"
-                      )}
-                    >
-                      <div className={cn(
-                        "w-5 h-5 rounded-full border-2 flex items-center justify-center",
-                        selectedPayment === method.id ? "border-blue-600" : "border-gray-300"
-                      )}>
-                        {selectedPayment === method.id && (
-                          <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+
+                {/* EMI Section */}
+                {selectedPayment === 'emi' && (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <CreditCard className="w-6 h-6 text-purple-600" />
+                      <h2 className="text-lg font-semibold text-gray-900">EMI Options</h2>
+                    </div>
+                    
+                    {isLoadingEmi ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                        <span className="ml-3 text-gray-600">Loading EMI options...</span>
+                      </div>
+                    ) : emiAvailable ? (
+                      <>
+                        <EmiSelector
+                          availablePlans={emiPlans}
+                          selectedPlanId={selectedEmiPlanId || undefined}
+                          onPlanSelect={handleEmiPlanSelect}
+                          language={language}
+                        />
+                        
+                        {emiDetails && (
+                          <div className="mt-6">
+                            <EmiSummary
+                              emiDetails={emiDetails}
+                              language={language}
+                              showBreakdown={true}
+                            />
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="bg-gray-50 border border-gray-200 rounded-md p-6">
+                        <p className="text-sm text-gray-700">
+                          EMI is available for orders of ৳5,000 and above.
+                        </p>
+                        <p className="text-sm text-gray-600 mt-2">
+                          Current order total: ৳{total.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* COD Validation Status */}
+                {selectedPayment === 'cod' && (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <Truck className="w-6 h-6 text-blue-600" />
+                      <h2 className="text-lg font-semibold text-gray-900">COD Availability</h2>
+                    </div>
+                    
+                    {isValidatingCod && (
+                      <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                        <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
+                        <span className="text-sm text-blue-600">Validating COD availability...</span>
+                      </div>
+                    )}
+
+                    {!isValidatingCod && codValidation && (
+                      <>
+                        {codValidation.valid ? (
+                          <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                            <div className="flex items-start gap-2">
+                              <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                              <div className="flex-1">
+                                <p className="text-sm text-green-800 font-medium">COD is available</p>
+                                {codFee > 0 && (
+                                  <p className="text-sm text-green-700 mt-1">Additional COD fee: ৳{codFee.toFixed(0)}</p>
+                                )}
+                                <p className="text-sm text-green-700 mt-1">Estimated delivery: {codValidation.deliveryDays} days</p>
+                                {codValidation.warnings.length > 0 && (
+                                  <div className="mt-2">
+                                    {codValidation.warnings.map((warning, index) => (
+                                      <p key={index} className="text-xs text-green-600 flex items-center gap-1">
+                                        <Info className="w-3 h-3" />
+                                        {warning}
+                                      </p>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                            <div className="flex items-start gap-2">
+                              <AlertCircle className="w-4 h-4 text-red-600 mt-0.5" />
+                              <div className="flex-1">
+                                <p className="text-sm text-red-800 font-medium">COD is not available</p>
+                                <p className="text-sm text-red-700 mt-1">{codValidation.reason}</p>
+                                {codValidation.warnings.length > 0 && (
+                                  <div className="mt-2">
+                                    {codValidation.warnings.map((warning, index) => (
+                                      <p key={index} className="text-xs text-red-600 flex items-center gap-1">
+                                        <Info className="w-3 h-3" />
+                                        {warning}
+                                      </p>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+                    
+                    {/* COD Fee Display */}
+                    <div className="mt-4">
+                      <CodFeeDisplay
+                        amount={total}
+                        fee={codFee}
+                        language={language}
+                        showBreakdown={true}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Local Payment Section */}
+                {['bkash', 'nagad', 'rocket'].includes(selectedPayment) && (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <Smartphone className="w-6 h-6 text-blue-600" />
+                      <h2 className="text-lg font-semibold text-gray-900">Mobile Payment</h2>
+                    </div>
+
+                    {/* Selection Required Indicator */}
+                    {!selectedLocalPaymentMethod && (
+                      <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                        <div className="flex items-start gap-2">
+                          <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                          <p className="text-sm text-amber-800">
+                            Please select a payment method from the options below to continue
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    <LocalPaymentMethodSelector
+                      amount={total}
+                      selectedMethodCode={selectedPayment}
+                      onMethodSelect={handleLocalPaymentMethodSelect}
+                      language={language}
+                      showFee={true}
+                    />
+                    
+                    {/* Local Payment Fee Display */}
+                    {localPaymentFee && (
+                      <div className="mt-4">
+                        <LocalPaymentFeeDisplay
+                          amount={total}
+                          methodCode={selectedPayment}
+                          language={language}
+                        />
+                      </div>
+                    )}
+                    
+                    {/* Local Payment Instructions */}
+                    <div className="mt-4">
+                      <LocalPaymentInstructions
+                        methodCode={selectedPayment}
+                        language={language}
+                      />
+                    </div>
+                    
+                    {/* Phone and PIN Input */}
+                    {selectedLocalPaymentMethod && (
+                      <div className="mt-4 space-y-4">
+                        {selectedLocalPaymentMethod.requiresPhone && (
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Phone Number *
+                            </label>
+                            <input
+                              type="tel"
+                              value={localPaymentPhone}
+                              onChange={(e) => handleLocalPaymentPhoneChange(e.target.value)}
+                              placeholder="01XXXXXXXXX"
+                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+                        )}
+                        
+                        {selectedLocalPaymentMethod.requiresPin && (
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              PIN *
+                            </label>
+                            <input
+                              type="password"
+                              value={localPaymentPin}
+                              onChange={(e) => handleLocalPaymentPinChange(e.target.value)}
+                              placeholder="Enter your PIN"
+                              maxLength={5}
+                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
                         )}
                       </div>
-                      <div className="flex items-center gap-3">
-                        {method.icon}
-                        <span className="font-medium text-gray-900">{method.name}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-                
+                    )}
+                  </div>
+                )}
+
                 {paymentErrors && (
-                  <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-md">
                     <p className="text-sm text-red-600 flex items-center gap-2">
                       <AlertCircle className="w-4 h-4" />
                       {paymentErrors}
@@ -876,6 +1641,98 @@ export default function CheckoutPage() {
                   <p className="text-gray-600">
                     {paymentMethods.find(m => m.id === selectedPayment)?.name}
                   </p>
+                  
+                  {/* EMI Details */}
+                  {selectedPayment === 'emi' && emiDetails && (
+                    <div className="mt-3 space-y-2">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">Provider:</span>
+                        <span className="font-medium text-gray-900">{emiDetails.provider.name}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">Plan:</span>
+                        <span className="font-medium text-gray-900">{emiDetails.planName}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">Monthly EMI:</span>
+                        <span className="font-medium text-blue-600">
+                          ৳{emiDetails.emiAmount.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">Duration:</span>
+                        <span className="font-medium text-gray-900">{emiDetails.duration} months</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">Total Payable:</span>
+                        <span className="font-medium text-green-600">
+                          ৳{emiDetails.totalPayable.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* COD Details */}
+                  {selectedPayment === 'cod' && codValidation && (
+                    <div className="mt-3 space-y-2">
+                      {codFee > 0 && (
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-600">COD Fee:</span>
+                          <span className="font-medium text-gray-900">
+                            ৳{codFee.toFixed(0)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">Delivery:</span>
+                        <span className="font-medium text-gray-900">
+                          {codValidation.deliveryDays} days
+                        </span>
+                      </div>
+                      {codValidation.requiresVerification.phone && (
+                        <div className="text-sm text-yellow-700">
+                          • Phone verification required
+                        </div>
+                      )}
+                      {codValidation.requiresVerification.address && (
+                        <div className="text-sm text-yellow-700">
+                          • Address verification required
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Local Payment Details */}
+                  {['bkash', 'nagad', 'rocket'].includes(selectedPayment) && selectedLocalPaymentMethod && (
+                    <div className="mt-3 space-y-2">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">Method:</span>
+                        <span className="font-medium text-gray-900">{selectedLocalPaymentMethod.displayName}</span>
+                      </div>
+                      {localPaymentFee && localPaymentFee.totalFee > 0 && (
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-600">Payment Fee:</span>
+                          <span className="font-medium text-red-600">
+                            +৳{localPaymentFee.totalFee.toFixed(2)}
+                          </span>
+                        </div>
+                      )}
+                      {localPaymentFee && (
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-600">Total Amount:</span>
+                          <span className="font-medium text-blue-600">
+                            ৳{localPaymentFee.totalAmount.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                      )}
+                      {localPaymentPhone && (
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-600">Phone:</span>
+                          <span className="font-medium text-gray-900">{localPaymentPhone}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 
                 {paymentErrors && (
@@ -977,11 +1834,45 @@ export default function CheckoutPage() {
                     <span className="font-medium">-{formatCurrency(discount)}</span>
                   </div>
                 )}
+                {selectedPayment === 'cod' && codFee > 0 && (
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <span>COD Fee</span>
+                    <span className="font-medium">{formatCurrency(codFee)}</span>
+                  </div>
+                )}
+                {selectedPayment === 'emi' && emiDetails && (
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <span>Processing Fee</span>
+                    <span className="font-medium">{formatCurrency(emiDetails.processingFee)}</span>
+                  </div>
+                )}
+                {localPaymentFee && localPaymentFee.totalFee > 0 && (
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <span>Payment Fee</span>
+                    <span className="font-medium">{formatCurrency(localPaymentFee.totalFee)}</span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between border-t border-gray-200 pt-3">
                   <span className="text-base font-semibold text-gray-900">Total</span>
-                  <span className="text-xl font-bold text-gray-900">{formatCurrency(total)}</span>
+                  <span className="text-xl font-bold text-gray-900">
+                    {formatCurrency(
+                      total +
+                      (selectedPayment === 'cod' ? codFee : 0) +
+                      (selectedPayment === 'emi' && emiDetails ? emiDetails.processingFee : 0) +
+                      (localPaymentFee ? localPaymentFee.totalFee : 0)
+                    )}
+                  </span>
                 </div>
               </div>
+              
+              {/* Security Badge */}
+              <CheckoutSecurityBadge
+                security={security}
+                language={language}
+                showWarnings={true}
+                onWarningDismiss={dismissSecurityWarning}
+                className="mb-4"
+              />
               
               {/* Security Notice */}
               <div className="mt-6 flex items-center gap-2 text-xs text-gray-500">
@@ -992,6 +1883,24 @@ export default function CheckoutPage() {
           </div>
         </div>
       </main>
+      
+      {/* Checkout Abandonment Warning */}
+      <CheckoutAbandonmentWarning
+        isOpen={showAbandonmentWarning}
+        onSave={async () => {
+          await abandonCheckout('navigation_away', true);
+          setShowAbandonmentWarning(false);
+        }}
+        onContinue={() => {
+          setShowAbandonmentWarning(false);
+        }}
+        onLeave={() => {
+          abandonCheckout('navigation_away', false);
+          setShowAbandonmentWarning(false);
+          router.push('/cart');
+        }}
+        language={language}
+      />
     </div>
   );
 }

@@ -50,13 +50,17 @@ const AddressCard: React.FC<AddressCardProps> = ({
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center space-x-2">
           <span className={`px-2 py-1 text-xs font-medium rounded ${
-            address.type === 'SHIPPING'
-              ? 'bg-blue-100 text-blue-800'
-              : 'bg-purple-100 text-purple-800'
+            address.type === 'SHIPPING' ? 'bg-blue-100 text-blue-800' :
+            address.type === 'BILLING' ? 'bg-purple-100 text-purple-800' :
+            address.type === 'HOME' ? 'bg-green-100 text-green-800' :
+            address.type === 'WORK' ? 'bg-orange-100 text-orange-800' :
+            'bg-gray-100 text-gray-800'
           }`}>
-            {address.type === 'SHIPPING'
-              ? (language === 'en' ? 'Shipping' : 'শিপিং')
-              : (language === 'en' ? 'Billing' : 'বিলিং')}
+            {address.type === 'SHIPPING' ? (language === 'en' ? 'Shipping' : 'শিপিং') :
+             address.type === 'BILLING' ? (language === 'en' ? 'Billing' : 'বিলিং') :
+             address.type === 'HOME' ? (language === 'en' ? 'Home' : 'বাসা') :
+             address.type === 'WORK' ? (language === 'en' ? 'Work' : 'কাজ') :
+             (language === 'en' ? 'Other' : 'অন্যান্য')}
           </span>
           {address.isDefault && (
             <span className="flex items-center space-x-1 px-2 py-1 text-xs font-medium rounded bg-green-100 text-green-800">

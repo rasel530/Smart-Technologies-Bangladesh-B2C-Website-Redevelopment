@@ -10,7 +10,7 @@
  * - Date range filtering
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { withAuth } from '@/components/auth/withAuth';
 import {
   Heart,
@@ -26,13 +26,22 @@ import {
 } from 'lucide-react';
 import WishlistStatisticsCard from '@/components/admin/wishlist/WishlistStatisticsCard';
 import WishlistTable from '@/components/admin/wishlist/WishlistTable';
-import WishlistAnalyticsChart from '@/components/admin/wishlist/WishlistAnalyticsChart';
 import {
   getWishlistStatistics,
   getAllWishlists,
   type WishlistWithUser
 } from '@/lib/api/adminWishlist';
 import { cn } from '@/lib/utils';
+
+// PRIORITY 6: Dynamic import for Recharts to reduce initial bundle size
+const WishlistAnalyticsChart = React.lazy(() => import('@/components/admin/wishlist/WishlistAnalyticsChart'));
+
+// Loading component for chart
+const ChartLoadingFallback = () => (
+  <div className="h-64 flex items-center justify-center">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-t-2 border-primary-600"></div>
+  </div>
+);
 
 function AdminWishlistOverviewPage() {
   const [statistics, setStatistics] = useState<any>(null);
@@ -240,23 +249,27 @@ function AdminWishlistOverviewPage() {
         </div>
       ) : statistics && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <WishlistAnalyticsChart
-            data={statistics.creationTrend}
-            type="line"
-            title="Wishlist Creation Trend"
-            xAxisKey="date"
-            dataKey="count"
-          />
-          <WishlistAnalyticsChart
-            data={statistics.topProducts.slice(0, 10).map((p: any) => ({
-              name: p.name,
-              value: p.wishlistCount
-            }))}
-            type="bar"
-            title="Top 10 Most Wishlisted Products"
-            xAxisKey="name"
-            dataKey="value"
-          />
+          <Suspense fallback={<ChartLoadingFallback />}>
+            <WishlistAnalyticsChart
+              data={statistics.creationTrend}
+              type="line"
+              title="Wishlist Creation Trend"
+              xAxisKey="date"
+              dataKey="count"
+            />
+          </Suspense>
+          <Suspense fallback={<ChartLoadingFallback />}>
+            <WishlistAnalyticsChart
+              data={statistics.topProducts.slice(0, 10).map((p: any) => ({
+                name: p.name,
+                value: p.wishlistCount
+              }))}
+              type="bar"
+              title="Top 10 Most Wishlisted Products"
+              xAxisKey="name"
+              dataKey="value"
+            />
+          </Suspense>
         </div>
       )}
 

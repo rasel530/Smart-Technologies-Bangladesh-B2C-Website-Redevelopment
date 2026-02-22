@@ -3,10 +3,12 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Trash2, Plus, Minus, ImageOff } from 'lucide-react';
+import { Trash2, Plus, Minus, ImageOff, Heart } from 'lucide-react';
+import { toast } from 'sonner';
 import { CartItem as CartItemType, CartItemProps } from '@/types/cart';
 import { cn } from '@/lib/utils';
 import { getProductPrice, hasValidDiscount } from '@/lib/utils/price';
+import { MoveToWishlistButton } from './MoveToWishlistButton';
 
 const CDN_URL = process.env.NEXT_PUBLIC_CDN_URL || '';
 
@@ -19,9 +21,11 @@ const CartItem: React.FC<CartItemProps> = ({
   item,
   onUpdateQuantity,
   onRemove,
+  onLoadCart,
   language = 'en',
   showTax = false,
   taxRate = 0,
+  isInWishlist = false,
 }) => {
   const [quantity, setQuantity] = useState(item.quantity);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -106,12 +110,32 @@ const CartItem: React.FC<CartItemProps> = ({
   };
 
   const handleRemove = async () => {
+    // BUG-FIX: Prevent rapid successive removals by checking if already updating
+    if (isUpdating) {
+      console.warn('[CartItem] Removal already in progress, skipping');
+      return;
+    }
+    
     if (window.confirm(language === 'bn' ? 'আপনি কি এই আইটেমটি সরাতে চান?' : 'Are you sure you want to remove this item?')) {
       setIsUpdating(true);
       try {
+        // BUG-FIX: Set a timeout to ensure loading state is cleared even if something goes wrong
+        const timeoutId = setTimeout(() => {
+          setIsUpdating(false);
+        }, 5000); // 5 second safety timeout
+        
         await onRemove(item.id);
+        
+        // Clear the safety timeout if successful
+        clearTimeout(timeoutId);
       } catch (error) {
         console.error('Error removing item:', error);
+        // BUG-FIX: Show user-friendly error message
+        toast.error(language === 'bn'
+          ? 'আইটেম সরাতে ব্যর্থ হয়েছে'
+          : 'Failed to remove item');
+      } finally {
+        // BUG-FIX: Always clear updating state
         setIsUpdating(false);
       }
     }
@@ -269,21 +293,48 @@ const CartItem: React.FC<CartItemProps> = ({
             </div>
           </div>
 
-          {/* Remove Button */}
-          <button
-            type="button"
-            onClick={handleRemove}
-            disabled={isUpdating}
-            aria-label={language === 'bn' ? 'আইটেম সরান' : 'Remove item'}
-            className={cn(
-              "mt-3 flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:text-red-700",
-              "transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-              "focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 rounded"
-            )}
-          >
-            <Trash2 className="w-4 h-4" />
-            <span>{language === 'bn' ? 'সরান' : 'Remove'}</span>
-          </button>
+          {/* Action Buttons */}
+          <div className="mt-3 flex items-center gap-2">
+            {/* Move to Wishlist Button */}
+            <MoveToWishlistButton
+              itemId={item.id}
+              productId={item.productId}
+              variantId={item.variantId}
+              quantity={item.quantity}
+              onSuccess={() => {
+                // Trigger cart reload after successful move
+                onLoadCart?.();
+              }}
+              onError={(error) => console.error('Move to wishlist error:', error)}
+              language={language}
+              showLabel={true}
+              disabled={isUpdating}
+            />
+            
+            {/* Remove Button */}
+            <button
+              type="button"
+              onClick={handleRemove}
+              disabled={isUpdating}
+              aria-label={language === 'bn' ? 'আইটেম সরান' : 'Remove item'}
+              className={cn(
+                "flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:text-red-700",
+                "transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+                "focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 rounded"
+              )}
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>{language === 'bn' ? 'সরান' : 'Remove'}</span>
+            </button>
+          </div>
+          
+          {/* Wishlist Indicator */}
+          {isInWishlist && (
+            <div className="mt-2 flex items-center gap-1 text-xs text-purple-600">
+              <Heart className="w-3 h-3" aria-hidden="true" />
+              <span>{language === 'bn' ? 'উইশলিস্টে আছে' : 'In wishlist'}</span>
+            </div>
+          )}
         </div>
       </div>
 

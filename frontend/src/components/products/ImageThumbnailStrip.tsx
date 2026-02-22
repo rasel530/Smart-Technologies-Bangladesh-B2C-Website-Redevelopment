@@ -85,7 +85,16 @@ interface ImageThumbnailStripProps {
 
   // Handle thumbnail click
   const handleClick = useCallback((index: number, imageId: string) => {
-    setLoadingStates(prev => ({ ...prev, [imageId]: true }));
+    console.log('[ImageThumbnailStrip] Thumbnail clicked:', { index, imageId });
+    // FIX: Only set loading state if image wasn't already loaded
+    // This prevents thumbnails from vanishing when clicked (cached images won't fire onLoad again)
+    setLoadingStates(prev => {
+      // If already loaded (false), keep it loaded - don't reset to loading
+      if (prev[imageId] === false) {
+        return prev;
+      }
+      return { ...prev, [imageId]: true };
+    });
     onThumbnailClick(index);
   }, [onThumbnailClick]);
 
@@ -150,8 +159,8 @@ interface ImageThumbnailStripProps {
               disabled={isLoading}
               className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 isActive
-                  ? 'border-blue-600 ring-2 ring-blue-100 dark:ring-blue-900 shadow-lg'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md'
+                  ? 'border-blue-600 ring-2 ring-blue-100 dark:ring-blue-900'
+                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
               } ${isLoading ? 'opacity-70' : ''}`}
               aria-label={`View image ${index + 1}`}
               aria-current={isActive ? 'true' : 'false'}
@@ -166,10 +175,8 @@ interface ImageThumbnailStripProps {
                 src={hasError ? '/images/placeholder-product.jpg' : getImageUrl(image, 'thumbnail')}
                 alt={getAltText(image) || `Thumbnail ${index + 1}`}
                 fill
-                // Priority load first 5 images (matching maxVisible default) to prevent NS_BINDING_ABORTED
-                // All thumbnails in the strip should load eagerly since they're all visible
-                priority={index < 5}
-                loading={index < 5 ? 'eager' : 'lazy'}
+                // FIX: Use unoptimized for external URLs to prevent Next.js Image optimization issues
+                unoptimized={!hasError && getImageUrl(image, 'thumbnail').startsWith('http://localhost:3001')}
                 className={`object-cover transition-transform duration-200 ${
                   isActive ? 'scale-105' : 'hover:scale-105'
                 } ${isLoading ? 'opacity-0' : 'opacity-100'}`}

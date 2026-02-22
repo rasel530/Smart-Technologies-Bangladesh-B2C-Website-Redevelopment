@@ -156,7 +156,7 @@ const redisConfig = {
   db: 0,
   retryDelayOnFailover: 100,
   maxRetriesPerRequest: 3,
-  lazyConnect: true,
+  lazyConnect: false,
   keepAlive: 30000,
   connectTimeout: 15000,
   commandTimeout: 5000,

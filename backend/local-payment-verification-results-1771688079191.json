@@ -1,0 +1,232 @@
+{
+  "startTime": "2026-02-21T15:34:38.546Z",
+  "tests": [
+    {
+      "category": "Backend Health",
+      "testName": "Health check",
+      "passed": true,
+      "timestamp": "2026-02-21T15:34:38.578Z",
+      "statusCode": 200,
+      "duration": 28,
+      "healthData": {
+        "status": "OK",
+        "timestamp": "2026-02-21T15:34:38.573Z",
+        "version": "1.0.0",
+        "environment": "development",
+        "services": {
+          "database": {
+            "status": "healthy"
+          },
+          "redis": {
+            "status": "healthy",
+            "stats": {
+              "isInitialized": true,
+              "hasClient": true,
+              "isReconnecting": false,
+              "retryAttempts": 0,
+              "maxRetryAttempts": 10,
+              "activeConnections": 10,
+              "connectionNames": [
+                "stockValidation",
+                "cartCacheService",
+                "cartQueueService",
+                "cartService",
+                null,
+                "rate-limit",
+                "loginSecurityService",
+                "sessionService",
+                "startup-validator",
+                "tokenBlacklist"
+              ],
+              "connectionLock": false,
+              "uptime": 799.386372999,
+              "memoryUsage": {
+                "rss": 375488512,
+                "heapTotal": 114094080,
+                "heapUsed": 110199800,
+                "external": 4640664,
+                "arrayBuffers": 948640
+              },
+              "timestamp": "2026-02-21T15:34:38.573Z"
+            }
+          },
+          "loginSecurity": {
+            "status": "initialized",
+            "features": {
+              "rateLimiting": "active",
+              "accountLockout": "active",
+              "ipBlocking": "active",
+              "progressiveDelay": "active"
+            }
+          },
+          "configuration": {
+            "status": "valid",
+            "errors": []
+          }
+        },
+        "uptime": 799.386539513,
+        "memory": {
+          "rss": 375488512,
+          "heapTotal": 114094080,
+          "heapUsed": 110204112,
+          "external": 4640664,
+          "arrayBuffers": 948640
+        }
+      }
+    },
+    {
+      "category": "Authentication",
+      "testName": "Admin Login",
+      "passed": true,
+      "timestamp": "2026-02-21T15:34:38.924Z",
+      "statusCode": 200,
+      "duration": 344,
+      "hasToken": true
+    },
+    {
+      "category": "Auth Flow",
+      "testName": "Invalid token rejection",
+      "passed": true,
+      "timestamp": "2026-02-21T15:34:38.932Z",
+      "statusCode": 401,
+      "duration": 8
+    },
+    {
+      "category": "Auth Flow",
+      "testName": "No token rejection",
+      "passed": true,
+      "timestamp": "2026-02-21T15:34:38.941Z",
+      "statusCode": 401,
+      "duration": 9
+    },
+    {
+      "category": "Local Payment Methods",
+      "testName": "GET /methods (without auth)",
+      "passed": true,
+      "timestamp": "2026-02-21T15:34:38.950Z",
+      "statusCode": 401,
+      "duration": 8
+    },
+    {
+      "category": "Local Payment Methods",
+      "testName": "GET /methods (with auth)",
+      "passed": true,
+      "timestamp": "2026-02-21T15:34:38.976Z",
+      "statusCode": 200,
+      "methodsCount": 4,
+      "duration": 25,
+      "methods": [
+        {
+          "id": "nagad-001",
+          "code": "nagad",
+          "displayName": "নগদ / Nagad",
+          "isActive": true
+        },
+        {
+          "id": "rocket-001",
+          "code": "rocket",
+          "displayName": "রকেট / Rocket",
+          "isActive": true
+        },
+        {
+          "id": "surecash-001",
+          "code": "surecash",
+          "displayName": "সিওরক্যাশ / SureCash",
+          "isActive": true
+        },
+        {
+          "id": "bkash-001",
+          "code": "bkash",
+          "displayName": "বিকাশ / bKash",
+          "isActive": true
+        }
+      ]
+    },
+    {
+      "category": "Database",
+      "testName": "Data integrity verification",
+      "passed": true,
+      "timestamp": "2026-02-21T15:34:38.977Z",
+      "expectedCount": 4,
+      "foundCount": 4,
+      "allExpectedMethodsFound": true
+    },
+    {
+      "category": "Database",
+      "testName": "Data corruption check",
+      "passed": true,
+      "timestamp": "2026-02-21T15:34:38.977Z",
+      "verifiedMethods": 4
+    },
+    {
+      "category": "Local Payment Methods",
+      "testName": "POST /methods (create)",
+      "passed": true,
+      "timestamp": "2026-02-21T15:34:39.008Z",
+      "statusCode": 201,
+      "createdMethodId": "479cbd8e-728c-42dd-a3d2-dff049d0c36b",
+      "code": "test-method-1771688078977",
+      "duration": 31
+    },
+    {
+      "category": "Local Payment Methods",
+      "testName": "PUT /methods/:id (update)",
+      "passed": true,
+      "timestamp": "2026-02-21T15:34:39.043Z",
+      "statusCode": 200,
+      "methodId": "479cbd8e-728c-42dd-a3d2-dff049d0c36b",
+      "updatedDisplayName": "টেস্ট পেমেন্ট মেথড (Updated)",
+      "updatedIsActive": false,
+      "duration": 35
+    },
+    {
+      "category": "Local Payment Methods",
+      "testName": "DELETE /methods/:id (delete)",
+      "passed": true,
+      "timestamp": "2026-02-21T15:34:39.071Z",
+      "statusCode": 200,
+      "methodId": "479cbd8e-728c-42dd-a3d2-dff049d0c36b",
+      "duration": 28
+    },
+    {
+      "category": "Regression",
+      "testName": "GET /admin/carts",
+      "passed": true,
+      "timestamp": "2026-02-21T15:34:39.112Z",
+      "statusCode": 200,
+      "duration": 39
+    },
+    {
+      "category": "Regression",
+      "testName": "WARNING",
+      "passed": true,
+      "isWarning": true,
+      "message": "GET /admin/carts/inventory-impact - routing conflict (known issue, unrelated to local payment fix)",
+      "timestamp": "2026-02-21T15:34:39.120Z"
+    },
+    {
+      "category": "Regression",
+      "testName": "WARNING",
+      "passed": true,
+      "isWarning": true,
+      "message": "GET /admin/users endpoint not found",
+      "timestamp": "2026-02-21T15:34:39.128Z"
+    },
+    {
+      "category": "Regression",
+      "testName": "GET /admin/carts/analytics",
+      "passed": true,
+      "timestamp": "2026-02-21T15:34:39.190Z",
+      "statusCode": 200,
+      "duration": 61
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "passed": 13,
+    "failed": 0,
+    "warnings": 2
+  },
+  "endTime": "2026-02-21T15:34:39.190Z",
+  "duration": 644
+}

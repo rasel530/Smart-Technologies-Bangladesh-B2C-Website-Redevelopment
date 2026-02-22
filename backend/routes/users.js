@@ -2,6 +2,7 @@ const express = require('express');
 const { body, param, query, validationResult } = require('express-validator');
 const { PrismaClient } = require('@prisma/client');
 const { authMiddleware } = require('../middleware/auth');
+const addressService = require('../services/addressService');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -272,144 +273,6 @@ router.delete('/:id', [
   }
 });
 
-// Get user addresses
-router.get('/:id/addresses', [
-  param('id').isUUID()
-], handleValidationErrors, authMiddleware.authenticate(), (req, res, next) => {
-  // Extract id from params and use it for selfOrAdmin middleware
-  const userId = req.params.id;
-  return authMiddleware.selfOrAdmin(userId)(req, res, next);
-}, async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const addresses = await prisma.address.findMany({
-      where: { userId: id },
-      orderBy: { isDefault: 'desc' }
-    });
-
-    // Add cache control headers to prevent caching
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    
-    res.json({ addresses });
-
-  } catch (error) {
-    console.error('Get user addresses error:', error);
-    res.status(500).json({
-      error: 'Failed to fetch addresses',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
-// Create new address
-router.post('/:id/addresses', [
-  param('id').isUUID(),
-  (req, res, next) => {
-    console.log('============================================================');
-    console.log('[ADDRESS PRE-VALIDATION] Request received');
-    console.log('[ADDRESS PRE-VALIDATION] Content-Type:', req.get('Content-Type'));
-    console.log('[ADDRESS PRE-VALIDATION] req.body:', req.body);
-    console.log('[ADDRESS PRE-VALIDATION] req.body type:', typeof req.body);
-    
-    // Normalize enum values to lowercase to match database schema
-    if (req.body.type) {
-      req.body.type = req.body.type.toLowerCase();
-    }
-    if (req.body.division) {
-      req.body.division = req.body.division.toLowerCase();
-    }
-    
-    console.log('[ADDRESS PRE-VALIDATION] After normalization:');
-    console.log('[ADDRESS PRE-VALIDATION] req.body.type:', req.body.type);
-    console.log('[ADDRESS PRE-VALIDATION] req.body.division:', req.body.division);
-    console.log('============================================================');
-    
-    next();
-  },
-  body('type').optional().isIn(['shipping', 'billing']),
-  body('firstName').notEmpty().trim(),
-  body('lastName').notEmpty().trim(),
-  body('phone').optional().custom((value) => {
-    // Custom validation for Bangladesh phone numbers
-    if (!value) return true; // Optional field
-    // Accept formats: +8801XXXXXXXXX, 01XXXXXXXXX, or landline
-    const bdPhoneRegex = /^(\+880|0)?1[3-9]\d{8}$/;
-    const landlineRegex = /^(\+880|0)?[2-9]\d{8,9}$/;
-    return bdPhoneRegex.test(value.replace(/\s/g, '')) || landlineRegex.test(value.replace(/\s/g, ''));
-  }).withMessage('Please enter a valid Bangladesh phone number'),
-  body('address').notEmpty().trim(),
-  body('addressLine2').optional().trim(),
-  body('city').notEmpty().trim(),
-  body('district').notEmpty().trim(),
-  body('division').isIn(['dhaka', 'chittagong', 'rajshahi', 'sylhet', 'khulna', 'barishal', 'rangpur', 'mymensingh']),
-  body('upazila').optional().notEmpty().trim(),
-  body('postalCode').optional().matches(/^\d{4}$/).withMessage('Postal code must be 4 digits'),
-  body('isDefault').optional().isBoolean()
-], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { type, firstName, lastName, phone, address, addressLine2, city, district, division, upazila, postalCode, isDefault } = req.body;
-    
-    console.log('[ADDRESS CREATE] Request params id:', id);
-    console.log('[ADDRESS CREATE] Request body:', JSON.stringify(req.body, null, 2));
-    console.log('[ADDRESS CREATE] Division value:', division, '(Type:', typeof division + ')');
-    console.log('[ADDRESS CREATE] District value:', district, '(Type:', typeof district + ')');
-    console.log('[ADDRESS CREATE] Upazila value:', upazila, '(Type:', typeof upazila + ')');
-
-    // Check if user exists
-    const user = await prisma.user.findUnique({
-      where: { id }
-    });
-
-    if (!user) {
-      return res.status(404).json({
-        error: 'User not found'
-      });
-    }
-
-    // If isDefault is true, set all other addresses to false
-    if (isDefault === true) {
-      await prisma.address.updateMany({
-        where: { userId: id },
-        data: { isDefault: false }
-      });
-    }
-
-    const newAddress = await prisma.address.create({
-      data: {
-        userId: id,
-        type: type || 'shipping',
-        firstName,
-        lastName,
-        phone,
-        address,
-        addressLine2,
-        city,
-        district,
-        division,
-        upazila,
-        postalCode,
-        isDefault: isDefault || false
-      }
-    });
-
-    res.status(201).json({
-      message: 'Address created successfully',
-      address: newAddress
-    });
-
-  } catch (error) {
-    console.error('Create address error:', error);
-    res.status(500).json({
-      error: 'Failed to create address',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
 // Update existing address
 router.put('/:id/addresses/:addressId', [
   param('id').isUUID(),
@@ -430,7 +293,7 @@ router.put('/:id/addresses/:addressId', [
     
     next();
   },
-  body('type').optional().isIn(['shipping', 'billing']),
+  body('type').optional().isIn(['shipping', 'billing', 'home', 'work', 'other']),
   body('firstName').optional().notEmpty().trim(),
   body('lastName').optional().notEmpty().trim(),
   body('phone').optional().custom((value) => {
@@ -626,6 +489,373 @@ router.put('/:id/addresses/:addressId/default', [
     console.error('Set default address error:', error);
     res.status(500).json({
       error: 'Failed to set default address',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// ==================== Address Management Integration Endpoints ====================
+
+/**
+ * GET /api/v1/users/:id/addresses/checkout/:type
+ * Get addresses for checkout by type
+ */
+router.get('/:id/addresses/checkout/:type', [
+  param('id').isUUID(),
+  param('type').isIn(['shipping', 'billing', 'home', 'work', 'other'])
+], handleValidationErrors, authMiddleware.authenticate(), (req, res, next) => {
+  const userId = req.params.id;
+  return authMiddleware.selfOrAdmin(userId)(req, res, next);
+}, async (req, res) => {
+  try {
+    const { id, type } = req.params;
+
+    const addresses = await addressService.getAddressesForCheckout(id, type);
+
+    // Add cache control headers to prevent caching
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
+    res.json({
+      addresses,
+      type,
+      count: addresses.length
+    });
+
+  } catch (error) {
+    console.error('Get addresses for checkout error:', error);
+    if (error.message === 'Invalid address type') {
+      return res.status(400).json({
+        error: 'Invalid address type',
+        message: error.message
+      });
+    }
+    res.status(500).json({
+      error: 'Failed to fetch addresses for checkout',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+/**
+ * POST /api/v1/users/:id/addresses/checkout
+ * Create address during checkout
+ */
+router.post('/:id/addresses/checkout', [
+  param('id').isUUID(),
+  (req, res, next) => {
+    // Normalize enum values to lowercase
+    if (req.body.type) {
+      req.body.type = req.body.type.toLowerCase();
+    }
+    if (req.body.division) {
+      req.body.division = req.body.division.toLowerCase();
+    }
+    next();
+  },
+  body('type').optional().isIn(['shipping', 'billing', 'home', 'work', 'other']),
+  body('firstName').notEmpty().trim(),
+  body('lastName').notEmpty().trim(),
+  body('phone').optional().trim(),
+  body('address').notEmpty().trim(),
+  body('addressLine2').optional().trim(),
+  body('city').notEmpty().trim(),
+  body('district').notEmpty().trim(),
+  body('division').optional().trim(),
+  body('upazila').optional().trim(),
+  body('postalCode').optional().trim(),
+  body('isDefault').optional().isBoolean()
+], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const addressData = req.body;
+
+    // Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { id }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        error: 'User not found'
+      });
+    }
+
+    const newAddress = await addressService.createAddressForCheckout(id, addressData);
+
+    res.status(201).json({
+      message: 'Address created successfully',
+      address: newAddress
+    });
+
+  } catch (error) {
+    console.error('Create address for checkout error:', error);
+    if (error.validationErrors) {
+      return res.status(400).json({
+        error: 'Address validation failed',
+        details: error.validationErrors
+      });
+    }
+    res.status(500).json({
+      error: 'Failed to create address',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+/**
+ * PUT /api/v1/users/:id/addresses/:addressId/checkout
+ * Update address during checkout
+ */
+router.put('/:id/addresses/:addressId/checkout', [
+  param('id').isUUID(),
+  param('addressId').isUUID(),
+  (req, res, next) => {
+    // Normalize enum values to lowercase
+    if (req.body.type) {
+      req.body.type = req.body.type.toLowerCase();
+    }
+    if (req.body.division) {
+      req.body.division = req.body.division.toLowerCase();
+    }
+    next();
+  },
+  body('type').optional().isIn(['shipping', 'billing', 'home', 'work', 'other']),
+  body('firstName').optional().notEmpty().trim(),
+  body('lastName').optional().notEmpty().trim(),
+  body('phone').optional().trim(),
+  body('address').optional().notEmpty().trim(),
+  body('addressLine2').optional().trim(),
+  body('city').optional().notEmpty().trim(),
+  body('district').optional().notEmpty().trim(),
+  body('division').optional().trim(),
+  body('upazila').optional().trim(),
+  body('postalCode').optional().trim(),
+  body('isDefault').optional().isBoolean()
+], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
+  try {
+    const { id, addressId } = req.params;
+    const addressData = req.body;
+
+    const updatedAddress = await addressService.updateAddressForCheckout(id, addressId, addressData);
+
+    res.json({
+      message: 'Address updated successfully',
+      address: updatedAddress
+    });
+
+  } catch (error) {
+    console.error('Update address for checkout error:', error);
+    if (error.message === 'Address not found') {
+      return res.status(404).json({
+        error: 'Address not found'
+      });
+    }
+    if (error.message === 'Access denied') {
+      return res.status(403).json({
+        error: 'Access denied'
+      });
+    }
+    if (error.validationErrors) {
+      return res.status(400).json({
+        error: 'Address validation failed',
+        details: error.validationErrors
+      });
+    }
+    res.status(500).json({
+      error: 'Failed to update address',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+/**
+ * PUT /api/v1/users/:id/addresses/:addressId/default/:type
+ * Set default address by type
+ */
+router.put('/:id/addresses/:addressId/default/:type', [
+  param('id').isUUID(),
+  param('addressId').isUUID(),
+  param('type').isIn(['shipping', 'billing', 'home', 'work', 'other'])
+], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
+  try {
+    const { id, addressId, type } = req.params;
+
+    const updatedAddress = await addressService.setDefaultAddress(id, addressId, type);
+
+    res.json({
+      message: 'Default address set successfully',
+      address: updatedAddress
+    });
+
+  } catch (error) {
+    console.error('Set default address by type error:', error);
+    if (error.message === 'Address not found') {
+      return res.status(404).json({
+        error: 'Address not found'
+      });
+    }
+    if (error.message === 'Access denied') {
+      return res.status(403).json({
+        error: 'Access denied'
+      });
+    }
+    if (error.message === 'Invalid address type') {
+      return res.status(400).json({
+        error: 'Invalid address type',
+        message: error.message
+      });
+    }
+    res.status(500).json({
+      error: 'Failed to set default address',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+/**
+ * GET /api/v1/addresses/validate
+ * Validate address data (supports both authenticated and guest users)
+ */
+router.get('/addresses/validate', [
+  query('type').optional().isIn(['shipping', 'billing', 'home', 'work', 'other']),
+  query('firstName').optional().notEmpty().trim(),
+  query('lastName').optional().notEmpty().trim(),
+  query('phone').optional().trim(),
+  query('address').optional().notEmpty().trim(),
+  query('addressLine2').optional().trim(),
+  query('city').optional().notEmpty().trim(),
+  query('district').optional().notEmpty().trim(),
+  query('division').optional().trim(),
+  query('upazila').optional().trim(),
+  query('postalCode').optional().trim()
+], handleValidationErrors, async (req, res) => {
+  try {
+    const addressData = req.query;
+
+    // Validate address using service
+    const validation = addressService.validateBangladeshAddress(addressData);
+
+    if (validation.isValid) {
+      res.json({
+        isValid: true,
+        message: 'Address is valid',
+        messageBn: 'ঠিকানাটি সঠিক আছে',
+        validatedAddress: validation.validatedAddress
+      });
+    } else {
+      res.status(400).json({
+        isValid: false,
+        message: 'Address validation failed',
+        messageBn: 'ঠিকানা যাচাই ব্যর্থ হয়েছে',
+        errors: validation.errors
+      });
+    }
+
+  } catch (error) {
+    console.error('Validate address error:', error);
+    res.status(500).json({
+      error: 'Failed to validate address',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+/**
+ * POST /api/v1/addresses/validate
+ * Validate address data via POST (supports both authenticated and guest users)
+ */
+router.post('/addresses/validate', [
+  body('type').optional().isIn(['shipping', 'billing', 'home', 'work', 'other']),
+  body('firstName').optional().notEmpty().trim(),
+  body('lastName').optional().notEmpty().trim(),
+  body('phone').optional().trim(),
+  body('address').optional().notEmpty().trim(),
+  body('addressLine2').optional().trim(),
+  body('city').optional().notEmpty().trim(),
+  body('district').optional().notEmpty().trim(),
+  body('division').optional().trim(),
+  body('upazila').optional().trim(),
+  body('postalCode').optional().trim()
+], handleValidationErrors, async (req, res) => {
+  try {
+    const addressData = req.body;
+
+    // Normalize enum values to lowercase
+    if (addressData.type) {
+      addressData.type = addressData.type.toLowerCase();
+    }
+    if (addressData.division) {
+      addressData.division = addressData.division.toLowerCase();
+    }
+
+    // Validate address using service
+    const validation = addressService.validateBangladeshAddress(addressData);
+
+    if (validation.isValid) {
+      res.json({
+        isValid: true,
+        message: 'Address is valid',
+        messageBn: 'ঠিকানাটি সঠিক আছে',
+        validatedAddress: validation.validatedAddress
+      });
+    } else {
+      res.status(400).json({
+        isValid: false,
+        message: 'Address validation failed',
+        messageBn: 'ঠিকানা যাচাই ব্যর্থ হয়েছে',
+        errors: validation.errors
+      });
+    }
+
+  } catch (error) {
+    console.error('Validate address error:', error);
+    res.status(500).json({
+      error: 'Failed to validate address',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// ==================== Enhanced Address Endpoints ====================
+
+/**
+ * Enhanced GET /api/v1/users/:id/addresses
+ * Get user addresses with filtering and pagination
+ */
+router.get('/:id/addresses', [
+  param('id').isUUID(),
+  query('type').optional().isIn(['shipping', 'billing', 'home', 'work', 'other']),
+  query('page').optional().isInt({ min: 1 }),
+  query('limit').optional().isInt({ min: 1, max: 100 })
+], handleValidationErrors, authMiddleware.authenticate(), (req, res, next) => {
+  const userId = req.params.id;
+  return authMiddleware.selfOrAdmin(userId)(req, res, next);
+}, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { type, page, limit } = req.query;
+
+    const result = await addressService.getUserAddresses(id, { type, page, limit });
+
+    // Add cache control headers to prevent caching
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
+    res.json(result);
+
+  } catch (error) {
+    console.error('Get user addresses error:', error);
+    if (error.message === 'Invalid address type') {
+      return res.status(400).json({
+        error: 'Invalid address type',
+        message: error.message
+      });
+    }
+    res.status(500).json({
+      error: 'Failed to fetch addresses',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }

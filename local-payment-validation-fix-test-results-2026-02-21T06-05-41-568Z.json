@@ -1,0 +1,844 @@
+{
+  "timestamp": "2026-02-21T06:05:41.572Z",
+  "totalTests": 69,
+  "passedTests": 7,
+  "failedTests": 62,
+  "successRate": "10.14",
+  "results": [
+    {
+      "testName": "PUT /methods/bkash-001 - Update payment method with custom string ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/bkash-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/bkash-001 - Update payment method with custom string ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/bkash-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/nagad-001 - Update payment method with custom string ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/nagad-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/nagad-001 - Update payment method with custom string ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/nagad-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/rocket-001 - Update payment method with custom string ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/rocket-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/rocket-001 - Update payment method with custom string ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/rocket-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/surecash-001 - Update payment method with custom string ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/surecash-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/surecash-001 - Update payment method with custom string ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/surecash-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /methods/bkash-001 - Delete payment method with custom string ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/bkash-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /methods/bkash-001 - Delete payment method with custom string ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/bkash-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /methods/nagad-001 - Delete payment method with custom string ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/nagad-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /methods/nagad-001 - Delete payment method with custom string ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/nagad-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /methods/rocket-001 - Delete payment method with custom string ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/rocket-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /methods/rocket-001 - Delete payment method with custom string ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/rocket-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /methods/surecash-001 - Delete payment method with custom string ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/surecash-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /methods/surecash-001 - Delete payment method with custom string ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/surecash-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "GET /sms-subscriptions/bkash-001 - Get SMS subscription with custom string ID",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/bkash-001",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedError": null,
+      "response": {
+        "success": true,
+        "message": "SMS subscription retrieved successfully",
+        "messageBn": "SMS সাবস্ক্রিপশন তথ্য সফলভাবে পুনরুন",
+        "data": {
+          "id": "bkash-001"
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "GET /sms-subscriptions/nagad-001 - Get SMS subscription with custom string ID",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/nagad-001",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedError": null,
+      "response": {
+        "success": true,
+        "message": "SMS subscription retrieved successfully",
+        "messageBn": "SMS সাবস্ক্রিপশন তথ্য সফলভাবে পুনরুন",
+        "data": {
+          "id": "nagad-001"
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "GET /sms-subscriptions/rocket-001 - Get SMS subscription with custom string ID",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/rocket-001",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedError": null,
+      "response": {
+        "success": true,
+        "message": "SMS subscription retrieved successfully",
+        "messageBn": "SMS সাবস্ক্রিপশন তথ্য সফলভাবে পুনরুন",
+        "data": {
+          "id": "rocket-001"
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "GET /sms-subscriptions/surecash-001 - Get SMS subscription with custom string ID",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/surecash-001",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedError": null,
+      "response": {
+        "success": true,
+        "message": "SMS subscription retrieved successfully",
+        "messageBn": "SMS সাবস্ক্রিপশন তথ্য সফলভাবে পুনরুন",
+        "data": {
+          "id": "surecash-001"
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "PUT /sms-subscriptions/bkash-001 - Update SMS subscription with custom string ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/bkash-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /sms-subscriptions/bkash-001 - Update SMS subscription with custom string ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/bkash-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /sms-subscriptions/nagad-001 - Update SMS subscription with custom string ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/nagad-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /sms-subscriptions/nagad-001 - Update SMS subscription with custom string ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/nagad-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /sms-subscriptions/rocket-001 - Update SMS subscription with custom string ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/rocket-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /sms-subscriptions/rocket-001 - Update SMS subscription with custom string ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/rocket-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /sms-subscriptions/surecash-001 - Update SMS subscription with custom string ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/surecash-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /sms-subscriptions/surecash-001 - Update SMS subscription with custom string ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/surecash-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /sms-subscriptions/bkash-001 - Delete SMS subscription with custom string ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/bkash-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /sms-subscriptions/bkash-001 - Delete SMS subscription with custom string ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/bkash-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /sms-subscriptions/nagad-001 - Delete SMS subscription with custom string ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/nagad-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /sms-subscriptions/nagad-001 - Delete SMS subscription with custom string ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/nagad-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /sms-subscriptions/rocket-001 - Delete SMS subscription with custom string ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/rocket-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /sms-subscriptions/rocket-001 - Delete SMS subscription with custom string ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/rocket-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /sms-subscriptions/surecash-001 - Delete SMS subscription with custom string ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/surecash-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /sms-subscriptions/surecash-001 - Delete SMS subscription with custom string ID",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions/surecash-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "POST /methods - Create new payment method with custom code",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "POST /methods - Create new payment method with custom code",
+      "method": "POST",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/bkash-001 - Edit existing payment method",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/bkash-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/bkash-001 - Edit existing payment method",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/bkash-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/nagad-001 - Deactivate payment method",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/nagad-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/nagad-001 - Deactivate payment method",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/nagad-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/nagad-001 - Activate payment method",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/nagad-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/nagad-001 - Activate payment method",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/nagad-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /methods/rocket-001 - Delete payment method",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/rocket-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "DELETE /methods/rocket-001 - Delete payment method",
+      "method": "DELETE",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/rocket-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/ - Empty string ID should be rejected",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/",
+      "expectedStatus": 404,
+      "actualStatus": 404,
+      "expectedError": null,
+      "actualError": "Route not found",
+      "response": {
+        "error": "Route not found",
+        "message": "The requested route PUT /api/v1/admin/local-payment/methods/ was not found",
+        "messageBn": "অনুরোধকৃত রুট PUT /api/v1/admin/local-payment/methods/ পাওয়া যায়নি",
+        "path": "/api/v1/admin/local-payment/methods/",
+        "method": "PUT",
+        "timestamp": "2026-02-21T06:04:01.242Z",
+        "availableEndpoints": {
+          "auth": "/api/v1/auth",
+          "users": "/api/v1/users",
+          "profile": "/api/v1/profile",
+          "oauth": "/api/v1/oauth",
+          "products": "/api/v1/products",
+          "categories": "/api/v1/categories",
+          "brands": "/api/v1/brands",
+          "orders": "/api/v1/orders",
+          "cart": "/api/v1/cart",
+          "wishlist": "/api/v1/wishlist",
+          "reviews": "/api/v1/reviews",
+          "coupons": "/api/v1/coupons",
+          "user": "/api/v1/user",
+          "sessions": "/api/v1/sessions",
+          "rbac": {
+            "roles": "/api/v1/rbac/roles",
+            "permissions": "/api/v1/rbac/permissions",
+            "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+            "userRoles": "/api/v1/rbac/users/:userId/roles",
+            "escalation": "/api/v1/rbac/role-escalation-requests",
+            "auth": "/api/v1/rbac/auth"
+          },
+          "search": {
+            "products": "/api/search/products",
+            "autocomplete": "/api/search/autocomplete",
+            "suggestions": "/api/search/suggestions",
+            "popular": "/api/search/popular"
+          },
+          "adminSearch": {
+            "analytics": "/api/admin/search/analytics",
+            "popular": "/api/admin/search/popular",
+            "performance": "/api/admin/search/performance"
+          },
+          "corporate": "/api/v1/corporate",
+          "productImages": {
+            "upload": "/api/v1/products/:id/images",
+            "list": "/api/v1/products/:id/images",
+            "update": "/api/v1/images/:id",
+            "reorder": "/api/v1/products/:id/images/reorder",
+            "delete": "/api/v1/images/:id",
+            "setPrimary": "/api/v1/images/:id/primary",
+            "versions": "/api/v1/images/:id/versions"
+          },
+          "adminProductImages": {
+            "statistics": "/api/v1/admin/products/:productId/images/statistics",
+            "quota": "/api/v1/admin/products/:productId/images/quota",
+            "bulkUpdate": "/api/v1/admin/images/bulk-update",
+            "bulkDelete": "/api/v1/admin/images/bulk-delete",
+            "queue": "/api/v1/admin/products/:productId/images/queue",
+            "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+            "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+            "overallStatistics": "/api/v1/admin/products/images/statistics",
+            "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+            "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+            "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+          },
+          "health": "/api/v1/health",
+          "docs": "/api-docs",
+          "mobile": {
+            "syncOffline": "/api/v1/mobile/cart/sync-offline",
+            "syncStatus": "/api/v1/mobile/cart/sync-status/:userId",
+            "cartSummary": "/api/v1/mobile/cart/summary/:userId",
+            "cartItems": "/api/v1/mobile/cart/items/:userId",
+            "subscribeSms": "/api/v1/mobile/cart/subscribe-sms",
+            "unsubscribeSms": "/api/v1/mobile/cart/unsubscribe-sms",
+            "smsStatus": "/api/v1/mobile/cart/sms-status/:userId"
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "testName": "PUT /methods/   - Whitespace-only ID should be rejected",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/%20%20%20",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/   - Whitespace-only ID should be rejected",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/%20%20%20",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/test@#$% - Special characters in ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/test@#$%",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/test@#$% - Special characters in ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/test@#$%",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/aaaaaaaaaaaaaaaaaaaa... - Very long ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/aaaaaaaaaaaaaaaaaaaa... - Very long ID",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/custom-001 - Custom string ID format",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/custom-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/custom-001 - Custom string ID format",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/custom-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/payment-2024-001 - Custom string ID format",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/payment-2024-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/payment-2024-001 - Custom string ID format",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/payment-2024-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/METHOD_001 - Custom string ID format",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/METHOD_001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/METHOD_001 - Custom string ID format",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/METHOD_001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/test.method.001 - Custom string ID format",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/test.method.001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/test.method.001 - Custom string ID format",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/test.method.001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/12345 - Custom string ID format",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/12345",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/12345 - Custom string ID format",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/12345",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/abc123xyz - Custom string ID format",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/abc123xyz",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/abc123xyz - Custom string ID format",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/abc123xyz",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/upi-001 - Custom string ID format",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/upi-001",
+      "expectedStatus": 401,
+      "error": "Timeout",
+      "passed": false
+    },
+    {
+      "testName": "PUT /methods/upi-001 - Custom string ID format",
+      "method": "PUT",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods/upi-001",
+      "expectedStatus": 401,
+      "error": "socket hang up",
+      "passed": false
+    },
+    {
+      "testName": "GET /methods - List all payment methods",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/methods",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedError": null,
+      "response": {
+        "success": true,
+        "message": "Payment methods retrieved successfully",
+        "messageBn": "পেমেন্ট পদ্ধতি তালিকা সফলভাবে পুনরুন",
+        "data": [
+          {
+            "id": "nagad-001",
+            "name": "Nagad",
+            "code": "nagad",
+            "displayName": "নগদ / Nagad",
+            "logoUrl": null,
+            "isActive": true,
+            "minAmount": "10",
+            "maxAmount": "200000",
+            "processingFee": "0",
+            "processingFeePercent": "1.5",
+            "requiresPhone": true,
+            "requiresPin": false,
+            "description": "Digital financial service of Bangladesh Postal Department",
+            "instructions": "[{\"step\":1,\"title_en\":\"Open your Nagad app\",\"title_bn\":\"আপনার নগদ অ্যাপ খুলুন\",\"description_en\":\"Go to 'Send Money' option\",\"description_bn\":\"'টাকা পাঠান' অপশনে যান\"},{\"step\":2,\"title_en\":\"Enter merchant number\",\"title_bn\":\"মার্চেন্ট নম্বর লিখুন\",\"description_en\":\"Enter 018XXXXXXXX\",\"description_bn\":\"018XXXXXXXX লিখুন\"}]",
+            "supportedNetworks": [
+              "GP",
+              "Robi",
+              "Banglalink",
+              "Teletalk"
+            ],
+            "createdAt": "2026-02-19T08:53:06.387Z",
+            "updatedAt": "2026-02-19T08:53:06.387Z"
+          },
+          {
+            "id": "rocket-001",
+            "name": "Rocket",
+            "code": "rocket",
+            "displayName": "রকেট / Rocket",
+            "logoUrl": null,
+            "isActive": true,
+            "minAmount": "10",
+            "maxAmount": "200000",
+            "processingFee": "0",
+            "processingFeePercent": "1.5",
+            "requiresPhone": true,
+            "requiresPin": false,
+            "description": "Mobile financial service of Dutch-Bangla Bank",
+            "instructions": "[{\"step\":1,\"title_en\":\"Open your Rocket app\",\"title_bn\":\"আপনার রকেট অ্যাপ খুলুন\",\"description_en\":\"Go to 'Send Money' option\",\"description_bn\":\"'টাকা পাঠান' অপশনে যান\"},{\"step\":2,\"title_en\":\"Enter merchant number\",\"title_bn\":\"মার্চেন্ট নম্বর লিখুন\",\"description_en\":\"Enter 016XXXXXXXX\",\"description_bn\":\"016XXXXXXXX লিখুন\"}]",
+            "supportedNetworks": [
+              "GP",
+              "Robi",
+              "Banglalink",
+              "Teletalk"
+            ],
+            "createdAt": "2026-02-19T08:53:06.394Z",
+            "updatedAt": "2026-02-19T08:53:06.394Z"
+          },
+          {
+            "id": "surecash-001",
+            "name": "SureCash",
+            "code": "surecash",
+            "displayName": "সিওরক্যাশ / SureCash",
+            "logoUrl": null,
+            "isActive": true,
+            "minAmount": "10",
+            "maxAmount": "50000",
+            "processingFee": "0",
+            "processingFeePercent": "1.5",
+            "requiresPhone": true,
+            "requiresPin": false,
+            "description": "Mobile financial service for easy transactions",
+            "instructions": "[{\"step\":1,\"title_en\":\"Open your SureCash app\",\"title_bn\":\"আপনার সিওরক্যাশ অ্যাপ খুলুন\",\"description_en\":\"Go to 'Send Money' option\",\"description_bn\":\"'টাকা পাঠান' অপশনে যান\"},{\"step\":2,\"title_en\":\"Enter merchant number\",\"title_bn\":\"মার্চেন্ট নম্বর লিখুন\",\"description_en\":\"Enter 019XXXXXXXX\",\"description_bn\":\"019XXXXXXXX লিখুন\"}]",
+            "supportedNetworks": [
+              "GP",
+              "Robi",
+              "Banglalink",
+              "Teletalk"
+            ],
+            "createdAt": "2026-02-19T08:53:06.400Z",
+            "updatedAt": "2026-02-19T08:53:06.400Z"
+          },
+          {
+            "id": "bkash-001",
+            "name": "bKash",
+            "code": "bkash",
+            "displayName": "বিকাশ / bKash",
+            "logoUrl": null,
+            "isActive": true,
+            "minAmount": "10",
+            "maxAmount": "200000",
+            "processingFee": "0",
+            "processingFeePercent": "1.5",
+            "requiresPhone": true,
+            "requiresPin": false,
+            "description": "Bangladesh's leading mobile financial service",
+            "instructions": "[{\"step\":1,\"title_en\":\"Open your bKash app\",\"title_bn\":\"আপনার বিকাশ অ্যাপ খুলুন\",\"description_en\":\"Go to 'Send Money' option\",\"description_bn\":\"'টাকা পাঠান' অপশনে যান\"},{\"step\":2,\"title_en\":\"Enter merchant number\",\"title_bn\":\"মার্চেন্ট নম্বর লিখুন\",\"description_en\":\"Enter 017XXXXXXXX\",\"description_bn\":\"017XXXXXXXX লিখুন\"}]",
+            "supportedNetworks": [
+              "GP",
+              "Robi",
+              "Banglalink",
+              "Teletalk"
+            ],
+            "createdAt": "2026-02-19T08:53:06.379Z",
+            "updatedAt": "2026-02-19T08:53:06.379Z"
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "testName": "GET /sms-subscriptions - List all SMS subscriptions",
+      "method": "GET",
+      "url": "http://localhost:3001/api/v1/admin/local-payment/sms-subscriptions",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "expectedError": null,
+      "response": {
+        "success": true,
+        "message": "SMS subscriptions retrieved successfully",
+        "messageBn": "SMS সাবস্ক্রিপশন তালিকা সফলভাবে পুনরুন",
+        "data": [
+          {
+            "id": "8759bfb8-8c94-4e92-a7b1-34c1366bf714",
+            "userId": "90270928-766e-49dd-bee0-13ede11e9dad",
+            "phoneNumber": "+8801700000000",
+            "paymentMethod": "bkash",
+            "isSubscribed": true,
+            "transactionId": "TXN1771524106146",
+            "lastPaymentAt": "2026-02-19T18:01:46.146Z",
+            "nextPaymentAt": "2026-03-21T18:01:46.146Z",
+            "amount": "100",
+            "status": "active",
+            "createdAt": "2026-02-19T18:01:46.147Z",
+            "updatedAt": "2026-02-19T18:01:46.147Z"
+          }
+        ]
+      },
+      "passed": true
+    }
+  ],
+  "endpointGroups": {
+    "PUT /methods/:id": {
+      "total": 35,
+      "passed": 1,
+      "failed": 34
+    },
+    "DELETE /methods/:id": {
+      "total": 10,
+      "passed": 0,
+      "failed": 10
+    },
+    "GET /sms-subscriptions/:id": {
+      "total": 4,
+      "passed": 4,
+      "failed": 0
+    },
+    "PUT /sms-subscriptions/:id": {
+      "total": 8,
+      "passed": 0,
+      "failed": 8
+    },
+    "DELETE /sms-subscriptions/:id": {
+      "total": 8,
+      "passed": 0,
+      "failed": 8
+    },
+    "POST /methods": {
+      "total": 2,
+      "passed": 0,
+      "failed": 2
+    },
+    "GET /methods": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "GET /sms-subscriptions": {
+      "total": 5,
+      "passed": 5,
+      "failed": 0
+    }
+  }
+}

@@ -79,14 +79,14 @@ class RedisConnectionPool {
         url: redisUrl,
         socket: {
           connectTimeout: 15000, // Increased from 10000 to 15000
-          lazyConnect: true,
+          lazyConnect: false, // DISABLED: Force immediate connection on startup
           // CRITICAL FIX: Enhanced keepalive settings
           keepAlive: true,
           keepAliveInitialDelay: 1000, // Add initial delay
           noDelay: true, // Disable Nagle's algorithm
           family: 4, // Force IPv4
-          // CRITICAL FIX: Disable automatic reconnect to handle manually
-          reconnectStrategy: false // Disable auto-reconnect, handle manually
+          // CRITICAL FIX: Enable automatic reconnect to handle connection loss
+          // reconnectStrategy: false // Disabled - now using auto-reconnect
         },
         // Additional client-level configuration
         commandTimeout: 10000, // Increased from default
@@ -109,8 +109,25 @@ class RedisConnectionPool {
       // Create a single shared Redis connection with enhanced configuration
       this.sharedClient = Redis.createClient(this.enhancedConfig);
       
+      // ENHANCED LOGGING: Log client creation with full details
+      console.log('🔧 [RedisConnectionPool] Creating Redis client with configuration:', {
+        url: this.enhancedConfig.url.replace(/:([^:@]+)@/, ':***@'),
+        lazyConnect: this.enhancedConfig.socket?.lazyConnect,
+        connectTimeout: this.enhancedConfig.socket?.connectTimeout,
+        commandTimeout: this.enhancedConfig.commandTimeout,
+        maxRetriesPerRequest: this.enhancedConfig.maxRetriesPerRequest,
+        timestamp: new Date().toISOString()
+      });
+      
       // Enhanced event handling with better error recovery
       this.sharedClient.on('error', (err) => {
+        // ENHANCED LOGGING: Log detailed error information
+        console.error('❌ [RedisConnectionPool] Redis connection error:', {
+          error: err.message,
+          code: err.code,
+          stack: err.stack,
+          timestamp: new Date().toISOString()
+        });
         this.logger?.error('Redis connection error', {
           error: err.message,
           code: err.code,
@@ -130,12 +147,23 @@ class RedisConnectionPool {
       });
 
       this.sharedClient.on('connect', () => {
+        // ENHANCED LOGGING: Log successful connection
+        console.log('✅ [RedisConnectionPool] Redis connected successfully', {
+          timestamp: new Date().toISOString(),
+          isOpen: this.sharedClient?.isOpen
+        });
         this.logger?.info('Redis connected successfully', {
           timestamp: new Date().toISOString()
         });
       });
 
       this.sharedClient.on('ready', () => {
+        // ENHANCED LOGGING: Log ready state
+        console.log('✅ [RedisConnectionPool] Redis ready for operations', {
+          timestamp: new Date().toISOString(),
+          isOpen: this.sharedClient?.isOpen,
+          isReady: this.sharedClient?.isReady
+        });
         this.logger?.info('Redis ready for operations', {
           timestamp: new Date().toISOString()
         });
@@ -145,6 +173,10 @@ class RedisConnectionPool {
       });
 
       this.sharedClient.on('reconnecting', () => {
+        // ENHANCED LOGGING: Log reconnection attempt
+        console.log('🔄 [RedisConnectionPool] Redis reconnecting', {
+          timestamp: new Date().toISOString()
+        });
         this.logger?.info('Redis reconnecting', {
           timestamp: new Date().toISOString()
         });
@@ -152,6 +184,12 @@ class RedisConnectionPool {
       });
 
       this.sharedClient.on('end', () => {
+        // ENHANCED LOGGING: Log connection end
+        console.warn('⚠️  [RedisConnectionPool] Redis connection ended', {
+          timestamp: new Date().toISOString(),
+          wasInitialized: this.isInitialized,
+          isOpen: this.sharedClient?.isOpen
+        });
         this.logger?.warn('Redis connection ended', {
           timestamp: new Date().toISOString()
         });
@@ -165,6 +203,15 @@ class RedisConnectionPool {
 
       // Attempt connection with retry logic
       await this.connectWithRetry();
+
+      // ENHANCED LOGGING: Explicit logging after connection attempt
+      console.log('🔧 [RedisConnectionPool] Connection attempt completed', {
+        isInitialized: this.isInitialized,
+        hasClient: !!this.sharedClient,
+        clientIsOpen: this.sharedClient?.isOpen,
+        clientIsReady: this.sharedClient?.isReady,
+        timestamp: new Date().toISOString()
+      });
 
       this.logger?.info('Redis connection pool initialized successfully');
 
@@ -212,6 +259,9 @@ class RedisConnectionPool {
   // Enhanced connection method with retry logic
   async connectWithRetry() {
     try {
+      console.log(`🔄 [RedisConnectionPool] Attempting Redis connection (attempt ${this.retryAttempts + 1}/${this.maxRetryAttempts})`, {
+        timestamp: new Date().toISOString()
+      });
       this.logger?.info(`🔄 Attempting Redis connection (attempt ${this.retryAttempts + 1}/${this.maxRetryAttempts})`);
       this.logger?.info(`📍 Redis connection details:`, {
         url: this.enhancedConfig.url.replace(/:([^:@]+)@/, ':***@'), // Hide password in logs
@@ -220,8 +270,19 @@ class RedisConnectionPool {
       
       await this.sharedClient.connect();
       
+      // ENHANCED LOGGING: Log connection result
+      console.log(`✅ [RedisConnectionPool] Redis connect() method completed`, {
+        isOpen: this.sharedClient?.isOpen,
+        isReady: this.sharedClient?.isReady,
+        timestamp: new Date().toISOString()
+      });
+      
       // Test connection
       const pong = await this.sharedClient.ping();
+      console.log(`📡 [RedisConnectionPool] Redis PING/PONG test result: ${pong}`, {
+        timestamp: new Date().toISOString()
+      });
+      
       if (pong !== 'PONG') {
         throw new Error(`Redis ping test failed. Expected: PONG, Got: ${pong}`);
       }
@@ -229,6 +290,13 @@ class RedisConnectionPool {
       this.logger?.info('✅ Redis connection established successfully');
       return;
     } catch (error) {
+      // ENHANCED LOGGING: Log detailed error information
+      console.error(`❌ [RedisConnectionPool] Redis connection attempt ${this.retryAttempts + 1} failed`, {
+        error: error.message,
+        code: error.code,
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+      });
       this.logger?.error(`❌ Redis connection attempt ${this.retryAttempts + 1} failed`, {
         error: error.message,
         code: error.code,
@@ -273,6 +341,10 @@ class RedisConnectionPool {
       // Override methods to add service-specific logging
       async setEx(key, ttl, value) {
         try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'setEx', key });
+            return null;
+          }
           return await sharedClient.setEx(key, ttl, value);
         } catch (error) {
           logger?.error(`Redis SETEX error in ${serviceName}`, {
@@ -286,6 +358,10 @@ class RedisConnectionPool {
 
       async get(key) {
         try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'get', key });
+            return null;
+          }
           return await sharedClient.get(key);
         } catch (error) {
           logger?.error(`Redis GET error in ${serviceName}`, {
@@ -299,6 +375,10 @@ class RedisConnectionPool {
 
       async del(key) {
         try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'del', key });
+            return 0;
+          }
           return await sharedClient.del(key);
         } catch (error) {
           logger?.error(`Redis DEL error in ${serviceName}`, {
@@ -312,6 +392,10 @@ class RedisConnectionPool {
 
       async exists(key) {
         try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'exists', key });
+            return 0;
+          }
           return await sharedClient.exists(key);
         } catch (error) {
           logger?.error(`Redis EXISTS error in ${serviceName}`, {
@@ -325,6 +409,10 @@ class RedisConnectionPool {
 
       async expire(key, ttl) {
         try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'expire', key });
+            return 0;
+          }
           return await sharedClient.expire(key, ttl);
         } catch (error) {
           logger?.error(`Redis EXPIRE error in ${serviceName}`, {
@@ -338,6 +426,10 @@ class RedisConnectionPool {
 
       async ttl(key) {
         try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'ttl', key });
+            return -1;
+          }
           return await sharedClient.ttl(key);
         } catch (error) {
           logger?.error(`Redis TTL error in ${serviceName}`, {
@@ -351,6 +443,10 @@ class RedisConnectionPool {
 
       async zAdd(key, members) {
         try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'zAdd', key });
+            return 0;
+          }
           return await sharedClient.zAdd(key, members);
         } catch (error) {
           logger?.error(`Redis ZADD error in ${serviceName}`, {
@@ -364,6 +460,10 @@ class RedisConnectionPool {
 
       async zRange(key, start, stop) {
         try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'zRange', key });
+            return [];
+          }
           return await sharedClient.zRange(key, start, stop);
         } catch (error) {
           logger?.error(`Redis ZRANGE error in ${serviceName}`, {
@@ -377,6 +477,10 @@ class RedisConnectionPool {
 
       async zRem(key, member) {
         try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'zRem', key });
+            return 0;
+          }
           return await sharedClient.zRem(key, member);
         } catch (error) {
           logger?.error(`Redis ZREM error in ${serviceName}`, {
@@ -390,6 +494,10 @@ class RedisConnectionPool {
 
       async zRemRangeByScore(key, min, max) {
         try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'zRemRangeByScore', key });
+            return 0;
+          }
           return await sharedClient.zRemRangeByScore(key, min, max);
         } catch (error) {
           logger?.error(`Redis ZREMRANGEBYSCORE error in ${serviceName}`, {
@@ -403,6 +511,10 @@ class RedisConnectionPool {
 
       async zCard(key) {
         try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'zCard', key });
+            return 0;
+          }
           return await sharedClient.zCard(key);
         } catch (error) {
           logger?.error(`Redis ZCARD error in ${serviceName}`, {
@@ -414,8 +526,48 @@ class RedisConnectionPool {
         }
       },
 
+      async zRangeByScore(key, min, max) {
+        try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'zRangeByScore', key });
+            return [];
+          }
+          return await sharedClient.zRangeByScore(key, min, max);
+        } catch (error) {
+          logger?.error(`Redis ZRANGEBYSCORE error in ${serviceName}`, {
+            key,
+            min,
+            max,
+            error: error.message
+          });
+          // Return fallback response instead of throwing
+          return [];
+        }
+      },
+
+      async rPop(key) {
+        try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'rPop', key });
+            return null;
+          }
+          return await sharedClient.rPop(key);
+        } catch (error) {
+          logger?.error(`Redis RPOP error in ${serviceName}`, {
+            key,
+            error: error.message
+          });
+          // Return fallback response instead of throwing
+          return null;
+        }
+      },
+
       async hIncrBy(key, field, increment) {
         try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'hIncrBy', key });
+            return 0;
+          }
           return await sharedClient.hIncrBy(key, field, increment);
         } catch (error) {
           logger?.error(`Redis HINCRBY error in ${serviceName}`, {
@@ -430,6 +582,10 @@ class RedisConnectionPool {
 
       async hGetAll(key) {
         try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'hGetAll', key });
+            return {};
+          }
           return await sharedClient.hGetAll(key);
         } catch (error) {
           logger?.error(`Redis HGETALL error in ${serviceName}`, {
@@ -443,6 +599,10 @@ class RedisConnectionPool {
 
       async keys(pattern) {
         try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'keys', pattern });
+            return [];
+          }
           return await sharedClient.keys(pattern);
         } catch (error) {
           logger?.error(`Redis KEYS error in ${serviceName}`, {
@@ -456,6 +616,10 @@ class RedisConnectionPool {
 
       async ping() {
         try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'ping' });
+            return null;
+          }
           return await sharedClient.ping();
         } catch (error) {
           logger?.error(`Redis PING error in ${serviceName}`, {
@@ -469,6 +633,14 @@ class RedisConnectionPool {
       // Pipeline support
       pipeline() {
         try {
+          if (!sharedClient.isOpen) {
+            logger?.warn('Redis client is closed, skipping operation', { method: 'pipeline' });
+            // Return fallback pipeline that does nothing
+            return {
+              exec: async () => [],
+              multi: () => this.pipeline()
+            };
+          }
           const pipeline = sharedClient.multi();
           const originalExec = pipeline.exec.bind(pipeline);
 
@@ -525,6 +697,15 @@ class RedisConnectionPool {
       // Expose original client for direct access if needed
       getSharedClient() {
         return sharedClient;
+      },
+
+      // CRITICAL FIX: Expose connection status properties for queue services
+      get isOpen() {
+        return sharedClient?.isOpen || false;
+      },
+
+      get isReady() {
+        return sharedClient?.isReady || false;
       }
     };
 

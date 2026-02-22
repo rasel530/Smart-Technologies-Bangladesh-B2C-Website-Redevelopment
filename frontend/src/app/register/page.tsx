@@ -1,12 +1,63 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RegistrationForm } from '@/components/auth/RegistrationForm';
 import { RegistrationData } from '@/types/auth';
+import { apiClient } from '@/lib/api/client';
+import type { GuestSession } from '@/types/guestCheckout';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function RegisterPage() {
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
   const [selectedDivision, setSelectedDivision] = useState('');  // Add default division
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Guest session state
+  const [guestSession, setGuestSession] = useState<GuestSession | null>(null);
+  const [prefillData, setPrefillData] = useState<Partial<RegistrationData> | null>(null);
+
+  // Check for guest session on mount
+  useEffect(() => {
+    const checkGuestSession = async () => {
+      try {
+        const guestSessionId = localStorage.getItem('guest_session_id');
+
+        if (guestSessionId) {
+          // Load guest session
+          const sessionResponse = await apiClient.get(`/guest/checkout/session/${guestSessionId}`);
+          if (sessionResponse.success && sessionResponse.data) {
+            setGuestSession(sessionResponse.data);
+
+            // Pre-fill form with guest information
+            const prefill: Partial<RegistrationData> = {};
+            if (sessionResponse.data.guestInfo?.firstName) {
+              prefill.firstName = sessionResponse.data.guestInfo.firstName;
+            }
+            if (sessionResponse.data.guestInfo?.lastName) {
+              prefill.lastName = sessionResponse.data.guestInfo.lastName;
+            }
+            if (sessionResponse.data.guestInfo?.email) {
+              prefill.email = sessionResponse.data.guestInfo.email;
+            }
+            if (sessionResponse.data.guestInfo?.phone) {
+              prefill.phone = sessionResponse.data.guestInfo.phone;
+            }
+            if (sessionResponse.data.shippingAddress?.district) {
+              prefill.division = sessionResponse.data.shippingAddress.district;
+              setSelectedDivision(sessionResponse.data.shippingAddress.district);
+            }
+
+            setPrefillData(prefill);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking guest session:', error);
+      }
+    };
+
+    checkGuestSession();
+  }, []);
 
   const handleRegistration = async (data: Partial<RegistrationData>) => {
     try {
@@ -76,14 +127,40 @@ export default function RegisterPage() {
       alert(successMessage);
       
       // Handle successful registration
+      // Merge guest cart if exists
+      if (guestSession) {
+        try {
+          const guestSessionId = localStorage.getItem('guest_session_id');
+          if (guestSessionId && result?.user?.id) {
+            await apiClient.post('/cart/merge', {
+              guestSessionId,
+              userId: result.user.id,
+              mergeOption: 'merge'
+            });
+            // Clear guest session after merge
+            localStorage.removeItem('guest_session_id');
+          }
+        } catch (mergeError) {
+          console.error('Error merging guest cart:', mergeError);
+          // Don't fail registration if merge fails
+        }
+      }
+
       // Redirect to verification page or dashboard based on response
       if (result?.requiresEmailVerification) {
         window.location.href = '/verify-email';
       } else if (result?.requiresPhoneVerification) {
         window.location.href = '/verify-phone';
       } else {
-        // Registration complete, redirect to login or dashboard
-        window.location.href = '/login';
+        // Check if user was trying to checkout
+        const redirectTarget = searchParams.get('redirect');
+        if (redirectTarget === '/checkout') {
+          // Redirect to login first, then to checkout
+          window.location.href = '/login?redirect=/checkout';
+        } else {
+          // Registration complete, redirect to login or dashboard
+          window.location.href = '/login';
+        }
       }
       
     } catch (error) {

@@ -1,0 +1,663 @@
+{
+  "config": {
+    "backendUrl": "http://localhost:5001",
+    "frontendUrl": "http://localhost:3000",
+    "databaseUrl": "postgresql://localhost:5432/smarttech",
+    "timeout": 30000
+  },
+  "summary": {
+    "totalTests": 79,
+    "passedTests": 71,
+    "failedTests": 6,
+    "skippedTests": 0,
+    "warnings": 2,
+    "passRate": "89.87",
+    "startTime": "2026-02-22T12:50:02.362Z",
+    "endTime": "2026-02-22T12:50:02.503Z"
+  },
+  "results": {
+    "passed": [
+      {
+        "category": "Database Migration",
+        "testName": "checkout_sessions table exists in schema",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.403Z"
+      },
+      {
+        "category": "Database Migration",
+        "testName": "checkout_abandonment table exists in schema",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.404Z"
+      },
+      {
+        "category": "Database Migration",
+        "testName": "guest_sessions table exists in schema",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.405Z"
+      },
+      {
+        "category": "Database Migration",
+        "testName": "AddressType enum has new values (home, work, other)",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.405Z"
+      },
+      {
+        "category": "Database Migration",
+        "testName": "Migration file exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.406Z"
+      },
+      {
+        "category": "Database Migration",
+        "testName": "Migration creates all required tables",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.407Z"
+      },
+      {
+        "category": "Database Migration",
+        "testName": "Migration adds AddressType enum values",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.408Z"
+      },
+      {
+        "category": "Database Migration",
+        "testName": "Foreign key relationships are correct",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.409Z"
+      },
+      {
+        "category": "Database Migration",
+        "testName": "Indexes are created",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.410Z"
+      },
+      {
+        "category": "Database Migration",
+        "testName": "CheckoutSession has all required fields",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.411Z"
+      },
+      {
+        "category": "Database Migration",
+        "testName": "CheckoutAbandonment has all required fields",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.412Z"
+      },
+      {
+        "category": "Database Migration",
+        "testName": "GuestSession has all required fields",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.414Z"
+      },
+      {
+        "category": "Backend API",
+        "testName": "Checkout Controller has all required methods",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.426Z"
+      },
+      {
+        "category": "Backend API",
+        "testName": "Checkout Service has all required methods",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.428Z"
+      },
+      {
+        "category": "Backend API",
+        "testName": "Address Management API routes exist",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.431Z"
+      },
+      {
+        "category": "Backend API",
+        "testName": "Address Service has all required functions",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.432Z"
+      },
+      {
+        "category": "Backend API",
+        "testName": "Guest Checkout Controller has all required methods",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.434Z"
+      },
+      {
+        "category": "Backend API",
+        "testName": "Guest Checkout Service has all required methods",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.437Z"
+      },
+      {
+        "category": "Backend API",
+        "testName": "Admin Checkout Controller has all required methods",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.443Z"
+      },
+      {
+        "category": "Backend API",
+        "testName": "Checkout routes use authentication middleware",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.444Z"
+      },
+      {
+        "category": "Backend API",
+        "testName": "Checkout routes use validation middleware",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.444Z"
+      },
+      {
+        "category": "Backend API",
+        "testName": "Checkout routes use rate limiting",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.444Z"
+      },
+      {
+        "category": "Backend API",
+        "testName": "Checkout Controller has comprehensive error handling",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.444Z"
+      },
+      {
+        "category": "Backend API",
+        "testName": "Checkout Controller has JSDoc comments",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.444Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "CheckoutProgress component exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.448Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "CheckoutStepContainer component exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.449Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "CheckoutSecurityBadge component exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.452Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "CheckoutAbandonmentWarning component exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.454Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "Checkout page has 4 steps",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.455Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "Progress indicators work correctly",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.455Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "AddressTypeSelector component exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.455Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "AddressFormEnhanced component exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.456Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "AddressValidationBadge component exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.456Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "BangladeshAddressFields component exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.457Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "GuestInfoForm component exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.457Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "GuestOrderTracking component exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.458Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "GuestCartMergePrompt component exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.458Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "GuestAccountCreation component exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.459Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "Checkout types file exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.460Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "useCheckout hook exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.461Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "useAddressManagement hook exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.463Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "useGuestCheckout hook exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.464Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "Components use TypeScript",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.466Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "Components have JSDoc comments",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.466Z"
+      },
+      {
+        "category": "Admin Panel",
+        "testName": "Checkout sessions page exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.468Z"
+      },
+      {
+        "category": "Admin Panel",
+        "testName": "Checkout abandonment page exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.468Z"
+      },
+      {
+        "category": "Admin Panel",
+        "testName": "Guest checkout page exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.468Z"
+      },
+      {
+        "category": "Admin Panel",
+        "testName": "Checkout analytics page exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.469Z"
+      },
+      {
+        "category": "Admin Panel",
+        "testName": "Checkout settings page exists",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.469Z"
+      },
+      {
+        "category": "Admin Panel",
+        "testName": "Admin checkout table components exist (4/4)",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.469Z"
+      },
+      {
+        "category": "Admin Panel",
+        "testName": "Admin pages use TypeScript",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.472Z"
+      },
+      {
+        "category": "Integration",
+        "testName": "Authenticated user checkout flow integration",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.476Z"
+      },
+      {
+        "category": "Integration",
+        "testName": "Guest checkout flow integration",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.478Z"
+      },
+      {
+        "category": "Integration",
+        "testName": "Address management integration",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.479Z"
+      },
+      {
+        "category": "Integration",
+        "testName": "Cart merging on login integration",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.479Z"
+      },
+      {
+        "category": "Integration",
+        "testName": "Checkout abandonment tracking integration",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.480Z"
+      },
+      {
+        "category": "Integration",
+        "testName": "Admin panel integration",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.480Z"
+      },
+      {
+        "category": "Code Quality",
+        "testName": "snake_case used for database column names",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.481Z"
+      },
+      {
+        "category": "Code Quality",
+        "testName": "camelCase used for JavaScript variables",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.482Z"
+      },
+      {
+        "category": "Code Quality",
+        "testName": "TypeScript types are correct",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.482Z"
+      },
+      {
+        "category": "Code Quality",
+        "testName": "JSDoc comments are present",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.487Z"
+      },
+      {
+        "category": "Code Quality",
+        "testName": "Error handling is comprehensive",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.491Z"
+      },
+      {
+        "category": "Code Quality",
+        "testName": "Validation is implemented",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.494Z"
+      },
+      {
+        "category": "Code Quality",
+        "testName": "Security measures are in place",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.496Z"
+      },
+      {
+        "category": "Data Integrity",
+        "testName": "No data loss from existing tables",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.497Z"
+      },
+      {
+        "category": "Data Integrity",
+        "testName": "Foreign key relationships are correct",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.498Z"
+      },
+      {
+        "category": "Data Integrity",
+        "testName": "Indexes are created",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.498Z"
+      },
+      {
+        "category": "Data Integrity",
+        "testName": "Constraints are correct",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.498Z"
+      },
+      {
+        "category": "Data Integrity",
+        "testName": "Migrations were applied successfully",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.499Z"
+      },
+      {
+        "category": "Data Integrity",
+        "testName": "AddressType enum has correct values",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.500Z"
+      },
+      {
+        "category": "Data Integrity",
+        "testName": "Relationships between tables are correct",
+        "status": "PASS",
+        "message": "",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.503Z"
+      }
+    ],
+    "failed": [
+      {
+        "category": "Backend API",
+        "testName": "Checkout Flow API routes exist",
+        "status": "FAIL",
+        "message": "Missing routes: router.get('/session/:sessionId'), router.put('/session/:sessionId/step'), router.post('/session/:sessionId/address'), router.post('/session/:sessionId/shipping'), router.post('/session/:sessionId/payment'), router.post('/session/:sessionId/complete'), router.delete('/session/:sessionId')",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.424Z"
+      },
+      {
+        "category": "Backend API",
+        "testName": "Guest Checkout API routes exist",
+        "status": "FAIL",
+        "message": "Missing routes: router.post('/checkout/initiate'), router.get('/checkout/session/:sessionId'), router.post('/checkout/session/:sessionId/info'), router.post('/checkout/session/:sessionId/complete'), router.get('/orders'), router.get('/orders/:orderNumber'), router.post('/merge-cart'), router.post('/convert-to-user')",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.433Z"
+      },
+      {
+        "category": "Backend API",
+        "testName": "Admin Checkout API routes exist",
+        "status": "FAIL",
+        "message": "Missing routes: router.get('/sessions'), router.get('/sessions/:sessionId'), router.delete('/sessions/:sessionId'), router.get('/abandonment'), router.post('/abandonment/:id/recover'), router.get('/guest/sessions'), router.get('/analytics'), router.get('/settings'), router.put('/settings')",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.440Z"
+      },
+      {
+        "category": "Data Integrity",
+        "testName": "checkout_sessions table has correct structure",
+        "status": "FAIL",
+        "message": "CheckoutSession model may be missing fields",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.501Z"
+      },
+      {
+        "category": "Data Integrity",
+        "testName": "checkout_abandonment table has correct structure",
+        "status": "FAIL",
+        "message": "CheckoutAbandonment model may be missing fields",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.502Z"
+      },
+      {
+        "category": "Data Integrity",
+        "testName": "guest_sessions table has correct structure",
+        "status": "FAIL",
+        "message": "GuestSession model may be missing fields",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.503Z"
+      }
+    ],
+    "skipped": [],
+    "warnings": [
+      {
+        "category": "Database Migration",
+        "testName": "No data loss verification exists",
+        "status": "WARN",
+        "message": "Data loss verification not explicitly checked",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.416Z"
+      },
+      {
+        "category": "Frontend Component",
+        "testName": "Components have proper TypeScript types",
+        "status": "WARN",
+        "message": "TypeScript types may not be properly defined",
+        "details": null,
+        "timestamp": "2026-02-22T12:50:02.466Z"
+      }
+    ]
+  },
+  "assessment": {
+    "status": "GOOD",
+    "readyForProduction": true
+  }
+}

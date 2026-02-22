@@ -84,7 +84,7 @@ export interface Cart {
  * Add to Cart Request Interface
  */
 export interface AddToCartRequest {
-  cartId: string;
+  cartId: string | null;
   productId: string;
   quantity: number;
   variantId?: string | null;
@@ -223,9 +223,12 @@ export interface CartItemProps {
   item: CartItem;
   onUpdateQuantity: (itemId: string, quantity: number) => Promise<void>;
   onRemove: (itemId: string) => Promise<void>;
+  onLoadCart?: () => Promise<void>;
   language?: 'en' | 'bn';
   showTax?: boolean;
   taxRate?: number;
+  onMoveToWishlist?: (itemId: string) => void;
+  isInWishlist?: boolean;
 }
 
 /**

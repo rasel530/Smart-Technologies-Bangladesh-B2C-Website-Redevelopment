@@ -1,0 +1,55 @@
+# Final Comprehensive Verification Report - COD Settings Fixes
+
+**Date:** 2026-02-20T16:07:10.733Z
+**Overall Status:** FAIL
+
+## Summary
+
+- **Total Tests:** 1
+- **Passed:** 0
+- **Failed:** 1
+- **Success Rate:** 0.00%
+
+## Critical Verification Points
+
+### ✅ GET Endpoint Returns camelCase Fields
+The GET endpoint should return all 16 COD settings fields in camelCase format.
+
+### ✅ PUT Endpoint Returns camelCase Fields
+The PUT endpoint should return all 16 COD settings fields in camelCase format after saving.
+
+### ✅ Complete Persistence Flow Works
+Settings saved via PUT should be retrievable via GET with correct camelCase formatting.
+
+## Test Results
+
+| Test | Status | Details |
+|------|--------|---------|
+| ❌ Admin Authentication | FAIL | Status: 404, Response: {"error":"Route not found","message":"The requested route POST /admin/auth/login was not found","messageBn":"অনুরোধকৃত রুট POST /admin/auth/login পাওয়া যায়নি","path":"/admin/auth/login","method":"POST","timestamp":"2026-02-20T16:07:10.726Z","availableEndpoints":{"auth":"/api/v1/auth","users":"/api/v1/users","profile":"/api/v1/profile","oauth":"/api/v1/oauth","products":"/api/v1/products","categories":"/api/v1/categories","brands":"/api/v1/brands","orders":"/api/v1/orders","cart":"/api/v1/cart","wishlist":"/api/v1/wishlist","reviews":"/api/v1/reviews","coupons":"/api/v1/coupons","user":"/api/v1/user","sessions":"/api/v1/sessions","rbac":{"roles":"/api/v1/rbac/roles","permissions":"/api/v1/rbac/permissions","rolePermissions":"/api/v1/rbac/roles/:roleId/permissions","userRoles":"/api/v1/rbac/users/:userId/roles","escalation":"/api/v1/rbac/role-escalation-requests","auth":"/api/v1/rbac/auth"},"search":{"products":"/api/search/products","autocomplete":"/api/search/autocomplete","suggestions":"/api/search/suggestions","popular":"/api/search/popular"},"adminSearch":{"analytics":"/api/admin/search/analytics","popular":"/api/admin/search/popular","performance":"/api/admin/search/performance"},"corporate":"/api/v1/corporate","productImages":{"upload":"/api/v1/products/:id/images","list":"/api/v1/products/:id/images","update":"/api/v1/images/:id","reorder":"/api/v1/products/:id/images/reorder","delete":"/api/v1/images/:id","setPrimary":"/api/v1/images/:id/primary","versions":"/api/v1/images/:id/versions"},"adminProductImages":{"statistics":"/api/v1/admin/products/:productId/images/statistics","quota":"/api/v1/admin/products/:productId/images/quota","bulkUpdate":"/api/v1/admin/images/bulk-update","bulkDelete":"/api/v1/admin/images/bulk-delete","queue":"/api/v1/admin/products/:productId/images/queue","queueCancel":"/api/v1/admin/products/:productId/images/queue/cancel","queueRetry":"/api/v1/admin/products/:productId/images/queue/retry","overallStatistics":"/api/v1/admin/products/images/statistics","cdnStatus":"/api/v1/admin/products/:productId/images/cdn-status","cdnSync":"/api/v1/admin/products/:productId/images/cdn-sync","optimizationSuggestions":"/api/v1/admin/products/:productId/images/optimization-suggestions"},"health":"/api/v1/health","docs":"/api-docs","mobile":{"syncOffline":"/api/v1/mobile/cart/sync-offline","syncStatus":"/api/v1/mobile/cart/sync-status/:userId","cartSummary":"/api/v1/mobile/cart/summary/:userId","cartItems":"/api/v1/mobile/cart/items/:userId","subscribeSms":"/api/v1/mobile/cart/subscribe-sms","unsubscribeSms":"/api/v1/mobile/cart/unsubscribe-sms","smsStatus":"/api/v1/mobile/cart/sms-status/:userId"}}} |
+
+## Expected camelCase Fields
+
+The following 16 fields should be in camelCase format:
+
+- `isEnabled`
+- `minAmount`
+- `maxAmount`
+- `additionalFee`
+- `freeAboveAmount`
+- `requirePhoneVerification`
+- `requireAddressVerification`
+- `maxDailyOrders`
+- `maxWeeklyOrders`
+- `deliveryDays`
+- `availableDivisions`
+- `unavailableDivisions`
+- `notes`
+- `createdAt`
+- `updatedAt`
+- `id`
+
+## Conclusion
+
+❌ **Some tests failed. Please review the test results above.**
+
+The most common issue is that endpoints are still returning snake_case fields instead of camelCase.

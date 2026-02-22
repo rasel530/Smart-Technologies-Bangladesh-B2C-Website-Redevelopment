@@ -320,14 +320,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Convert NextAuth session to User type with type assertions
         const sessionUser = session.user as any;
         
-        // Check if user has actually changed to prevent duplicate dispatches
-        // Use field-by-field comparison for more reliable change detection
+        // PRIORITY 5: Optimize session sync with simpler comparison
+        // Use JSON.stringify for efficient deep comparison instead of field-by-field
         const userChanged = !prevUserRef.current ||
-          prevUserRef.current.id !== sessionUser.id ||
-          prevUserRef.current.email !== sessionUser.email ||
-          prevUserRef.current.firstName !== sessionUser.firstName ||
-          prevUserRef.current.lastName !== sessionUser.lastName ||
-          prevUserRef.current.role !== sessionUser.role;
+          JSON.stringify(prevUserRef.current) !== JSON.stringify(sessionUser);
         
         if (userChanged) {
           console.log('[AuthContext] User changed, syncing to state');

@@ -1,0 +1,205 @@
+{
+  "timestamp": "2026-02-20T05:44:36.058Z",
+  "totalUsers": 6,
+  "requiredRoles": [
+    {
+      "role": "super_admin",
+      "description": "Super Admin"
+    },
+    {
+      "role": "admin",
+      "description": "Admin"
+    },
+    {
+      "role": "manager",
+      "description": "Manager"
+    },
+    {
+      "role": "corporate",
+      "description": "Corporate"
+    },
+    {
+      "role": "support",
+      "description": "Support"
+    },
+    {
+      "role": "Discount Manager",
+      "description": "Discount Manager"
+    },
+    {
+      "role": "customer",
+      "description": "Customer"
+    }
+  ],
+  "users": [
+    {
+      "id": "2bdca14e-ac33-43ca-b98a-5117c8ecdeb9",
+      "email": "raselbepari88@gmail.com",
+      "firstName": "Rasel",
+      "lastName": "Bepari",
+      "role": "customer",
+      "status": "active",
+      "createdAt": "2026-01-26T17:34:10.345Z",
+      "updatedAt": "2026-02-19T09:29:08.919Z",
+      "lastLoginAt": "2026-02-19T09:29:08.916Z",
+      "phone": "+8801914287530"
+    },
+    {
+      "id": "ea59bf47-4b66-431d-ba63-a0a69437798f",
+      "email": "admin@smarttech.com",
+      "firstName": "Admin",
+      "lastName": "User",
+      "role": "admin",
+      "status": "active",
+      "createdAt": "2026-01-26T17:57:54.518Z",
+      "updatedAt": "2026-02-20T04:48:57.132Z",
+      "lastLoginAt": "2026-02-20T04:48:57.121Z",
+      "phone": null
+    },
+    {
+      "id": "90270928-766e-49dd-bee0-13ede11e9dad",
+      "email": "admin2@smarttech.com",
+      "firstName": "Admin",
+      "lastName": "User 2",
+      "role": "admin",
+      "status": "active",
+      "createdAt": "2026-01-26T17:57:54.595Z",
+      "updatedAt": "2026-01-26T17:57:54.595Z",
+      "lastLoginAt": null,
+      "phone": null
+    },
+    {
+      "id": "0c43809b-46d0-466b-be8b-e3d56e58b886",
+      "email": "invalid-email",
+      "firstName": "Invalid",
+      "lastName": "Email",
+      "role": "customer",
+      "status": "inactive",
+      "createdAt": "2026-02-03T17:00:59.681Z",
+      "updatedAt": "2026-02-09T15:47:08.893Z",
+      "lastLoginAt": null,
+      "phone": null
+    },
+    {
+      "id": "84672403-5f9f-4d77-8f01-795a3fc6e3ae",
+      "email": "raselbepari@gmail.com",
+      "firstName": "Mohammad",
+      "lastName": "Rasel",
+      "role": "manager",
+      "status": "active",
+      "createdAt": "2026-02-09T15:48:51.879Z",
+      "updatedAt": "2026-02-09T15:48:51.890Z",
+      "lastLoginAt": null,
+      "phone": null
+    },
+    {
+      "id": "test-superadmin-001",
+      "email": "test.superadmin@smarttech.com",
+      "firstName": "Super",
+      "lastName": "Admin",
+      "role": "super_admin",
+      "status": "active",
+      "createdAt": "2026-02-10T19:18:34.524Z",
+      "updatedAt": "2026-02-17T09:18:59.954Z",
+      "lastLoginAt": "2026-02-17T09:18:59.953Z",
+      "phone": null
+    }
+  ],
+  "userRoles": [
+    {
+      "id": "50a104e9-11e5-4eec-8b38-9cbadc3e6f6b",
+      "user_id": "test-superadmin-001",
+      "role_id": "fbc807d7-c739-4293-b50e-601cc19e1e41",
+      "assigned_by": "test-superadmin-001",
+      "assigned_at": "2026-02-10T19:19:26.876Z",
+      "expires_at": null,
+      "is_active": true,
+      "roles": {
+        "id": "fbc807d7-c739-4293-b50e-601cc19e1e41",
+        "name": "super_admin",
+        "description": "Super administrator with all permissions"
+      },
+      "users": {
+        "id": "test-superadmin-001",
+        "email": "test.superadmin@smarttech.com",
+        "firstName": "Super",
+        "lastName": "Admin"
+      }
+    },
+    {
+      "id": "d72f020f-5337-49b9-b7a1-84e0529ab94f",
+      "user_id": "ea59bf47-4b66-431d-ba63-a0a69437798f",
+      "role_id": "4d0cd4a1-3c74-4782-a766-8020f0296e00",
+      "assigned_by": "ea59bf47-4b66-431d-ba63-a0a69437798f",
+      "assigned_at": "2026-01-26T17:57:54.524Z",
+      "expires_at": null,
+      "is_active": true,
+      "roles": {
+        "id": "4d0cd4a1-3c74-4782-a766-8020f0296e00",
+        "name": "ADMIN",
+        "description": "Administrator"
+      },
+      "users": {
+        "id": "ea59bf47-4b66-431d-ba63-a0a69437798f",
+        "email": "admin@smarttech.com",
+        "firstName": "Admin",
+        "lastName": "User"
+      }
+    },
+    {
+      "id": "81a586c6-b031-41ec-8ff1-fcfb375e368c",
+      "user_id": "90270928-766e-49dd-bee0-13ede11e9dad",
+      "role_id": "4d0cd4a1-3c74-4782-a766-8020f0296e00",
+      "assigned_by": "90270928-766e-49dd-bee0-13ede11e9dad",
+      "assigned_at": "2026-01-26T17:57:54.600Z",
+      "expires_at": null,
+      "is_active": true,
+      "roles": {
+        "id": "4d0cd4a1-3c74-4782-a766-8020f0296e00",
+        "name": "ADMIN",
+        "description": "Administrator"
+      },
+      "users": {
+        "id": "90270928-766e-49dd-bee0-13ede11e9dad",
+        "email": "admin2@smarttech.com",
+        "firstName": "Admin",
+        "lastName": "User 2"
+      }
+    },
+    {
+      "id": "34101207-f361-46a0-a526-63129fd0e154",
+      "user_id": "84672403-5f9f-4d77-8f01-795a3fc6e3ae",
+      "role_id": "12f934fa-4dde-433d-808d-5cd75f451db8",
+      "assigned_by": "92df20d4-1c7b-401f-8005-3c68b1572519",
+      "assigned_at": "2026-02-09T15:48:51.882Z",
+      "expires_at": null,
+      "is_active": true,
+      "roles": {
+        "id": "12f934fa-4dde-433d-808d-5cd75f451db8",
+        "name": "MANAGER",
+        "description": "Manager"
+      },
+      "users": {
+        "id": "84672403-5f9f-4d77-8f01-795a3fc6e3ae",
+        "email": "raselbepari@gmail.com",
+        "firstName": "Mohammad",
+        "lastName": "Rasel"
+      }
+    }
+  ],
+  "potentiallyUnnecessary": [],
+  "missingRoles": [
+    {
+      "role": "corporate",
+      "description": "Corporate"
+    },
+    {
+      "role": "support",
+      "description": "Support"
+    },
+    {
+      "role": "Discount Manager",
+      "description": "Discount Manager"
+    }
+  ]
+}

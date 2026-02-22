@@ -7,7 +7,9 @@
 'use client';
 
 import React from 'react';
+import { RefreshCw } from 'lucide-react';
 import { wishlistMessages } from '@/types/wishlist';
+import { CartWishlistSyncIndicator } from '@/components/cartWishlist/CartWishlistSyncIndicator';
 import type { WishlistToolbarProps } from '@/types/wishlist';
 
 export const WishlistToolbar: React.FC<WishlistToolbarProps> = ({
@@ -42,6 +44,8 @@ export const WishlistToolbar: React.FC<WishlistToolbarProps> = ({
   return (
     <div className="wishlist-toolbar">
       <div className="toolbar-left">
+        {/* Sync Status Indicator */}
+        <CartWishlistSyncIndicator language={language} />
         <div className="search-box">
           <input
             type="text"

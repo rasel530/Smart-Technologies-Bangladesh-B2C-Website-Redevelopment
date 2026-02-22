@@ -15,6 +15,8 @@ const cron = require('node-cron');
 const { loggerService } = require('./logger');
 const { cartCleanupService } = require('./cartCleanupService');
 const { inventoryReservationService } = require('./inventoryReservationService');
+const { cartReminderService } = require('./cartReminderService');
+const { cartRecoveryService } = require('./cartRecoveryService');
 
 class CartSchedulerService {
   constructor() {
@@ -78,15 +80,16 @@ class CartSchedulerService {
       description: 'Cleanup of expired reservations (every 5 min)'
     });
 
-    // Job 3: Recovery reminder emails - runs every 6 hours
+    // Job 3: Recovery reminder emails - runs every hour
     this.jobs.set('recoveryReminders', {
-      cronExpression: '0 */6 * * *',
+      cronExpression: '0 * * * *',
       task: async () => {
         const startTime = Date.now();
         try {
           this.logger.info('Running scheduled recovery reminder emails');
-          const result = await cartCleanupService.sendRecoveryReminders();
+          const result = await cartReminderService.processDueReminders();
           this.logger.info('Recovery reminders completed', {
+            processed: result.processed,
             sent: result.sent,
             errors: result.errors?.length || 0,
             duration: Date.now() - startTime
@@ -98,7 +101,34 @@ class CartSchedulerService {
           });
         }
       },
-      description: 'Send cart recovery reminders (every 6 hours)'
+      description: 'Send cart recovery reminders (every hour)'
+    });
+
+    // Job 3b: Process abandoned carts - runs every 2 hours
+    this.jobs.set('processAbandonedCarts', {
+      cronExpression: '0 */2 * * *',
+      task: async () => {
+        const startTime = Date.now();
+        try {
+          this.logger.info('Running scheduled abandoned cart processing');
+          const result = await cartRecoveryService.processAbandonedCarts({
+            minInactiveMinutes: 60,
+            excludeRecentEmails: true
+          });
+          this.logger.info('Abandoned cart processing completed', {
+            processed: result.processed,
+            emailsSent: result.emailsSent,
+            failed: result.failed,
+            duration: Date.now() - startTime
+          });
+        } catch (error) {
+          this.logger.error('Abandoned cart processing failed', {
+            error: error.message,
+            stack: error.stack
+          });
+        }
+      },
+      description: 'Process abandoned carts (every 2 hours)'
     });
 
     // Job 4: Weekly abandoned cart cleanup - runs Sunday at 3 AM

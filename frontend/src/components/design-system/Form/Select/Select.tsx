@@ -23,7 +23,7 @@ const sizeClasses = {
 };
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ label, error, helperText, options, placeholder, inputSize = 'md', className, id, ...props }, ref) => {
+  ({ label, error, helperText, options = [], placeholder, inputSize = 'md', className, id, ...props }, ref) => {
     const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
 
     return (

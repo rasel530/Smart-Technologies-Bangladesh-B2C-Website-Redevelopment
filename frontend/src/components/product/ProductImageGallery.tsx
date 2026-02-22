@@ -65,11 +65,18 @@ const convertToNewProductImage = (oldImage: ProductImage): NewProductImage => ({
 });
 
 // Debounce utility for preventing rapid image switching that causes NS_BINDING_ABORTED
+// FIXED: Uses ref to always call the latest callback, preventing stale closure issues
 function useDebounce<T extends (...args: unknown[]) => void>(
   callback: T,
   delay: number
 ): T {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const callbackRef = useRef(callback);
+
+  // Keep callbackRef current with the latest callback
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
 
   useEffect(() => {
     return () => {
@@ -84,9 +91,9 @@ function useDebounce<T extends (...args: unknown[]) => void>(
       clearTimeout(timeoutRef.current);
     }
     timeoutRef.current = setTimeout(() => {
-      callback(...args);
+      callbackRef.current(...args);
     }, delay);
-  }, [callback, delay]) as T;
+  }, [delay]) as T;
 }
 
 export function ProductImageGallery({ images, productName }: ProductImageGalleryProps) {
@@ -165,44 +172,40 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
     };
   }, [isLightboxOpen]);
 
-  // Debounced thumbnail click handler to prevent rapid image switching
-  const debouncedSetSelectedIndex = useDebounce((index: number) => {
-    if (isMountedRef.current && index >= 0 && index < validImages.length) {
-      setSelectedIndex(index);
-      setIsLoaded(false);
-      setHasError(false);
-      currentImageIdRef.current = validImages[index]?.id || null;
-    }
-  }, 150);
-
-  // Handle thumbnail click with debounce to prevent NS_BINDING_ABORTED
+  // Handle thumbnail click - immediate state update for responsiveness
   const handleThumbnailClick = useCallback((index: number) => {
     if (index === selectedIndexRef.current) return;
-    debouncedSetSelectedIndex(index);
-  }, [debouncedSetSelectedIndex]);
+    if (index >= 0 && index < validImages.length) {
+      setSelectedIndex(index);
+      // Show loading state for the new image
+      setIsLoaded(false);
+      setHasError(false);
+    }
+  }, [validImages.length]);
 
-  // Ref to track if navigation is in progress (prevents rapid switching)
-  const navigationInProgressRef = useRef(false);
-
-  // Debounced lightbox navigation to prevent NS_BINDING_ABORTED
-  const debouncedLightboxNav = useDebounce((direction: 'prev' | 'next') => {
-    if (!isMountedRef.current || navigationInProgressRef.current) return;
+  // Simple direct navigation without debounce for lightbox buttons
+  // The debounce was causing stale closure issues where isMountedRef.current was false
+  const handleLightboxNav = useCallback((direction: 'prev' | 'next') => {
+    console.log('[ProductImageGallery] handleLightboxNav called:', direction, {
+      currentIndex: selectedIndex,
+      totalImages: validImages.length
+    });
     
-    navigationInProgressRef.current = true;
     setSelectedIndex(prev => {
       const newIndex = direction === 'prev'
         ? (prev > 0 ? prev - 1 : validImages.length - 1)
         : (prev < validImages.length - 1 ? prev + 1 : 0);
+      console.log('[ProductImageGallery] Navigating to index:', { prev, direction, newIndex });
       return newIndex;
     });
     setIsLoaded(false);
     setHasError(false);
-    
-    // Reset navigation lock after a short delay
-    setTimeout(() => {
-      navigationInProgressRef.current = false;
-    }, 100);
-  }, 100);
+  }, [validImages.length, selectedIndex]);
+
+  // Keep debounced version for keyboard navigation only
+  const debouncedKeyboardNav = useDebounce((direction: 'prev' | 'next') => {
+    handleLightboxNav(direction);
+  }, 50);
 
   // Handle keyboard navigation with debounce to prevent NS_BINDING_ABORTED
   useEffect(() => {
@@ -214,17 +217,17 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
           setIsLightboxOpen(false);
           break;
         case 'ArrowLeft':
-          debouncedLightboxNav('prev');
+          debouncedKeyboardNav('prev');
           break;
         case 'ArrowRight':
-          debouncedLightboxNav('next');
+          debouncedKeyboardNav('next');
           break;
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isLightboxOpen, debouncedLightboxNav]);
+  }, [isLightboxOpen, debouncedKeyboardNav]);
 
   const handleMainImageClick = useCallback(() => {
     setIsLightboxOpen(true);
@@ -242,23 +245,23 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
     }
   }, [handleLightboxClose]);
 
-  const handleLightboxNav = useCallback((direction: 'prev' | 'next') => {
-    debouncedLightboxNav(direction);
-  }, [debouncedLightboxNav]);
-
-  // Handle image load - only update if component is mounted and image hasn't changed
+  // Handle image load
   const handleImageLoad = useCallback(() => {
-    if (isMountedRef.current && 
-        currentImageIdRef.current === validImages[selectedIndexRef.current]?.id) {
-      setIsLoaded(true);
-      setHasError(false);
-    }
-  }, [validImages]);
+    console.log('[ProductImageGallery] Image loaded successfully');
+    setIsLoaded(true);
+    setHasError(false);
+  }, []);
 
   // Handle image error - distinguish between actual errors and cancelled requests
   const handleImageError = useCallback(() => {
+    const currentImage = validImages[selectedIndexRef.current];
+    console.error('[ProductImageGallery] Image failed to load:', {
+      imageId: currentImageIdRef.current,
+      imageUrl: currentImage ? getImageUrl(currentImage, 'large') : 'unknown',
+      isMounted: isMountedRef.current
+    });
     // Only treat as error if the component is still mounted and this is the current image
-    if (isMountedRef.current && 
+    if (isMountedRef.current &&
         currentImageIdRef.current === validImages[selectedIndexRef.current]?.id) {
       setHasError(true);
       setIsLoaded(false);
@@ -286,7 +289,8 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
 
   // Get the current image with stable reference
   const currentImage = validImages[selectedIndex];
-  const imageKey = `main-image-${currentImage?.id || 'placeholder'}-${selectedIndex}`;
+  // FIX: Use image ID in key to ensure proper re-rendering while avoiding index-based re-mounts
+  const imageKey = currentImage?.id || 'placeholder';
 
   return (
     <>
@@ -299,20 +303,15 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
         >
           {/* Conditionally render only the selected image to prevent NS_BINDING_ABORTED errors */}
           {currentImage && (
-            <div className={`absolute inset-0 transition-opacity duration-300 ${
-              isLoaded ? 'opacity-100' : 'opacity-0'
-            }`}>
+            <div className="absolute inset-0">
               <Image
-                key={imageKey}
+                key={`main-image-${imageKey}`}
                 src={getImageUrl(currentImage, 'large')}
                 alt={getAltText(currentImage) || `${productName} - Image ${selectedIndex + 1}`}
                 fill
                 className="object-contain transition-transform duration-200 group-hover:scale-110"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                // Priority for current image to prevent unnecessary re-renders
-                priority={true}
-                // Note: loading="eager" is NOT set here because priority=true already handles eager loading
-                // Using both can cause NS_BINDING_ABORTED in some browsers
+                unoptimized={getImageUrl(currentImage, 'large').startsWith('http://localhost:3001')}
                 onLoad={handleImageLoad}
                 onError={handleImageError}
               />
@@ -320,8 +319,9 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
           )}
           
           {/* Loading skeleton - shown when image is not loaded */}
+          {/* FIXED: Removed animate-pulse to prevent blinking effect */}
           {!isLoaded && !hasError && (
-            <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+            <div className="absolute inset-0 bg-gray-100" />
           )}
           
           {/* Error state placeholder - shown when image fails to load */}

@@ -18,14 +18,19 @@ export const getImageUrl = (imagePath: string | null | undefined): string | null
   }
   
   // Get backend base URL from environment variable
-  // Use NEXT_PUBLIC_BACKEND_API_URL as specified in the task
-  const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3001/api/v1';
+  // Use NEXT_PUBLIC_BACKEND_API_URL for both server-side and client-side
+  // since images need to be loaded by the browser, not by the server
+  // Browsers cannot resolve Docker internal hostnames like 'backend:3000'
+  const API_BASE_URL = typeof window === 'undefined'
+    ? (process.env.NEXT_PUBLIC_BACKEND_API_URL || process.env.BACKEND_API_URL || 'http://localhost:3001/api/v1')
+    : (process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3001/api/v1');
   const BASE_URL = API_BASE_URL.replace('/api/v1', '');
   
   // Construct full URL using backend base URL
   // This ensures /uploads/ paths are requested from backend (port 3001) not frontend (port 3000)
-  const timestamp = Date.now();
-  return `${BASE_URL}${imagePath}?t=${timestamp}`;
+  // Cache-busting timestamp removed to enable browser caching
+  // Next.js Image component will handle caching with its built-in optimization
+  return `${BASE_URL}${imagePath}`;
 };
 
 /**

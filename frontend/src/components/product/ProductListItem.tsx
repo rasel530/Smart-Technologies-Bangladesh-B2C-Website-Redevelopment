@@ -17,7 +17,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ProductWithRelations } from '@/types/product';
 import { ProductPrice } from './ProductPrice';
 import { CompareButton } from './CompareButton';
@@ -51,7 +51,8 @@ export const ProductListItem: React.FC<ProductListItemProps> = ({
   className = ''
 }) => {
   const [imageError, setImageError] = useState(false);
-  
+  const router = useRouter();
+
   // Get primary image or fallback
   const primaryImage = product.images?.[0];
   const imageUrl = primaryImage ? getImageUrl(primaryImage, 'medium') : '';
@@ -92,15 +93,32 @@ export const ProductListItem: React.FC<ProductListItemProps> = ({
     }
   };
 
+  // Handle click navigation
+  const handleClick = () => {
+    router.push(`/products/${product.slug}`);
+  };
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
   return (
-    <Link
-      href={`/products/${product.slug}`}
+    <div
       className={`
         group relative bg-white rounded-lg shadow-sm hover:shadow-lg
-        transition-all duration-300 overflow-hidden flex
+        transition-all duration-300 overflow-hidden flex cursor-pointer
         ${isOutOfStock ? 'opacity-75' : ''}
         ${className}
       `}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label={`View ${product.name} product details`}
     >
       {/* Product Image */}
       <div className="relative w-48 flex-shrink-0 bg-gray-100">
@@ -241,7 +259,7 @@ export const ProductListItem: React.FC<ProductListItemProps> = ({
           )}
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 

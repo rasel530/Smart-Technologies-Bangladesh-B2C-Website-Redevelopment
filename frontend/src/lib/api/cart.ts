@@ -39,21 +39,21 @@ export const getCart = async (): Promise<Cart> => {
 
 /**
  * Add item to cart
- * @param cartId - The cart ID
+ * @param cartId - The cart ID (can be null or undefined for new carts)
  * @param productId - The product ID
  * @param quantity - The quantity to add
  * @param variantId - Optional variant ID
  * @returns Promise<Cart> The updated cart
  */
 export const addToCart = async (
-  cartId: string,
+  cartId: string | null | undefined,
   productId: string,
   quantity: number,
   variantId?: string | null
 ): Promise<Cart> => {
   try {
     const request: AddToCartRequest = {
-      cartId,
+      cartId: cartId || null, // Send null instead of undefined
       productId,
       quantity,
     };
@@ -61,6 +61,15 @@ export const addToCart = async (
     if (variantId) {
       request.variantId = variantId;
     }
+    console.log('[Cart API] addToCart request:', {
+      cartId,
+      productId,
+      productIdType: typeof productId,
+      productIdLength: productId?.length,
+      quantity,
+      variantId,
+      fullRequest: request
+    });
     const response = await apiClient.post<Cart>('/cart/items', request);
     return response;
   } catch (error) {

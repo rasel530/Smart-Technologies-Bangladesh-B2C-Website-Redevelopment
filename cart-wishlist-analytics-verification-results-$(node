@@ -1,0 +1,220 @@
+🔍 Environment detected: development
+⚠️  Environment file not found: .env.development
+⚠️  Environment file not found: .env.local
+📁 Loading environment file: .env
+[dotenv@17.2.3] injecting env (0) from backend\.env -- tip: ⚙️  suppress all logs with { quiet: true }
+🔧 Database URL configured: postgresql://smart_dev:****@localhost:5432/smart_ecommerce_dev
+🔧 Redis configuration: host=localhost, port=6379, password=***
+
+[1m[36m
+╔════════════════════════════════════════════════════════════════════╗
+║  Cart-Wishlist Analytics Fix Verification Test                      ║
+║  Verifying fix for TypeError: cartActivity is undefined            ║
+╚════════════════════════════════════════════════════════════════════╝
+[0m
+
+[1m[34mTest 1: Service Returns Complete SystemAnalytics Structure[0m
+[36m───────────────────────────────────────────────────────────────────────[0m
+[32minfo[39m: Getting system analytics {"timestamp":"2026-02-17T11:06:03.327Z"}
+[32m✓ PASS[0m - All required top-level properties exist
+  [36mFound: cartActivity, wishlistActivity, moveOperations, syncStats, conflictStats[0m
+[32m✓ PASS[0m - cartActivity has all required properties with correct types
+  [36mProperties: totalAdds, totalRemoves, totalViews (all numbers)[0m
+[32m✓ PASS[0m - wishlistActivity has all required properties with correct types
+  [36mProperties: totalAdds, totalRemoves, totalViews (all numbers)[0m
+[32m✓ PASS[0m - moveOperations has all required properties with correct types
+  [36mProperties: cartToWishlist, wishlistToCart, total (all numbers)[0m
+[32m✓ PASS[0m - syncStats has all required properties with correct types
+  [36mProperties: totalSyncs, successfulSyncs, failedSyncs, averageSyncTime (all numbers)[0m
+[32m✓ PASS[0m - conflictStats has all required properties with correct types
+  [36mProperties: totalConflicts, resolvedConflicts, pendingConflicts (all numbers)[0m
+[32m✓ PASS[0m - All numeric values are non-negative
+  [36mAll counts and metrics are valid (>= 0)[0m
+
+[1m[34mTest 2: Access cartActivity.totalAdds Without Errors[0m
+[36m───────────────────────────────────────────────────────────────────────[0m
+[32minfo[39m: Getting system analytics {"timestamp":"2026-02-17T11:06:03.439Z"}
+[32m✓ PASS[0m - Access analytics.systemAnalytics.cartActivity.totalAdds
+  [36mSuccessfully accessed totalAdds: 0[0m
+[32m✓ PASS[0m - totalAdds is a valid number
+  [36mValue: 0[0m
+[32m✓ PASS[0m - All nested properties are accessible
+  [36mSuccessfully verified 15 property paths[0m
+
+[1m[34mTest 3: Data Integrity and Consistency[0m
+[36m───────────────────────────────────────────────────────────────────────[0m
+[32minfo[39m: Getting system analytics {"timestamp":"2026-02-17T11:06:03.468Z"}
+[32m✓ PASS[0m - moveOperations.total equals cartToWishlist + wishlistToCart
+  [36mTotal: 0 (0 + 0)[0m
+[32m✓ PASS[0m - syncStats.totalSyncs equals successfulSyncs + failedSyncs
+  [36mTotal: 0 (0 + 0)[0m
+[32m✓ PASS[0m - conflictStats.totalConflicts equals resolvedConflicts + pendingConflicts
+  [36mTotal: 0 (0 + 0)[0m
+[32m✓ PASS[0m - averageSyncTime is non-negative
+  [36mValue: 0 seconds[0m
+
+[1m[34mTest 4: Date Filter Handling[0m
+[36m───────────────────────────────────────────────────────────────────────[0m
+[32minfo[39m: Getting system analytics {"endDate":"2024-12-31","startDate":"2024-01-01","timestamp":"2026-02-17T11:06:03.501Z"}
+[31merror[39m: Error getting system analytics {"error":"\nInvalid `this.prisma.wishlistItem.count()` invocation in\ne:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\services\\cartWishlist\\cartWishlistAnalytics.service.js:639:59\n\n  636 // Note: WishlistItem doesn't have a removedAt field in the schema\n  637 // We count all wishlist items as adds since items are deleted when removed\n  638 // Don't apply date filters to wishlistItem queries as they don't have timestamp field\n→ 639 const wishlistAdds = await this.prisma.wishlistItem.count({\n        select: {\n          _count: {\n            select: {\n              _all: true\n            }\n          }\n        },\n        timestamp: {\n        ~~~~~~~~~\n          gte: new Date(\"2024-01-01T00:00:00.000Z\"),\n          lte: new Date(\"2024-12-31T00:00:00.000Z\")\n        },\n      ? where?: WishlistItemWhereInput,\n      ? orderBy?: WishlistItemOrderByWithRelationInput[] | WishlistItemOrderByWithRelationInput,\n      ? cursor?: WishlistItemWhereUniqueInput,\n      ? take?: Int,\n      ? skip?: Int\n      })\n\nUnknown argument `timestamp`. Available options are marked with ?.","timestamp":"2026-02-17T11:06:03.520Z"}
+[31m✗ FAIL[0m - Date filter handling
+  [31mError: 
+Invalid `this.prisma.wishlistItem.count()` invocation in
+e:\Drive_D_Backup\Smart_Tech_B2C_Website_Redevelopment\backend\services\cartWishlist\cartWishlistAnalytics.service.js:639:59
+
+  636 // Note: WishlistItem doesn't have a removedAt field in the schema
+  637 // We count all wishlist items as adds since items are deleted when removed
+  638 // Don't apply date filters to wishlistItem queries as they don't have timestamp field
+→ 639 const wishlistAdds = await this.prisma.wishlistItem.count({
+        select: {
+          _count: {
+            select: {
+              _all: true
+            }
+          }
+        },
+        timestamp: {
+        ~~~~~~~~~
+          gte: new Date("2024-01-01T00:00:00.000Z"),
+          lte: new Date("2024-12-31T00:00:00.000Z")
+        },
+      ? where?: WishlistItemWhereInput,
+      ? orderBy?: WishlistItemOrderByWithRelationInput[] | WishlistItemOrderByWithRelationInput,
+      ? cursor?: WishlistItemWhereUniqueInput,
+      ? take?: Int,
+      ? skip?: Int
+      })
+
+Unknown argument `timestamp`. Available options are marked with ?.[0m
+  [33mDetails:[0m {
+  stack: 'PrismaClientValidationError: \n' +
+    'Invalid `this.prisma.wishlistItem.count()` invocation in\n' +
+    'e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\services\\cartWishlist\\cartWishlistAnalytics.service.js:639:59\n' +
+    '\n' +
+    "  636 // Note: WishlistItem doesn't have a removedAt field in the schema\n" +
+    '  637 // We count all wishlist items as adds since items are deleted when removed\n' +
+    "  638 // Don't apply date filters to wishlistItem queries as they don't have timestamp field\n" +
+    '→ 639 const wishlistAdds = await this.prisma.wishlistItem.count({\n' +
+    '        select: {\n' +
+    '          _count: {\n' +
+    '            select: {\n' +
+    '              _all: true\n' +
+    '            }\n' +
+    '          }\n' +
+    '        },\n' +
+    '        timestamp: {\n' +
+    '        ~~~~~~~~~\n' +
+    '          gte: new Date("2024-01-01T00:00:00.000Z"),\n' +
+    '          lte: new Date("2024-12-31T00:00:00.000Z")\n' +
+    '        },\n' +
+    '      ? where?: WishlistItemWhereInput,\n' +
+    '      ? orderBy?: WishlistItemOrderByWithRelationInput[] | WishlistItemOrderByWithRelationInput,\n' +
+    '      ? cursor?: WishlistItemWhereUniqueInput,\n' +
+    '      ? take?: Int,\n' +
+    '      ? skip?: Int\n' +
+    '      })\n' +
+    '\n' +
+    'Unknown argument `timestamp`. Available options are marked with ?.\n' +
+    '    at wn (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\node_modules\\@prisma\\client\\runtime\\library.js:29:1363)\n' +
+    '    at $n.handleRequestError (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\node_modules\\@prisma\\client\\runtime\\library.js:121:6958)\n' +
+    '    at $n.handleAndLogRequestError (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\node_modules\\@prisma\\client\\runtime\\library.js:121:6623)\n' +
+    '    at $n.request (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\node_modules\\@prisma\\client\\runtime\\library.js:121:6307)\n' +
+    '    at async l (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\node_modules\\@prisma\\client\\runtime\\library.js:130:9633)\n' +
+    '    at async CartWishlistAnalyticsService.getSystemAnalytics (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\services\\cartWishlist\\cartWishlistAnalytics.service.js:639:28)\n' +
+    '    at async testDateFilters (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\verify-cart-wishlist-analytics-fix.test.js:473:20)\n' +
+    '    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\verify-cart-wishlist-analytics-fix.test.js:597:3)'
+}
+
+[1m[34mTest 5: Error Handling[0m
+[36m───────────────────────────────────────────────────────────────────────[0m
+[32minfo[39m: Getting system analytics {"endDate":"also-invalid","startDate":"invalid-date","timestamp":"2026-02-17T11:06:03.523Z"}
+[31merror[39m: Error getting system analytics {"error":"\nInvalid `this.prisma.cartEvent.count()` invocation in\ne:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\services\\cartWishlist\\cartWishlistAnalytics.service.js:623:52\n\n  620 }\n  621 \n  622 // 1. Cart Activity - Query cart events for adds, removes, views\n→ 623 const cartAdds = await this.prisma.cartEvent.count({\n        select: {\n          _count: {\n            select: {\n              _all: true\n            }\n          }\n        },\n        where: {\n          timestamp: {\n            gte: new Date(\"Invalid Date\"),\n                 ~~~~~~~~~~~~~~~~~~~~~~~~\n            lte: new Date(\"Invalid Date\")\n          },\n          eventType: \"add\"\n        }\n      })\n\nInvalid value for argument `gte`: Provided Date object is invalid. Expected Date.","timestamp":"2026-02-17T11:06:03.525Z"}
+[32m✓ PASS[0m - Service handles invalid date formats gracefully
+  [36mService threw meaningful error: 
+Invalid `this.prisma.cartEvent.count()` invocation in
+e:\Drive_D_Backup\Smart_Tech_B2C_Website_Rede[0m
+[32minfo[39m: Getting system analytics {"timestamp":"2026-02-17T11:06:03.525Z"}
+[32m✓ PASS[0m - Service handles empty filters
+  [36mService returns data with no filters[0m
+
+[1m[36m
+╔════════════════════════════════════════════════════════════════════╗
+║  Test Summary                                                          ║
+╚════════════════════════════════════════════════════════════════════╝
+[0m
+
+[1mTotal Tests:[0m 17
+[32mPassed:[0m 16
+[31mFailed:[0m 1
+
+[1mDuration:[0m 0.23s
+
+[1m[31m✗ SOME TESTS FAILED - Fix may need attention[0m
+
+
+[1m[36mDetailed Results:[0m
+
+1. [[32mPASS[0m] All required top-level properties exist
+   Found: cartActivity, wishlistActivity, moveOperations, syncStats, conflictStats
+2. [[32mPASS[0m] cartActivity has all required properties with correct types
+   Properties: totalAdds, totalRemoves, totalViews (all numbers)
+3. [[32mPASS[0m] wishlistActivity has all required properties with correct types
+   Properties: totalAdds, totalRemoves, totalViews (all numbers)
+4. [[32mPASS[0m] moveOperations has all required properties with correct types
+   Properties: cartToWishlist, wishlistToCart, total (all numbers)
+5. [[32mPASS[0m] syncStats has all required properties with correct types
+   Properties: totalSyncs, successfulSyncs, failedSyncs, averageSyncTime (all numbers)
+6. [[32mPASS[0m] conflictStats has all required properties with correct types
+   Properties: totalConflicts, resolvedConflicts, pendingConflicts (all numbers)
+7. [[32mPASS[0m] All numeric values are non-negative
+   All counts and metrics are valid (>= 0)
+8. [[32mPASS[0m] Access analytics.systemAnalytics.cartActivity.totalAdds
+   Successfully accessed totalAdds: 0
+9. [[32mPASS[0m] totalAdds is a valid number
+   Value: 0
+10. [[32mPASS[0m] All nested properties are accessible
+   Successfully verified 15 property paths
+11. [[32mPASS[0m] moveOperations.total equals cartToWishlist + wishlistToCart
+   Total: 0 (0 + 0)
+12. [[32mPASS[0m] syncStats.totalSyncs equals successfulSyncs + failedSyncs
+   Total: 0 (0 + 0)
+13. [[32mPASS[0m] conflictStats.totalConflicts equals resolvedConflicts + pendingConflicts
+   Total: 0 (0 + 0)
+14. [[32mPASS[0m] averageSyncTime is non-negative
+   Value: 0 seconds
+15. [[31mFAIL[0m] Date filter handling
+   Error: 
+Invalid `this.prisma.wishlistItem.count()` invocation in
+e:\Drive_D_Backup\Smart_Tech_B2C_Website_Redevelopment\backend\services\cartWishlist\cartWishlistAnalytics.service.js:639:59
+
+  636 // Note: WishlistItem doesn't have a removedAt field in the schema
+  637 // We count all wishlist items as adds since items are deleted when removed
+  638 // Don't apply date filters to wishlistItem queries as they don't have timestamp field
+→ 639 const wishlistAdds = await this.prisma.wishlistItem.count({
+        select: {
+          _count: {
+            select: {
+              _all: true
+            }
+          }
+        },
+        timestamp: {
+        ~~~~~~~~~
+          gte: new Date("2024-01-01T00:00:00.000Z"),
+          lte: new Date("2024-12-31T00:00:00.000Z")
+        },
+      ? where?: WishlistItemWhereInput,
+      ? orderBy?: WishlistItemOrderByWithRelationInput[] | WishlistItemOrderByWithRelationInput,
+      ? cursor?: WishlistItemWhereUniqueInput,
+      ? take?: Int,
+      ? skip?: Int
+      })
+
+Unknown argument `timestamp`. Available options are marked with ?.
+16. [[32mPASS[0m] Service handles invalid date formats gracefully
+   Service threw meaningful error: 
+Invalid `this.prisma.cartEvent.count()` invocation in
+e:\Drive_D_Backup\Smart_Tech_B2C_Website_Rede
+17. [[32mPASS[0m] Service handles empty filters
+   Service returns data with no filters
+

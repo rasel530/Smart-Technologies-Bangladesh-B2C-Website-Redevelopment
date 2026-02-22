@@ -93,7 +93,7 @@ class UserRole {
    */
   async findActiveByUserId(userId) {
     try {
-      const userRoles = await this.db.getClient().user_roles.findMany({
+      const queryPromise = this.db.getClient().user_roles.findMany({
         where: {
           user_id: userId,
           is_active: true,
@@ -116,6 +116,12 @@ class UserRole {
           { assigned_at: 'desc' }
         ]
       });
+
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('RBAC query timeout after 5000ms')), 5000);
+      });
+
+      const userRoles = await Promise.race([queryPromise, timeoutPromise]);
 
       // Transform to match expected format
       return userRoles.map(ur => ({

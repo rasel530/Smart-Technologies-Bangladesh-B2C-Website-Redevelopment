@@ -1,0 +1,126 @@
+{
+  "environment": {
+    "backendRunning": true,
+    "frontendRunning": false,
+    "testStartTime": "2026-02-22T05:44:29.399Z"
+  },
+  "tests": [
+    {
+      "testName": "Admin Authentication",
+      "passed": true,
+      "details": {
+        "message": "Successfully authenticated"
+      },
+      "timestamp": "2026-02-22T05:44:29.993Z"
+    },
+    {
+      "testName": "Use Existing Data",
+      "passed": true,
+      "details": {
+        "provider": {
+          "id": "73d6b2dc-fcb4-4017-80ab-3539c0dd4003",
+          "code": "city-bank-emi-1",
+          "name": "City Bank EMI"
+        },
+        "plan": {
+          "id": "337cabf9-d462-4f0f-b14b-428e812641fe",
+          "code": "city-bank-emi-1-3m-1",
+          "name": "3 Months EMI"
+        }
+      },
+      "timestamp": "2026-02-22T05:44:29.994Z"
+    },
+    {
+      "testName": "Test 1: Delete EMI Plan by Code (was working before)",
+      "passed": true,
+      "details": {
+        "statusCode": 200,
+        "body": {
+          "success": true,
+          "message": "EMI plan deleted successfully",
+          "messageBn": "ইএমআই প্ল্যান সফলভাবে মুছে ফেলা হয়েছে"
+        },
+        "planCode": "city-bank-emi-1-3m-1"
+      },
+      "timestamp": "2026-02-22T05:44:30.172Z"
+    },
+    {
+      "testName": "Test 2: Delete EMI Plan by UUID (was failing before due to regex bug)",
+      "passed": true,
+      "details": {
+        "statusCode": 404,
+        "body": {
+          "success": false,
+          "error": "EMI plan not found",
+          "message": "EMI plan not found",
+          "messageBn": "ইএমআই প্ল্যান পাওয়া যায়নি"
+        },
+        "planId": "337cabf9-d462-4f0f-b14b-428e812641fe",
+        "note": "UUID regex fix: last segment changed from [0-9a-f]{4} to [0-9a-f]{12}"
+      },
+      "timestamp": "2026-02-22T05:44:30.313Z"
+    },
+    {
+      "testName": "Test 3: Delete EMI Plan with invalid UUID format (should return 400)",
+      "passed": false,
+      "details": {
+        "statusCode": 404,
+        "body": {
+          "success": false,
+          "error": "EMI plan not found",
+          "message": "EMI plan not found",
+          "messageBn": "ইএমআই প্ল্যান পাওয়া যায়নি"
+        },
+        "expected": 400,
+        "actual": 404
+      },
+      "timestamp": "2026-02-22T05:44:30.445Z"
+    },
+    {
+      "testName": "Test 4: Delete EMI Provider by Code (was working before)",
+      "passed": true,
+      "details": {
+        "statusCode": 200,
+        "body": {
+          "success": true,
+          "message": "EMI provider deleted successfully",
+          "messageBn": "ইএমআই প্রোভাইডার সফলভাবে মুছে ফেলা হয়েছে"
+        },
+        "providerCode": "city-bank-emi-1"
+      },
+      "timestamp": "2026-02-22T05:44:30.579Z"
+    },
+    {
+      "testName": "Test 5: Delete EMI Provider by UUID (was failing before due to regex bug)",
+      "passed": true,
+      "details": {
+        "statusCode": 404,
+        "body": {
+          "success": false,
+          "error": "EMI provider not found",
+          "message": "EMI provider not found",
+          "messageBn": "ইএমআই প্রোভাইডার পাওয়া যায়নি"
+        },
+        "providerId": "73d6b2dc-fcb4-4017-80ab-3539c0dd4003",
+        "note": "UUID regex fix: last segment changed from [0-9a-f]{4} to [0-9a-f]{12}"
+      },
+      "timestamp": "2026-02-22T05:44:30.711Z"
+    },
+    {
+      "testName": "Test 6: Delete EMI Provider with invalid UUID format (should return 400)",
+      "passed": false,
+      "details": {
+        "statusCode": 404,
+        "body": {
+          "success": false,
+          "error": "EMI provider not found",
+          "message": "EMI provider not found",
+          "messageBn": "ইএমআই প্রোভাইডার পাওয়া যায়নি"
+        },
+        "expected": 400,
+        "actual": 404
+      },
+      "timestamp": "2026-02-22T05:44:30.841Z"
+    }
+  ]
+}

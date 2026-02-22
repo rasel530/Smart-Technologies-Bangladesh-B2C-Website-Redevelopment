@@ -32,6 +32,8 @@ model User {
   deletedAt                                                       DateTime?
   accountDeletionRequests                                         AccountDeletionRequests[]
   addresses                                                       Address[]
+  cartWishlistMoveHistories                                       CartWishlistMoveHistory[]
+  cartWishlistSyncs                                               CartWishlistSync[]
   cart                                                            Cart?
   comparisonHistory                                               ComparisonHistory[]
   corporate_accounts_corporate_accounts_account_manager_idTousers CorporateAccount[]            @relation("corporate_accounts_account_manager_idTousers")
@@ -55,29 +57,34 @@ model User {
   userSearchPreferences                                           UserSearchPreferences?        @relation("UserSearchPreferencesUser")
   userSessions                                                    UserSession[]
   socialAccounts                                                  UserSocialAccount[]
-  wishlists                                                       Wishlist[]
   wishlistAnalytics                                               WishlistAnalytics[]
+  wishlists                                                       Wishlist[]
+  cartSmsSubscriptions                                            CartSmsSubscription[]
+  cartOfflineSyncs                                                CartOfflineSync[]
+  cartSmsLogs                                                     CartSmsLog[]
 
   @@map("users")
 }
 
 model Address {
-  id           String      @id @default(uuid())
-  userId       String
-  type         AddressType @default(shipping)
-  firstName    String
-  lastName     String
-  phone        String?
-  address      String
-  addressLine2 String?
-  city         String
-  district     String
-  division     Division
-  upazila      String?
-  postalCode   String?
-  isDefault    Boolean     @default(false)
-  user         User        @relation(fields: [userId], references: [id])
-  orders       Order[]
+  id               String            @id @default(uuid())
+  userId           String
+  type             AddressType       @default(shipping)
+  firstName        String
+  lastName         String
+  phone            String?
+  address          String
+  addressLine2     String?
+  city             String
+  district         String
+  division         Division
+  upazila          String?
+  postalCode       String?
+  isDefault        Boolean           @default(false)
+  user             User              @relation(fields: [userId], references: [id])
+  orders           Order[]
+  checkoutSessionsShippingAddress CheckoutSession[] @relation("CheckoutSessionShippingAddress")
+  checkoutSessionsBillingAddress  CheckoutSession[] @relation("CheckoutSessionBillingAddress")
 
   @@map("addresses")
 }
@@ -164,54 +171,55 @@ model Category {
 }
 
 model Product {
-  id                    String                  @id @default(uuid())
-  sku                   String                  @unique
-  name                  String
-  nameEn                String
-  nameBn                String?
-  slug                  String                  @unique
-  shortDescription      String?
-  description           String?
-  brandId               String
-  regularPrice          Decimal                 @db.Decimal(12, 2)
-  salePrice             Decimal?                @db.Decimal(12, 2)
-  costPrice             Decimal                 @db.Decimal(12, 2)
-  taxRate               Decimal                 @default(0) @db.Decimal(5, 2)
-  stockQuantity         Int                     @default(0)
-  lowStockThreshold     Int                     @default(10)
-  status                ProductStatus           @default(active)
-  metaTitle             String?
-  metaDescription       String?
-  metaKeywords          String?
-  isFeatured            Boolean                 @default(false)
-  isNewArrival          Boolean                 @default(false)
-  isBestSeller          Boolean                 @default(false)
-  warrantyPeriod        Int?
-  warrantyType          String?
-  createdAt             DateTime                @default(now())
-  updatedAt             DateTime                @updatedAt
-  publishedAt           DateTime?
-  visibility            ProductVisibility       @default(public)
-  cartItems             CartItem[]
-  corporate_pricing     CorporatePricing[]
-  crossSellProducts     CrossSellProduct[]      @relation("CrossSellSource")
-  crossSellFor          CrossSellProduct[]      @relation("CrossSellTarget")
-  orderItems            OrderItem[]
-  categories            ProductCategory[]
-  comparisonItems       ProductComparisonItem[]
-  images                ProductImage[]
-  specifications        ProductSpecification[]
-  variants              ProductVariant[]
-  brand                 Brand                   @relation(fields: [brandId], references: [id])
-  relatedProducts       RelatedProduct[]        @relation("RelatedSource")
-  relatedFor            RelatedProduct[]        @relation("RelatedTarget")
-  reviews               Review[]
-  searchClickTrackings  SearchClickTracking[]   @relation("ProductSearchClickTrackings")
-  searchRecommendations SearchRecommendations[] @relation("ProductSearchRecommendations")
-  upSellProducts        UpSellProduct[]         @relation("UpSellSource")
-  upSellFor             UpSellProduct[]         @relation("UpSellTarget")
-  variantTypes          VariantType[]
-  wishlistItems         WishlistItem[]
+  id                        String                    @id @default(uuid())
+  sku                       String                    @unique
+  name                      String
+  nameEn                    String
+  nameBn                    String?
+  slug                      String                    @unique
+  shortDescription          String?
+  description               String?
+  brandId                   String
+  regularPrice              Decimal                   @db.Decimal(12, 2)
+  salePrice                 Decimal?                  @db.Decimal(12, 2)
+  costPrice                 Decimal                   @db.Decimal(12, 2)
+  taxRate                   Decimal                   @default(0) @db.Decimal(5, 2)
+  stockQuantity             Int                       @default(0)
+  lowStockThreshold         Int                       @default(10)
+  status                    ProductStatus             @default(active)
+  metaTitle                 String?
+  metaDescription           String?
+  metaKeywords              String?
+  isFeatured                Boolean                   @default(false)
+  isNewArrival              Boolean                   @default(false)
+  isBestSeller              Boolean                   @default(false)
+  warrantyPeriod            Int?
+  warrantyType              String?
+  createdAt                 DateTime                  @default(now())
+  updatedAt                 DateTime                  @updatedAt
+  publishedAt               DateTime?
+  visibility                ProductVisibility         @default(public)
+  cartItems                 CartItem[]
+  cartWishlistMoveHistories CartWishlistMoveHistory[]
+  corporate_pricing         CorporatePricing[]
+  crossSellProducts         CrossSellProduct[]        @relation("CrossSellSource")
+  crossSellFor              CrossSellProduct[]        @relation("CrossSellTarget")
+  orderItems                OrderItem[]
+  categories                ProductCategory[]
+  comparisonItems           ProductComparisonItem[]
+  images                    ProductImage[]
+  specifications            ProductSpecification[]
+  variants                  ProductVariant[]
+  brand                     Brand                     @relation(fields: [brandId], references: [id])
+  relatedProducts           RelatedProduct[]          @relation("RelatedSource")
+  relatedFor                RelatedProduct[]          @relation("RelatedTarget")
+  reviews                   Review[]
+  searchClickTrackings      SearchClickTracking[]     @relation("ProductSearchClickTrackings")
+  searchRecommendations     SearchRecommendations[]   @relation("ProductSearchRecommendations")
+  upSellProducts            UpSellProduct[]           @relation("UpSellSource")
+  upSellFor                 UpSellProduct[]           @relation("UpSellTarget")
+  variantTypes              VariantType[]
+  wishlistItems             WishlistItem[]
 
   @@index([status])
   @@index([visibility])
@@ -369,29 +377,90 @@ model RelatedProduct {
 }
 
 model Cart {
-  id           String           @id @default(uuid())
-  userId       String?          @unique @map("user_id")
-  sessionId    String?          @map("session_id")
-  createdAt    DateTime         @default(now()) @map("created_at")
-  updatedAt    DateTime         @updatedAt @map("updated_at")
-  expiresAt    DateTime?        @map("expires_at")
-  subtotal     Decimal          @default(0) @map("subtotal") @db.Decimal(12, 2)
-  tax          Decimal          @default(0) @map("tax") @db.Decimal(12, 2)
-  shippingCost Decimal          @default(0) @map("shipping_cost") @db.Decimal(12, 2)
-  discount     Decimal          @default(0) @map("discount") @db.Decimal(12, 2)
-  total        Decimal          @default(0) @map("total") @db.Decimal(12, 2)
-  status       CartStatus       @default(active) @map("status")
-  analytics    CartAnalytics?
-  cartEvents   CartEvent[]
-  items        CartItem[]
-  shareTokens  CartShareToken[]
-  user         User?            @relation(fields: [userId], references: [id])
+  id                   String              @id @default(uuid())
+  userId               String?             @unique @map("user_id")
+  sessionId            String?             @map("session_id")
+  createdAt            DateTime            @default(now()) @map("created_at")
+  updatedAt            DateTime            @updatedAt @map("updated_at")
+  expiresAt            DateTime?           @map("expires_at")
+  subtotal             Decimal             @default(0) @map("subtotal") @db.Decimal(12, 2)
+  tax                  Decimal             @default(0) @map("tax") @db.Decimal(12, 2)
+  shippingCost         Decimal             @default(0) @map("shipping_cost") @db.Decimal(12, 2)
+  discount             Decimal             @default(0) @map("discount") @db.Decimal(12, 2)
+  total                Decimal             @default(0) @map("total") @db.Decimal(12, 2)
+  status               CartStatus          @default(active) @map("status")
+  abandonedAt          DateTime?           @map("abandoned_at")
+  recoveredAt          DateTime?           @map("recovered_at")
+  recoveryToken        String?             @unique @map("recovery_token") @db.VarChar(255)
+  recoveryTokenExpires DateTime?           @map("recovery_token_expires")
+  recoveryAttempts     Int                 @default(0) @map("recovery_attempts")
+  recoveryEmailSentAt  DateTime?           @map("recovery_email_sent_at")
+  reminderCount        Int                 @default(0) @map("reminder_count")
+  lastReminderAt       DateTime?           @map("last_reminder_at")
+  abandonmentReason    String?             @map("abandonment_reason") @db.VarChar(255)
+  recoveryNotes        String?             @map("recovery_notes")
+  discountCode         String?             @map("discount_code") @db.VarChar(50)
+  discountAmount       Decimal?            @map("discount_amount") @db.Decimal(10, 2)
+  lastRecoveryAt       DateTime?           @map("last_recovery_at")
+  analytics            CartAnalytics?
+  cartEvents           CartEvent[]
+  items                CartItem[]
+  recoveryEvents       CartRecoveryEvent[]
+  shareTokens          CartShareToken[]
+  cartWishlistSyncs    CartWishlistSync[]
+  user                 User?               @relation(fields: [userId], references: [id])
+  cartOfflineSyncs     CartOfflineSync[]
+  checkoutSessions     CheckoutSession[]
+  guestSessions        GuestSession[]
 
-  @@index([userId])
-  @@index([sessionId])
   @@index([expiresAt])
+  @@index([sessionId])
   @@index([status])
+  @@index([userId])
+  @@index([abandonedAt], map: "idx_carts_abandoned_at")
+  @@index([lastRecoveryAt], map: "idx_carts_last_recovery_at")
+  @@index([recoveredAt], map: "idx_carts_recovered_at")
+  @@index([recoveryToken], map: "idx_carts_recovery_token")
   @@map("carts")
+}
+
+model CartRecoveryEvent {
+  id        String   @id @default(uuid()) @map("id")
+  cartId    String   @map("cart_id")
+  eventType String   @map("event_type") @db.VarChar(50)
+  email     String?  @map("email") @db.VarChar(255)
+  ipAddress String?  @map("ip_address") @db.VarChar(45)
+  userAgent String?  @map("user_agent")
+  metadata  Json?    @map("metadata")
+  createdAt DateTime @default(now()) @map("created_at")
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  @@index([cartId], map: "idx_cart_recovery_events_cart_id")
+  @@index([createdAt], map: "idx_cart_recovery_events_created_at")
+  @@index([eventType], map: "idx_cart_recovery_events_event_type")
+  @@map("cart_recovery_events")
+}
+
+model CartRecoverySettings {
+  id                       String   @id @default(dbgenerated("gen_random_uuid()")) @map("id") @db.Uuid
+  enabled                  Boolean  @default(true) @map("enabled")
+  firstEmailDelay          Int      @default(1) @map("first_email_delay")
+  secondEmailDelay         Int      @default(24) @map("second_email_delay")
+  thirdEmailDelay          Int      @default(72) @map("third_email_delay")
+  discountEnabled          Boolean  @default(true) @map("discount_enabled")
+  discountPercentage       Int      @default(10) @map("discount_percentage")
+  discountCode             String   @default("COMEBACK10") @map("discount_code") @db.VarChar(50)
+  maxRecoveryAttempts      Int      @default(3) @map("max_recovery_attempts")
+  minCartValue             Decimal  @default(1000) @map("min_cart_value") @db.Decimal(12, 2)
+  emailFromName            String   @default("Smart Tech") @map("email_from_name") @db.VarChar(100)
+  emailFromAddress         String   @default("noreply@smarttech.com") @map("email_from_address") @db.VarChar(255)
+  cartAbandonmentThreshold Int      @default(30) @map("cart_abandonment_threshold")
+  recoveryTokenExpiry      Int      @default(7) @map("recovery_token_expiry")
+  createdAt                DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([updatedAt], map: "idx_cart_recovery_settings_updated")
+  @@map("cart_recovery_settings")
 }
 
 model CartItem {
@@ -414,13 +483,14 @@ model CartItem {
 }
 
 model CartAnalytics {
-  id               String   @id @default(uuid()) @map("id")
-  cartId           String   @unique @map("cart_id")
-  events           Json     @default("{}") @map("events")
-  conversionFunnel Json     @default("{}") @map("conversion_funnel")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
-  cart             Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  id                 String   @id @default(uuid()) @map("id")
+  cartId             String   @unique @map("cart_id")
+  events             Json     @default("{}") @map("events")
+  conversionFunnel   Json     @default("{}") @map("conversion_funnel")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  abandonmentReasons Json     @default("[]") @map("abandonment_reasons")
+  cart               Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
 
   @@index([cartId])
   @@map("cart_analytics")
@@ -438,10 +508,10 @@ model CartEvent {
   cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
 
   @@index([cartId])
-  @@index([userId])
+  @@index([cartId, timestamp])
   @@index([eventType])
   @@index([timestamp])
-  @@index([cartId, timestamp])
+  @@index([userId])
   @@map("cart_events")
 }
 
@@ -460,18 +530,19 @@ model CartShareToken {
 }
 
 model Wishlist {
-  id         String              @id @default(uuid()) @map("id")
-  userId     String              @map("user_id")
-  name       String?             @map("name")
-  isDefault  Boolean             @default(false) @map("is_default")
-  isPublic   Boolean             @default(false) @map("is_public")
-  shareToken String?             @unique @map("share_token")
-  createdAt  DateTime            @default(now()) @map("created_at")
-  updatedAt  DateTime            @updatedAt @map("updated_at")
-  expiresAt  DateTime?           @map("expires_at")
-  items      WishlistItem[]
-  analytics  WishlistAnalytics[]
-  user       User                @relation(fields: [userId], references: [id])
+  id                String              @id @default(uuid()) @map("id")
+  name              String?             @map("name")
+  createdAt         DateTime            @default(now()) @map("created_at")
+  expiresAt         DateTime?           @map("expires_at")
+  isDefault         Boolean             @default(false) @map("is_default")
+  isPublic          Boolean             @default(false) @map("is_public")
+  shareToken        String?             @unique @map("share_token")
+  updatedAt         DateTime            @updatedAt @map("updated_at")
+  userId            String              @map("user_id")
+  cartWishlistSyncs CartWishlistSync[]
+  analytics         WishlistAnalytics[]
+  items             WishlistItem[]
+  user              User                @relation(fields: [userId], references: [id])
 
   @@unique([userId, isDefault], name: "unique_user_default")
   @@index([shareToken])
@@ -481,9 +552,9 @@ model Wishlist {
 
 model WishlistItem {
   id         String   @id @default(uuid()) @map("id")
-  wishlistId String   @map("wishlist_id")
-  productId  String   @map("product_id")
   addedAt    DateTime @default(now()) @map("added_at")
+  productId  String   @map("product_id")
+  wishlistId String   @map("wishlist_id")
   product    Product  @relation(fields: [productId], references: [id])
   wishlist   Wishlist @relation(fields: [wishlistId], references: [id])
 
@@ -523,6 +594,7 @@ model Order {
   status             OrderStatus       @default(pending)
   notes              String?
   internalNotes      String?
+  paymentDetails     Json?
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
   confirmedAt        DateTime?
@@ -1162,6 +1234,349 @@ model CartNote {
   @@index([cartId])
 }
 
+model CartWishlistSync {
+  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String      @map("user_id")
+  cartId       String?     @map("cart_id")
+  wishlistId   String?     @map("wishlist_id")
+  lastSyncAt   DateTime?   @map("last_sync_at") @db.Timestamp(6)
+  errorMessage String?     @map("error_message")
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime    @default(now()) @map("updated_at") @db.Timestamp(6)
+  syncStatus   SyncStatus? @map("sync_status")
+  cart         Cart?       @relation(fields: [cartId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  wishlist     Wishlist?   @relation(fields: [wishlistId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([cartId], map: "idx_cart_wishlist_sync_cart_id")
+  @@index([lastSyncAt(sort: Desc)], map: "idx_cart_wishlist_sync_last_sync")
+  @@index([userId], map: "idx_cart_wishlist_sync_user_id")
+  @@index([wishlistId], map: "idx_cart_wishlist_sync_wishlist_id")
+  @@map("cart_wishlist_sync")
+}
+
+model CartWishlistMoveHistory {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String    @map("user_id")
+  productId     String    @map("product_id")
+  quantity      Int?      @default(1)
+  sourceId      String?   @map("source_id")
+  destinationId String?   @map("destination_id")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  moveType      MoveType? @map("move_type")
+  product       Product   @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([createdAt(sort: Desc)], map: "idx_move_history_created_at")
+  @@index([destinationId], map: "idx_move_history_destination_id")
+  @@index([productId], map: "idx_move_history_product_id")
+  @@index([sourceId], map: "idx_move_history_source_id")
+  @@index([userId], map: "idx_move_history_user_id")
+  @@map("cart_wishlist_move_history")
+}
+
+model EmiProvider {
+  id            String    @id
+  code          String    @unique
+  name          String
+  logoUrl       String?   @map("logo_url")
+  website       String?
+  isActive      Boolean   @default(true) @map("is_active")
+  minAmount     Decimal   @map("min_amount") @db.Decimal(12, 2)
+  maxAmount     Decimal   @map("max_amount") @db.Decimal(12, 2)
+  processingFee Decimal   @default(0) @map("processing_fee") @db.Decimal(12, 2)
+  interestRate  Decimal   @default(0) @map("interest_rate") @db.Decimal(5, 2)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  emiPlans      EmiPlan[]
+
+  @@index([isActive], map: "idx_emi_providers_is_active")
+  @@map("emi_providers")
+}
+
+model EmiPlan {
+  id            String      @id
+  providerId    String      @map("provider_id")
+  code          String      @unique @map("code")
+  name          String
+  duration      Int
+  interestRate  Decimal     @map("interest_rate") @db.Decimal(5, 2)
+  minAmount     Decimal     @map("min_amount") @db.Decimal(12, 2)
+  maxAmount     Decimal     @map("max_amount") @db.Decimal(12, 2)
+  processingFee Decimal     @default(0) @map("processing_fee") @db.Decimal(12, 2)
+  downPayment   Decimal     @default(0) @map("down_payment") @db.Decimal(12, 2)
+  isActive      Boolean     @default(true) @map("is_active")
+  displayOrder  Int         @default(0) @map("display_order")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+  provider      EmiProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([isActive], map: "idx_emi_plans_is_active")
+  @@index([providerId], map: "idx_emi_plans_provider_id")
+  @@map("emi_plans")
+}
+
+model CodSettings {
+  id                           String   @id @default(uuid())
+  is_enabled                   Boolean  @default(true)
+  min_amount                   Decimal  @default(0) @db.Decimal(12, 2)
+  max_amount                   Decimal  @default(100000) @db.Decimal(12, 2)
+  available_divisions          String[] @default(["dhaka", "chittagong", "khulna", "rajshahi", "sylhet", "barishal", "rangpur", "mymensingh"])
+  unavailable_divisions        String[] @default([])
+  additional_fee               Decimal  @default(0) @db.Decimal(12, 2)
+  free_above_amount            Decimal  @default(0) @db.Decimal(12, 2)
+  require_phone_verification   Boolean  @default(false)
+  require_address_verification Boolean  @default(false)
+  max_daily_orders             Int      @default(5)
+  max_weekly_orders            Int      @default(10)
+  delivery_days                Int      @default(3)
+  notes                        String?
+  created_at                   DateTime @default(now())
+  updated_at                   DateTime
+
+  @@map("cod_settings")
+}
+
+model LocalPaymentMethod {
+  id                   String   @id @default(uuid())
+  name                 String
+  code                 String   @unique
+  displayName          String
+  logoUrl              String?
+  isActive             Boolean  @default(true)
+  minAmount            Decimal  @default(10) @db.Decimal(12, 2)
+  maxAmount            Decimal  @default(200000) @db.Decimal(12, 2)
+  processingFee        Decimal  @default(0) @db.Decimal(12, 2)
+  processingFeePercent Decimal  @default(0) @db.Decimal(5, 2)
+  requiresPhone        Boolean  @default(true)
+  requiresPin          Boolean  @default(false)
+  description          String?
+  instructions         String?
+  supportedNetworks    String[]
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([isActive])
+  @@map("local_payment_methods")
+}
+
+model SmsSubscription {
+  id            String    @id @default(uuid())
+  userId        String    @unique
+  phoneNumber   String    @unique
+  paymentMethod String
+  isSubscribed  Boolean   @default(true)
+  transactionId String?
+  lastPaymentAt DateTime?
+  nextPaymentAt DateTime?
+  amount        Decimal   @db.Decimal(12, 2)
+  status        String    @default("active")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([paymentMethod])
+  @@map("sms_subscriptions")
+}
+
+model OfflineCartChange {
+  id             String    @id @default(uuid())
+  userId         String?
+  sessionId      String?
+  deviceId       String
+  action         String
+  productId      String?
+  variantId      String?
+  quantity       Int?
+  previousValue  Json?
+  newValue       Json?
+  isSynced       Boolean   @default(false)
+  syncedAt       DateTime?
+  failedAttempts Int       @default(0)
+  errorMessage   String?
+  createdAt      DateTime  @default(now())
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([deviceId])
+  @@index([isSynced])
+  @@map("offline_cart_changes")
+}
+
+model CartAnalyticsBd {
+  id               String   @id @default(uuid())
+  userId           String?
+  sessionId        String?
+  deviceId         String
+  platform         String
+  deviceType       String?
+  browser          String?
+  networkType      String?
+  networkSpeed     String?
+  screenResolution String?
+  cartId           String?
+  action           String
+  productId        String?
+  paymentMethod    String?
+  emiPlanId        String?
+  duration         Int?
+  pageCount        Int?
+  touchCount       Int?
+  scrollDepth      Int?
+  metadata         Json?
+  createdAt        DateTime @default(now())
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([deviceId])
+  @@index([platform])
+  @@index([action])
+  @@index([createdAt])
+  @@map("cart_analytics_bd")
+}
+
+model CartSmsSubscription {
+  id             String       @id @default(uuid())
+  userId         String       @unique @map("user_id")
+  phoneNumber    String       @map("phone_number")
+  events         String[]
+  isActive       Boolean      @default(true) @map("is_active")
+  unsubscribedAt DateTime?    @map("unsubscribed_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  smsLogs        CartSmsLog[]
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_cart_sms_subscription_user_id")
+  @@index([phoneNumber], map: "idx_cart_sms_subscription_phone_number")
+  @@index([isActive], map: "idx_cart_sms_subscription_is_active")
+  @@index([createdAt], map: "idx_cart_sms_subscription_created_at")
+  @@map("cart_sms_subscription")
+}
+
+model CartOfflineSync {
+  id                String   @id @default(uuid())
+  userId            String   @map("user_id")
+  cartId            String?  @map("cart_id")
+  deviceId          String?  @map("device_id")
+  lastSyncAt        DateTime @map("last_sync_at")
+  version           Int      @default(1)
+  syncedItemsCount  Int      @default(0) @map("synced_items_count")
+  conflictsResolved Int      @default(0) @map("conflicts_resolved")
+  syncStatus        String   @default("idle") @map("sync_status")
+  lastError         String?  @map("last_error")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  cart              Cart?    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_cart_offline_sync_user_id")
+  @@index([cartId], map: "idx_cart_offline_sync_cart_id")
+  @@index([deviceId], map: "idx_cart_offline_sync_device_id")
+  @@index([lastSyncAt], map: "idx_cart_offline_sync_last_sync_at")
+  @@index([syncStatus], map: "idx_cart_offline_sync_sync_status")
+  @@map("cart_offline_sync")
+}
+
+model CartSmsLog {
+  id             String              @id @default(uuid())
+  userId         String              @map("user_id")
+  subscriptionId String              @map("subscription_id")
+  eventType      String              @map("event_type")
+  phoneNumber    String              @map("phone_number")
+  messageId      String?             @map("message_id")
+  status         String              @default("pending")
+  errorMessage   String?             @map("error_message")
+  sentAt         DateTime            @default(now()) @map("sent_at")
+  createdAt      DateTime            @default(now()) @map("created_at")
+  subscription   CartSmsSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_cart_sms_log_user_id")
+  @@index([subscriptionId], map: "idx_cart_sms_log_subscription_id")
+  @@index([eventType], map: "idx_cart_sms_log_event_type")
+  @@index([status], map: "idx_cart_sms_log_status")
+  @@index([sentAt], map: "idx_cart_sms_log_sent_at")
+  @@map("cart_sms_log")
+}
+
+model CheckoutSession {
+  id                   String                @id @default(uuid()) @map("id")
+  userId               String?               @map("user_id")
+  sessionId            String?               @map("session_id")
+  currentStep          String                @default("address") @map("current_step")
+  shippingAddressId    String?               @map("shipping_address_id")
+  billingAddressId     String?               @map("billing_address_id")
+  shippingMethod       String?               @map("shipping_method")
+  paymentMethod        String?               @map("payment_method")
+  cartId               String                @map("cart_id")
+  metadata             Json?                 @map("metadata")
+  status               String                @default("active") @map("status")
+  completedAt          DateTime?             @map("completed_at")
+  expiresAt            DateTime?             @map("expires_at")
+  createdAt            DateTime              @default(now()) @map("created_at")
+  updatedAt            DateTime              @updatedAt @map("updated_at")
+  cart                 Cart                  @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  checkoutAbandonments CheckoutAbandonment[]
+  shippingAddress      Address?              @relation("CheckoutSessionShippingAddress", fields: [shippingAddressId], references: [id])
+  billingAddress       Address?              @relation("CheckoutSessionBillingAddress", fields: [billingAddressId], references: [id])
+
+  @@index([sessionId], map: "idx_checkout_sessions_session_id")
+  @@index([userId], map: "idx_checkout_sessions_user_id")
+  @@index([cartId], map: "idx_checkout_sessions_cart_id")
+  @@index([status], map: "idx_checkout_sessions_status")
+  @@map("checkout_sessions")
+}
+
+model CheckoutAbandonment {
+  id                  String          @id @default(uuid()) @map("id")
+  checkoutSessionId   String          @map("checkout_session_id")
+  userId              String?         @map("user_id")
+  sessionId           String?         @map("session_id")
+  abandonmentStep     String          @map("abandonment_step")
+  abandonmentReason   String?         @map("abandonment_reason")
+  cartValue           Decimal         @map("cart_value") @db.Decimal(12, 2)
+  itemCount           Int             @map("item_count")
+  recoveryEmailSent   Boolean         @default(false) @map("recovery_email_sent")
+  recoveryEmailSentAt DateTime?       @map("recovery_email_sent_at")
+  recovered           Boolean         @default(false) @map("recovered")
+  recoveredAt         DateTime?       @map("recovered_at")
+  recoveryAttempts    Int             @default(0) @map("recovery_attempts")
+  ipAddress           String?         @map("ip_address")
+  userAgent           String?         @map("user_agent")
+  createdAt           DateTime        @default(now()) @map("created_at")
+  updatedAt           DateTime        @updatedAt @map("updated_at")
+  checkoutSession     CheckoutSession @relation(fields: [checkoutSessionId], references: [id], onDelete: Cascade)
+
+  @@index([checkoutSessionId], map: "idx_checkout_abandonment_checkout_session_id")
+  @@index([userId], map: "idx_checkout_abandonment_user_id")
+  @@index([sessionId], map: "idx_checkout_abandonment_session_id")
+  @@index([recovered], map: "idx_checkout_abandonment_recovered")
+  @@map("checkout_abandonment")
+}
+
+model GuestSession {
+  id                String    @id @default(uuid()) @map("id")
+  sessionId         String    @unique @map("session_id")
+  email             String?   @map("email")
+  phone             String?   @map("phone")
+  firstName         String?   @map("first_name")
+  lastName          String?   @map("last_name")
+  cartId            String    @map("cart_id")
+  metadata          Json?     @map("metadata")
+  lastActivityAt    DateTime  @map("last_activity_at")
+  expiresAt         DateTime  @map("expires_at")
+  convertedToUserId String?   @map("converted_to_user_id")
+  convertedAt       DateTime? @map("converted_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  cart              Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId], map: "idx_guest_sessions_session_id")
+  @@index([cartId], map: "idx_guest_sessions_cart_id")
+  @@index([expiresAt], map: "idx_guest_sessions_expires_at")
+  @@map("guest_sessions")
+}
+
 enum BrandStatus {
   active
   inactive
@@ -1197,6 +1612,9 @@ enum Division {
 enum AddressType {
   shipping
   billing
+  home
+  work
+  other
 }
 
 enum ProductStatus {
@@ -1229,6 +1647,8 @@ enum PaymentMethod {
   credit_card
   bank_transfer
   cash_on_delivery
+  emi
+  mcash
   bkash
   nagad
   rocket
@@ -1269,4 +1689,16 @@ enum CartStatus {
   abandoned
   converted
   expired
+}
+
+enum SyncStatus {
+  pending
+  syncing
+  completed
+  failed
+}
+
+enum MoveType {
+  cart_to_wishlist
+  wishlist_to_cart
 }

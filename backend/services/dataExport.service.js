@@ -266,7 +266,7 @@ class DataExportService {
               select: {
                 productId: true,
                 quantity: true,
-                price: true,
+                unitPrice: true,
                 product: {
                   select: {
                     name: true,
@@ -291,7 +291,7 @@ class DataExportService {
             productName: item.product.name,
             productSku: item.product.sku,
             quantity: item.quantity,
-            price: item.price
+            price: item.unitPrice
           }))
         }));
       }
@@ -349,7 +349,8 @@ class DataExportService {
                 id: true,
                 name: true,
                 sku: true,
-                price: true,
+                regularPrice: true,
+                salePrice: true,
                 description: true,
                 images: true
               }
@@ -358,16 +359,24 @@ class DataExportService {
           orderBy: { createdAt: 'desc' }
         });
 
-        userData.wishlist = wishlist.map(item => ({
-          id: item.id,
-          productId: item.productId,
-          productName: item.product.name,
-          productSku: item.product.sku,
-          price: item.product.price,
-          description: item.product.description,
-          images: item.product.images,
-          addedAt: item.createdAt
-        }));
+        userData.wishlist = wishlist.map(item => {
+          // Use salePrice if available and valid, otherwise use regularPrice
+          const hasValidSalePrice = item.product.salePrice &&
+                                        parseFloat(item.product.salePrice) > 0 &&
+                                        parseFloat(item.product.salePrice) < parseFloat(item.product.regularPrice);
+          const price = hasValidSalePrice ? item.product.salePrice : item.product.regularPrice;
+          
+          return {
+            id: item.id,
+            productId: item.productId,
+            productName: item.product.name,
+            productSku: item.product.sku,
+            price: price,
+            description: item.product.description,
+            images: item.product.images,
+            addedAt: item.createdAt
+          };
+        });
       }
 
       return userData;

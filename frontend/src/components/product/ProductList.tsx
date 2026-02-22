@@ -11,7 +11,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ProductWithRelations, SearchResult } from '@/types/product';
 import { ProductPrice } from './ProductPrice';
 import { Pagination } from './Pagination';
@@ -112,7 +112,8 @@ const ProductListItem: React.FC<ProductListItemProps> = ({
   isWishlisted = false
 }) => {
   const [imageError, setImageError] = React.useState(false);
-  
+  const router = useRouter();
+
   // Get primary image or fallback
   const primaryImage = product.images?.[0];
   const imageUrl = primaryImage ? getImageUrl(primaryImage, 'medium') : '';
@@ -143,10 +144,27 @@ const ProductListItem: React.FC<ProductListItemProps> = ({
     }
   };
 
+  // Handle click navigation
+  const handleClick = () => {
+    router.push(`/products/${product.slug}`);
+  };
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
   return (
-    <Link
-      href={`/products/${product.slug}`}
-      className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col sm:flex-row"
+    <div
+      className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col sm:flex-row cursor-pointer"
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label={`View ${product.name} product details`}
     >
       {/* Product Image */}
       <div className="relative w-full sm:w-32 sm:h-32 md:w-48 md:h-48 bg-gray-100 flex-shrink-0">
@@ -290,7 +308,7 @@ const ProductListItem: React.FC<ProductListItemProps> = ({
           </button>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 

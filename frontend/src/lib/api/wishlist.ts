@@ -145,4 +145,10 @@ export const wishlistApi = {
   },
 };
 
+// Named exports for compatibility
+export const getWishlists = wishlistApi.getWishlists;
+export const createWishlist = wishlistApi.createWishlist;
+export const addItemToWishlist = wishlistApi.addItemToWishlist;
+export const addProductsToWishlist = wishlistApi.addItemToWishlist; // Alias for compatibility
+
 export default wishlistApi;

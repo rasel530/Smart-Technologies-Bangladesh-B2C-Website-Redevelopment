@@ -1,0 +1,52 @@
+{
+  "timestamp": "2026-02-22T04:58:24.033Z",
+  "environment": {
+    "backend": "http://localhost:3001",
+    "frontend": "http://localhost:3000"
+  },
+  "tests": [
+    {
+      "test": "Health Check",
+      "passed": true,
+      "timestamp": "2026-02-22T04:58:24.068Z",
+      "message": "Backend server is healthy and responding",
+      "statusCode": 200,
+      "response": {
+        "status": "OK"
+      }
+    },
+    {
+      "test": "Admin Authentication",
+      "passed": false,
+      "timestamp": "2026-02-22T04:58:24.577Z",
+      "message": "Failed to authenticate admin user",
+      "statusCode": 200,
+      "response": {
+        "message": "Login successful",
+        "messageBn": "লগিন সফল",
+        "user": {
+          "id": "ea59bf47-4b66-431d-ba63-a0a69437798f",
+          "email": "admin@smarttech.com",
+          "phone": null,
+          "firstName": "Admin",
+          "lastName": "User",
+          "role": "admin",
+          "status": "active"
+        },
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlYTU5YmY0Ny00YjY2LTQzMWQtYmE2My1hMGE2OTQzNzc5OGYiLCJlbWFpbCI6ImFkbWluQHNtYXJ0dGVjaC5jb20iLCJwaG9uZSI6bnVsbCwicm9sZSI6ImFkbWluIiwic2Vzc2lvbklkIjoiMzMyMWFhN2NkNzIyMTIwZDc4ODVhYTcwMTEzMzA5OTQ4ZmMzMGEwOTRmNzNlYmVjN2M3Zjc5YjFjMWE4NmI5NiIsImlhdCI6MTc3MTczNjMwNCwiZXhwIjoxNzcyMzQxMTA0LCJhdWQiOiJzbWFydC1lY29tbWVyY2UtY2xpZW50cyIsImlzcyI6InNtYXJ0LWVjb21tZXJjZS1hcGkifQ.Y7E8bx5Fc6PY-VnIvFprlJp1_08aJnUbJdHeaJQiXXY",
+        "sessionId": "3321aa7cd722120d7885aa70113309948fc30a094f73ebec7c7f79b1c1a86b96",
+        "expiresAt": "2026-02-23T04:58:24.561Z",
+        "maxAge": 86400000,
+        "loginType": "email",
+        "rememberMe": false,
+        "rememberToken": null
+      }
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "passed": 1,
+    "failed": 1,
+    "passRate": "50.00%"
+  }
+}

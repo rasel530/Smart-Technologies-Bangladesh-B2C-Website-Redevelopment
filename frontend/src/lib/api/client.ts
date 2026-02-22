@@ -17,6 +17,8 @@ interface RequestOptions {
     unwrapResponse?: boolean; // Flag to control whether to unwrap the response data (default: true)
     skipDeduplication?: boolean; // Flag to skip request deduplication (used for retries after token refresh)
     forceToken?: string; // Force specific token to be used (bypasses getToken())
+    retries?: number; // Number of retry attempts for timeout errors
+    retryDelay?: number; // Base delay between retries in milliseconds
 }
 
 // API error class
@@ -32,7 +34,7 @@ class ApiError extends Error {
 }
 
 // Token management
-// Track the latest session token from NextAuth for race condition fix
+// Track of latest session token from NextAuth for race condition fix
 let cachedSessionToken: string | null = null;
 
 // Persistent guest session ID to maintain consistency across page reloads
@@ -170,7 +172,7 @@ const setToken = async (token: string): Promise<void> => {
             await tokenUpdateLock;
         }
         
-        // Acquire the lock
+        // Acquire lock
         tokenUpdateLock = (async () => {
             console.log('[API Client] Acquiring token update lock...');
             console.log('[API Client] ATOMIC TOKEN UPDATE START:', {
@@ -179,11 +181,11 @@ const setToken = async (token: string): Promise<void> => {
                 currentCachedToken: cachedSessionToken ? cachedSessionToken.substring(0, 20) + '...' : 'null',
                 currentLocalStorageToken: localStorage.getItem('auth_token')?.substring(0, 20) + '...' || 'null'
             });
-            
+             
             // DIAGNOSTIC LOGGING - Token to be stored
             console.log('[API Client] Token to be stored - length:', token?.length);
             console.log('[API Client] Token preview:', token?.substring(0, 50) + '...');
-            
+             
             // Add diagnostic logging:
             console.log('[API Client] Token generation details:', {
                 tokenLength: token.length,
@@ -191,15 +193,15 @@ const setToken = async (token: string): Promise<void> => {
                 timestamp: new Date().toISOString(),
                 payload: JSON.parse(atob(token.split('.')[1]))
             });
-            
+             
             // Update both localStorage and cache in a single logical operation
             localStorage.setItem('auth_token', token);
             cachedSessionToken = token;
-            
+             
             // DIAGNOSTIC LOGGING - After storage
             console.log('[API Client] Token stored to localStorage - length:', localStorage.getItem('auth_token')?.length);
             console.log('[API Client] Token preview after storage:', localStorage.getItem('auth_token')?.substring(0, 50) + '...');
-            
+             
             console.log('[API Client] ATOMIC TOKEN UPDATE COMPLETE:', {
                 storedInLocalStorage: !!localStorage.getItem('auth_token'),
                 cached: !!cachedSessionToken,
@@ -245,6 +247,7 @@ const removeRememberToken = (): void => {
 };
 
 // Fix 1: Atomic Token Refresh with Mutex
+// Fix 1: Atomic Token Refresh with Mutex
 // Replace isRefreshing flag with Promise-based mutex
 let refreshPromise: Promise<string> | null = null;
 let refreshSubscribers: Array<(token: string) => void> = [];
@@ -278,23 +281,23 @@ const onTokenRefreshed = (token: string) => {
 // Refresh access token
 const refreshAccessToken = async (): Promise<string | null> => {
     console.log('[API Client] refreshAccessToken called');
-
+    
     try {
         const token = getToken();
         const rememberToken = getRememberToken();
-
+        
         console.log('[API Client] Token refresh attempt:', {
             hasToken: !!token,
             hasRememberToken: !!rememberToken,
             tokenLength: token?.length,
             rememberTokenLength: rememberToken?.length
         });
-
+        
         if (!token && !rememberToken) {
             console.log('[API Client] No tokens available for refresh');
             return null;
         }
-
+        
         // Add token integrity check
         if (token) {
             try {
@@ -322,13 +325,13 @@ const refreshAccessToken = async (): Promise<string | null> => {
                 return null;
             }
         }
-
+        
         let url: string;
         let body: any;
         const headers: Record<string, string> = {
             'Content-Type': 'application/json',
         };
-
+        
         if (rememberToken) {
             // Use remember me token refresh endpoint
             url = `${API_BASE_URL}/auth/refresh-from-remember-me`;
@@ -338,16 +341,16 @@ const refreshAccessToken = async (): Promise<string | null> => {
             url = `${API_BASE_URL}/auth/refresh`;
             body = { token: token };
         }
-
+        
         console.log('[API Client] Making refresh request to:', url);
         const response = await fetch(url, {
             method: 'POST',
             headers,
             body: JSON.stringify(body),
         });
-
+        
         console.log('[API Client] Refresh response status:', response.status);
-
+        
         if (!response.ok) {
             console.error('[API Client] Token refresh failed:', {
                 status: response.status,
@@ -356,18 +359,18 @@ const refreshAccessToken = async (): Promise<string | null> => {
                 tokenLength: token?.length,
                 timestamp: new Date().toISOString()
             });
-            
+             
             // If refresh fails, clear tokens
             removeToken();
             removeRememberToken();
             console.log('[API Client] Token refresh failed:', response.status);
             return null;
         }
-
+        
         const data = await response.json();
-
+        
         let newToken: string;
-
+        
         // Handle different response formats
         if (rememberToken) {
             // Remember me refresh returns data directly
@@ -402,12 +405,12 @@ const refreshAccessToken = async (): Promise<string | null> => {
                 return null;
             }
         }
-
+        
         // Fix 4: Store token atomically before notifying subscribers
         console.log('[API Client] Storing refreshed token atomically...');
         await setToken(newToken);
         console.log('[API Client] Token stored successfully, now ready to notify subscribers');
-
+        
         return newToken;
     } catch (error) {
         // Clear tokens on refresh failure
@@ -422,7 +425,6 @@ const refreshAccessToken = async (): Promise<string | null> => {
 const addAuthHeader = (headers: Record<string, string> = {}, forceToken?: string): Record<string, string> => {
   const authHeaders: Record<string, string> = {
     ...headers,
-    'Content-Type': 'application/json',
   };
   
   // Only try to get token on client side
@@ -463,10 +465,10 @@ const addAuthHeader = (headers: Record<string, string> = {}, forceToken?: string
           sessionIdLength: guestSessionId.length
         });
       }
-    }
   }
-  
-  return authHeaders;
+}
+
+return authHeaders;
 };
 
 // Response handler with automatic token refresh
@@ -476,7 +478,7 @@ const handleResponse = async (
 ): Promise<any> => {
     const contentType = response.headers.get('content-type');
     const isJson = contentType?.includes('application/json');
-
+    
     let data;
     try {
         // Handle 304 Not Modified - return empty object or cached data
@@ -490,21 +492,21 @@ const handleResponse = async (
     } catch (error) {
         throw new ApiError('Failed to parse response', response.status);
     }
-
+    
     // Handle 401 Unauthorized - attempt token refresh
     // Skip token refresh for login endpoints as 401 on login means invalid credentials, not expired token
     const isLoginEndpoint = originalRequest?.endpoint?.startsWith('/auth/login');
     const isRegisterEndpoint = originalRequest?.endpoint?.startsWith('/auth/register');
     const shouldSkipRefresh = originalRequest?.options?.skipAuthRefresh || isLoginEndpoint || isRegisterEndpoint;
-
+    
     if (response.status === 401 && !shouldSkipRefresh) {
         try {
-            // Fix 1: If already refreshing, wait for the refresh to complete using mutex
+            // Fix 1: If already refreshing, wait for refresh to complete using mutex
             if (refreshPromise) {
                 console.log('[API Client] Refresh already in progress, waiting for existing promise...');
                 return new Promise((resolve, reject) => {
                     subscribeTokenRefresh((token: string) => {
-                        // Fix 3: Retry original request with the specific new token
+                        // Fix 3: Retry original request with specific new token
                         if (originalRequest) {
                             console.log('[API Client] Retrying request with refreshed token from subscriber:', {
                                 endpoint: originalRequest.endpoint,
@@ -516,7 +518,7 @@ const handleResponse = async (
                                 .request(originalRequest.endpoint, {
                                     ...originalRequest.options,
                                     skipDeduplication: true,
-                                    forceToken: token // Fix 3: Use the specific refreshed token
+                                    forceToken: token // Fix 3: Use specific refreshed token
                                 })
                                 .then(resolve)
                                 .catch(reject);
@@ -524,14 +526,14 @@ const handleResponse = async (
                     });
                 });
             }
-
+            
             // Fix 1: Start token refresh with mutex - only one refresh at a time
             console.log('[API Client] Starting new token refresh...');
             refreshPromise = refreshAccessToken();
-
+            
             try {
                 const newToken = await refreshPromise;
-
+                
                 // Handle null token (refresh failed)
                 if (newToken === null) {
                     console.log('[API Client] Token refresh returned null - refresh failed');
@@ -539,15 +541,15 @@ const handleResponse = async (
                     const message = data?.message || data?.error || response.statusText || 'Session expired. Please log in again.';
                     throw new ApiError(message, response.status, data);
                 }
-
+                
                 console.log('[API Client] Token refresh completed successfully:', {
                     tokenLength: newToken.length,
                     tokenPreview: newToken.substring(0, 20) + '...'
                 });
-
+                
                 // Fix 4: Notify all waiting requests after token is stored
                 onTokenRefreshed(newToken);
-
+                
                 // Fix 5: Clear deduplication cache before retry
                 if (originalRequest?.options?.method === 'GET') {
                     const requestKey = `GET:${API_BASE_URL}${originalRequest.endpoint}`;
@@ -556,8 +558,8 @@ const handleResponse = async (
                         pendingRequests.delete(requestKey);
                     }
                 }
-
-                // Fix 3: Retry original request with the specific new token
+                
+                // Fix 3: Retry original request with specific new token
                 if (originalRequest) {
                     console.log('[API Client] Retrying original request with new token:', {
                         endpoint: originalRequest.endpoint,
@@ -568,7 +570,7 @@ const handleResponse = async (
                     return apiClient.request(originalRequest.endpoint, {
                         ...originalRequest.options,
                         skipDeduplication: true,
-                        forceToken: newToken // Fix 3: Use the specific refreshed token
+                        forceToken: newToken // Fix 3: Use specific refreshed token
                     });
                 }
             } finally {
@@ -580,7 +582,7 @@ const handleResponse = async (
             // Fix 1: Clear the refresh promise on error
             refreshPromise = null;
             console.log('[API Client] Refresh promise cleared due to error');
-
+            
             // Log detailed refresh error for debugging
             console.error('[API Client] Token refresh failed:', {
                 refreshError: refreshError.message,
@@ -593,7 +595,7 @@ const handleResponse = async (
             throw new ApiError(message, response.status, data);
         }
     }
-
+    
     if (!response.ok) {
         const message = data?.message || data?.error || response.statusText || 'Request failed';
         throw new ApiError(message, response.status, data);
@@ -634,12 +636,16 @@ const handleResponse = async (
 const pendingRequests = new Map<string, Promise<any>>();
 
 // Request timeout helper with improved error handling
-const withTimeout = (promise: Promise<Response>, timeoutMs: number = 10000): Promise<Response> => {
+const withTimeout = (promise: Promise<Response>, timeoutMs: number = 10000, url: string = ''): Promise<Response> => {
     let timeoutId: NodeJS.Timeout;
     
     const timeoutPromise = new Promise<Response>((_, reject) => {
         timeoutId = setTimeout(() => {
-            reject(new ApiError('Request timeout'));
+            reject(new ApiError(
+                url
+                    ? `Request timeout after ${timeoutMs}ms for ${url}. This may indicate that backend service is unresponsive or Redis is not running.`
+                    : `Request timeout after ${timeoutMs}ms. This may indicate that backend service is unresponsive or Redis is not running.`
+            ));
         }, timeoutMs);
     });
     
@@ -668,11 +674,16 @@ const apiClient = {
             method = 'GET',
             headers = {},
             body,
-            timeout = 10000,
+            timeout = 30000,
             forceToken,
+            retries = 0,
+            retryDelay = 1000,
         } = options;
-
+        
         const url = `${API_BASE_URL}${endpoint}`;
+        
+        // Increase timeout for admin endpoints to handle slower operations
+        const effectiveTimeout = endpoint.startsWith('/admin/') ? Math.max(timeout, 60000) : timeout;
         
         // Create a unique request key for deduplication
         // Only deduplicate GET requests to avoid issues with POST/PUT/DELETE
@@ -699,21 +710,24 @@ const apiClient = {
         // Check if body is FormData (for file uploads)
         const isFormData = body instanceof FormData;
         
-        const config: RequestInit = {
-            method,
-            headers: {
-                ...authHeaders,
-                // Add cache control headers to prevent caching
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache',
-            },
+        // Build headers for request
+        const requestHeaders: Record<string, string> = {
+            // Add cache control headers to prevent caching
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            ...authHeaders,
         };
-
+        
         // Only set Content-Type for non-FormData requests
         // FormData automatically sets the correct Content-Type with boundary
         if (!isFormData) {
-            (config.headers as Record<string, string>)['Content-Type'] = 'application/json';
+            requestHeaders['Content-Type'] = 'application/json';
         }
+        
+        const config: RequestInit = {
+            method,
+            headers: requestHeaders,
+        };
 
         if (body && method !== 'GET') {
             if (isFormData) {
@@ -724,11 +738,11 @@ const apiClient = {
                 config.body = JSON.stringify(body);
             }
         }
-
-        // Create the request promise
-        const requestPromise = (async () => {
+        
+        // Create a request function with retry logic
+        const requestPromise = async (attempt: number = 1): Promise<T> => {
             try {
-                const response = await withTimeout(fetch(url, config), timeout);
+                const response = await withTimeout(fetch(url, config), effectiveTimeout, url);
                 
                 // Log response for debugging
                 console.log('[API Client] Response received:', {
@@ -743,10 +757,23 @@ const apiClient = {
             } catch (error: any) {
                 console.error('[API Client] Request failed:', {
                     url,
+                    attempt,
+                    maxRetries: retries,
                     error,
                     message: error?.message,
                     status: error?.status,
                 });
+                
+                // Retry logic for timeout errors
+                if (error instanceof ApiError &&
+                    error.message.includes('timeout') &&
+                    attempt <= retries) {
+                    const delay = retryDelay * Math.pow(2, attempt - 1); // Exponential backoff
+                    console.log(`[API Client] Retrying request (attempt ${attempt + 1}/${retries + 1}) after ${delay}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return requestPromise(attempt + 1);
+                }
+                
                 if (error instanceof ApiError) {
                     throw error;
                 }
@@ -757,31 +784,31 @@ const apiClient = {
                     pendingRequests.delete(requestKey);
                 }
             }
-        })();
-
-        // Store the promise in the cache for GET requests
+        };
+        
+        // Store promise in cache for GET requests
         if (requestKey) {
-            pendingRequests.set(requestKey, requestPromise);
+            pendingRequests.set(requestKey, requestPromise());
         }
 
-        return requestPromise;
+        return requestPromise();
     },
 
     // HTTP method shortcuts
     get: <T = any>(endpoint: string, options?: Omit<RequestOptions, 'method' | 'body'>) =>
-        apiClient.request<T>(endpoint, { ...options, method: 'GET' }),
+        apiClient.request<T>(endpoint, { ...options, method: 'GET', retries: 2, retryDelay: 2000 }),
 
     post: <T = any>(endpoint: string, body?: any, options?: Omit<RequestOptions, 'method' | 'body'>) =>
-        apiClient.request<T>(endpoint, { ...options, method: 'POST', body }),
+        apiClient.request<T>(endpoint, { ...options, method: 'POST', body, retries: 1, retryDelay: 1500 }),
 
     put: <T = any>(endpoint: string, body?: any, options?: Omit<RequestOptions, 'method' | 'body'>) =>
-        apiClient.request<T>(endpoint, { ...options, method: 'PUT', body }),
+        apiClient.request<T>(endpoint, { ...options, method: 'PUT', body, retries: 1, retryDelay: 1500 }),
 
     patch: <T = any>(endpoint: string, body?: any, options?: Omit<RequestOptions, 'method' | 'body'>) =>
-        apiClient.request<T>(endpoint, { ...options, method: 'PATCH', body }),
+        apiClient.request<T>(endpoint, { ...options, method: 'PATCH', body, retries: 1, retryDelay: 1500 }),
 
     delete: <T = any>(endpoint: string, options?: Omit<RequestOptions, 'method' | 'body'>) =>
-        apiClient.request<T>(endpoint, { ...options, method: 'DELETE' }),
+        apiClient.request<T>(endpoint, { ...options, method: 'DELETE', retries: 1, retryDelay: 1500 }),
 };
 
 // Export token management functions

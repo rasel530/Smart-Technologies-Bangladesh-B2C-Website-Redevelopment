@@ -18,7 +18,7 @@ import {
   useDefaultWishlist,
   useCurrentWishlistItems,
 } from '@/stores/wishlistStore.selectors';
-import type { UseWishlistReturn } from '@/types/wishlist';
+import type { UseWishlistReturn, AddToWishlistResult } from '@/types/wishlist';
 import type { 
   GetWishlistsParams, 
   CreateWishlistRequest, 
@@ -159,13 +159,13 @@ export function useWishlist(): UseWishlistReturn {
   );
   
   const addToDefaultWishlist = useCallback(
-    async (productId: string) => {
+    async (productId: string): Promise<AddToWishlistResult> => {
       const target = defaultWishlist;
       if (!target) {
         const newWishlist = await createWishlistAction({ name: 'My Wishlist', isPublic: false, isDefault: false });
-        await addToWishlistAction(newWishlist.id, productId);
+        return addToWishlistAction(newWishlist.id, productId);
       } else {
-        await addToWishlistAction(target.id, productId);
+        return addToWishlistAction(target.id, productId);
       }
     },
     [defaultWishlist, createWishlistAction, addToWishlistAction]

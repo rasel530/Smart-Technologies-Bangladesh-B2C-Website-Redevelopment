@@ -4,11 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useWishlistContext } from '@/contexts/WishlistContext';
+import { useCart } from '@/contexts/CartContext';
 import { User as UserType } from '@/types/auth';
 import { withAuth } from '@/components/auth/withAuth';
 import { formatDate, getInitials } from '@/lib/utils';
 import { ProfileAPI, UserProfile } from '@/lib/api/profile';
 import { apiClient } from '@/lib/api/client';
+import { getImageUrl } from '@/lib/api/product-images';
 import ProfileEditForm from '@/components/profile/ProfileEditForm';
 import ProfilePictureUpload from '@/components/profile/ProfilePictureUpload';
 import EmailPhoneChange from '@/components/profile/EmailPhoneChange';
@@ -566,20 +569,267 @@ const OrdersTab: React.FC<{ language: 'en' | 'bn' }> = ({ language }) => {
   );
 };
 
-const WishlistTab: React.FC<{ language: 'en' | 'bn' }> = ({ language }) => (
-  <div className="text-center py-12">
-    <Heart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-    <h3 className="text-lg font-medium text-gray-900 mb-2">
-      {language === 'en' ? 'Your wishlist is empty' : 'আপনার ইচ্ছা তালিকা খালি'}
-    </h3>
-    <p className="text-gray-600">
-      {language === 'en' 
-        ? 'Add items to your wishlist and they will appear here.'
-        : 'আইটেম আপনার ইচ্ছাতে যোগ করুন, তারা এখানে প্রদর্শন করা হবে।'
+const WishlistTab: React.FC<{ language: 'en' | 'bn' }> = ({ language }) => {
+  const { currentWishlist, currentWishlistItems, isLoading, error, loadWishlists, setCurrentWishlist, removeFromWishlist, moveToCart, wishlists } = useWishlistContext();
+  const { loadCart } = useCart();
+  const router = useRouter();
+  const [isRemoving, setIsRemoving] = useState<string | null>(null);
+  const [isMoving, setIsMoving] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadWishlists();
+  }, [loadWishlists]);
+
+  useEffect(() => {
+    if (!currentWishlist && currentWishlistItems.length === 0 && wishlists.length > 0) {
+      const defaultWishlist = wishlists.find((w: any) => w.isDefault) || wishlists[0];
+      if (defaultWishlist) {
+        setCurrentWishlist(defaultWishlist.id);
       }
-    </p>
-  </div>
-);
+    }
+  }, [currentWishlist, currentWishlistItems.length, wishlists, setCurrentWishlist]);
+
+  const handleRemove = async (itemId: string) => {
+    try {
+      setIsRemoving(itemId);
+      await removeFromWishlist(itemId);
+    } finally {
+      setIsRemoving(null);
+    }
+  };
+
+  const handleMoveToCart = async (itemId: string) => {
+    try {
+      setIsMoving(itemId);
+      await moveToCart([itemId]);
+      // Refresh cart state to update prices and totals
+      await loadCart();
+    } finally {
+      setIsMoving(null);
+    }
+  };
+
+  const handleViewProduct = (productSlug: string) => {
+    router.push(`/products/${productSlug}`);
+  };
+
+  const getPrimaryImage = (item: any) => {
+    if (!item.product.images || item.product.images.length === 0) return null;
+    return item.product.images.find((img: any) => img.isPrimary) || item.product.images[0];
+  };
+
+  const formatPrice = (price: any) => {
+    const numPrice = typeof price === 'number' ? price : parseFloat(price) || 0;
+    return `৳${numPrice.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  const getDisplayPrice = (product: any) => {
+    const regularPrice = Number(product.regularPrice) || 0;
+    const salePrice = Number(product.salePrice);
+    const discountPrice = Number(product.discountPrice);
+    const displayPrice = (salePrice > 0 ? salePrice : (discountPrice > 0 ? discountPrice : regularPrice));
+    return displayPrice;
+  };
+
+  const getHasDiscount = (product: any) => {
+    const salePrice = Number(product.salePrice);
+    const discountPrice = Number(product.discountPrice);
+    return (salePrice > 0) || (discountPrice > 0);
+  };
+
+  // Loading State
+  if (isLoading) {
+    return (
+      <div className="text-center py-12">
+        <Loader2 className="h-12 w-12 text-blue-600 animate-spin mx-auto mb-4" />
+        <p className="text-gray-600">
+          {language === 'en' ? 'Loading your wishlist...' : 'আপনার ইচ্ছা তালিকা লোড হচ্ছে...'}
+        </p>
+      </div>
+    );
+  }
+
+  // Error State
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Heart className="h-8 w-8 text-red-600" />
+        </div>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          {language === 'en' ? 'Error Loading Wishlist' : 'ইচ্ছা তালিকা লোড করতে সমস্যা হয়েছে'}
+        </h3>
+        <p className="text-gray-600 mb-6">{error}</p>
+        <button
+          onClick={() => loadWishlists()}
+          className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
+        >
+          {language === 'en' ? 'Try Again' : 'আবার চেষ্টা করুন'}
+        </button>
+      </div>
+    );
+  }
+
+  // Empty State
+  if (currentWishlistItems.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <Heart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          {language === 'en' ? 'Your wishlist is empty' : 'আপনার ইচ্ছা তালিকা খালি'}
+        </h3>
+        <p className="text-gray-600">
+          {language === 'en' 
+            ? 'Add items to your wishlist and they will appear here.'
+            : 'আইটেম আপনার ইচ্ছাতে যোগ করুন, তারা এখানে প্রদর্শন করা হবে।'
+          }
+        </p>
+        <Link
+          href="/products"
+          className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-primary-600 text-white font-medium rounded-md hover:bg-primary-700 transition-colors"
+        >
+          {language === 'en' ? 'Browse Products' : 'পণ্য ব্রাউজ করুন'}
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      </div>
+    );
+  }
+
+  // Wishlist Items Grid
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg font-semibold text-gray-900">
+          {language === 'en' ? `Your Wishlist (${currentWishlistItems.length})` : `আপনার ইচ্ছা তালিকা (${currentWishlistItems.length})`}
+        </h2>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {currentWishlistItems.map((item) => {
+          const primaryImage = getPrimaryImage(item);
+          const imageUrl = primaryImage ? getImageUrl(primaryImage, 'medium') : '/placeholder-product.jpg';
+          const displayPrice = getDisplayPrice(item.product);
+          const hasDiscount = getHasDiscount(item.product);
+          const isOutOfStock = item.product.stockQuantity === 0;
+          const isLowStock = item.product.stockQuantity > 0 && item.product.stockQuantity <= 10;
+
+          return (
+            <div
+              key={item.id}
+              className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+            >
+              {/* Product Image */}
+              <div className="relative aspect-square bg-gray-100 cursor-pointer" onClick={() => handleViewProduct(item.product.slug)}>
+                {primaryImage ? (
+                  <img
+                    src={imageUrl}
+                    alt={item.product.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                    <span className="text-gray-400">No Image</span>
+                  </div>
+                )}
+
+                {/* Stock Status Badge */}
+                <div
+                  className={`absolute top-2 right-2 px-2 py-1 text-xs font-medium rounded ${
+                    isOutOfStock
+                      ? 'bg-red-100 text-red-800'
+                      : isLowStock
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-green-100 text-green-800'
+                  }`}
+                >
+                  {isOutOfStock
+                    ? (language === 'en' ? 'Out of Stock' : 'স্টক নেই')
+                    : isLowStock
+                    ? 'Low Stock'
+                    : (language === 'en' ? 'In Stock' : 'স্টক আছে')}
+                </div>
+
+                {/* Remove Button */}
+                <button
+                  onClick={() => handleRemove(item.id)}
+                  disabled={isRemoving === item.id}
+                  className="absolute top-2 left-2 p-2 bg-white rounded-full shadow hover:bg-gray-100 transition-colors disabled:opacity-50"
+                  title={language === 'en' ? 'Remove from wishlist' : 'ইচ্ছা তালিকা থেকে সরান'}
+                >
+                  {isRemoving === item.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-gray-600" />
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+
+              {/* Product Details */}
+              <div className="p-4">
+                <h3
+                  className="font-medium text-gray-900 mb-1 cursor-pointer hover:text-blue-600 transition-colors line-clamp-2"
+                  onClick={() => handleViewProduct(item.product.slug)}
+                  title={item.product.name}
+                >
+                  {item.product.name}
+                </h3>
+
+                {item.product.sku && (
+                  <p className="text-sm text-gray-500 mb-2">SKU: {item.product.sku}</p>
+                )}
+
+                {item.product.category && (
+                  <p className="text-sm text-gray-500 mb-2">{item.product.category.name}</p>
+                )}
+
+                {/* Pricing */}
+                <div className="flex items-center gap-2 mb-3">
+                  {hasDiscount && (
+                    <span className="text-sm text-gray-500 line-through">
+                      {formatPrice(item.product.regularPrice)}
+                    </span>
+                  )}
+                  <span className="text-lg font-semibold text-gray-900">
+                    {formatPrice(displayPrice)}
+                  </span>
+                </div>
+
+                {/* Add to Cart Button */}
+                <button
+                  onClick={() => handleMoveToCart(item.id)}
+                  disabled={isMoving === item.id || isOutOfStock}
+                  className={`w-full py-2 px-4 rounded-md font-medium transition-colors flex items-center justify-center gap-2 ${
+                    isOutOfStock
+                      ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50'
+                  }`}
+                >
+                  {isMoving === item.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : isOutOfStock ? (
+                    language === 'en' ? 'Out of Stock' : 'স্টক নেই'
+                  ) : (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="9" cy="21" r="1" />
+                        <circle cx="20" cy="21" r="1" />
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                      </svg>
+                      {language === 'en' ? 'Add to Cart' : 'কার্টে যোগ করুন'}
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 const PaymentTab: React.FC<{ language: 'en' | 'bn' }> = ({ language }) => (
   <div className="text-center py-12">

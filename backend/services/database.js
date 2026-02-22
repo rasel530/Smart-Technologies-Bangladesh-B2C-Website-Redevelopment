@@ -6,7 +6,7 @@ class DatabaseService {
       activeConnections: 0,
       idleConnections: 0,
       totalConnections: 0,
-      maxConnections: 10,
+      maxConnections: 20,
       connectionTimeout: 30000,
       idleTimeout: 10000,
       acquireTimeoutMillis: 30000,
@@ -18,6 +18,9 @@ class DatabaseService {
       queryCount: 0,
       errorCount: 0
     };
+    
+    // Track connection status
+    this.isConnected = false;
     
     this.prisma = new PrismaClient({
       log: [
@@ -67,6 +70,7 @@ class DatabaseService {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         await this.prisma.$connect();
+        this.isConnected = true;
         const connectionTime = Date.now() - startTime;
         console.log(`✅ Database connected successfully (attempt ${attempt}, ${connectionTime}ms)`);
         
@@ -104,6 +108,7 @@ class DatabaseService {
   async disconnect() {
     try {
       await this.prisma.$disconnect();
+      this.isConnected = false;
       console.log('✅ Database disconnected successfully');
     } catch (error) {
       console.error('❌ Database disconnection failed:', error);
@@ -214,8 +219,22 @@ class DatabaseService {
     }
   }
 
-  // Get client instance
+  // Get client instance (synchronous for backward compatibility)
   getClient() {
+    // Check if database is connected (synchronous check)
+    if (!this.isConnected) {
+      console.warn('⚠️ getClient() called but database is not connected. Connection may not be established yet.');
+    }
+    return this.prisma;
+  }
+  
+  // Get client with validation (async method for when you need to ensure connection)
+  async getClientWithValidation() {
+    // Ensure database is available before returning client
+    const isAvailable = await this.isAvailable();
+    if (!isAvailable) {
+      throw new Error('Database connection is not available. Please ensure the database is connected.');
+    }
     return this.prisma;
   }
 
@@ -359,6 +378,7 @@ class DatabaseService {
       this.connectionPool.activeConnections = 0;
       this.connectionPool.idleConnections = 0;
       this.connectionPool.totalConnections = 0;
+      this.isConnected = false;
       
       // Disconnect from database
       await this.prisma.$disconnect();

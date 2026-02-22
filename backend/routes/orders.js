@@ -172,13 +172,14 @@ router.post('/', [
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return uuidRegex.test(value);
   }).withMessage('Variant ID must be a valid UUID or null'),
-  body('paymentMethod').isIn(['CREDIT_CARD', 'BANK_TRANSFER', 'CASH_ON_DELIVERY', 'BKASH', 'NAGAD', 'ROCKET']),
+  body('paymentMethod').isIn(['CREDIT_CARD', 'BANK_TRANSFER', 'CASH_ON_DELIVERY', 'EMI', 'MCASH', 'BKASH', 'NAGAD', 'ROCKET']),
+  body('paymentDetails').optional().isObject(),
   body('notes').optional().isString()
 ], handleValidationErrors, authMiddleware.optional(), async (req, res) => {
   // Use authenticated user's ID if available, otherwise null for guest
   req.body.userId = req.user?.id || null;
   try {
-    const { userId, addressId, shippingAddress, billingAddress, items, paymentMethod, notes } = req.body;
+    const { userId, addressId, shippingAddress, billingAddress, items, paymentMethod, paymentDetails, notes } = req.body;
 
     // Validate user if provided (authenticated users)
     let user = null;
@@ -380,6 +381,7 @@ router.post('/', [
         discount,
         total,
         paymentMethod: paymentMethodLower,
+        paymentDetails: paymentDetails || null,
         notes,
         status: 'pending',
         items: {
@@ -466,6 +468,297 @@ router.put('/:id/status', [
     res.status(500).json({
       error: 'Failed to update order status',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// GET /api/v1/orders/checkout/:sessionId - Get order by checkout session ID
+router.get('/checkout/:sessionId', [
+  param('sessionId').isUUID()
+], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    
+    // Find order by checkout session ID
+    const order = await prisma.order.findFirst({
+      where: { checkoutSessionId: sessionId },
+      include: {
+        user: {
+          select: { id: true, firstName: true, lastName: true, email: true, phone: true }
+        },
+        address: true,
+        items: {
+          include: {
+            product: {
+              include: {
+                images: {
+                  where: { displayOrder: 0 },
+                  take: 1,
+                  select: {
+                    id: true,
+                    originalUrl: true,
+                    altTextEn: true
+                  }
+                }
+              }
+            },
+            variant: true
+          }
+        },
+        transactions: true
+      }
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        error: 'Order not found for this checkout session'
+      });
+    }
+
+    // Verify user owns the order
+    const isAdmin = req.user.role?.toUpperCase() === 'ADMIN';
+    if (!isAdmin && order.userId !== req.user.id) {
+      return res.status(403).json({
+        error: 'Access denied',
+        message: 'You can only access your own orders'
+      });
+    }
+
+    res.json({
+      order
+    });
+  } catch (error) {
+    console.error('Get order by checkout session error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch order',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// ============================================================================
+// Guest Order Endpoints (GUEST-002)
+// ============================================================================
+
+// GET /api/v1/orders/guest/:orderNumber - Get guest order by order number
+// Query: { email, phone }
+// Returns: { order }
+router.get('/guest/:orderNumber', [
+  param('orderNumber').isString().trim().notEmpty().withMessage('Order number is required'),
+  query('email').optional().isEmail().withMessage('Invalid email format'),
+  query('phone').optional().isString().trim()
+], handleValidationErrors, authMiddleware.optional(), async (req, res) => {
+  try {
+    const { orderNumber } = req.params;
+    const { email, phone } = req.query;
+
+    // Validate email or phone is provided
+    if (!email && !phone) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email or phone is required',
+        message: 'Email or phone is required',
+        messageBn: 'ইমেইল বা ফোন প্রয়োজন'
+      });
+    }
+
+    // Get order by order number
+    const order = await prisma.order.findUnique({
+      where: { orderNumber },
+      include: {
+        user: {
+          select: { id: true, firstName: true, lastName: true, email: true, phone: true }
+        },
+        address: true,
+        items: {
+          include: {
+            product: {
+              include: {
+                images: {
+                  where: { displayOrder: 0 },
+                  take: 1,
+                  select: {
+                    id: true,
+                    originalUrl: true,
+                    thumbnailUrl: true,
+                    altTextEn: true,
+                    altTextBn: true
+                  }
+                }
+              }
+            },
+            variant: true
+          }
+        },
+        transactions: true
+      }
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        error: 'Order not found',
+        message: 'Order not found',
+        messageBn: 'অর্ডার পাওয়া যায়নি'
+      });
+    }
+
+    // Validate guest owns order (email or phone match)
+    const paymentDetails = order.paymentDetails || {};
+    const orderEmail = paymentDetails.email || order.user?.email;
+    const orderPhone = paymentDetails.phone || order.address?.phone || order.user?.phone;
+
+    if (email && orderEmail !== email) {
+      return res.status(403).json({
+        success: false,
+        error: 'Order does not belong to this email',
+        message: 'Order does not belong to this email',
+        messageBn: 'অর্ডারটি এই ইমেইলের নয়'
+      });
+    }
+
+    if (phone && orderPhone !== phone) {
+      return res.status(403).json({
+        success: false,
+        error: 'Order does not belong to this phone number',
+        message: 'Order does not belong to this phone number',
+        messageBn: 'অর্ডারটি এই ফোন নম্বরের নয়'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Guest order retrieved successfully',
+      messageBn: 'অতিথি অর্ডার সফলভাবে পুনরুদ্ধার করা হয়েছে',
+      data: order
+    });
+  } catch (error) {
+    console.error('Get guest order error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch guest order',
+      message: 'Failed to fetch guest order',
+      messageBn: 'অতিথি অর্ডার পুনরুদ্ধার করতে ব্যর্থ হয়েছে'
+    });
+  }
+});
+
+// PUT /api/v1/orders/guest/:orderNumber/track - Track guest order
+// Body: { email, phone, trackingInfo }
+// Returns: { order }
+router.put('/guest/:orderNumber/track', [
+  param('orderNumber').isString().trim().notEmpty().withMessage('Order number is required'),
+  body('email').optional().isEmail().withMessage('Invalid email format'),
+  body('phone').optional().isString().trim(),
+  body('trackingInfo').optional().isObject()
+], handleValidationErrors, authMiddleware.optional(), async (req, res) => {
+  try {
+    const { orderNumber } = req.params;
+    const { email, phone, trackingInfo } = req.body;
+
+    // Validate email or phone is provided
+    if (!email && !phone) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email or phone is required',
+        message: 'Email or phone is required',
+        messageBn: 'ইমেইল বা ফোন প্রয়োজন'
+      });
+    }
+
+    // Get order by order number
+    const order = await prisma.order.findUnique({
+      where: { orderNumber },
+      include: {
+        address: true,
+        items: true,
+        transactions: true
+      }
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        error: 'Order not found',
+        message: 'Order not found',
+        messageBn: 'অর্ডার পাওয়া যায়নি'
+      });
+    }
+
+    // Validate guest owns order (email or phone match)
+    const paymentDetails = order.paymentDetails || {};
+    const orderEmail = paymentDetails.email;
+    const orderPhone = paymentDetails.phone || order.address?.phone;
+
+    if (email && orderEmail !== email) {
+      return res.status(403).json({
+        success: false,
+        error: 'Order does not belong to this email',
+        message: 'Order does not belong to this email',
+        messageBn: 'অর্ডারটি এই ইমেইলের নয়'
+      });
+    }
+
+    if (phone && orderPhone !== phone) {
+      return res.status(403).json({
+        success: false,
+        error: 'Order does not belong to this phone number',
+        message: 'Order does not belong to this phone number',
+        messageBn: 'অর্ডারটি এই ফোন নম্বরের নয়'
+      });
+    }
+
+    // Update tracking information
+    const updatedPaymentDetails = {
+      ...order.paymentDetails,
+      ...trackingInfo,
+      trackingUpdatedAt: new Date().toISOString()
+    };
+
+    const updatedOrder = await prisma.order.update({
+      where: { id: order.id },
+      data: {
+        paymentDetails: updatedPaymentDetails
+      },
+      include: {
+        address: true,
+        items: {
+          include: {
+            product: {
+              include: {
+                images: {
+                  where: { displayOrder: 0 },
+                  take: 1,
+                  select: {
+                    id: true,
+                    originalUrl: true,
+                    thumbnailUrl: true,
+                    altTextEn: true,
+                    altTextBn: true
+                  }
+                }
+              }
+            },
+            variant: true
+          }
+        },
+        transactions: true
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Guest order tracking updated successfully',
+      messageBn: 'অতিথি অর্ডার ট্র্যাকিং সফলভাবে আপডেট করা হয়েছে',
+      data: updatedOrder
+    });
+  } catch (error) {
+    console.error('Track guest order error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update guest order tracking',
+      message: 'Failed to update guest order tracking',
+      messageBn: 'অতিথি অর্ডার ট্র্যাকিং আপডেট করতে ব্যর্থ হয়েছে'
     });
   }
 });

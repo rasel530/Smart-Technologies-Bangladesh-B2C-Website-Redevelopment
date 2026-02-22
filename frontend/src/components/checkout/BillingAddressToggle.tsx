@@ -3,6 +3,7 @@
 import React from 'react';
 import { CreditCard, MapPin } from 'lucide-react';
 import { ShippingAddress } from '@/lib/utils/address';
+import { cn } from '@/lib/utils';
 
 interface BillingAddressToggleProps {
   /** Current toggle state */
@@ -22,6 +23,9 @@ interface BillingAddressToggleProps {
   
   /** Disabled state */
   isDisabled?: boolean;
+  
+  /** Address type for context */
+  addressType?: 'SHIPPING' | 'BILLING' | 'HOME' | 'WORK' | 'OTHER';
 }
 
 export const BillingAddressToggle: React.FC<BillingAddressToggleProps> = ({
@@ -31,6 +35,7 @@ export const BillingAddressToggle: React.FC<BillingAddressToggleProps> = ({
   language = 'en',
   className = '',
   isDisabled = false,
+  addressType,
 }) => {
   const texts = {
     en: {
@@ -50,6 +55,19 @@ export const BillingAddressToggle: React.FC<BillingAddressToggleProps> = ({
   };
 
   const t = texts[language];
+
+  // Get address type label
+  const getAddressTypeLabel = (type?: string): string => {
+    if (!type) return '';
+    const labels: Record<string, { en: string; bn: string }> = {
+      SHIPPING: { en: 'Shipping', bn: 'শিপিং' },
+      BILLING: { en: 'Billing', bn: 'বিলিং' },
+      HOME: { en: 'Home', bn: 'বাসা' },
+      WORK: { en: 'Work', bn: 'কাজ' },
+      OTHER: { en: 'Other', bn: 'অন্যান্য' },
+    };
+    return labels[type]?.[language] || type;
+  };
 
   return (
     <div className={`billing-address-toggle ${className}`}>
@@ -89,6 +107,18 @@ export const BillingAddressToggle: React.FC<BillingAddressToggleProps> = ({
                 <span className="text-sm font-medium text-gray-700">
                   {t.shippingAddress}
                 </span>
+                {addressType && (
+                  <span className={cn(
+                    'text-xs font-medium px-2 py-0.5 rounded',
+                    addressType === 'SHIPPING' ? 'bg-blue-100 text-blue-800' :
+                    addressType === 'BILLING' ? 'bg-purple-100 text-purple-800' :
+                    addressType === 'HOME' ? 'bg-green-100 text-green-800' :
+                    addressType === 'WORK' ? 'bg-orange-100 text-orange-800' :
+                    'bg-gray-100 text-gray-800'
+                  )}>
+                    {getAddressTypeLabel(addressType)}
+                  </span>
+                )}
                 <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded">
                   {t.sameAsShipping}
                 </span>

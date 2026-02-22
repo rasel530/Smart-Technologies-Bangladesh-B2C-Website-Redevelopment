@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-02-20T15:46:32.912Z",
+  "tests": [
+    {
+      "name": "GET Endpoint - Status Code",
+      "passed": false,
+      "message": "Expected 200, got 401",
+      "details": {
+        "status": 401
+      },
+      "timestamp": "2026-02-20T15:46:33.535Z"
+    },
+    {
+      "name": "PUT Endpoint - Status Code",
+      "passed": false,
+      "message": "Expected 200, got 401",
+      "details": {
+        "status": 401
+      },
+      "timestamp": "2026-02-20T15:46:33.787Z"
+    },
+    {
+      "name": "Persistence Flow - PUT Request",
+      "passed": false,
+      "message": "PUT request failed with status 401",
+      "details": {
+        "status": 401
+      },
+      "timestamp": "2026-02-20T15:46:33.936Z"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "passed": 0,
+    "failed": 3
+  },
+  "overallStatus": "FAIL"
+}

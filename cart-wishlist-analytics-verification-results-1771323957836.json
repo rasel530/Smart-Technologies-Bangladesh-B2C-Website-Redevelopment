@@ -1,0 +1,30 @@
+{
+  "backend": {
+    "behaviorAnalyticsStructure": true,
+    "conversionAnalyticsStructure": true,
+    "abandonmentAnalyticsStructure": true,
+    "systemAnalyticsStructure": true,
+    "movePatternsFix": true,
+    "errors": [
+      "WARNING: Backend returns flat structure but frontend expects nested cartAbandonment/wishlistAbandonment"
+    ]
+  },
+  "frontend": {
+    "defensiveChecksForMovePatterns": true,
+    "fallbackMessageForMovePatterns": false,
+    "conditionalRenderingForMovePatterns": false,
+    "abandonmentAnalyticsAccess": true,
+    "errors": [
+      "FRONTEND ISSUE: Component accesses analytics.abandonmentAnalytics.cartAbandonment but backend returns flat structure"
+    ]
+  },
+  "integration": {
+    "movePatternsCompatible": true,
+    "abandonmentAnalyticsCompatible": false,
+    "overall": true,
+    "errors": [
+      "abandonmentAnalytics structure mismatch - backend returns flat, frontend expects nested"
+    ],
+    "abandonmentCompatible": false
+  }
+}

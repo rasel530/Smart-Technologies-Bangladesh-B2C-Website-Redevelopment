@@ -12,6 +12,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { ViewToggle, ViewMode } from '@/components/product/ViewToggle';
 import { ProductGrid } from '@/components/product/ProductGrid';
 import { useWishlist } from '@/hooks/useWishlist';
+import { useCart } from '@/contexts/CartContext';
 import { useWishlistStore } from '@/stores/wishlistStore';
 import { toast } from 'sonner';
 
@@ -42,6 +43,17 @@ export function BrandPageClient({
 
   // Wishlist state
   const { isInWishlist, addToDefaultWishlist, removeFromWishlist, items } = useWishlist();
+  
+  // Cart
+  const { addItem } = useCart();
+  
+  // Handle add to cart
+  const handleAddToCart = (productId: string, variantId?: string) => {
+    const product = initialProducts.find(p => p.id === productId);
+    if (product) {
+      addItem(product, 1, variantId);
+    }
+  };
 
   // View mode state with localStorage persistence and URL parameter support
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -176,6 +188,7 @@ export function BrandPageClient({
             <>
               <ProductGrid
                 products={initialProducts}
+                onAddToCart={handleAddToCart}
                 columns={{
                   mobile: 1,
                   tablet: 2,

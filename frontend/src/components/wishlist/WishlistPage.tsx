@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import './WishlistPage.css';
 import { useWishlistContext } from '@/contexts/WishlistContext';
+import { useCart } from '@/contexts/CartContext';
 import { WishlistHeader } from './WishlistHeader';
 import { WishlistToolbar } from './WishlistToolbar';
 import { WishlistGrid } from './WishlistGrid';
@@ -19,6 +20,8 @@ import { WishlistEmptyState } from './WishlistEmptyState';
 import { WishlistManagementModal } from './WishlistManagementModal';
 import { WishlistShareModal } from './WishlistShareModal';
 import { WishlistExportModal } from './WishlistExportModal';
+import { CartWishlistSyncIndicator } from '@/components/cartWishlist/CartWishlistSyncIndicator';
+import { useCartWishlistStore } from '@/store/cartWishlistStore';
 import type { WishlistPageProps } from '@/types/wishlist';
 
 export const WishlistPage: React.FC<WishlistPageProps> = ({
@@ -33,6 +36,8 @@ export const WishlistPage: React.FC<WishlistPageProps> = ({
     isLoading,
     error,
     selectedItems,
+    isPrivateWishlistError,
+    privateWishlistId,
     loadWishlists,
     setCurrentWishlist,
     createWishlist,
@@ -43,9 +48,16 @@ export const WishlistPage: React.FC<WishlistPageProps> = ({
     clearSelection,
     selectAll,
     clearError,
+    makeWishlistPublic,
     moveToCart,
     removeFromWishlist,
   } = useWishlistContext();
+
+  // Get cart context for refreshing cart after move operations
+  const { loadCart } = useCart();
+
+  // Get sync status from store
+  const offlineQueue = useCartWishlistStore((state) => state.offlineQueue);
   
   // Local state for UI
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,20 +70,50 @@ export const WishlistPage: React.FC<WishlistPageProps> = ({
   const [isBulkMoving, setIsBulkMoving] = useState(false);
   const [isBulkRemoving, setIsBulkRemoving] = useState(false);
   const [isMobileCtaVisible, setIsMobileCtaVisible] = useState(true);
+  const [isMakingPublic, setIsMakingPublic] = useState(false);
+  
+  // Handler to make wishlist public
+  const handleMakePublic = useCallback(async () => {
+    if (!privateWishlistId) return;
+    
+    setIsMakingPublic(true);
+    try {
+      await makeWishlistPublic(privateWishlistId);
+      toast.success('Wishlist is now public');
+    } catch (error) {
+      toast.error('Failed to make wishlist public');
+    } finally {
+      setIsMakingPublic(false);
+    }
+  }, [privateWishlistId, makeWishlistPublic]);
 
   // Ref for deduplication of initial wishlist setting
   const hasSetInitialWishlist = useRef(false);
-
-  // Set initial wishlist only once
+  
+  // Set initial wishlist only once - either from props or default wishlist
   useEffect(() => {
-    if (initialWishlistId && wishlists.length > 0 && !hasSetInitialWishlist.current) {
+    // Skip if already set or still loading
+    if (hasSetInitialWishlist.current || isLoading) return;
+    
+    if (initialWishlistId && wishlists.length > 0) {
+      // Use initialWishlistId if provided and exists
       const exists = wishlists.find((w) => w.id === initialWishlistId);
       if (exists) {
         setCurrentWishlist(initialWishlistId);
         hasSetInitialWishlist.current = true;
       }
+    } else if (!currentWishlist && wishlists.length > 0) {
+      // Auto-select default wishlist if no wishlist is selected
+      const defaultWishlist = wishlists.find((w) => w.isDefault);
+      if (defaultWishlist) {
+        setCurrentWishlist(defaultWishlist.id);
+      } else {
+        // Fallback to first wishlist
+        setCurrentWishlist(wishlists[0].id);
+      }
+      hasSetInitialWishlist.current = true;
     }
-  }, [initialWishlistId, wishlists, setCurrentWishlist]);
+  }, [initialWishlistId, wishlists, currentWishlist, setCurrentWishlist, isLoading]);
   
   // Filter and sort items
   const filteredItems = useMemo(() => {
@@ -172,11 +214,13 @@ export const WishlistPage: React.FC<WishlistPageProps> = ({
 
     try {
       await moveToCart([itemId]);
+      // Refresh cart state to update prices and totals
+      await loadCart();
       toast.success(`Added "${item.product.name}" to cart`);
     } catch (error) {
       toast.error('Failed to add item to cart');
     }
-  }, [currentWishlistItems, moveToCart]);
+  }, [currentWishlistItems, moveToCart, loadCart]);
   
   const handleMoveSelectedToCart = useCallback(async () => {
     if (selectedItems.length === 0) return;
@@ -195,6 +239,8 @@ export const WishlistPage: React.FC<WishlistPageProps> = ({
     try {
       setIsBulkMoving(true);
       await moveToCart(selectedItems);
+      // Refresh cart state to update prices and totals
+      await loadCart();
       toast.success(`Moved ${selectedItems.length} items to cart`);
       clearSelection();
     } catch (error) {
@@ -202,7 +248,7 @@ export const WishlistPage: React.FC<WishlistPageProps> = ({
     } finally {
       setIsBulkMoving(false);
     }
-  }, [selectedItems, currentWishlistItems, moveToCart, clearSelection]);
+  }, [selectedItems, currentWishlistItems, moveToCart, clearSelection, loadCart]);
   
   const handleRemoveSelected = useCallback(async () => {
     if (selectedItems.length === 0) return;
@@ -235,9 +281,27 @@ export const WishlistPage: React.FC<WishlistPageProps> = ({
         <div className="error-content">
           <h2>Error Loading Wishlist</h2>
           <p>{error}</p>
-          <button onClick={clearError} className="retry-button">
-            Retry
-          </button>
+          {isPrivateWishlistError ? (
+            <div className="private-wishlist-actions">
+              <p className="private-wishlist-info">
+                This appears to be your private wishlist. Would you like to make it public to view it?
+              </p>
+              <button 
+                onClick={handleMakePublic} 
+                className="make-public-button"
+                disabled={isMakingPublic}
+              >
+                {isMakingPublic ? 'Making Public...' : 'Make Public'}
+              </button>
+              <button onClick={clearError} className="cancel-button">
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button onClick={clearError} className="retry-button">
+              Retry
+            </button>
+          )}
         </div>
       </div>
     );
@@ -247,16 +311,22 @@ export const WishlistPage: React.FC<WishlistPageProps> = ({
     <div className="wishlist-page">
       {/* Sticky Header */}
       <header className="wishlist-page-header">
-        <WishlistHeader
-          wishlists={wishlists}
-          currentWishlist={currentWishlist}
-          onSelectWishlist={handleSelectWishlist}
-          onCreateWishlist={handleCreateWishlist}
-          onShareWishlist={handleShareWishlist}
-          onExportWishlist={handleExportWishlist}
-          isLoading={isLoading}
-          language={language}
-        />
+        <div className="flex items-start justify-between flex-wrap gap-4 w-full">
+          <div className="flex-1">
+            <WishlistHeader
+              wishlists={wishlists}
+              currentWishlist={currentWishlist}
+              onSelectWishlist={handleSelectWishlist}
+              onCreateWishlist={handleCreateWishlist}
+              onShareWishlist={handleShareWishlist}
+              onExportWishlist={handleExportWishlist}
+              isLoading={isLoading}
+              language={language}
+            />
+          </div>
+          {/* Sync Status Indicator */}
+          <CartWishlistSyncIndicator language={language} />
+        </div>
       </header>
       
       {/* Main Content */}
@@ -303,8 +373,8 @@ export const WishlistPage: React.FC<WishlistPageProps> = ({
             onSelectItem={handleSelectItem}
             onRemoveItem={handleRemoveItem}
             onMoveToCart={handleMoveToCart}
-            onViewProduct={(productId) => {
-              router.push(`/products/${productId}`);
+            onViewProduct={(productSlug) => {
+              router.push(`/products/${productSlug}`);
             }}
             isLoading={isLoading}
             language={language}

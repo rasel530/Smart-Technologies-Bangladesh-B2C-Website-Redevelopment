@@ -7,6 +7,7 @@ import { BrandWithRelations, BrandProductFilter } from '@/types/brand';
 import brandsApi from '@/lib/api/brands';
 import ProductCard from '../product/ProductCard';
 import { getImageUrl } from '@/lib/utils/image';
+import { useCart } from '@/contexts/CartContext';
 
 interface BrandDetailProps {
   brand: BrandWithRelations;
@@ -31,6 +32,17 @@ export default function BrandDetail({ brand, initialProducts }: BrandDetailProps
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  
+  // Cart context for add to cart functionality
+  const { addItem } = useCart();
+  
+  // Handle add to cart
+  const handleAddToCart = (productId: string, variantId?: string) => {
+    const product = products.find(p => p.id === productId);
+    if (product) {
+      addItem(product, 1, variantId);
+    }
+  };
 
   useEffect(() => {
     if (!initialProducts) {
@@ -297,7 +309,11 @@ export default function BrandDetail({ brand, initialProducts }: BrandDetailProps
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={handleAddToCart}
+                />
               ))}
             </div>
 

@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 /**
  * Home Page
  * 
- * Server component for the home page.
+ * Server component for home page.
  * Features include:
  * - Featured products section
  * - New arrivals section
@@ -22,6 +22,7 @@ import brandsApi from '@/lib/api/brands';
 import categoriesApi from '@/lib/api/categories';
 import { ProductGrid } from '@/components/product/ProductGrid';
 import { ProductCard } from '@/components/product/ProductCard';
+import { HomeProductGrid } from './HomeProductGrid';
 import { BrandCard } from '@/components/brand/BrandCard';
 import { CategoryCard } from '@/components/category/CategoryCard';
 import { CategoryNavigation } from '@/components/category/CategoryNavigation';
@@ -190,15 +191,7 @@ export default async function Home() {
                 </svg>
               </Link>
             </div>
-            <ProductGrid
-              products={featuredProducts.slice(0, 8)}
-              wishlistedProducts={new Set()}
-              columns={{
-                mobile: 1,
-                tablet: 2,
-                desktop: 4,
-              }}
-            />
+            <HomeProductGrid products={featuredProducts.slice(0, 8)} />
           </div>
         </section>
       )}
@@ -219,15 +212,7 @@ export default async function Home() {
                 </svg>
               </Link>
             </div>
-            <ProductGrid
-              products={newArrivals.slice(0, 8)}
-              wishlistedProducts={new Set()}
-              columns={{
-                mobile: 1,
-                tablet: 2,
-                desktop: 4,
-              }}
-            />
+            <HomeProductGrid products={newArrivals.slice(0, 8)} />
           </div>
         </section>
       )}
@@ -248,15 +233,7 @@ export default async function Home() {
                 </svg>
               </Link>
             </div>
-            <ProductGrid
-              products={bestSellers.slice(0, 8)}
-              wishlistedProducts={new Set()}
-              columns={{
-                mobile: 1,
-                tablet: 2,
-                desktop: 4,
-              }}
-            />
+            <HomeProductGrid products={bestSellers.slice(0, 8)} />
           </div>
         </section>
       )}
@@ -344,3 +321,4 @@ export default async function Home() {
     </main>
   );
 }
+

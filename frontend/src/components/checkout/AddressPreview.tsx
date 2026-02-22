@@ -22,11 +22,17 @@ interface AddressPreviewProps {
   /** Variant/Type of address */
   type?: 'shipping' | 'billing';
   
+  /** Address type label (optional) */
+  addressType?: 'SHIPPING' | 'BILLING' | 'HOME' | 'WORK' | 'OTHER';
+  
   /** CSS class for custom styling */
   className?: string;
   
   /** Show edit button */
   showEditButton?: boolean;
+  
+  /** Show validation status */
+  validationStatus?: 'valid' | 'warning' | 'error' | 'none';
 }
 
 /**
@@ -47,8 +53,10 @@ export const AddressPreview: React.FC<AddressPreviewProps> = ({
   onEdit,
   language,
   type = 'shipping',
+  addressType,
   className = '',
   showEditButton = true,
+  validationStatus,
 }) => {
   // Normalize address format for display
   const displayAddress = React.useMemo(() => {
@@ -79,6 +87,34 @@ export const AddressPreview: React.FC<AddressPreviewProps> = ({
     }
     return null;
   }, [address]);
+
+  // Get address type label
+  const getAddressTypeLabel = (type?: string): string => {
+    if (!type) return '';
+    const labels: Record<string, { en: string; bn: string }> = {
+      SHIPPING: { en: 'Shipping', bn: 'শিপিং' },
+      BILLING: { en: 'Billing', bn: 'বিলিং' },
+      HOME: { en: 'Home', bn: 'বাসা' },
+      WORK: { en: 'Work', bn: 'কাজ' },
+      OTHER: { en: 'Other', bn: 'অন্যান্য' },
+    };
+    return labels[type]?.[language] || type;
+  };
+
+  // Get validation status color
+  const getValidationStatusColor = (status?: string): string => {
+    if (!status) return 'hidden';
+    switch (status) {
+      case 'valid':
+        return 'bg-green-100 text-green-800';
+      case 'warning':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'error':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'hidden';
+    }
+  };
 
   // No address selected state
   if (!displayAddress) {
@@ -154,6 +190,30 @@ export const AddressPreview: React.FC<AddressPreviewProps> = ({
       </div>
       
       <div className="mt-3 p-4 bg-gray-50 rounded-lg">
+        {/* Address type label */}
+        {addressType && (
+          <span className={cn(
+            'inline-block px-2 py-1 text-xs font-medium rounded mb-2',
+            addressType === 'SHIPPING' ? 'bg-blue-100 text-blue-800' :
+            addressType === 'BILLING' ? 'bg-purple-100 text-purple-800' :
+            addressType === 'HOME' ? 'bg-green-100 text-green-800' :
+            addressType === 'WORK' ? 'bg-orange-100 text-orange-800' :
+            'bg-gray-100 text-gray-800'
+          )}>
+            {getAddressTypeLabel(addressType)}
+          </span>
+        )}
+        
+        {/* Validation status */}
+        {validationStatus && validationStatus !== 'none' && (
+          <span className={cn(
+            'inline-block px-2 py-1 text-xs font-medium rounded ml-2',
+            getValidationStatusColor(validationStatus)
+          )}>
+            {language === 'en' ? validationStatus : (validationStatus === 'valid' ? 'বৈধ' : validationStatus === 'warning' ? 'সতর্কতা' : 'অবৈধ')}
+          </span>
+        )}
+        
         <p className="font-medium text-gray-900">{displayAddress.name}</p>
         <p className="text-gray-600 mt-1">{displayAddress.line1}</p>
         {displayAddress.line2 && (

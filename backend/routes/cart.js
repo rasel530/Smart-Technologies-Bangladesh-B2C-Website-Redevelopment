@@ -3,7 +3,7 @@ const { body, param, validationResult } = require('express-validator');
 const { authMiddleware } = require('../middleware/auth');
 const { rateLimitService } = require('../services/rateLimitService');
 const { cartController } = require('../controllers/cartController');
-const { validateCartId, validateCartItemId, verifyCartOwnership } = require('../controllers/cartController');
+const { validateCartId, validateCartItemId, verifyCartOwnership, verifyCartItemOwnership } = require('../controllers/cartController');
 const { cartService } = require('../services/cartService');
 const { stockValidationService } = require('../services/stockValidationService');
 const { loggerService } = require('../services/logger');
@@ -222,10 +222,11 @@ router.put('/items/:id', [
 ], handleValidationErrors, authMiddleware.optional(), applyCartRateLimit, validateCartItemId, cartController.updateCartItem);
 
 // DELETE /api/v1/cart/items/:id - Remove cart item
-// CRIT-001: Added verifyCartOwnership middleware for cart modification security
+// CRIT-001: Added ownership verification middleware for cart modification security
+// BUG-FIX: Added verifyCartItemOwnership to ensure users can only delete their own cart items
 router.delete('/items/:id', [
   param('id').isUUID().withMessage('Invalid cart item ID')
-], handleValidationErrors, authMiddleware.optional(), applyCartRateLimit, validateCartItemId, cartController.removeCartItem);
+], handleValidationErrors, authMiddleware.optional(), applyCartRateLimit, validateCartItemId, verifyCartItemOwnership, cartController.removeCartItem);
 
 // PATCH /api/v1/cart/items/:id/quantity - Update item quantity
 // Body: { quantity }
@@ -551,6 +552,339 @@ router.post('/stock/extend', authMiddleware.optional(), applyCartRateLimit, asyn
     res.status(500).json({
       success: false,
       error: 'Failed to extend reservations'
+    });
+  }
+});
+
+// ============================================================================
+// Guest Cart Endpoints (GUEST-001)
+// ============================================================================
+
+// POST /api/v1/cart/guest/create - Create guest cart
+// Body: { items: [{ productId, quantity, variantId?, price }] }
+// Returns: { cart, sessionId }
+router.post('/guest/create', [
+  body('items').isArray({ min: 0 }).withMessage('Items must be an array'),
+  body('items.*.productId').isUUID().withMessage('Invalid product ID'),
+  body('items.*.quantity').isInt({ min: 1 }).withMessage('Quantity must be at least 1'),
+  body('items.*.variantId').optional().isUUID().withMessage('Invalid variant ID'),
+  body('items.*.price').optional().isFloat({ min: 0 }).withMessage('Price must be a positive number')
+], handleValidationErrors, authMiddleware.optional(), applyCartRateLimit, async (req, res) => {
+  try {
+    const { items } = req.body;
+    
+    // Generate unique session ID
+    const sessionId = crypto.randomUUID();
+    
+    // Create guest cart
+    const cart = await prisma.cart.create({
+      data: {
+        sessionId,
+        status: 'active',
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+        items: items && items.length > 0 ? {
+          create: items.map(item => ({
+            productId: item.productId,
+            variantId: item.variantId || null,
+            quantity: item.quantity,
+            price: item.price || 0,
+            subtotal: (item.price || 0) * item.quantity
+          }))
+        } : undefined
+      },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                nameEn: true,
+                nameBn: true,
+                regularPrice: true,
+                salePrice: true,
+                images: {
+                  where: { displayOrder: 0 },
+                  take: 1,
+                  select: {
+                    id: true,
+                    originalUrl: true,
+                    thumbnailUrl: true
+                  }
+                }
+              }
+            },
+            variant: true
+          }
+        }
+      }
+    });
+
+    // Calculate cart totals
+    const totals = await cartService.calculateCartTotals(cart.id);
+
+    res.status(201).json({
+      success: true,
+      message: 'Guest cart created successfully',
+      messageBn: 'অতিথি কার্ট সফলভাবে তৈরি করা হয়েছে',
+      data: {
+        cart,
+        sessionId,
+        totals
+      }
+    });
+  } catch (error) {
+    cartLogger.error('Error creating guest cart', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create guest cart',
+      message: 'Failed to create guest cart',
+      messageBn: 'অতিথি কার্ট তৈরি করতে ব্যর্থ হয়েছে'
+    });
+  }
+});
+
+// GET /api/v1/cart/guest/:sessionId - Get guest cart
+// Returns: { cart, items, totals }
+router.get('/guest/:sessionId', [
+  param('sessionId').isString().trim().notEmpty().withMessage('Session ID is required')
+], handleValidationErrors, authMiddleware.optional(), applyCartRateLimit, async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+
+    // Get guest cart
+    const cart = await prisma.cart.findFirst({
+      where: {
+        sessionId,
+        status: { in: ['active', 'abandoned'] }
+      },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                nameEn: true,
+                nameBn: true,
+                regularPrice: true,
+                salePrice: true,
+                stockQuantity: true,
+                images: {
+                  where: { displayOrder: 0 },
+                  take: 1,
+                  select: {
+                    id: true,
+                    originalUrl: true,
+                    thumbnailUrl: true,
+                    altTextEn: true,
+                    altTextBn: true
+                  }
+                }
+              }
+            },
+            variant: true
+          }
+        }
+      }
+    });
+
+    if (!cart) {
+      return res.status(404).json({
+        success: false,
+        error: 'Guest cart not found',
+        message: 'Guest cart not found',
+        messageBn: 'অতিথি কার্ট পাওয়া যায়নি'
+      });
+    }
+
+    // Check if cart is expired
+    if (cart.expiresAt && cart.expiresAt < new Date()) {
+      return res.status(410).json({
+        success: false,
+        error: 'Guest cart has expired',
+        message: 'Guest cart has expired',
+        messageBn: 'অতিথি কার্ট মেয়াদোত্তীর্ণ হয়েছে'
+      });
+    }
+
+    // Calculate cart totals
+    const totals = await cartService.calculateCartTotals(cart.id);
+
+    res.json({
+      success: true,
+      message: 'Guest cart retrieved successfully',
+      messageBn: 'অতিথি কার্ট সফলভাবে পুনরুদ্ধার করা হয়েছে',
+      data: {
+        cart,
+        items: cart.items,
+        totals
+      }
+    });
+  } catch (error) {
+    cartLogger.error('Error getting guest cart', { error: error.message, sessionId: req.params.sessionId });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve guest cart',
+      message: 'Failed to retrieve guest cart',
+      messageBn: 'অতিথি কার্ট পুনরুদ্ধার করতে ব্যর্থ হয়েছে'
+    });
+  }
+});
+
+// PUT /api/v1/cart/guest/:sessionId/merge - Merge guest cart with user cart
+// Body: { userId }
+// Requires authentication
+// Returns: { mergedCart, mergedItemCount }
+router.put('/guest/:sessionId/merge', [
+  param('sessionId').isString().trim().notEmpty().withMessage('Session ID is required'),
+  body('userId').optional().isUUID().withMessage('Invalid user ID')
+], handleValidationErrors, authMiddleware.authenticate(), applyCartRateLimit, async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const userId = req.body.userId || req.user.id;
+
+    // Get guest cart
+    const guestCart = await prisma.cart.findFirst({
+      where: { sessionId },
+      include: { items: true }
+    });
+
+    if (!guestCart) {
+      return res.status(404).json({
+        success: false,
+        error: 'Guest cart not found',
+        message: 'Guest cart not found',
+        messageBn: 'অতিথি কার্ট পাওয়া যায়নি'
+      });
+    }
+
+    // Get user cart
+    let userCart = await prisma.cart.findFirst({
+      where: { userId },
+      include: { items: true }
+    });
+
+    // Create user cart if it doesn't exist
+    if (!userCart) {
+      userCart = await prisma.cart.create({
+        data: {
+          userId,
+          status: 'active'
+        },
+        include: { items: true }
+      });
+    }
+
+    // Merge items: keep user cart items, add guest cart items
+    // If same product exists in both, add quantities
+    let mergedItemCount = 0;
+
+    for (const guestItem of guestCart.items) {
+      const existingItem = userCart.items.find(
+        item => item.productId === guestItem.productId &&
+                item.variantId === guestItem.variantId
+      );
+
+      if (existingItem) {
+        // Update quantity of existing item
+        await prisma.cartItem.update({
+          where: { id: existingItem.id },
+          data: {
+            quantity: existingItem.quantity + guestItem.quantity,
+            subtotal: (existingItem.quantity + guestItem.quantity) * parseFloat(guestItem.price)
+          }
+        });
+        mergedItemCount++;
+      } else {
+        // Add new item to user cart
+        await prisma.cartItem.create({
+          data: {
+            cartId: userCart.id,
+            productId: guestItem.productId,
+            variantId: guestItem.variantId,
+            quantity: guestItem.quantity,
+            price: guestItem.price,
+            subtotal: guestItem.subtotal
+          }
+        });
+        mergedItemCount++;
+      }
+    }
+
+    // Recalculate user cart totals
+    const totals = await cartService.calculateCartTotals(userCart.id);
+
+    // Update user cart totals
+    await prisma.cart.update({
+      where: { id: userCart.id },
+      data: {
+        subtotal: totals.subtotal,
+        tax: totals.tax,
+        shippingCost: totals.shippingCost,
+        discount: totals.discount,
+        total: totals.total,
+        updatedAt: new Date()
+      }
+    });
+
+    // Mark guest cart as converted
+    await prisma.cart.update({
+      where: { id: guestCart.id },
+      data: {
+        status: 'converted',
+        updatedAt: new Date()
+      }
+    });
+
+    // Get updated user cart with items
+    const mergedCart = await prisma.cart.findUnique({
+      where: { id: userCart.id },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                nameEn: true,
+                nameBn: true,
+                regularPrice: true,
+                salePrice: true,
+                images: {
+                  where: { displayOrder: 0 },
+                  take: 1,
+                  select: {
+                    id: true,
+                    originalUrl: true,
+                    thumbnailUrl: true
+                  }
+                }
+              }
+            },
+            variant: true
+          }
+        }
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Guest cart merged successfully',
+      messageBn: 'অতিথি কার্ট সফলভাবে মার্জ করা হয়েছে',
+      data: {
+        mergedCart,
+        mergedItemCount,
+        totals
+      }
+    });
+  } catch (error) {
+    cartLogger.error('Error merging guest cart', { error: error.message, sessionId: req.params.sessionId });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to merge guest cart',
+      message: 'Failed to merge guest cart',
+      messageBn: 'অতিথি কার্ট মার্জ করতে ব্যর্থ হয়েছে'
     });
   }
 });

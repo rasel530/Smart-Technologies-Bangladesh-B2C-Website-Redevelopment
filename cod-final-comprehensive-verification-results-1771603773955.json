@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-02-20T16:09:33.146Z",
+  "tests": [
+    {
+      "test": "Admin Authentication",
+      "status": "FAIL",
+      "details": "Status: 200, Response: {\"message\":\"Login successful\",\"messageBn\":\"লগিন সফল\",\"user\":{\"id\":\"ea59bf47-4b66-431d-ba63-a0a69437798f\",\"email\":\"admin@smarttech.com\",\"phone\":null,\"firstName\":\"Admin\",\"lastName\":\"User\",\"role\":\"admin\",\"status\":\"active\"},\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlYTU5YmY0Ny00YjY2LTQzMWQtYmE2My1hMGE2OTQzNzc5OGYiLCJlbWFpbCI6ImFkbWluQHNtYXJ0dGVjaC5jb20iLCJwaG9uZSI6bnVsbCwicm9sZSI6ImFkbWluIiwic2Vzc2lvbklkIjoiYjI4NDA2YTNhYjYyNjE3MzdkNDJiOTdkYzYwNTFjMTg4NWM1MmU4Y2E3YTlmNmMzYjhmNGY2NjI1ZjkwZGZjZiIsImlhdCI6MTc3MTYwMzc3MywiZXhwIjoxNzcyMjA4NTczLCJhdWQiOiJzbWFydC1lY29tbWVyY2UtY2xpZW50cyIsImlzcyI6InNtYXJ0LWVjb21tZXJjZS1hcGkifQ.6x4SaG28qfZ3RS4hv6CtfC0tkbYq3-Qp6WOZ806ptI0\",\"sessionId\":\"b28406a3ab6261737d42b97dc6051c1885c52e8ca7a9f6c3b8f4f6625f90dfcf\",\"expiresAt\":\"2026-02-21T16:09:33.914Z\",\"maxAge\":86400000,\"loginType\":\"email\",\"rememberMe\":false,\"rememberToken\":null}",
+      "timestamp": "2026-02-20T16:09:33.954Z"
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1
+  }
+}

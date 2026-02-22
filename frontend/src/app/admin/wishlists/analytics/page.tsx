@@ -12,7 +12,7 @@
  * - Event counts
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { withAuth } from '@/components/auth/withAuth';
 import {
   RefreshCw,
@@ -25,13 +25,22 @@ import {
   FileText,
   BarChart3
 } from 'lucide-react';
-import WishlistAnalyticsChart from '@/components/admin/wishlist/WishlistAnalyticsChart';
 import WishlistStatisticsCard from '@/components/admin/wishlist/WishlistStatisticsCard';
 import {
   getWishlistAnalytics,
   type WishlistAnalytics
 } from '@/lib/api/adminWishlist';
 import { cn } from '@/lib/utils';
+
+// PRIORITY 6: Dynamic import for Recharts to reduce initial bundle size
+const WishlistAnalyticsChart = React.lazy(() => import('@/components/admin/wishlist/WishlistAnalyticsChart'));
+
+// Loading component for chart
+const ChartLoadingFallback = () => (
+  <div className="h-64 flex items-center justify-center">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-t-2 border-primary-600"></div>
+  </div>
+);
 
 function AdminWishlistAnalyticsPage() {
   const [analytics, setAnalytics] = useState<WishlistAnalytics | null>(null);
@@ -281,18 +290,21 @@ function AdminWishlistAnalyticsPage() {
         </div>
       ) : analytics && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <WishlistAnalyticsChart
-            data={analytics.creationTrend.map(item => ({
-              name: item.date,
-              value: item.count
-            }))}
-            type="line"
-            title="Wishlist Creation Trend"
-            xAxisKey="name"
-            dataKey="value"
-          />
-          <WishlistAnalyticsChart
-            data={Object.entries(analytics.eventCounts).map(([name, value]) => ({
+          <Suspense fallback={<ChartLoadingFallback />}>
+            <WishlistAnalyticsChart
+              data={analytics.creationTrend.map(item => ({
+                name: item.date,
+                value: item.count
+              }))}
+              type="line"
+              title="Wishlist Creation Trend"
+              xAxisKey="name"
+              dataKey="value"
+            />
+          </Suspense>
+          <Suspense fallback={<ChartLoadingFallback />}>
+            <WishlistAnalyticsChart
+              data={Object.entries(analytics.eventCounts).map(([name, value]) => ({
               name,
               value
             }))}
@@ -301,6 +313,7 @@ function AdminWishlistAnalyticsPage() {
             xAxisKey="name"
             dataKey="value"
           />
+          </Suspense>
         </div>
       )}
 

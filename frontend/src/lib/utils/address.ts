@@ -271,11 +271,16 @@ export function areAddressesEqual(
  * @returns Display label for the address type
  */
 export function getAddressTypeLabel(
-  type: 'SHIPPING' | 'BILLING',
+  type: 'SHIPPING' | 'BILLING' | 'HOME' | 'WORK' | 'OTHER',
   language: 'en' | 'bn'
 ): string {
-  if (type === 'SHIPPING') {
-    return language === 'en' ? 'Shipping' : 'শিপিং';
-  }
-  return language === 'en' ? 'Billing' : 'বিলিং';
+  const labels: Record<string, { en: string; bn: string }> = {
+    SHIPPING: { en: 'Shipping', bn: 'শিপিং' },
+    BILLING: { en: 'Billing', bn: 'বিলিং' },
+    HOME: { en: 'Home', bn: 'বাসা' },
+    WORK: { en: 'Work', bn: 'কাজ' },
+    OTHER: { en: 'Other', bn: 'অন্যান্য' },
+  };
+  
+  return labels[type]?.[language] || type;
 }

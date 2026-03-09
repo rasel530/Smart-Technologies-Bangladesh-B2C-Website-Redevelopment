@@ -32,6 +32,7 @@ import {
   deleteWishlist
 } from '@/lib/api/adminWishlist';
 import { cn } from '@/lib/utils';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 function AdminWishlistModerationPage() {
   const [wishlists, setWishlists] = useState<any[]>([]);
@@ -121,13 +122,14 @@ function AdminWishlistModerationPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Wishlist Moderation
-          </h1>
+    <AdminLayout title="Wishlist Moderation">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              Wishlist Moderation
+            </h1>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Review and manage flagged wishlists
           </p>
@@ -355,6 +357,7 @@ function AdminWishlistModerationPage() {
         </div>
       )}
     </div>
+    </AdminLayout>
   );
 }
 

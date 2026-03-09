@@ -17,11 +17,11 @@ class CheckoutService {
     // Checkout session expiration (24 hours)
     this.sessionTTL = 24 * 60 * 60 * 1000;
     
-    // Checkout steps in order
-    this.checkoutSteps = ['address', 'shipping', 'payment', 'review'];
+    // Checkout steps in order (including info step for guest checkout)
+    this.checkoutSteps = ['info', 'address', 'shipping', 'payment', 'review'];
     
     // Payment methods available in Bangladesh
-    this.availablePaymentMethods = ['CASH_ON_DELIVERY', 'EMI', 'BKASH', 'NAGAD', 'ROCKET', 'MCASH', 'BANK_TRANSFER', 'CREDIT_CARD'];
+    this.availablePaymentMethods = ['cash_on_delivery', 'emi', 'bkash', 'nagad', 'rocket', 'mcash', 'bank_transfer', 'credit_card'];
     
     // Shipping methods with costs
     this.shippingMethods = {
@@ -47,7 +47,7 @@ class CheckoutService {
       this.logger.info('[createCheckoutSession] Creating checkout session', { userId, cartId, sessionId });
 
       // Validate cart exists and is not empty
-      const cart = await this.prisma.cart.findUnique({
+      const cart = await this.prisma.carts.findUnique({
         where: { id: cartId },
         include: {
           items: true
@@ -78,7 +78,7 @@ class CheckoutService {
       const totals = await cartService.calculateCartTotals(cartId);
 
       // Create checkout session
-      const checkoutSession = await this.prisma.checkoutSession.create({
+      const checkoutSession = await this.prisma.checkout_sessions.create({
         data: {
           id: checkoutSessionId,
           userId,
@@ -95,6 +95,7 @@ class CheckoutService {
           // Create initial progress tracking
           progress: {
             steps: {
+              info: { completed: false, startedAt: null, completedAt: null },
               address: { completed: false, startedAt: null, completedAt: null },
               shipping: { completed: false, startedAt: null, completedAt: null },
               payment: { completed: false, startedAt: null, completedAt: null },
@@ -138,7 +139,7 @@ class CheckoutService {
     try {
       this.logger.info('[getCheckoutSession] Retrieving checkout session', { sessionId });
 
-      const checkoutSession = await this.prisma.checkoutSession.findUnique({
+      const checkoutSession = await this.prisma.checkout_sessions.findUnique({
         where: { id: sessionId },
         include: {
           cart: {
@@ -227,7 +228,7 @@ class CheckoutService {
       }
 
       // Get current session
-      const checkoutSession = await this.prisma.checkoutSession.findUnique({
+      const checkoutSession = await this.prisma.checkout_sessions.findUnique({
         where: { id: sessionId }
       });
 
@@ -270,8 +271,21 @@ class CheckoutService {
         }
       }
 
+      // DIAGNOSTIC: Log data being stored in updateCheckoutStep
+      this.logger.info('[updateCheckoutStep] Storing step data', {
+        sessionId,
+        step,
+        dataKeys: data ? Object.keys(data) : [],
+        data,
+        existingStepData: checkoutSession.stepData,
+        newStepData: {
+          ...(checkoutSession.stepData || {}),
+          [step]: data
+        }
+      });
+      
       // Update session
-      const updatedSession = await this.prisma.checkoutSession.update({
+      const updatedSession = await this.prisma.checkout_sessions.update({
         where: { id: sessionId },
         data: {
           currentStep: step,
@@ -287,6 +301,14 @@ class CheckoutService {
           },
           updatedAt: new Date()
         }
+      });
+      
+      // DIAGNOSTIC: Log what was actually stored
+      this.logger.info('[updateCheckoutStep] Data stored successfully', {
+        sessionId,
+        step,
+        updatedSessionStepData: updatedSession.stepData,
+        updatedSessionStepDataKeys: updatedSession.stepData ? Object.keys(updatedSession.stepData) : []
       });
 
       this.logger.info('[updateCheckoutStep] Checkout step updated', {
@@ -311,13 +333,14 @@ class CheckoutService {
    * Validate checkout step completion
    * @param {string} sessionId - Checkout session ID
    * @param {string} step - Step to validate
+   * @param {Object} checkoutData - Checkout data from request body (optional)
    * @returns {Promise<Object>} Validation result
    */
-  async validateCheckoutStep(sessionId, step) {
+  async validateCheckoutStep(sessionId, step, checkoutData = null) {
     try {
       this.logger.info('[validateCheckoutStep] Validating checkout step', { sessionId, step });
 
-      const checkoutSession = await this.prisma.checkoutSession.findUnique({
+      const checkoutSession = await this.prisma.checkout_sessions.findUnique({
         where: { id: sessionId },
         include: {
           cart: {
@@ -347,7 +370,27 @@ class CheckoutService {
       switch (step) {
         case 'address':
           // Validate address is set
-          if (!checkoutSession.shippingAddressId && !checkoutSession.stepData?.address?.shippingAddress) {
+          // DIAGNOSTIC: Log address validation details
+          this.logger.info('[validateCheckoutStep] Address validation details', {
+            sessionId,
+            hasShippingAddressId: !!checkoutSession.shippingAddressId,
+            shippingAddressId: checkoutSession.shippingAddressId,
+            hasStepData: !!checkoutSession.stepData,
+            stepDataKeys: checkoutSession.stepData ? Object.keys(checkoutSession.stepData) : [],
+            hasAddressStepData: !!checkoutSession.stepData?.address,
+            addressStepData: checkoutSession.stepData?.address,
+            hasShippingAddressInStepData: !!checkoutSession.stepData?.address?.shippingAddress,
+            shippingAddressInStepData: checkoutSession.stepData?.address?.shippingAddress,
+            hasShippingAddressIdInAddressData: !!checkoutSession.stepData?.address?.shippingAddressId,
+            shippingAddressIdInAddressData: checkoutSession.stepData?.address?.shippingAddressId
+          });
+          
+          // Check multiple possible locations for address data
+          const hasSavedAddress = !!checkoutSession.shippingAddressId;
+          const hasAddressIdInStepData = !!checkoutSession.stepData?.address?.shippingAddressId;
+          const hasAddressDataInStepData = !!checkoutSession.stepData?.address?.shippingAddress;
+          
+          if (!hasSavedAddress && !hasAddressIdInStepData && !hasAddressDataInStepData) {
             validation.isValid = false;
             validation.errors.push('Shipping address is required');
           }
@@ -373,28 +416,117 @@ class CheckoutService {
             validation.isValid = false;
             validation.errors.push('Payment method is required');
           }
-          // Validate payment method exists
+          // Validate payment method exists (case-insensitive check)
           const paymentMethod = checkoutSession.stepData?.payment?.method;
-          if (paymentMethod && !this.availablePaymentMethods.includes(paymentMethod)) {
+          const availablePaymentMethodsLower = this.availablePaymentMethods.map(m => m.toLowerCase());
+          if (paymentMethod && !availablePaymentMethodsLower.includes(paymentMethod.toLowerCase())) {
             validation.isValid = false;
             validation.errors.push('Invalid payment method');
           }
           break;
 
         case 'review':
-          // Validate all previous steps are complete
+          // Validate all previous steps are complete AND actual data exists
           const steps = checkoutSession.progress?.steps || {};
+          
+          // DIAGNOSTIC: Log checkoutData details for review validation
+          this.logger.info('[validateCheckoutStep] Review validation - checkoutData details', {
+            sessionId,
+            hasCheckoutData: !!checkoutData,
+            hasCheckoutDataAddress: !!checkoutData?.address,
+            hasCheckoutDataShippingAddress: !!checkoutData?.address?.shippingAddress || !!checkoutData?.address?.address?.shippingAddress,
+            hasCheckoutDataShipping: !!checkoutData?.shipping,
+            hasCheckoutDataShippingMethod: !!checkoutData?.shipping?.method || !!checkoutData?.shipping?.shipping?.method,
+            hasCheckoutDataPayment: !!checkoutData?.payment,
+            hasCheckoutDataPaymentMethod: !!checkoutData?.payment?.method || !!checkoutData?.payment?.payment?.method,
+            hasStepDataShippingMethod: !!checkoutSession.stepData?.shipping?.method,
+            hasStepDataPaymentMethod: !!checkoutSession.stepData?.payment?.method
+          });
+          
+          // Check address step completion AND data exists
           if (!steps.address?.completed) {
             validation.isValid = false;
             validation.errors.push('Address step not completed');
           }
+          // Verify actual address data exists in stepData, as saved address, OR in checkoutData
+          const reviewHasShippingAddressId = !!checkoutSession.shippingAddressId;
+          const reviewHasAddressIdInStepData = !!checkoutSession.stepData?.address?.shippingAddressId;
+          const reviewHasAddressDataInStepData = !!checkoutSession.stepData?.address?.shippingAddress;
+          const reviewHasAddressDataInCheckoutData = !!checkoutData?.address?.shippingAddress || !!checkoutData?.address?.address?.shippingAddress;
+          
+          if (!reviewHasShippingAddressId && !reviewHasAddressIdInStepData && !reviewHasAddressDataInStepData && !reviewHasAddressDataInCheckoutData) {
+            validation.isValid = false;
+            validation.errors.push('Shipping address is required');
+            this.logger.warn('[validateCheckoutStep] Review validation failed - no shipping address found', {
+              sessionId,
+              reviewHasShippingAddressId,
+              reviewHasAddressIdInStepData,
+              reviewHasAddressDataInStepData,
+              reviewHasAddressDataInCheckoutData
+            });
+          }
+          
+          // Check shipping step completion
           if (!steps.shipping?.completed) {
             validation.isValid = false;
             validation.errors.push('Shipping step not completed');
           }
+          // Verify shipping method is selected (check both stepData and checkoutData)
+          const shippingMethodFromSession = checkoutSession.stepData?.shipping?.method;
+          const shippingMethodFromCheckoutData = checkoutData?.shipping?.method || checkoutData?.shipping?.shipping?.method;
+          const finalShippingMethod = shippingMethodFromCheckoutData || shippingMethodFromSession;
+          
+          if (!finalShippingMethod) {
+            validation.isValid = false;
+            validation.errors.push('Shipping method is required');
+            this.logger.warn('[validateCheckoutStep] Review validation failed - no shipping method found', {
+              sessionId,
+              shippingMethodFromSession,
+              shippingMethodFromCheckoutData
+            });
+          } else {
+            // Validate shipping method exists
+            if (!this.shippingMethods[finalShippingMethod]) {
+              validation.isValid = false;
+              validation.errors.push('Invalid shipping method');
+              this.logger.warn('[validateCheckoutStep] Review validation failed - invalid shipping method', {
+                sessionId,
+                finalShippingMethod,
+                availableMethods: Object.keys(this.shippingMethods)
+              });
+            }
+          }
+          
+          // Check payment step completion
           if (!steps.payment?.completed) {
             validation.isValid = false;
             validation.errors.push('Payment step not completed');
+          }
+          // Verify payment method is selected (check both stepData and checkoutData)
+          const paymentMethodFromSession = checkoutSession.stepData?.payment?.method;
+          const paymentMethodFromCheckoutData = checkoutData?.payment?.method || checkoutData?.payment?.payment?.method;
+          const finalPaymentMethod = paymentMethodFromCheckoutData || paymentMethodFromSession;
+          
+          if (!finalPaymentMethod) {
+            validation.isValid = false;
+            validation.errors.push('Payment method is required');
+            this.logger.warn('[validateCheckoutStep] Review validation failed - no payment method found', {
+              sessionId,
+              paymentMethodFromSession,
+              paymentMethodFromCheckoutData
+            });
+          } else {
+            // Validate payment method exists (case-insensitive check)
+            const availablePaymentMethodsLower = this.availablePaymentMethods.map(m => m.toLowerCase());
+            if (!availablePaymentMethodsLower.includes(finalPaymentMethod.toLowerCase())) {
+              validation.isValid = false;
+              validation.errors.push('Invalid payment method');
+              this.logger.warn('[validateCheckoutStep] Review validation failed - invalid payment method', {
+                sessionId,
+                finalPaymentMethod,
+                availableMethods: this.availablePaymentMethods
+              });
+            }
           }
           break;
       }
@@ -442,7 +574,7 @@ class CheckoutService {
     try {
       this.logger.info('[calculateCheckoutTotals] Calculating checkout totals', { sessionId });
 
-      const checkoutSession = await this.prisma.checkoutSession.findUnique({
+      const checkoutSession = await this.prisma.checkout_sessions.findUnique({
         where: { id: sessionId }
       });
 
@@ -512,14 +644,18 @@ class CheckoutService {
   /**
    * Complete checkout session and create order
    * @param {string} sessionId - Checkout session ID
+   * @param {Object} checkoutData - Checkout data from request body (optional)
    * @returns {Promise<Object>} Created order
    */
-  async completeCheckoutSession(sessionId) {
+  async completeCheckoutSession(sessionId, checkoutData = null) {
     try {
-      this.logger.info('[completeCheckoutSession] Completing checkout session', { sessionId });
+      this.logger.info('[completeCheckoutSession] Completing checkout session', { 
+        sessionId,
+        hasCheckoutData: !!checkoutData
+      });
 
       // Get checkout session
-      const checkoutSession = await this.prisma.checkoutSession.findUnique({
+      const checkoutSession = await this.prisma.checkout_sessions.findUnique({
         where: { id: sessionId },
         include: {
           cart: {
@@ -541,13 +677,23 @@ class CheckoutService {
         throw new Error('Checkout session not found');
       }
 
+      // CRITICAL: Validate cart has items before creating order
+      if (!checkoutSession.cart || checkoutSession.cart.items.length === 0) {
+        this.logger.error('[completeCheckoutSession] Cart is empty - cannot create order', {
+          sessionId,
+          cartId: checkoutSession.cartId,
+          cartItems: checkoutSession.cart?.items?.length || 0
+        });
+        throw new Error('Cart is empty - cannot create order. Please add items to your cart and try again.');
+      }
+
       // Validate session is not already completed
       if (checkoutSession.status === 'completed') {
         throw new Error('Checkout session already completed');
       }
 
-      // Validate all steps are completed
-      const validation = await this.validateCheckoutStep(sessionId, 'review');
+      // Validate all steps are completed (pass checkoutData to validate request body data)
+      const validation = await this.validateCheckoutStep(sessionId, 'review', checkoutData);
       if (!validation.isValid) {
         throw new Error('Checkout validation failed: ' + validation.errors.join(', '));
       }
@@ -563,12 +709,138 @@ class CheckoutService {
 
       // Use transaction to create order atomically
       const order = await this.prisma.$transaction(async (tx) => {
+        // Handle guest user - create temporary guest user if needed
+        let orderUserId = checkoutSession.userId;
+        if (!orderUserId) {
+          // Create a temporary guest user for the order
+          // Priority: checkoutData.address > stepData.address
+          const shippingAddressData = checkoutData?.address?.shippingAddress || checkoutSession.stepData?.address?.shippingAddress;
+          const guestUser = await tx.users.create({
+            data: {
+              email: `guest_${Date.now()}@temp.local`, // Temporary email
+              firstName: shippingAddressData?.firstName || shippingAddressData?.name?.split(' ')[0] || 'Guest',
+              lastName: shippingAddressData?.lastName || shippingAddressData?.name?.split(' ').slice(1).join(' ') || 'User',
+              role: 'customer',
+              status: 'active',
+              accountStatus: 'guest'
+            }
+          });
+          orderUserId = guestUser.id;
+        }
+
+        // Prepare address data for order
+        // DIAGNOSTIC: Log address data details before processing
+        this.logger.info('[completeCheckoutSession] Address data details', {
+          sessionId,
+          hasCheckoutData: !!checkoutData,
+          hasCheckoutDataAddress: !!checkoutData?.address,
+          hasCheckoutDataShippingAddress: !!checkoutData?.address?.shippingAddress,
+          hasShippingAddressId: !!checkoutSession.shippingAddressId,
+          shippingAddressId: checkoutSession.shippingAddressId,
+          hasStepData: !!checkoutSession.stepData,
+          stepDataKeys: checkoutSession.stepData ? Object.keys(checkoutSession.stepData) : [],
+          hasAddressStepData: !!checkoutSession.stepData?.address,
+          addressStepData: checkoutSession.stepData?.address,
+          hasShippingAddressInStepData: !!checkoutSession.stepData?.address?.shippingAddress,
+          shippingAddressInStepData: checkoutSession.stepData?.address?.shippingAddress,
+          hasShippingAddressIdInAddressData: !!checkoutSession.stepData?.address?.shippingAddressId,
+          shippingAddressIdInAddressData: checkoutSession.stepData?.address?.shippingAddressId
+        });
+        
+        let addressData;
+        let shippingAddressData = null;
+        let billingAddressData = null;
+        
+        // Determine address data source with priority:
+        // Priority 1: checkoutData from request body (most recent user input)
+        // Priority 2: checkoutSession.shippingAddressId (saved address)
+        // Priority 3: checkoutSession.stepData.address.shippingAddressId (address ID in stepData)
+        // Priority 4: checkoutSession.stepData.address.shippingAddress (full address object in stepData)
+        
+        if (checkoutData?.address?.shippingAddress) {
+          // Priority 1: Use shipping address from checkoutData
+          shippingAddressData = checkoutData.address.shippingAddress;
+          this.logger.info('[completeCheckoutSession] Using shipping address from checkoutData');
+        } else if (checkoutSession.shippingAddressId) {
+          // Priority 2: Use existing saved address
+          addressData = {
+            address: {
+              connect: { id: checkoutSession.shippingAddressId }
+            }
+          };
+          this.logger.info('[completeCheckoutSession] Using saved shipping address');
+        } else if (checkoutSession.stepData?.address?.shippingAddressId) {
+          // Priority 3: Use address ID from stepData
+          addressData = {
+            address: {
+              connect: { id: checkoutSession.stepData.address.shippingAddressId }
+            }
+          };
+          this.logger.info('[completeCheckoutSession] Using shipping address ID from stepData');
+        } else if (checkoutSession.stepData?.address?.shippingAddress) {
+          // Priority 4: Use address object from stepData
+          shippingAddressData = checkoutSession.stepData.address.shippingAddress;
+          this.logger.info('[completeCheckoutSession] Using shipping address from stepData');
+        } else {
+          // No address data found anywhere
+          throw new Error('Shipping address is required');
+        }
+        
+        // Handle billing address separately
+        let billingAddressId = null;
+        
+        // Determine billing address source
+        if (checkoutData?.address?.billingAddress) {
+          // Use billing address from checkoutData
+          billingAddressData = checkoutData.address.billingAddress;
+        } else if (checkoutSession.billingAddressId) {
+          // Use existing saved billing address
+          billingAddressId = checkoutSession.billingAddressId;
+        } else if (checkoutData?.address?.useSameAddress) {
+          // Use same address as shipping
+          if (shippingAddressData) {
+            billingAddressData = shippingAddressData;
+          } else if (checkoutSession.shippingAddressId) {
+            billingAddressId = checkoutSession.shippingAddressId;
+          }
+        } else if (checkoutSession.stepData?.address?.billingAddress) {
+          // Use billing address from stepData
+          billingAddressData = checkoutSession.stepData.address.billingAddress;
+        }
+        
+        // If we have shippingAddressData (not just addressData with connect), create the address
+        if (shippingAddressData && !addressData) {
+          // Create or find shipping address
+          const shippingAddress = await this.createOrUpdateAddress(
+            tx,
+            orderUserId,
+            shippingAddressData,
+            'shipping'
+          );
+          addressData = { address: { connect: { id: shippingAddress.id } } };
+        }
+        
+        // Create billing address if we have billingAddressData
+        if (billingAddressData) {
+          const billingAddress = await this.createOrUpdateAddress(
+            tx,
+            orderUserId,
+            billingAddressData,
+            'billing'
+          );
+          billingAddressId = billingAddress.id;
+        }
+        
+        // Add billing address to addressData if we have one
+        if (billingAddressId) {
+          addressData.billingAddressId = billingAddressId;
+        }
+
         // Create order
-        const newOrder = await tx.order.create({
+        const newOrder = await tx.orders.create({
           data: {
             orderNumber,
-            userId: checkoutSession.userId,
-            addressId: checkoutSession.shippingAddressId,
+            user: { connect: { id: orderUserId } },
             checkoutSessionId: sessionId,
             subtotal: totals.subtotal,
             tax: totals.tax,
@@ -579,6 +851,8 @@ class CheckoutService {
             paymentDetails: checkoutSession.stepData?.payment?.details || null,
             notes: checkoutSession.stepData?.review?.notes || null,
             status: 'pending',
+            // Handle shipping address
+            address: addressData.address,
             items: {
               create: checkoutSession.cart.items.map(item => ({
                 productId: item.productId,
@@ -594,7 +868,7 @@ class CheckoutService {
         // Update product stock
         for (const item of checkoutSession.cart.items) {
           if (item.variantId) {
-            await tx.productVariant.update({
+            await tx.product_variants.update({
               where: { id: item.variantId },
               data: {
                 stock: {
@@ -603,7 +877,7 @@ class CheckoutService {
               }
             });
           } else {
-            await tx.product.update({
+            await tx.products.update({
               where: { id: item.productId },
               data: {
                 stockQuantity: {
@@ -615,7 +889,7 @@ class CheckoutService {
         }
 
         // Mark checkout session as completed
-        await tx.checkoutSession.update({
+        await tx.checkout_sessions.update({
           where: { id: sessionId },
           data: {
             status: 'completed',
@@ -626,7 +900,7 @@ class CheckoutService {
         });
 
         // Mark cart as converted
-        await tx.cart.update({
+        await tx.carts.update({
           where: { id: checkoutSession.cartId },
           data: {
             status: 'converted'
@@ -667,7 +941,7 @@ class CheckoutService {
       this.logger.info('[abandonCheckoutSession] Abandoning checkout session', { sessionId, reason });
 
       // Get checkout session
-      const checkoutSession = await this.prisma.checkoutSession.findUnique({
+      const checkoutSession = await this.prisma.checkout_sessions.findUnique({
         where: { id: sessionId },
         include: {
           cart: true
@@ -687,25 +961,20 @@ class CheckoutService {
       }
 
       // Create abandonment record
-      const abandonment = await this.prisma.checkoutAbandonment.create({
+      const abandonment = await this.prisma.checkout_abandonments.create({
         data: {
           checkoutSessionId: sessionId,
           userId: checkoutSession.userId,
           sessionId: checkoutSession.sessionId,
-          cartId: checkoutSession.cartId,
-          currentStep: checkoutSession.currentStep,
-          reason,
-          abandonedAt: new Date(),
-          metadata: {
-            stepData: checkoutSession.stepData,
-            progress: checkoutSession.progress,
-            cartItemCount: checkoutSession.cart?.items?.length || 0
-          }
+          abandonmentStep: checkoutSession.currentStep,
+          abandonmentReason: reason,
+          cartValue: checkoutSession.cart?.total || 0,
+          itemCount: checkoutSession.cart?.items?.length || 0
         }
       });
 
       // Mark checkout session as abandoned
-      await this.prisma.checkoutSession.update({
+      await this.prisma.checkout_sessions.update({
         where: { id: sessionId },
         data: {
           status: 'abandoned',
@@ -746,7 +1015,7 @@ class CheckoutService {
     try {
       this.logger.info('[trackCheckoutProgress] Tracking checkout progress', { sessionId, step });
 
-      const checkoutSession = await this.prisma.checkoutSession.findUnique({
+      const checkoutSession = await this.prisma.checkout_sessions.findUnique({
         where: { id: sessionId }
       });
 
@@ -781,7 +1050,7 @@ class CheckoutService {
       };
 
       // Update checkout session
-      await this.prisma.checkoutSession.update({
+      await this.prisma.checkout_sessions.update({
         where: { id: sessionId },
         data: {
           progress: updatedProgress,
@@ -820,10 +1089,102 @@ class CheckoutService {
 
   /**
    * Get available payment methods
-   * @returns {Array<string>} Available payment methods
+   * @returns {Array<Object>} Available payment methods with full details
    */
   getPaymentMethods() {
-    return this.availablePaymentMethods;
+    // Payment method details for Bangladesh market
+    const paymentMethodDetails = [
+      {
+        method: 'CREDIT_CARD',
+        name: 'Credit/Debit Card',
+        description: 'Pay securely with Visa, MasterCard, or American Express via SSLCommerz',
+        icon: '/icons/credit-card.svg',
+        isActive: true,
+        isAvailable: true,
+        fee: 0.015, // 1.5% processing fee
+        processingTime: 'Instant',
+        features: ['Secure SSL encryption', 'Instant confirmation', 'Multiple card types supported']
+      },
+      {
+        method: 'BKASH',
+        name: 'bKash',
+        description: 'Pay with Bangladesh\'s leading mobile financial service',
+        icon: '/icons/bkash.svg',
+        isActive: true,
+        isAvailable: true,
+        fee: 0,
+        processingTime: 'Instant',
+        features: ['Instant payment', 'No additional fees', 'Widely accepted']
+      },
+      {
+        method: 'NAGAD',
+        name: 'Nagad',
+        description: 'Pay with Nagad mobile financial service',
+        icon: '/icons/nagad.svg',
+        isActive: true,
+        isAvailable: true,
+        fee: 0,
+        processingTime: 'Instant',
+        features: ['Instant payment', 'No additional fees', 'Government-backed service']
+      },
+      {
+        method: 'ROCKET',
+        name: 'Rocket',
+        description: 'Pay with Dutch-Bangla Bank Rocket service',
+        icon: '/icons/rocket.svg',
+        isActive: true,
+        isAvailable: true,
+        fee: 0,
+        processingTime: 'Instant',
+        features: ['Instant payment', 'No additional fees', 'Bank-backed service']
+      },
+      {
+        method: 'MCASH',
+        name: 'MCash',
+        description: 'Pay with MCash mobile financial service',
+        icon: '/icons/mcash.svg',
+        isActive: true,
+        isAvailable: true,
+        fee: 0,
+        processingTime: 'Instant',
+        features: ['Instant payment', 'No additional fees']
+      },
+      {
+        method: 'CASH_ON_DELIVERY',
+        name: 'Cash on Delivery',
+        description: 'Pay cash when your order is delivered',
+        icon: '/icons/cod.svg',
+        isActive: true,
+        isAvailable: true,
+        fee: 0,
+        processingTime: 'Upon delivery',
+        features: ['Pay when you receive', 'No advance payment required', 'Available nationwide']
+      },
+      {
+        method: 'BANK_TRANSFER',
+        name: 'Bank Transfer',
+        description: 'Transfer payment directly to our bank account',
+        icon: '/icons/bank-transfer.svg',
+        isActive: true,
+        isAvailable: true,
+        fee: 0,
+        processingTime: '1-2 business days',
+        features: ['Secure bank transfer', 'No additional fees', 'Order confirmation after verification']
+      },
+      {
+        method: 'EMI',
+        name: 'EMI (Easy Monthly Installments)',
+        description: 'Pay in easy monthly installments with 0% interest',
+        icon: '/icons/emi.svg',
+        isActive: true,
+        isAvailable: true,
+        fee: 0.02, // 2% processing fee
+        processingTime: 'Instant',
+        features: ['0% interest', 'Flexible tenure', 'Available on orders above 10,000 BDT']
+      }
+    ];
+
+    return paymentMethodDetails;
   }
 
   /**
@@ -883,6 +1244,77 @@ class CheckoutService {
       isValid: errors.length === 0,
       errors
     };
+  }
+
+  /**
+   * Create or update an address for a user
+   * @param {Object} tx - Prisma transaction object
+   * @param {string} userId - User ID
+   * @param {Object} addressData - Address data
+   * @param {string} type - Address type ('shipping' or 'billing')
+   * @returns {Promise<Object>} Created or updated address
+   */
+  async createOrUpdateAddress(tx, userId, addressData, type = 'shipping') {
+    try {
+      // Normalize address data
+      const normalizedAddress = {
+        userId,
+        type,
+        firstName: addressData.firstName || addressData.name?.split(' ')[0] || '',
+        lastName: addressData.lastName || addressData.name?.split(' ').slice(1).join(' ') || '',
+        phone: addressData.phone || '',
+        address: addressData.address || addressData.street || '',
+        addressLine2: addressData.addressLine2 || addressData.apartment || '',
+        city: addressData.city || '',
+        district: addressData.district || '',
+        division: addressData.division || 'dhaka',
+        upazila: addressData.upazila || '',
+        postalCode: addressData.postalCode || '',
+        isDefault: false
+      };
+
+      // Check if address already exists for this user
+      const existingAddress = await tx.addresses.findFirst({
+        where: {
+          userId,
+          type,
+          phone: normalizedAddress.phone,
+          address: normalizedAddress.address,
+          city: normalizedAddress.city,
+          district: normalizedAddress.district
+        }
+      });
+
+      if (existingAddress) {
+        this.logger.info('[createOrUpdateAddress] Using existing address', {
+          addressId: existingAddress.id,
+          userId,
+          type
+        });
+        return existingAddress;
+      }
+
+      // Create new address
+      const newAddress = await tx.addresses.create({
+        data: normalizedAddress
+      });
+
+      this.logger.info('[createOrUpdateAddress] Created new address', {
+        addressId: newAddress.id,
+        userId,
+        type
+      });
+
+      return newAddress;
+    } catch (error) {
+      this.logger.error('[createOrUpdateAddress] Error creating/updating address', {
+        userId,
+        type,
+        error: error.message,
+        stack: error.stack
+      });
+      throw error;
+    }
   }
 }
 

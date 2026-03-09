@@ -26,6 +26,7 @@ import { Role, RoleWithPermissions, Permission } from '@/types/rbac';
 import { rbacApi } from '@/lib/api/rbac';
 import { getRoleDisplayName } from '@/lib/rbac/utils';
 import { withAuth } from '@/components/auth/withAuth';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 /**
  * Role Management Page
@@ -377,7 +378,8 @@ function RoleManagementPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <AdminLayout title="RBAC Roles">
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -877,6 +879,7 @@ function RoleManagementPage() {
         </div>
       )}
     </div>
+    </AdminLayout>
   );
 }
 

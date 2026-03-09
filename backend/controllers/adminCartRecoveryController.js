@@ -562,7 +562,7 @@ class AdminCartRecoveryController {
       }
 
       // Get cart with user info
-      const cart = await this.prisma.cart.findUnique({
+      const cart = await this.prisma.carts.findUnique({
         where: { id: cartId },
         include: {
           user: {

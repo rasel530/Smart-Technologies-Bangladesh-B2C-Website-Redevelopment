@@ -22,6 +22,7 @@ const AuthWrapper: React.FC<AuthWrapperProps & WithAuthProps> = ({ children, use
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
   const [mounted, setMounted] = useState(false);
+  const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -29,19 +30,21 @@ const AuthWrapper: React.FC<AuthWrapperProps & WithAuthProps> = ({ children, use
 
   // Redirect on mount using useEffect to avoid updating during render
   useEffect(() => {
-    if (!mounted) return;
-    
-    // CRITICAL FIX: Check NextAuth session status directly
-    // This prevents redirecting during session restoration (loading state)
-    // Only redirect if session is definitely unauthenticated
-    if (sessionStatus === 'unauthenticated') {
+    if (!mounted || hasRedirected) return;
+
+    // FIX: Only redirect if NOT on admin routes (middleware handles those)
+    const isOnAdminRoute = typeof window !== 'undefined' &&
+                          window.location.pathname.startsWith('/admin');
+
+    if (!isOnAdminRoute && sessionStatus === 'unauthenticated') {
+      setHasRedirected(true);
       if (redirectTo) {
         router.push(redirectTo);
       } else {
         router.push('/login');
       }
     }
-  }, [sessionStatus, mounted, redirectTo, router]);
+  }, [sessionStatus, mounted, redirectTo, router, hasRedirected]);
 
   // PRIORITY 2: Progressive Rendering - Show skeleton while auth loads
   // Instead of blocking the entire page, show a minimal loading indicator

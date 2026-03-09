@@ -10,6 +10,7 @@ import SEOFieldEditor from '@/components/admin/SEOFieldEditor';
 import productsApi from '@/lib/api/products';
 import { ProductWithRelations } from '@/types/product';
 import { withAuth } from '@/components/auth/withAuth';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 function NewProductPage() {
   const router = useRouter();
@@ -37,47 +38,43 @@ function NewProductPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-6">
-          <button
-            onClick={handleCancel}
-            className="text-gray-600 hover:text-gray-900"
-          >
-            ← Back to Products
-          </button>
-        </div>
+    <AdminLayout title="New Product">
+      <div className="mb-6">
+        <button
+          onClick={handleCancel}
+          className="text-gray-600 hover:text-gray-900"
+        >
+          ← Back to Products
+        </button>
+      </div>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Create New Product</h1>
+      <ProductForm
+        product={product}
+        onSubmit={handleSubmit}
+        onCancel={handleCancel}
+      />
 
-        <ProductForm
-          product={product}
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
+      <div className="mt-8 space-y-6">
+        <ProductSpecificationEditor
+          productId={product?.id || ''}
+          specifications={specifications}
+          onUpdate={() => {}}
         />
 
-        <div className="mt-8 space-y-6">
-          <ProductSpecificationEditor
-            productId={product?.id || ''}
-            specifications={specifications}
+        <ProductVariantEditor
+          productId={product?.id || ''}
+          variants={variants}
+          onUpdate={() => {}}
+        />
+
+        {product && (
+          <SEOFieldEditor
+            product={product}
             onUpdate={() => {}}
           />
-
-          <ProductVariantEditor
-            productId={product?.id || ''}
-            variants={variants}
-            onUpdate={() => {}}
-          />
-
-          {product && (
-            <SEOFieldEditor
-              product={product}
-              onUpdate={() => {}}
-            />
-          )}
-        </div>
+        )}
       </div>
-    </div>
+    </AdminLayout>
   );
 }
 

@@ -12,6 +12,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import Link from 'next/link';
 import { ProductWithRelations, ProductStatus, ProductVisibility } from '@/types/product';
+import { getImageUrl } from '@/lib/utils/image';
 import { ProductImageGallery } from './ProductImageGallery';
 import { ProductSpecifications } from './ProductSpecifications';
 import { ProductVariants } from './ProductVariants';
@@ -221,15 +222,17 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         {/* Left Column - Image Gallery */}
         <div>
-          <ProductImageGallery
-            images={product.images.map(img => ({
-              id: img.id,
-              url: img.originalUrl || img.optimizedUrl || img.thumbnailUrl || '',
-              alt: img.altTextEn || img.altTextBn || '',
-              sortOrder: img.displayOrder
-            }))}
-            productName={product.name}
-          />
+          {product && product.images && product.images.length > 0 ? (
+            <ProductImageGallery
+              images={product.images.map(img => ({
+                id: img.id,
+                url: getImageUrl(img.originalUrl || img.optimizedUrl || img.thumbnailUrl) || '',
+                alt: img.altTextEn || img.altTextBn || '',
+                sortOrder: img.displayOrder
+              }))}
+              productName={product.name}
+            />
+          ) : null}
         </div>
 
         {/* Right Column - Product Info */}
@@ -243,7 +246,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
               {product.brand.logoUrl && (
                 <div className="w-12 h-12 flex-shrink-0">
                   <img
-                    src={product.brand.logoUrl}
+                    src={getImageUrl(product.brand.logoUrl) || ''}
                     alt={product.brand.name}
                     className="w-full h-full object-contain"
                   />

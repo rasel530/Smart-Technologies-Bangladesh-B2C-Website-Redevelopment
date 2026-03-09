@@ -11,11 +11,13 @@
  * Usage: node scripts/comprehensive-migration-solution.js
  */
 
-const { PrismaClient } = require('@prisma/client');
+const { databaseService } = require('../services/database');
 const fs = require('fs');
 const path = require('path');
 
-const prisma = new PrismaClient();
+// Use the shared database service singleton instead of creating a new PrismaClient instance
+// Get prisma client after database connection is established
+let prisma = null;
 
 // Migration audit log
 const AUDIT_LOG_PATH = path.join(__dirname, '../logs/migration-audit.log');
@@ -41,6 +43,14 @@ function logAudit(action, details, status = 'SUCCESS') {
  */
 async function checkDatabaseConnection() {
   try {
+    // Get prisma client after database connection is established
+    prisma = databaseService.getClient();
+    
+    // Ensure prisma client is available
+    if (!prisma) {
+      throw new Error('Database client is not available');
+    }
+    
     await prisma.$connect();
     logAudit('DATABASE_CONNECTION', 'Successfully connected to database');
     return true;
@@ -212,6 +222,11 @@ async function backupData() {
  * Manual backup using Prisma
  */
 async function manualBackup(tables) {
+  // Ensure prisma client is available
+  if (!prisma) {
+    throw new Error('Database client is not available for backup');
+  }
+  
   const backupDir = path.join(__dirname, '../backups');
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const backupFile = path.join(backupDir, `backup-${timestamp}.json`);
@@ -280,6 +295,12 @@ async function verifyMigration() {
   try {
     logAudit('MIGRATION_VERIFY', 'Starting migration verification');
     
+    // Ensure prisma client is available
+    if (!prisma) {
+      logAudit('MIGRATION_VERIFY', 'Database client is not available', 'ERROR');
+      return false;
+    }
+    
     const issues = await validateSchemaConsistency();
     
     if (issues.length > 0) {
@@ -311,6 +332,11 @@ async function verifyMigration() {
 async function rollback(backupFile) {
   try {
     logAudit('ROLLBACK', `Starting rollback from ${backupFile}`);
+    
+    // Ensure prisma client is available
+    if (!prisma) {
+      throw new Error('Database client is not available for rollback');
+    }
     
     if (!fs.existsSync(backupFile)) {
       throw new Error(`Backup file not found: ${backupFile}`);
@@ -425,7 +451,10 @@ async function runMigration() {
     logAudit('MIGRATION_FAILED', error.message, 'ERROR');
     process.exit(1);
   } finally {
-    await prisma.$disconnect();
+    // Disconnect only if prisma client is available
+    if (prisma) {
+      await prisma.$disconnect();
+    }
   }
 }
 

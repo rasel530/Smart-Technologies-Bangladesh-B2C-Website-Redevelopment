@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { apiClient } from '@/lib/api/client';
@@ -110,6 +110,9 @@ const formatDate = (dateString: string): string => {
 };
 
 const formatStep = (step: string): string => {
+  if (typeof step !== 'string' || !step) {
+    return 'Unknown';
+  }
   return step.charAt(0).toUpperCase() + step.slice(1);
 };
 
@@ -187,7 +190,7 @@ export default function CheckoutAbandonmentTable({ onAbandonmentClick, initialFi
       if (recoveredFilter) params.append('recovered', recoveredFilter);
       if (search) params.append('reason', search);
 
-      const response: CheckoutAbandonmentsResponse = await apiClient.get(`/admin/checkout/abandonment?${params.toString()}`);
+      const response: CheckoutAbandonmentsResponse = await apiClient.get(`/admin/checkout/abandonment?${params.toString()}`, { unwrapResponse: false });
       setAbandonments(response.data);
       setTotalPages(response.pagination.pages);
       setTotalAbandonments(response.pagination.total);
@@ -241,7 +244,7 @@ export default function CheckoutAbandonmentTable({ onAbandonmentClick, initialFi
       await apiClient.post(`/admin/checkout/abandonment/${abandonmentId}/recover`);
       
       // Update local state
-      setAbandonments(abandonments.map(abandonment => 
+      setAbandonments(abandonments?.map(abandonment => 
         abandonment.id === abandonmentId 
           ? { ...abandonment, recoveryAttempts: abandonment.recoveryAttempts + 1, lastRecoveryAttempt: new Date().toISOString() }
           : abandonment
@@ -257,7 +260,7 @@ export default function CheckoutAbandonmentTable({ onAbandonmentClick, initialFi
   };
 
   const handleExportCSV = () => {
-    if (abandonments.length === 0) {
+    if (!abandonments || abandonments.length === 0) {
       alert('No abandonments to export');
       return;
     }
@@ -278,7 +281,7 @@ export default function CheckoutAbandonmentTable({ onAbandonmentClick, initialFi
 
     const csvContent = [
       headers.join(','),
-      ...abandonments.map(abandonment => [
+      ...abandonments?.map(abandonment => [
         abandonment.id,
         abandonment.sessionId,
         abandonment.session?.userType || 'N/A',
@@ -301,7 +304,7 @@ export default function CheckoutAbandonmentTable({ onAbandonmentClick, initialFi
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    if (document.body && a.parentNode === document.body) { document.body.removeChild(a); }
   };
 
   return (
@@ -324,7 +327,7 @@ export default function CheckoutAbandonmentTable({ onAbandonmentClick, initialFi
           </button>
           <button
             onClick={handleExportCSV}
-            disabled={abandonments.length === 0}
+            disabled={abandonments?.length === 0}
             className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
             <Download className="w-4 h-4" />
@@ -438,7 +441,7 @@ export default function CheckoutAbandonmentTable({ onAbandonmentClick, initialFi
             <Loader2 className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-4" />
             <p className="text-gray-600">Loading abandoned checkouts...</p>
           </div>
-        ) : abandonments.length === 0 ? (
+        ) : abandonments?.length === 0 ? (
           <div className="p-8 text-center">
             <AlertTriangle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No Abandoned Checkouts Found</h3>
@@ -450,7 +453,7 @@ export default function CheckoutAbandonmentTable({ onAbandonmentClick, initialFi
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-[1200px] divide-y divide-gray-200">
+            <table className="w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -486,7 +489,7 @@ export default function CheckoutAbandonmentTable({ onAbandonmentClick, initialFi
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {abandonments.map((abandonment) => (
+                {abandonments?.map((abandonment) => (
                   <tr key={abandonment.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{abandonment.sessionId}</div>

@@ -1,0 +1,102 @@
+{
+  "timestamp": "2026-02-27T10:21:12.992Z",
+  "tests": [
+    {
+      "name": "Backend server is running",
+      "status": "PASS",
+      "message": "Backend is healthy and running",
+      "details": {
+        "status": "OK",
+        "database": "connected",
+        "redis": "connected"
+      }
+    },
+    {
+      "name": "Frontend dev server is running",
+      "status": "PASS",
+      "message": "Frontend dev server is running",
+      "details": {
+        "statusCode": 200,
+        "contentType": "text/html; charset=utf-8"
+      }
+    },
+    {
+      "name": "Route Payment Management Dashboard is accessible (/admin/payments)",
+      "status": "FAIL",
+      "message": "Route /admin/payments returned unexpected status 307",
+      "details": null
+    },
+    {
+      "name": "Route Payment Analytics Page is accessible (/admin/payments/analytics)",
+      "status": "FAIL",
+      "message": "Route /admin/payments/analytics returned unexpected status 307",
+      "details": null
+    },
+    {
+      "name": "Route Gateway Settings Page is accessible (/admin/payments/gateways)",
+      "status": "FAIL",
+      "message": "Route /admin/payments/gateways returned unexpected status 307",
+      "details": null
+    },
+    {
+      "name": "Route Payment Logs Page is accessible (/admin/payments/logs)",
+      "status": "FAIL",
+      "message": "Route /admin/payments/logs returned unexpected status 307",
+      "details": null
+    },
+    {
+      "name": "Navigation menu contains all payment routes",
+      "status": "FAIL",
+      "message": "Failed to load payment dashboard for navigation check",
+      "details": null
+    }
+  ],
+  "routes": {
+    "/admin/payments": {
+      "name": "Payment Management Dashboard",
+      "accessible": false,
+      "statusCode": 307,
+      "contentLoaded": false,
+      "errors": [
+        "HTTP 307",
+        "Route /admin/payments returned unexpected status 307"
+      ]
+    },
+    "/admin/payments/analytics": {
+      "name": "Payment Analytics Page",
+      "accessible": false,
+      "statusCode": 307,
+      "contentLoaded": false,
+      "errors": [
+        "HTTP 307",
+        "Route /admin/payments/analytics returned unexpected status 307"
+      ]
+    },
+    "/admin/payments/gateways": {
+      "name": "Gateway Settings Page",
+      "accessible": false,
+      "statusCode": 307,
+      "contentLoaded": false,
+      "errors": [
+        "HTTP 307",
+        "Route /admin/payments/gateways returned unexpected status 307"
+      ]
+    },
+    "/admin/payments/logs": {
+      "name": "Payment Logs Page",
+      "accessible": false,
+      "statusCode": 307,
+      "contentLoaded": false,
+      "errors": [
+        "HTTP 307",
+        "Route /admin/payments/logs returned unexpected status 307"
+      ]
+    }
+  },
+  "summary": {
+    "total": 7,
+    "passed": 2,
+    "failed": 5,
+    "warnings": 0
+  }
+}

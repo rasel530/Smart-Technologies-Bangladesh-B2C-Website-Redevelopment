@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Admin Wishlist User Management Page
@@ -31,6 +31,7 @@ import {
   type WishlistWithUser
 } from '@/lib/api/adminWishlist';
 import { cn } from '@/lib/utils';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 function AdminWishlistUsersPage() {
   const [users, setUsers] = useState<UserWithWishlistData[]>([]);
@@ -119,7 +120,7 @@ function AdminWishlistUsersPage() {
     a.download = `user-wishlists-${user.email}.json`;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
+    if (document.body && a.parentNode === document.body) { document.body.removeChild(a); }
     URL.revokeObjectURL(url);
   };
 
@@ -128,13 +129,14 @@ function AdminWishlistUsersPage() {
   }, [page, searchQuery]);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            User Wishlist Management
-          </h1>
+    <AdminLayout title="User Wishlist Management">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              User Wishlist Management
+            </h1>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Manage user wishlists and activity
           </p>
@@ -319,6 +321,7 @@ function AdminWishlistUsersPage() {
         </div>
       )}
     </div>
+    </AdminLayout>
   );
 }
 

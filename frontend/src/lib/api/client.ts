@@ -37,8 +37,9 @@ class ApiError extends Error {
 // Track of latest session token from NextAuth for race condition fix
 let cachedSessionToken: string | null = null;
 
-// Persistent guest session ID to maintain consistency across page reloads
-let persistentGuestSessionId: string | null = null;
+// REMOVED: Persistent guest session ID variable - caused session ID mismatch
+// The module-level cache was never updated when guest checkout session changed
+// Now we always read from localStorage to get the latest session ID
 
 // Function to update cached token from NextAuth session (called by AuthContext)
 export const updateCachedSessionToken = (token: string | null): void => {
@@ -221,8 +222,31 @@ const setToken = async (token: string): Promise<void> => {
 
 const removeToken = (): void => {
     if (typeof window !== 'undefined') {
+        console.log('[API Client] removeToken() called');
+        
+        // Clear auth_token from localStorage
         localStorage.removeItem('auth_token');
+        
+        // Clear remember_token from localStorage
+        localStorage.removeItem('remember_token');
+        
+        // Clear cached session token (in-memory)
         cachedSessionToken = null;
+        
+        // CRITICAL: Clear NextAuth session from sessionStorage
+        // This is the root cause of the auto-redirect issue after logout
+        sessionStorage.removeItem('next-auth.session');
+        
+        // Clear all NextAuth-related items from sessionStorage
+        // NextAuth stores multiple items, clear all of them
+        const nextAuthKeys = Object.keys(sessionStorage).filter(key => 
+            key.startsWith('next-auth.')
+        );
+        nextAuthKeys.forEach(key => {
+            sessionStorage.removeItem(key);
+        });
+        
+        console.log('[API Client] removeToken() - All authentication storage cleared');
     }
 };
 
@@ -445,24 +469,23 @@ const addAuthHeader = (headers: Record<string, string> = {}, forceToken?: string
       });
     } else {
       // Add session ID header for guest users
-      let guestSessionId = persistentGuestSessionId;
+      // FIXED: Always read from localStorage to get the latest guest checkout session ID
+      // This ensures the API client uses the same session ID as guest checkout flow
+      let guestSessionId = localStorage.getItem('smart_tech_guest_session');
       
-      // Initialize guest session if not exists
+      // Only initialize new guest session if none exists
       if (!guestSessionId) {
-        guestSessionId = localStorage.getItem('smart_tech_guest_session');
-        if (!guestSessionId) {
-          guestSessionId = `guest_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-          localStorage.setItem('smart_tech_guest_session', guestSessionId);
-          console.log('[API Client] New guest session ID initialized:', guestSessionId);
-        }
-        persistentGuestSessionId = guestSessionId;
+        guestSessionId = `guest_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+        localStorage.setItem('smart_tech_guest_session', guestSessionId);
+        console.log('[API Client] New guest session ID initialized:', guestSessionId);
       }
       
       if (guestSessionId) {
         authHeaders['x-session-id'] = guestSessionId;
         console.log('[API Client] Guest session ID header added:', {
           sessionId: guestSessionId,
-          sessionIdLength: guestSessionId.length
+          sessionIdLength: guestSessionId.length,
+          source: 'localStorage (latest)'
         });
       }
   }

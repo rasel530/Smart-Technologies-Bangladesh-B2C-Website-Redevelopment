@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Search, Filter, Check, X, MoreVertical, XCircle } from 'lucide-react';
 import { withAuth } from '@/components/auth/withAuth';
-import { PageWrapper, Badge, ButtonPrimary, ButtonDanger } from '@/components/design-system';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 import { apiClient } from '@/lib/api/client';
 
 interface EmiProvider {
@@ -289,18 +289,17 @@ function EmiProvidersPage() {
   };
 
   return (
-    <PageWrapper
-      title="EMI Providers"
-      description="Manage EMI providers and their settings"
-      actions={
-        <ButtonPrimary
-          leftIcon={<Plus className="w-5 h-5" />}
+    <AdminLayout title="EMI Providers">
+      <div className="mb-4 flex items-center justify-between">
+        <p className="text-sm text-gray-600">Manage EMI providers and their settings</p>
+        <button
           onClick={handleOpenAddModal}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
+          <Plus className="w-5 h-5" />
           Add Provider
-        </ButtonPrimary>
-      }
-    >
+        </button>
+      </div>
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
           <p className="text-red-800">{error}</p>
@@ -327,9 +326,9 @@ function EmiProvidersPage() {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>
-            <ButtonPrimary type="submit" disabled={isLoading}>
+            <button type="submit" disabled={isLoading} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
               Search
-            </ButtonPrimary>
+            </button>
           </form>
 
           <div className="flex gap-2">
@@ -444,9 +443,11 @@ function EmiProvidersPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <Badge color={provider.isActive ? 'success' : 'neutral'}>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        provider.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      }`}>
                         {provider.isActive ? 'Active' : 'Inactive'}
-                      </Badge>
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
@@ -543,9 +544,9 @@ function EmiProvidersPage() {
               >
                 Cancel
               </button>
-              <ButtonDanger onClick={handleDelete} disabled={isSubmitting}>
+              <button onClick={handleDelete} disabled={isSubmitting} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
                 {isSubmitting ? 'Deleting...' : 'Delete'}
-              </ButtonDanger>
+              </button>
             </div>
           </div>
         </div>
@@ -740,15 +741,15 @@ function EmiProvidersPage() {
                 >
                   Cancel
                 </button>
-                <ButtonPrimary type="submit" disabled={isSubmitting}>
+                <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
                   {isSubmitting ? (editingProvider ? 'Updating...' : 'Creating...') : (editingProvider ? 'Update Provider' : 'Create Provider')}
-                </ButtonPrimary>
+                </button>
               </div>
             </form>
           </div>
         </div>
       )}
-    </PageWrapper>
+    </AdminLayout>
   );
 }
 

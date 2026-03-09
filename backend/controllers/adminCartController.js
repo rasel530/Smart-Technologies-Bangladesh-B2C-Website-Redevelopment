@@ -65,7 +65,7 @@ class AdminCartController {
 
       // Get carts with pagination
       const [carts, total] = await Promise.all([
-        prisma.cart.findMany({
+        prisma.carts.findMany({
           where,
           skip,
           take,
@@ -99,7 +99,7 @@ class AdminCartController {
             [sortBy]: sortOrder
           }
         }),
-        prisma.cart.count({ where })
+        prisma.carts.count({ where })
       ]);
 
       const totalPages = Math.ceil(total / take);
@@ -152,7 +152,7 @@ class AdminCartController {
     try {
       const { id } = req.params;
 
-      const cart = await prisma.cart.findUnique({
+      const cart = await prisma.carts.findUnique({
         where: { id },
         include: {
           user: {
@@ -220,7 +220,7 @@ class AdminCartController {
     try {
       const { id } = req.params;
 
-      const cart = await prisma.cart.findUnique({
+      const cart = await prisma.carts.findUnique({
         where: { id },
         select: { id: true }
       });
@@ -234,7 +234,7 @@ class AdminCartController {
         });
       }
 
-      const items = await prisma.cartItem.findMany({
+      const items = await prisma.cart_items.findMany({
         where: { cartId: id },
         include: {
           product: {
@@ -281,7 +281,7 @@ class AdminCartController {
       const { quantity, price } = req.body;
 
       // Validate cart exists
-      const cart = await prisma.cart.findUnique({
+      const cart = await prisma.carts.findUnique({
         where: { id }
       });
 
@@ -295,7 +295,7 @@ class AdminCartController {
       }
 
       // Validate cart item exists
-      const cartItem = await prisma.cartItem.findUnique({
+      const cartItem = await prisma.cart_items.findUnique({
         where: { id: itemId },
         include: {
           product: true,
@@ -341,7 +341,7 @@ class AdminCartController {
         updateData.subtotal = parseFloat(cartItem.price) * quantity;
       }
 
-      const updatedItem = await prisma.cartItem.update({
+      const updatedItem = await prisma.cart_items.update({
         where: { id: itemId },
         data: updateData,
         include: {
@@ -383,7 +383,7 @@ class AdminCartController {
       const { id, itemId } = req.params;
 
       // Validate cart exists
-      const cart = await prisma.cart.findUnique({
+      const cart = await prisma.carts.findUnique({
         where: { id }
       });
 
@@ -397,7 +397,7 @@ class AdminCartController {
       }
 
       // Validate cart item exists
-      const cartItem = await prisma.cartItem.findUnique({
+      const cartItem = await prisma.cart_items.findUnique({
         where: { id: itemId }
       });
 
@@ -411,7 +411,7 @@ class AdminCartController {
       }
 
       // Delete cart item
-      await prisma.cartItem.delete({
+      await prisma.cart_items.delete({
         where: { id: itemId }
       });
 
@@ -448,7 +448,7 @@ class AdminCartController {
       const { id } = req.params;
 
       // Validate cart exists
-      const cart = await prisma.cart.findUnique({
+      const cart = await prisma.carts.findUnique({
         where: { id }
       });
 
@@ -462,12 +462,12 @@ class AdminCartController {
       }
 
       // Delete all cart items
-      await prisma.cartItem.deleteMany({
+      await prisma.cart_items.deleteMany({
         where: { cartId: id }
       });
 
       // Reset cart totals
-      await prisma.cart.update({
+      await prisma.carts.update({
         where: { id },
         data: {
           subtotal: 0,
@@ -528,18 +528,18 @@ class AdminCartController {
         abandonedCarts,
         convertedCarts
       ] = await Promise.all([
-        prisma.cart.count({ where: dateFilter }),
-        prisma.cart.count({ where: { ...dateFilter, status: 'active' } }),
-        prisma.cart.count({ where: { ...dateFilter, status: 'expired' } }),
-        prisma.cart.count({ where: { ...dateFilter, status: 'abandoned' } }),
-        prisma.cart.count({ where: { ...dateFilter, status: 'converted' } })
+        prisma.carts.count({ where: dateFilter }),
+        prisma.carts.count({ where: { ...dateFilter, status: 'active' } }),
+        prisma.carts.count({ where: { ...dateFilter, status: 'expired' } }),
+        prisma.carts.count({ where: { ...dateFilter, status: 'abandoned' } }),
+        prisma.carts.count({ where: { ...dateFilter, status: 'converted' } })
       ]);
 
       // Calculate conversion rate
       const conversionRate = totalCarts > 0 ? (convertedCarts / totalCarts) * 100 : 0;
 
       // Use aggregation for average cart value - much more efficient
-      const cartAggregations = await prisma.cart.aggregate({
+      const cartAggregations = await prisma.carts.aggregate({
         where: dateFilter,
         _avg: {
           total: true
@@ -553,7 +553,7 @@ class AdminCartController {
       const totalValue = cartAggregations._sum.total || 0;
 
       // Use aggregation for average items per cart
-      const itemAggregations = await prisma.cartItem.groupBy({
+      const itemAggregations = await prisma.cart_items.groupBy({
         by: ['cartId'],
         where: {
           cart: {
@@ -569,7 +569,7 @@ class AdminCartController {
       const averageItemsPerCart = totalCarts > 0 ? totalItems / totalCarts : 0;
 
       // Get top abandoned products using aggregation - optimized query
-      const topAbandonedProducts = await prisma.cartItem.groupBy({
+      const topAbandonedProducts = await prisma.cart_items.groupBy({
         by: ['productId'],
         where: {
           cart: {
@@ -590,7 +590,7 @@ class AdminCartController {
 
       // Get product names for top abandoned products
       const productIds = topAbandonedProducts.map(item => item.productId);
-      const products = await prisma.product.findMany({
+      const products = await prisma.products.findMany({
         where: {
           id: { in: productIds }
         },
@@ -608,7 +608,7 @@ class AdminCartController {
       }));
 
       // Get cart size distribution using aggregation
-      const cartSizeDistribution = await prisma.cartItem.groupBy({
+      const cartSizeDistribution = await prisma.cart_items.groupBy({
         by: ['cartId'],
         where: {
           cart: {
@@ -634,7 +634,7 @@ class AdminCartController {
       });
 
       // Get time in cart distribution - optimized query
-      const cartsForTimeDistribution = await prisma.cart.findMany({
+      const cartsForTimeDistribution = await prisma.carts.findMany({
         where: dateFilter,
         select: {
           id: true,
@@ -731,9 +731,9 @@ class AdminCartController {
 
       // Get cart statistics by status
       const [totalCarts, convertedCarts, abandonedCarts] = await Promise.all([
-        prisma.cart.count({ where: dateFilter }),
-        prisma.cart.count({ where: { ...dateFilter, status: 'converted' } }),
-        prisma.cart.count({ where: { ...dateFilter, status: 'abandoned' } })
+        prisma.carts.count({ where: dateFilter }),
+        prisma.carts.count({ where: { ...dateFilter, status: 'converted' } }),
+        prisma.carts.count({ where: { ...dateFilter, status: 'abandoned' } })
       ]);
 
       // Calculate rates
@@ -741,7 +741,7 @@ class AdminCartController {
       const abandonmentRate = totalCarts > 0 ? (abandonedCarts / totalCarts) * 100 : 0;
 
       // Get daily conversion trends
-      const dailyTrends = await prisma.cart.groupBy({
+      const dailyTrends = await prisma.carts.groupBy({
         by: ['createdAt'],
         where: dateFilter,
         _count: {
@@ -804,7 +804,7 @@ class AdminCartController {
       }
 
       // Get cart value aggregations
-      const aggregations = await prisma.cart.aggregate({
+      const aggregations = await prisma.carts.aggregate({
         where: dateFilter,
         _avg: {
           total: true,
@@ -874,9 +874,9 @@ class AdminCartController {
 
       // Get abandonment statistics
       const [totalCarts, abandonedCarts, expiredCarts] = await Promise.all([
-        prisma.cart.count({ where: dateFilter }),
-        prisma.cart.count({ where: { ...dateFilter, status: 'abandoned' } }),
-        prisma.cart.count({ where: { ...dateFilter, status: 'expired' } })
+        prisma.carts.count({ where: dateFilter }),
+        prisma.carts.count({ where: { ...dateFilter, status: 'abandoned' } }),
+        prisma.carts.count({ where: { ...dateFilter, status: 'expired' } })
       ]);
 
       // Calculate abandonment rate
@@ -884,7 +884,7 @@ class AdminCartController {
       const abandonmentRate = totalCarts > 0 ? (totalAbandoned / totalCarts) * 100 : 0;
 
       // Get abandonment reasons from cart events
-      const abandonedCartsWithEvents = await prisma.cart.findMany({
+      const abandonedCartsWithEvents = await prisma.carts.findMany({
         where: {
           ...dateFilter,
           status: { in: ['abandoned', 'expired'] }
@@ -962,7 +962,7 @@ class AdminCartController {
       }
 
       // Get popular products using aggregation
-      const popularProducts = await prisma.cartItem.groupBy({
+      const popularProducts = await prisma.cart_items.groupBy({
         by: ['productId'],
         where: {
           cart: {
@@ -985,7 +985,7 @@ class AdminCartController {
 
       // Get product details
       const productIds = popularProducts.map(item => item.productId);
-      const products = await prisma.product.findMany({
+      const products = await prisma.products.findMany({
         where: {
           id: { in: productIds }
         },
@@ -1053,7 +1053,7 @@ class AdminCartController {
       }
 
       // Get carts with creation time
-      const carts = await prisma.cart.findMany({
+      const carts = await prisma.carts.findMany({
         where: dateFilter,
         select: {
           id: true,
@@ -1183,7 +1183,7 @@ class AdminCartController {
       }
 
       // Get carts with all required data
-      const carts = await prisma.cart.findMany({
+      const carts = await prisma.carts.findMany({
         where,
         include: {
           user: {
@@ -1281,7 +1281,7 @@ class AdminCartController {
     try {
       const { id } = req.params;
 
-      const cart = await prisma.cart.findUnique({
+      const cart = await prisma.carts.findUnique({
         where: { id },
         include: {
           user: {
@@ -1414,7 +1414,7 @@ class AdminCartController {
       }
 
       // Verify all carts exist
-      const carts = await prisma.cart.findMany({
+      const carts = await prisma.carts.findMany({
         where: {
           id: { in: cartIds }
         },
@@ -1436,17 +1436,17 @@ class AdminCartController {
       let deletedCount = 0;
       for (const cart of carts) {
         // Delete cart items
-        await prisma.cartItem.deleteMany({
+        await prisma.cart_items.deleteMany({
           where: { cartId: cart.id }
         });
 
         // Delete cart analytics
-        await prisma.cartAnalytics.deleteMany({
+        await prisma.cart_analytics.deleteMany({
           where: { cartId: cart.id }
         });
 
         // Delete cart
-        await prisma.cart.delete({
+        await prisma.carts.delete({
           where: { id: cart.id }
         });
 
@@ -1509,7 +1509,7 @@ class AdminCartController {
       }
 
       // Verify all carts exist
-      const carts = await prisma.cart.findMany({
+      const carts = await prisma.carts.findMany({
         where: {
           id: { in: cartIds }
         }
@@ -1528,12 +1528,12 @@ class AdminCartController {
       let clearedCount = 0;
       for (const cartId of cartIds) {
         // Delete all cart items
-        await prisma.cartItem.deleteMany({
+        await prisma.cart_items.deleteMany({
           where: { cartId }
         });
 
         // Reset cart totals
-        await prisma.cart.update({
+        await prisma.carts.update({
           where: { id: cartId },
           data: {
             subtotal: 0,
@@ -1612,7 +1612,7 @@ class AdminCartController {
       }
 
       // Verify all carts exist
-      const carts = await prisma.cart.findMany({
+      const carts = await prisma.carts.findMany({
         where: {
           id: { in: cartIds }
         }
@@ -1628,7 +1628,7 @@ class AdminCartController {
       }
 
       // Update all cart statuses
-      const result = await prisma.cart.updateMany({
+      const result = await prisma.carts.updateMany({
         where: {
           id: { in: cartIds }
         },
@@ -1675,7 +1675,7 @@ class AdminCartController {
   async cleanupExpiredCarts(req, res) {
     try {
       const now = new Date();
-      const expiredCarts = await prisma.cart.findMany({
+      const expiredCarts = await prisma.carts.findMany({
         where: {
           expiresAt: {
             lte: now
@@ -1689,17 +1689,17 @@ class AdminCartController {
       let deletedCount = 0;
       for (const cart of expiredCarts) {
         // Delete cart items
-        await prisma.cartItem.deleteMany({
+        await prisma.cart_items.deleteMany({
           where: { cartId: cart.id }
         });
 
         // Delete cart analytics
-        await prisma.cartAnalytics.deleteMany({
+        await prisma.cart_analytics.deleteMany({
           where: { cartId: cart.id }
         });
 
         // Delete cart
-        await prisma.cart.delete({
+        await prisma.carts.delete({
           where: { id: cart.id }
         });
 
@@ -1739,7 +1739,7 @@ class AdminCartController {
    */
   async recalculateCartTotals(cartId) {
     try {
-      const items = await prisma.cartItem.findMany({
+      const items = await prisma.cart_items.findMany({
         where: { cartId }
       });
 
@@ -1752,7 +1752,7 @@ class AdminCartController {
       const tax = subtotal * (taxRate / 100);
       const total = subtotal + tax + shippingCost;
 
-      await prisma.cart.update({
+      await prisma.carts.update({
         where: { id: cartId },
         data: {
           subtotal: parseFloat((isNaN(subtotal) ? 0 : subtotal).toFixed(2)),
@@ -1902,7 +1902,7 @@ class AdminCartController {
       });
 
       // Try to get existing settings from database
-      let settings = await prisma.cartRecoverySettings.findFirst({
+      let settings = await prisma.cart_recovery_settings.findFirst({
         orderBy: {
           createdAt: 'desc'
         }
@@ -1911,7 +1911,7 @@ class AdminCartController {
       // If no settings exist, create default settings
       if (!settings) {
         loggerService.info('No recovery settings found, creating default settings');
-        settings = await prisma.cartRecoverySettings.create({
+        settings = await prisma.cart_recovery_settings.create({
           data: {
             enabled: true,
             firstEmailDelay: 1,
@@ -2071,7 +2071,7 @@ class AdminCartController {
       }
 
       // Get existing settings
-      let settings = await prisma.cartRecoverySettings.findFirst({
+      let settings = await prisma.cart_recovery_settings.findFirst({
         orderBy: {
           createdAt: 'desc'
         }
@@ -2095,13 +2095,13 @@ class AdminCartController {
 
       // Update or create settings
       if (settings) {
-        settings = await prisma.cartRecoverySettings.update({
+        settings = await prisma.cart_recovery_settings.update({
           where: { id: settings.id },
           data: updateData
         });
         loggerService.info('Recovery settings updated', { settingsId: settings.id });
       } else {
-        settings = await prisma.cartRecoverySettings.create({
+        settings = await prisma.cart_recovery_settings.create({
           data: {
             enabled: true,
             firstEmailDelay: 1,

@@ -116,7 +116,7 @@ const ProductSpecificationEditor: React.FC<ProductSpecificationEditorProps> = ({
       </form>
 
       {/* Specifications List */}
-      {specifications.length === 0 ? (
+      {!specifications || specifications.length === 0 ? (
         <p className="text-gray-500 text-center py-4">No specifications added yet</p>
       ) : (
         <div className="space-y-3">

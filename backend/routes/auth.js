@@ -2,7 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { PrismaClient } = require('@prisma/client');
+const { databaseService } = require('../services/database');
 const { emailService } = require('../services/emailService');
 const { smsService } = require('../services/smsService');
 const { otpService } = require('../services/otpService');
@@ -17,7 +17,8 @@ const { loginSecurityService } = require('../services/loginSecurityService');
 const { loginSecurityMiddleware } = require('../middleware/loginSecurity');
 
 const router = express.Router();
-const prisma = new PrismaClient();
+// Use shared PrismaClient instance from databaseService
+const prisma = databaseService.getClient();
 
 // Validation middleware
 const handleValidationErrors = (req, res, next) => {
@@ -152,7 +153,7 @@ router.post('/register', [
     }
 
     // Check if user already exists
-    const existingUser = await prisma.user.findFirst({
+    const existingUser = await prisma.users.findFirst({
       where: {
         OR: [
           ...(email ? [{ email }] : []),
@@ -174,7 +175,7 @@ router.post('/register', [
     const hashedPassword = await passwordService.hashPassword(password);
 
     // Create user with ACTIVE status
-    const user = await prisma.user.create({
+    const user = await prisma.users.create({
       data: {
         email,
         password: hashedPassword,
@@ -303,7 +304,7 @@ router.post('/register', [
       } catch (dbError) {
         console.error('Failed to create email verification token:', dbError);
         // Cleanup user if token creation fails
-        await prisma.user.delete({
+        await prisma.users.delete({
           where: { id: user.id }
         });
         
@@ -329,7 +330,7 @@ router.post('/register', [
           await prisma.emailVerificationToken.delete({
             where: { userId: user.id }
           });
-          await prisma.user.delete({
+          await prisma.users.delete({
             where: { id: user.id }
           });
 
@@ -390,7 +391,7 @@ router.post('/register', [
         await prisma.emailVerificationToken.delete({
           where: { userId: user.id }
         });
-        await prisma.user.delete({
+        await prisma.users.delete({
           where: { id: user.id }
         });
 
@@ -410,7 +411,7 @@ router.post('/register', [
 
         if (!otpResult.success) {
           // If OTP fails, delete user for cleanup
-          await prisma.user.delete({
+          await prisma.users.delete({
             where: { id: user.id }
           });
 
@@ -445,7 +446,7 @@ router.post('/register', [
         console.error('OTP generation failed:', otpError);
         
         // Cleanup user if OTP generation fails
-        await prisma.user.delete({
+        await prisma.users.delete({
           where: { id: user.id }
         });
 
@@ -460,7 +461,7 @@ router.post('/register', [
 
     } else {
       // Skip verification - activate account immediately (testing mode or verification disabled)
-      const updatedUser = await prisma.user.update({
+      const updatedUser = await prisma.users.update({
         where: { id: user.id },
         data: {
           status: 'active',
@@ -622,7 +623,7 @@ async (req, res) => {
       
       // Find user by email
       console.log('[LOGIN DIAGNOSTIC] Step 4: Looking up user by email:', trimmedIdentifier);
-      user = await prisma.user.findUnique({
+      user = await prisma.users.findUnique({
         where: { email: trimmedIdentifier }
       });
       loginType = 'email';
@@ -641,7 +642,7 @@ async (req, res) => {
       
       // Find user by phone
       console.log('[LOGIN DIAGNOSTIC] Step 4: Looking up user by phone:', phoneValidation.normalizedPhone);
-      user = await prisma.user.findUnique({
+      user = await prisma.users.findUnique({
         where: { phone: phoneValidation.normalizedPhone }
       });
       loginType = 'phone';
@@ -717,7 +718,7 @@ async (req, res) => {
     // Auto-activate pending users in testing mode or when verification is disabled
     if (user.status === 'pending' && (isTestingMode || !requiresVerification)) {
       console.log('[LOGIN DIAGNOSTIC] Step 13: Auto-activating pending user');
-      await prisma.user.update({
+      await prisma.users.update({
         where: { id: user.id },
         data: {
           status: 'active',
@@ -727,7 +728,7 @@ async (req, res) => {
       });
       
       // Refresh user data after update
-      user = await prisma.user.findUnique({
+      user = await prisma.users.findUnique({
         where: { id: user.id },
         select: {
           id: true,
@@ -745,7 +746,7 @@ async (req, res) => {
     }
 
     // Update last login
-    await prisma.user.update({
+    await prisma.users.update({
       where: { id: user.id },
       data: { lastLoginAt: new Date() }
     });
@@ -1068,6 +1069,13 @@ router.post('/refresh', async (req, res) => {
   const { token } = req.body;
 
   try {
+    // DIAGNOSTIC LOGGING: Track refresh request
+    console.log('[REFRESH DIAGNOSTIC] Token refresh request received', {
+      hasToken: !!token,
+      tokenLength: token?.length,
+      timestamp: new Date().toISOString()
+    });
+
     if (!token) {
       return res.status(401).json({
         error: 'Token required',
@@ -1080,29 +1088,124 @@ router.post('/refresh', async (req, res) => {
     if (!jwtSecretRefresh) {
       throw new Error('JWT_SECRET environment variable is required');
     }
-    
+
     const decoded = jwt.verify(token, jwtSecretRefresh, {
       issuer: 'smart-ecommerce-api',
       audience: 'smart-ecommerce-clients'
     });
-    
-    // Get user info
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        role: true,
-        status: true
-      }
+
+    console.log('[REFRESH DIAGNOSTIC] Token verified successfully', {
+      userId: decoded.userId,
+      email: decoded.email,
+      timestamp: new Date().toISOString()
     });
 
+    // Get user info with timeout protection and retry logic
+    const userLookupStartTime = Date.now();
+    console.log('[REFRESH DIAGNOSTIC] Starting user lookup with timeout protection', {
+      userId: decoded.userId,
+      timestamp: new Date().toISOString()
+    });
+
+    // Ensure prisma is available
+    if (!prisma) {
+      console.error('[REFRESH DIAGNOSTIC] Prisma client is not initialized');
+      return res.status(500).json({
+        error: 'Database connection error',
+        message: 'Database client not available',
+        diagnostic: process.env.NODE_ENV === 'development' ? {
+          error: 'Prisma client is undefined'
+        } : undefined
+      });
+    }
+
+    let user;
+    let lastError;
+    const maxRetries = 2;
+    const baseDelay = 1000; // 1 second base delay for retries
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        user = await Promise.race([
+          prisma.users.findUnique({
+            where: { id: decoded.userId },
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              role: true,
+              status: true
+            }
+          }),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('User lookup timeout after 5000ms')), 5000)
+          )
+        ]);
+
+        const userLookupDuration = Date.now() - userLookupStartTime;
+        console.log('[REFRESH DIAGNOSTIC] User lookup completed', {
+          userId: decoded.userId,
+          userFound: !!user,
+          duration: userLookupDuration,
+          attempt,
+          timestamp: new Date().toISOString()
+        });
+
+        if (user) {
+          console.log('[REFRESH DIAGNOSTIC] User found successfully');
+          break; // Success - exit retry loop
+        } else {
+          lastError = new Error('User not found in database');
+          console.warn('[REFRESH DIAGNOSTIC] User not found, attempt:', attempt);
+          
+          // Wait before retry (exponential backoff)
+          if (attempt < maxRetries) {
+            const delay = baseDelay * Math.pow(2, attempt - 1);
+            console.log('[REFRESH DIAGNOSTIC] Retrying after delay:', delay, 'ms');
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
+      } catch (error) {
+        const userLookupDuration = Date.now() - userLookupStartTime;
+        console.error('[REFRESH DIAGNOSTIC] User lookup failed', {
+          userId: decoded.userId,
+          error: error.message,
+          errorType: error.name,
+          isTimeout: error.message.includes('timeout'),
+          duration: userLookupDuration,
+          attempt: attempt,
+          timestamp: new Date().toISOString()
+        });
+
+        // If this was the last attempt and still failed, throw error
+        if (attempt === maxRetries) {
+          console.error('[REFRESH DIAGNOSTIC] All retry attempts exhausted');
+          return res.status(401).json({
+            error: 'Authentication failed',
+            message: 'User lookup failed',
+            diagnostic: process.env.NODE_ENV === 'development' ? {
+              error: error.message,
+              duration: userLookupDuration,
+              attempts: attempt
+            } : undefined
+          });
+        }
+
+        // Continue to next retry
+        lastError = error;
+      }
+    }
+
     if (!user) {
+      console.error('[REFRESH DIAGNOSTIC] User lookup failed after all retries');
       return res.status(401).json({
-        error: 'User not found',
-        messageBn: 'ব্যবহার্টার পাওয়া যায়নি'
+        error: 'Authentication failed',
+        message: 'User lookup failed',
+        diagnostic: process.env.NODE_ENV === 'development' ? {
+          error: lastError?.message || 'Unknown error',
+          duration: Date.now() - userLookupStartTime
+        } : undefined
       });
     }
 
@@ -1208,7 +1311,7 @@ router.post('/verify-email', [
     }
 
     // Update user status and email verification timestamp
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: verificationToken.userId },
       data: {
         status: 'active',
@@ -1260,7 +1363,7 @@ router.post('/resend-verification', [
     const { email } = req.body;
 
     // Find user
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { email },
       include: {
         emailVerificationTokens: {
@@ -1446,7 +1549,7 @@ router.post('/verify-otp', [
 
     // If OTP was for registration, find and update user
     if (verifyResult.userId) {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: verifyResult.userId },
         select: {
           id: true,
@@ -1561,7 +1664,7 @@ router.post('/change-password', [
     }
 
     // Get user with current password
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -1640,7 +1743,7 @@ router.post('/change-password', [
     const hashedNewPassword = await passwordService.hashPassword(newPassword);
 
     // Update user password
-    await prisma.user.update({
+    await prisma.users.update({
       where: { id: userId },
       data: { password: hashedNewPassword }
     });
@@ -1675,7 +1778,7 @@ router.post('/forgot-password', [
     const { email } = req.body;
 
     // Find user
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { email }
     });
 
@@ -1705,7 +1808,7 @@ router.post('/forgot-password', [
     const hashedTempPassword = await passwordService.hashPassword(temporaryPassword);
 
     // Update user with temporary password
-    await prisma.user.update({
+    await prisma.users.update({
       where: { id: user.id },
       data: { password: hashedTempPassword }
     });
@@ -1832,7 +1935,7 @@ router.post('/reset-password', [
     const hashedNewPassword = await passwordService.hashPassword(newPassword);
 
     // Update user password
-    await prisma.user.update({
+    await prisma.users.update({
       where: { id: resetToken.userId },
       data: { password: hashedNewPassword }
     });
@@ -1847,7 +1950,7 @@ router.post('/reset-password', [
 
     // Update user status to active if pending
     if (resetToken.user.status === 'pending') {
-      await prisma.user.update({
+      await prisma.users.update({
         where: { id: resetToken.userId },
         data: { status: 'active' }
       });
@@ -1965,7 +2068,7 @@ router.post('/validate-remember-me', [
     }
 
     // Get user details
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: validation.userId },
       select: {
         id: true,
@@ -2031,7 +2134,7 @@ router.post('/refresh-from-remember-me', [
     }
 
     // Get user details
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: refreshResult.userId },
       select: {
         id: true,
@@ -2166,7 +2269,7 @@ router.get('/me', [
     const userId = req.user.id;
     
     // Get user from database
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -2227,7 +2330,7 @@ router.get('/session', [
     const sessionId = req.sessionId;
     
     // Get user from database
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId },
       select: {
         id: true,

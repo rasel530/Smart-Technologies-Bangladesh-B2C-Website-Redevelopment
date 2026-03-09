@@ -10,6 +10,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { withAuth } from '@/components/auth/withAuth';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 /**
  * RBAC Dashboard Page
@@ -60,7 +61,8 @@ function RBACDashboardPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <AdminLayout title="RBAC Overview">
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -218,6 +220,7 @@ function RBACDashboardPage() {
         </ul>
       </div>
     </div>
+    </AdminLayout>
   );
 }
 

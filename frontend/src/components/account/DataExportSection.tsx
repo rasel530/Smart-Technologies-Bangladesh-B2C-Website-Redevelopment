@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Download, FileText, Loader2, AlertCircle, Check, Clock } from 'lucide-react';
@@ -117,7 +117,7 @@ const DataExportSection: React.FC<DataExportSectionProps> = ({ language }) => {
       link.download = filename;
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      if (document.body && link.parentNode === document.body) { document.body.removeChild(link); }
       window.URL.revokeObjectURL(url);
       
       setToast({

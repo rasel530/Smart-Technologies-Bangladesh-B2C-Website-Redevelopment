@@ -458,3 +458,8 @@ const handler = NextAuth(authOptions);
 
 // Type assertion for Next.js 15 compatibility
 export { handler as GET, handler as POST };
+
+// Add cache headers to prevent caching of auth pages
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';

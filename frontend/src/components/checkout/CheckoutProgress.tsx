@@ -1,14 +1,15 @@
 'use client';
 
 import React from 'react';
-import { CheckCircle, Circle, Lock, ChevronRight } from 'lucide-react';
+import { CheckCircle, Circle, Lock, ChevronRight, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { CheckoutStep, CheckoutProgressProps } from '@/types/checkout';
+import type { GuestCheckoutStep } from '@/types/guestCheckout';
 
 /**
  * Checkout Progress Component
  *
- * Displays a visual progress indicator for the 4-step checkout process.
+ * Displays a visual progress indicator for 4-step checkout process (logged-in) or 5-step process (guest).
  * Features:
  * - Visual progress bar with step indicators
  * - Step labels with bilingual support
@@ -62,7 +63,49 @@ const CHECKOUT_STEPS: Array<{
   },
 ];
 
-export const CheckoutProgress: React.FC<CheckoutProgressProps> = ({
+const GUEST_CHECKOUT_STEPS: Array<{
+  step: GuestCheckoutStep;
+  label: string;
+  labelBn: string;
+  icon: React.ReactNode;
+}> = [
+  {
+    step: 'info',
+    label: 'Info',
+    labelBn: 'তথ্য',
+    icon: <UserPlus className="w-5 h-5" />,
+  },
+  {
+    step: 'address',
+    label: 'Address',
+    labelBn: 'ঠিকানা',
+    icon: <Lock className="w-5 h-5" />,
+  },
+  {
+    step: 'shipping',
+    label: 'Shipping',
+    labelBn: 'শিপিং',
+    icon: <Lock className="w-5 h-5" />,
+  },
+  {
+    step: 'payment',
+    label: 'Payment',
+    labelBn: 'পেমেন্ট',
+    icon: <Lock className="w-5 h-5" />,
+  },
+  {
+    step: 'review',
+    label: 'Review',
+    labelBn: 'পর্যালোচনা',
+    icon: <CheckCircle className="w-5 h-5" />,
+  },
+];
+
+interface ExtendedCheckoutProgressProps extends CheckoutProgressProps {
+  isGuest?: boolean;
+}
+
+export const CheckoutProgress: React.FC<ExtendedCheckoutProgressProps> = ({
   currentStep,
   completedSteps,
   onStepClick,
@@ -71,35 +114,41 @@ export const CheckoutProgress: React.FC<CheckoutProgressProps> = ({
   showLabels = true,
   showDescriptions = false,
   clickable = false,
+  isGuest = false,
 }) => {
-  const getStepStatus = (step: CheckoutStep): 'completed' | 'current' | 'pending' => {
-    if (completedSteps.includes(step)) return 'completed';
-    if (step === currentStep) return 'current';
+  // Use guest checkout steps if isGuest is true, otherwise use logged-in checkout steps
+  const stepsToUse = isGuest ? GUEST_CHECKOUT_STEPS : CHECKOUT_STEPS;
+  const currentStepTyped = isGuest ? (currentStep as GuestCheckoutStep) : (currentStep as CheckoutStep);
+  const completedStepsTyped = completedSteps as (CheckoutStep | GuestCheckoutStep)[];
+
+  const getStepStatus = (step: CheckoutStep | GuestCheckoutStep): 'completed' | 'current' | 'pending' => {
+    if (completedStepsTyped.includes(step)) return 'completed';
+    if (step === currentStepTyped) return 'current';
     return 'pending';
   };
 
-  const getStepIndex = (step: CheckoutStep): number => {
-    return CHECKOUT_STEPS.findIndex(s => s.step === step);
+  const getStepIndex = (step: CheckoutStep | GuestCheckoutStep): number => {
+    return stepsToUse.findIndex(s => s.step === step);
   };
 
-  const canClickStep = (step: CheckoutStep): boolean => {
+  const canClickStep = (step: CheckoutStep | GuestCheckoutStep): boolean => {
     if (!clickable || !onStepClick) return false;
     
     const stepIndex = getStepIndex(step);
-    const currentIndex = getStepIndex(currentStep);
+    const currentIndex = getStepIndex(currentStepTyped);
     
     // Can only click completed steps or current step
     return stepIndex <= currentIndex;
   };
 
-  const handleStepClick = (step: CheckoutStep) => {
+  const handleStepClick = (step: CheckoutStep | GuestCheckoutStep) => {
     if (canClickStep(step) && onStepClick) {
-      onStepClick(step);
+      onStepClick(step as CheckoutStep);
     }
   };
 
-  const currentStepIndex = getStepIndex(currentStep);
-  const progressPercentage = Math.round((currentStepIndex / (CHECKOUT_STEPS.length - 1)) * 100);
+  const currentStepIndex = getStepIndex(currentStepTyped);
+  const progressPercentage = Math.round((currentStepIndex / (stepsToUse.length - 1)) * 100);
 
   return (
     <div className={cn('checkout-progress', className)}>
@@ -128,7 +177,7 @@ export const CheckoutProgress: React.FC<CheckoutProgressProps> = ({
 
       {/* Desktop Progress Steps */}
       <div className="hidden md:flex items-center justify-between">
-        {CHECKOUT_STEPS.map((stepConfig, index) => {
+        {stepsToUse.map((stepConfig, index) => {
           const status = getStepStatus(stepConfig.step);
           const isClickable = canClickStep(stepConfig.step);
           
@@ -189,7 +238,7 @@ export const CheckoutProgress: React.FC<CheckoutProgressProps> = ({
               </div>
 
               {/* Connector Line */}
-              {index < CHECKOUT_STEPS.length - 1 && (
+              {index < stepsToUse.length - 1 && (
                 <div className="flex-1 h-0.5 mx-2">
                   <div
                     className={cn(
@@ -208,7 +257,7 @@ export const CheckoutProgress: React.FC<CheckoutProgressProps> = ({
       <div className="md:hidden">
         {/* Compact Progress Bar */}
         <div className="flex items-center gap-2 mb-4">
-          {CHECKOUT_STEPS.map((stepConfig, index) => {
+          {stepsToUse.map((stepConfig, index) => {
             const status = getStepStatus(stepConfig.step);
             const isClickable = canClickStep(stepConfig.step);
             
@@ -235,7 +284,7 @@ export const CheckoutProgress: React.FC<CheckoutProgressProps> = ({
                   )}
                 </button>
 
-                {index < CHECKOUT_STEPS.length - 1 && (
+                {index < stepsToUse.length - 1 && (
                   <div
                     className={cn(
                       'flex-1 h-0.5 transition-all duration-500 ease-out',
@@ -254,7 +303,7 @@ export const CheckoutProgress: React.FC<CheckoutProgressProps> = ({
             {language === 'en' ? 'Current Step' : 'বর্তমান ধাপ'}:
           </span>
           <span className="ml-2 text-sm font-semibold text-blue-600">
-            {language === 'en' ? CHECKOUT_STEPS[currentStepIndex].label : CHECKOUT_STEPS[currentStepIndex].labelBn}
+            {language === 'en' ? stepsToUse[currentStepIndex].label : stepsToUse[currentStepIndex].labelBn}
           </span>
         </div>
 
@@ -264,7 +313,7 @@ export const CheckoutProgress: React.FC<CheckoutProgressProps> = ({
             {currentStepIndex > 0 && (
               <button
                 type="button"
-                onClick={() => handleStepClick(CHECKOUT_STEPS[currentStepIndex - 1].step)}
+                onClick={() => handleStepClick(stepsToUse[currentStepIndex - 1].step)}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
               >
                 <ChevronRight className="w-4 h-4 rotate-180" />
@@ -272,10 +321,10 @@ export const CheckoutProgress: React.FC<CheckoutProgressProps> = ({
               </button>
             )}
 
-            {currentStepIndex < CHECKOUT_STEPS.length - 1 && (
+            {currentStepIndex < stepsToUse.length - 1 && (
               <button
                 type="button"
-                onClick={() => handleStepClick(CHECKOUT_STEPS[currentStepIndex + 1].step)}
+                onClick={() => handleStepClick(stepsToUse[currentStepIndex + 1].step)}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors ml-auto"
               >
                 <span>{language === 'en' ? 'Next' : 'পরবর্তী'}</span>

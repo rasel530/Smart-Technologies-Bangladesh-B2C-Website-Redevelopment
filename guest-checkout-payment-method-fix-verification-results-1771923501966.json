@@ -1,0 +1,592 @@
+{
+  "timestamp": "2026-02-24T08:58:21.548Z",
+  "totalTests": 36,
+  "passedTests": 18,
+  "failedTests": 18,
+  "tests": [
+    {
+      "testName": "Payment method \"cash_on_delivery\" (lowercase)",
+      "passed": false,
+      "message": "Endpoint rejected valid payment method with \"Invalid payment method\" error",
+      "details": {
+        "paymentMethod": "cash_on_delivery",
+        "statusCode": 400,
+        "responseBody": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "cash_on_delivery",
+              "msg": "Invalid payment method",
+              "path": "paymentMethod",
+              "location": "body"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-02-24T08:58:21.600Z"
+    },
+    {
+      "testName": "Payment method \"emi\" (lowercase)",
+      "passed": false,
+      "message": "Endpoint rejected valid payment method with \"Invalid payment method\" error",
+      "details": {
+        "paymentMethod": "emi",
+        "statusCode": 400,
+        "responseBody": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "emi",
+              "msg": "Invalid payment method",
+              "path": "paymentMethod",
+              "location": "body"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-02-24T08:58:21.608Z"
+    },
+    {
+      "testName": "Payment method \"bkash\" (lowercase)",
+      "passed": false,
+      "message": "Endpoint rejected valid payment method with \"Invalid payment method\" error",
+      "details": {
+        "paymentMethod": "bkash",
+        "statusCode": 400,
+        "responseBody": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "bkash",
+              "msg": "Invalid payment method",
+              "path": "paymentMethod",
+              "location": "body"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-02-24T08:58:21.617Z"
+    },
+    {
+      "testName": "Payment method \"nagad\" (lowercase)",
+      "passed": false,
+      "message": "Endpoint rejected valid payment method with \"Invalid payment method\" error",
+      "details": {
+        "paymentMethod": "nagad",
+        "statusCode": 400,
+        "responseBody": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "nagad",
+              "msg": "Invalid payment method",
+              "path": "paymentMethod",
+              "location": "body"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-02-24T08:58:21.626Z"
+    },
+    {
+      "testName": "Payment method \"rocket\" (lowercase)",
+      "passed": false,
+      "message": "Endpoint rejected valid payment method with \"Invalid payment method\" error",
+      "details": {
+        "paymentMethod": "rocket",
+        "statusCode": 400,
+        "responseBody": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "rocket",
+              "msg": "Invalid payment method",
+              "path": "paymentMethod",
+              "location": "body"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-02-24T08:58:21.632Z"
+    },
+    {
+      "testName": "Payment method \"mcash\" (lowercase)",
+      "passed": false,
+      "message": "Endpoint rejected valid payment method with \"Invalid payment method\" error",
+      "details": {
+        "paymentMethod": "mcash",
+        "statusCode": 400,
+        "responseBody": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "mcash",
+              "msg": "Invalid payment method",
+              "path": "paymentMethod",
+              "location": "body"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-02-24T08:58:21.639Z"
+    },
+    {
+      "testName": "Payment method \"bank_transfer\" (lowercase)",
+      "passed": false,
+      "message": "Endpoint rejected valid payment method with \"Invalid payment method\" error",
+      "details": {
+        "paymentMethod": "bank_transfer",
+        "statusCode": 400,
+        "responseBody": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "bank_transfer",
+              "msg": "Invalid payment method",
+              "path": "paymentMethod",
+              "location": "body"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-02-24T08:58:21.647Z"
+    },
+    {
+      "testName": "Payment method \"credit_card\" (lowercase)",
+      "passed": false,
+      "message": "Endpoint rejected valid payment method with \"Invalid payment method\" error",
+      "details": {
+        "paymentMethod": "credit_card",
+        "statusCode": 400,
+        "responseBody": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "credit_card",
+              "msg": "Invalid payment method",
+              "path": "paymentMethod",
+              "location": "body"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-02-24T08:58:21.653Z"
+    },
+    {
+      "testName": "Payment method \"Cash_On_Delivery\" (mixed case)",
+      "passed": false,
+      "message": "Mixed case payment method rejected (expected - frontend should convert to lowercase)",
+      "details": {
+        "paymentMethod": "Cash_On_Delivery",
+        "statusCode": 400,
+        "note": "Frontend hook converts paymentMethod.toLowerCase() before sending"
+      },
+      "timestamp": "2026-02-24T08:58:21.662Z"
+    },
+    {
+      "testName": "Payment method \"Emi\" (mixed case)",
+      "passed": false,
+      "message": "Mixed case payment method rejected (expected - frontend should convert to lowercase)",
+      "details": {
+        "paymentMethod": "Emi",
+        "statusCode": 400,
+        "note": "Frontend hook converts paymentMethod.toLowerCase() before sending"
+      },
+      "timestamp": "2026-02-24T08:58:21.673Z"
+    },
+    {
+      "testName": "Payment method \"Bkash\" (mixed case)",
+      "passed": false,
+      "message": "Mixed case payment method rejected (expected - frontend should convert to lowercase)",
+      "details": {
+        "paymentMethod": "Bkash",
+        "statusCode": 400,
+        "note": "Frontend hook converts paymentMethod.toLowerCase() before sending"
+      },
+      "timestamp": "2026-02-24T08:58:21.682Z"
+    },
+    {
+      "testName": "Payment method \"Nagad\" (mixed case)",
+      "passed": false,
+      "message": "Mixed case payment method rejected (expected - frontend should convert to lowercase)",
+      "details": {
+        "paymentMethod": "Nagad",
+        "statusCode": 400,
+        "note": "Frontend hook converts paymentMethod.toLowerCase() before sending"
+      },
+      "timestamp": "2026-02-24T08:58:21.690Z"
+    },
+    {
+      "testName": "Payment method \"Rocket\" (mixed case)",
+      "passed": false,
+      "message": "Mixed case payment method rejected (expected - frontend should convert to lowercase)",
+      "details": {
+        "paymentMethod": "Rocket",
+        "statusCode": 400,
+        "note": "Frontend hook converts paymentMethod.toLowerCase() before sending"
+      },
+      "timestamp": "2026-02-24T08:58:21.698Z"
+    },
+    {
+      "testName": "Payment method \"Mcash\" (mixed case)",
+      "passed": false,
+      "message": "Mixed case payment method rejected (expected - frontend should convert to lowercase)",
+      "details": {
+        "paymentMethod": "Mcash",
+        "statusCode": 400,
+        "note": "Frontend hook converts paymentMethod.toLowerCase() before sending"
+      },
+      "timestamp": "2026-02-24T08:58:21.705Z"
+    },
+    {
+      "testName": "Payment method \"Bank_Transfer\" (mixed case)",
+      "passed": false,
+      "message": "Mixed case payment method rejected (expected - frontend should convert to lowercase)",
+      "details": {
+        "paymentMethod": "Bank_Transfer",
+        "statusCode": 400,
+        "note": "Frontend hook converts paymentMethod.toLowerCase() before sending"
+      },
+      "timestamp": "2026-02-24T08:58:21.711Z"
+    },
+    {
+      "testName": "Payment method \"Credit_Card\" (mixed case)",
+      "passed": false,
+      "message": "Mixed case payment method rejected (expected - frontend should convert to lowercase)",
+      "details": {
+        "paymentMethod": "Credit_Card",
+        "statusCode": 400,
+        "note": "Frontend hook converts paymentMethod.toLowerCase() before sending"
+      },
+      "timestamp": "2026-02-24T08:58:21.718Z"
+    },
+    {
+      "testName": "Payment method \"CASH_ON_DELIVERY\" (uppercase)",
+      "passed": true,
+      "message": "Uppercase payment method accepted (status: 500)",
+      "details": {
+        "paymentMethod": "CASH_ON_DELIVERY",
+        "statusCode": 500
+      },
+      "timestamp": "2026-02-24T08:58:21.775Z"
+    },
+    {
+      "testName": "Payment method \"EMI\" (uppercase)",
+      "passed": true,
+      "message": "Uppercase payment method accepted (status: 500)",
+      "details": {
+        "paymentMethod": "EMI",
+        "statusCode": 500
+      },
+      "timestamp": "2026-02-24T08:58:21.786Z"
+    },
+    {
+      "testName": "Payment method \"BKASH\" (uppercase)",
+      "passed": true,
+      "message": "Uppercase payment method accepted (status: 500)",
+      "details": {
+        "paymentMethod": "BKASH",
+        "statusCode": 500
+      },
+      "timestamp": "2026-02-24T08:58:21.797Z"
+    },
+    {
+      "testName": "Payment method \"NAGAD\" (uppercase)",
+      "passed": true,
+      "message": "Uppercase payment method accepted (status: 500)",
+      "details": {
+        "paymentMethod": "NAGAD",
+        "statusCode": 500
+      },
+      "timestamp": "2026-02-24T08:58:21.809Z"
+    },
+    {
+      "testName": "Payment method \"ROCKET\" (uppercase)",
+      "passed": true,
+      "message": "Uppercase payment method accepted (status: 500)",
+      "details": {
+        "paymentMethod": "ROCKET",
+        "statusCode": 500
+      },
+      "timestamp": "2026-02-24T08:58:21.822Z"
+    },
+    {
+      "testName": "Payment method \"MCASH\" (uppercase)",
+      "passed": true,
+      "message": "Uppercase payment method accepted (status: 500)",
+      "details": {
+        "paymentMethod": "MCASH",
+        "statusCode": 500
+      },
+      "timestamp": "2026-02-24T08:58:21.834Z"
+    },
+    {
+      "testName": "Payment method \"BANK_TRANSFER\" (uppercase)",
+      "passed": true,
+      "message": "Uppercase payment method accepted (status: 500)",
+      "details": {
+        "paymentMethod": "BANK_TRANSFER",
+        "statusCode": 500
+      },
+      "timestamp": "2026-02-24T08:58:21.847Z"
+    },
+    {
+      "testName": "Payment method \"CREDIT_CARD\" (uppercase)",
+      "passed": true,
+      "message": "Uppercase payment method accepted (status: 500)",
+      "details": {
+        "paymentMethod": "CREDIT_CARD",
+        "statusCode": 500
+      },
+      "timestamp": "2026-02-24T08:58:21.858Z"
+    },
+    {
+      "testName": "Payment method \"paypal\" (invalid)",
+      "passed": true,
+      "message": "Invalid payment method correctly rejected",
+      "details": {
+        "paymentMethod": "paypal",
+        "statusCode": 400,
+        "responseBody": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "paypal",
+              "msg": "Invalid payment method",
+              "path": "paymentMethod",
+              "location": "body"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-02-24T08:58:21.868Z"
+    },
+    {
+      "testName": "Payment method \"stripe\" (invalid)",
+      "passed": true,
+      "message": "Invalid payment method correctly rejected",
+      "details": {
+        "paymentMethod": "stripe",
+        "statusCode": 400,
+        "responseBody": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "stripe",
+              "msg": "Invalid payment method",
+              "path": "paymentMethod",
+              "location": "body"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-02-24T08:58:21.876Z"
+    },
+    {
+      "testName": "Payment method \"invalid_method\" (invalid)",
+      "passed": true,
+      "message": "Invalid payment method correctly rejected",
+      "details": {
+        "paymentMethod": "invalid_method",
+        "statusCode": 400,
+        "responseBody": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "invalid_method",
+              "msg": "Invalid payment method",
+              "path": "paymentMethod",
+              "location": "body"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-02-24T08:58:21.885Z"
+    },
+    {
+      "testName": "Payment method \"cod\" (invalid)",
+      "passed": true,
+      "message": "Invalid payment method correctly rejected",
+      "details": {
+        "paymentMethod": "cod",
+        "statusCode": 400,
+        "responseBody": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "cod",
+              "msg": "Invalid payment method",
+              "path": "paymentMethod",
+              "location": "body"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-02-24T08:58:21.890Z"
+    },
+    {
+      "testName": "Payment method \"cash\" (invalid)",
+      "passed": true,
+      "message": "Invalid payment method correctly rejected",
+      "details": {
+        "paymentMethod": "cash",
+        "statusCode": 400,
+        "responseBody": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "cash",
+              "msg": "Invalid payment method",
+              "path": "paymentMethod",
+              "location": "body"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-02-24T08:58:21.898Z"
+    },
+    {
+      "testName": "Payment method \"credit\" (invalid)",
+      "passed": true,
+      "message": "Invalid payment method correctly rejected",
+      "details": {
+        "paymentMethod": "credit",
+        "statusCode": 400,
+        "responseBody": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "credit",
+              "msg": "Invalid payment method",
+              "path": "paymentMethod",
+              "location": "body"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-02-24T08:58:21.904Z"
+    },
+    {
+      "testName": "Case insensitivity: \"cash_on_delivery\"",
+      "passed": false,
+      "message": "Lowercase payment method was rejected (should be accepted)",
+      "details": {
+        "input": "cash_on_delivery",
+        "expected": "accepted",
+        "actual": "rejected",
+        "statusCode": 400
+      },
+      "timestamp": "2026-02-24T08:58:21.911Z"
+    },
+    {
+      "testName": "Case insensitivity: \"CASH_ON_DELIVERY\"",
+      "passed": true,
+      "message": "Non-lowercase payment method was accepted (backend may handle case insensitivity)",
+      "details": {
+        "input": "CASH_ON_DELIVERY",
+        "statusCode": 500
+      },
+      "timestamp": "2026-02-24T08:58:21.923Z"
+    },
+    {
+      "testName": "Case insensitivity: \"Cash_On_Delivery\"",
+      "passed": true,
+      "message": "Non-lowercase payment method was rejected (frontend should convert to lowercase)",
+      "details": {
+        "input": "Cash_On_Delivery",
+        "statusCode": 400,
+        "note": "Frontend hook converts paymentMethod.toLowerCase() before sending"
+      },
+      "timestamp": "2026-02-24T08:58:21.932Z"
+    },
+    {
+      "testName": "Case insensitivity: \"emi\"",
+      "passed": false,
+      "message": "Lowercase payment method was rejected (should be accepted)",
+      "details": {
+        "input": "emi",
+        "expected": "accepted",
+        "actual": "rejected",
+        "statusCode": 400
+      },
+      "timestamp": "2026-02-24T08:58:21.942Z"
+    },
+    {
+      "testName": "Case insensitivity: \"EMI\"",
+      "passed": true,
+      "message": "Non-lowercase payment method was accepted (backend may handle case insensitivity)",
+      "details": {
+        "input": "EMI",
+        "statusCode": 500
+      },
+      "timestamp": "2026-02-24T08:58:21.954Z"
+    },
+    {
+      "testName": "Case insensitivity: \"Emi\"",
+      "passed": true,
+      "message": "Non-lowercase payment method was rejected (frontend should convert to lowercase)",
+      "details": {
+        "input": "Emi",
+        "statusCode": 400,
+        "note": "Frontend hook converts paymentMethod.toLowerCase() before sending"
+      },
+      "timestamp": "2026-02-24T08:58:21.964Z"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Database, Trash2, RefreshCw, Eye, FileText, Search, Plus, AlertTriangle } from 'lucide-react';
 import { withAuth } from '@/components/auth/withAuth';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 interface IndexStats {
   primaries: {
@@ -161,7 +162,8 @@ function IndexManagement() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AdminLayout title="Elasticsearch Indices">
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -392,6 +394,7 @@ function IndexManagement() {
         </div>
       )}
     </div>
+    </AdminLayout>
   );
 }
 

@@ -220,15 +220,23 @@ export class AddressAPI {
         return [];
       }
 
-      // 🔧 FIX: Normalize address types to uppercase to match frontend expectations
+      // 🔧 FIX 1: Improve Type Normalization with safer handling
+      // Ensure undefined/null types default to 'SHIPPING' to prevent filtering failures
       const normalizedAddresses = (apiResponse as any).addresses.map((addr: Address) => ({
         ...addr,
-        type: addr.type?.toUpperCase() as 'SHIPPING' | 'BILLING'
+        type: (addr.type || 'SHIPPING').toUpperCase() as 'SHIPPING' | 'BILLING'
       }));
       
       return normalizedAddresses;
     } catch (error) {
+      // 🔧 FIX 3: Improve Error Logging with detailed diagnostics
       console.error('[AddressAPI] Error fetching addresses:', error);
+      console.error('[AddressAPI] Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        userId,
+        endpoint: `${this.BASE_PATH}/${userId}/addresses`
+      });
       // Return empty array on error instead of throwing
       return [];
     }

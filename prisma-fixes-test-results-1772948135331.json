@@ -1,0 +1,247 @@
+{
+  "timestamp": "2026-03-08T05:35:35.330Z",
+  "summary": {
+    "total": 47,
+    "passed": 41,
+    "failed": 3,
+    "warnings": 3,
+    "passRate": 87.23
+  },
+  "tests": [
+    {
+      "name": "Backend orders route file exists",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Orders endpoint accepts search parameter",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Search works on orderNumber, email, firstName, lastName",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Orders endpoint accepts dateFrom/dateTo parameters",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Date filtering implementation is correct",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Orders endpoint accepts sortBy/sortOrder parameters",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Sorting implementation is correct",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Orders endpoint includes paymentStatus",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Admin modifications endpoint exists",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Admin modifications uses correct model (order_history)",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Admin cancellations endpoint exists",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Admin cancellations filters by cancelled status",
+      "status": "FAIL",
+      "message": "Status filter not found"
+    },
+    {
+      "name": "Payment method validation accepts lowercase values",
+      "status": "WARNING",
+      "message": "All payment methods appear to be uppercase"
+    },
+    {
+      "name": "Payment method converted to lowercase before saving",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Prisma schema file exists",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Model name is \"orders\" (plural)",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Model name is \"order_sharing\" (snake_case)",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Orders model has paymentStatus field with PaymentStatus enum",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Order history model exists",
+      "status": "FAIL",
+      "message": "order_history model not found"
+    },
+    {
+      "name": "Frontend orderManagement.ts file exists",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Order interface exists",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Order interface includes paymentStatus field",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "OrderItem interface exists",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "OrderModification interface exists",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "OrderCancellation interface exists",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Order interface uses \"address\" field",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Order interface uses \"district\" field",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Order interface uses \"division\" field",
+      "status": "FAIL",
+      "message": "division field not found"
+    },
+    {
+      "name": "getAllModifications function exists",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "getAllCancellations function exists",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "getAllModifications uses correct API path",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "getAllCancellations uses correct API path",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Order interface has all required fields",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Search integration: Backend and frontend aligned",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Date filtering integration: Backend and frontend aligned",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Sorting integration: Backend and frontend aligned",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Admin sharing functionality: Backend and frontend aligned",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Basic order retrieval endpoint exists",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Order creation endpoint exists",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Order status update endpoint exists",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Order history endpoint exists",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "No obvious TypeScript type errors",
+      "status": "WARNING",
+      "message": "Some \"any\" types found, may need review"
+    },
+    {
+      "name": "API client properly imported",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Backend uses correct Prisma model names",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Backend uses correct relation names",
+      "status": "PASS",
+      "message": ""
+    },
+    {
+      "name": "Payment methods include local Bangladeshi methods",
+      "status": "WARNING",
+      "message": "Local payment methods not found"
+    },
+    {
+      "name": "Order status enum is consistent across schema and code",
+      "status": "PASS",
+      "message": ""
+    }
+  ]
+}

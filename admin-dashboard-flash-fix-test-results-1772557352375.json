@@ -1,0 +1,401 @@
+{
+  "timestamp": "2026-03-03T17:02:32.363Z",
+  "tests": [
+    {
+      "name": "LoadingOverlay.tsx file exists",
+      "passed": true,
+      "message": "File found",
+      "details": null
+    },
+    {
+      "name": "LoadingOverlay is a React component",
+      "passed": true,
+      "message": "Component is properly exported as default function",
+      "details": null
+    },
+    {
+      "name": "LoadingOverlay accepts fullScreen prop",
+      "passed": true,
+      "message": "Component has fullScreen prop for full-screen overlay",
+      "details": null
+    },
+    {
+      "name": "LoadingOverlay has high z-index for overlay",
+      "passed": true,
+      "message": "Component has z-index to ensure it appears on top",
+      "details": null
+    },
+    {
+      "name": "LoadingOverlay has spinner animation",
+      "passed": true,
+      "message": "Component includes spinning animation for loading indicator",
+      "details": null
+    },
+    {
+      "name": "LoadingOverlay has loading message",
+      "passed": true,
+      "message": "Component displays loading message to user",
+      "details": null
+    },
+    {
+      "name": "LoadingOverlay is client-side component",
+      "passed": true,
+      "message": "Component is marked as client-side with use client directive",
+      "details": null
+    },
+    {
+      "name": "AuthContext.tsx file exists",
+      "passed": true,
+      "message": "File found",
+      "details": null
+    },
+    {
+      "name": "Logout function exists in AuthContext",
+      "passed": true,
+      "message": "Logout function is defined",
+      "details": null
+    },
+    {
+      "name": "Logout sets just_logged_out flag in sessionStorage",
+      "passed": true,
+      "message": "Flag is set to prevent auto-redirect on login page",
+      "details": null
+    },
+    {
+      "name": "Logout creates loading overlay immediately",
+      "passed": true,
+      "message": "Loading overlay is created with highest z-index",
+      "details": null
+    },
+    {
+      "name": "Logout loading overlay has white background",
+      "passed": true,
+      "message": "Overlay has white background to hide old content",
+      "details": null
+    },
+    {
+      "name": "Logout loading overlay is appended to document body",
+      "passed": true,
+      "message": "Overlay is added to body to cover entire page",
+      "details": null
+    },
+    {
+      "name": "Logout clears page content before redirect",
+      "passed": true,
+      "message": "Both body and head content are cleared before redirect",
+      "details": null
+    },
+    {
+      "name": "Logout uses window.location.replace() for redirect",
+      "passed": true,
+      "message": "Uses replace() to prevent back button issues",
+      "details": null
+    },
+    {
+      "name": "Logout error handling also clears page content",
+      "passed": true,
+      "message": "Error handling path also clears content",
+      "details": null
+    },
+    {
+      "name": "Logout error handling also uses window.location.replace()",
+      "passed": true,
+      "message": "Error handling path also uses replace()",
+      "details": null
+    },
+    {
+      "name": "login/page.tsx file exists",
+      "passed": true,
+      "message": "File found",
+      "details": null
+    },
+    {
+      "name": "isRedirecting state exists in login page",
+      "passed": true,
+      "message": "State exists to prevent duplicate redirects",
+      "details": null
+    },
+    {
+      "name": "Login page checks just_logged_out flag",
+      "passed": true,
+      "message": "Checks flag to prevent auto-redirect after logout",
+      "details": null
+    },
+    {
+      "name": "Login page prevents redirect if just_logged_out is set",
+      "passed": true,
+      "message": "Redirect is prevented when user just logged out",
+      "details": null
+    },
+    {
+      "name": "Login page prevents duplicate redirects",
+      "passed": true,
+      "message": "isRedirecting state prevents multiple redirects",
+      "details": null
+    },
+    {
+      "name": "Login creates loading overlay before redirect",
+      "passed": true,
+      "message": "Loading overlay is created with highest z-index",
+      "details": null
+    },
+    {
+      "name": "Login loading overlay has white background",
+      "passed": true,
+      "message": "Overlay has white background to hide old content",
+      "details": null
+    },
+    {
+      "name": "Login clears page content before redirect",
+      "passed": true,
+      "message": "Both body and head content are cleared before redirect",
+      "details": null
+    },
+    {
+      "name": "Login uses window.location.href for redirect",
+      "passed": true,
+      "message": "Uses href for clean page load instead of router.replace()",
+      "details": null
+    },
+    {
+      "name": "Login clears just_logged_out flag after checking",
+      "passed": true,
+      "message": "Flag is cleared after preventing auto-redirect",
+      "details": null
+    },
+    {
+      "name": "middleware.ts file exists",
+      "passed": true,
+      "message": "File found",
+      "details": null
+    },
+    {
+      "name": "Middleware adds cache headers for /login routes",
+      "passed": true,
+      "message": "Cache headers are set for login routes",
+      "details": null
+    },
+    {
+      "name": "Middleware Cache-Control includes no-store",
+      "passed": true,
+      "message": "Cache-Control header includes no-store directive",
+      "details": null
+    },
+    {
+      "name": "Middleware Cache-Control includes no-cache",
+      "passed": true,
+      "message": "Cache-Control header includes no-cache directive",
+      "details": null
+    },
+    {
+      "name": "Middleware Cache-Control includes must-revalidate",
+      "passed": true,
+      "message": "Cache-Control header includes must-revalidate directive",
+      "details": null
+    },
+    {
+      "name": "Middleware Cache-Control includes max-age=0",
+      "passed": true,
+      "message": "Cache-Control header sets max-age to 0",
+      "details": null
+    },
+    {
+      "name": "Middleware adds Pragma: no-cache header",
+      "passed": true,
+      "message": "Pragma header is set for backward compatibility",
+      "details": null
+    },
+    {
+      "name": "Middleware adds Expires: 0 header",
+      "passed": true,
+      "message": "Expires header is set for backward compatibility",
+      "details": null
+    },
+    {
+      "name": "Middleware adds cache headers for /admin routes",
+      "passed": true,
+      "message": "Cache headers are also set for admin routes",
+      "details": null
+    },
+    {
+      "name": "Middleware matcher includes both /admin and /login routes",
+      "passed": true,
+      "message": "Matcher config includes both admin and login routes",
+      "details": null
+    },
+    {
+      "name": "NextAuth route.ts file exists",
+      "passed": true,
+      "message": "File found",
+      "details": null
+    },
+    {
+      "name": "NextAuth route has dynamic = force-dynamic",
+      "passed": true,
+      "message": "Route is configured for dynamic rendering",
+      "details": null
+    },
+    {
+      "name": "NextAuth route has revalidate = 0",
+      "passed": true,
+      "message": "Route is configured to not revalidate cached data",
+      "details": null
+    },
+    {
+      "name": "NextAuth route has fetchCache = force-no-store",
+      "passed": true,
+      "message": "Route is configured to not cache fetch requests",
+      "details": null
+    },
+    {
+      "name": "NextAuth route has all cache prevention directives",
+      "passed": true,
+      "message": "All three cache prevention directives are present",
+      "details": null
+    },
+    {
+      "name": "All fix implementation files exist",
+      "passed": "import NextAuth, { NextAuthOptions } from 'next-auth';\r\nimport CredentialsProvider from 'next-auth/providers/credentials';\r\nimport GoogleProvider from 'next-auth/providers/google';\r\nimport FacebookProvider from 'next-auth/providers/facebook';\r\nimport { User } from '@/types/auth';\r\n\r\n// Backend API URL\r\n// Use BACKEND_API_URL for server-side requests (Docker environment)\r\n// Fall back to NEXT_PUBLIC_API_URL for local development\r\nconst BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';\r\n\r\n// DIAGNOSTIC: Log server-side environment variables\r\nconsole.log('[NextAuth Route Handler] Server-side environment check:');\r\nconsole.log('[NextAuth Route Handler] - NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? 'SET' : 'NOT SET');\r\nconsole.log('[NextAuth Route Handler] - NEXTAUTH_URL:', process.env.NEXTAUTH_URL);\r\nconsole.log('[NextAuth Route Handler] - NODE_ENV:', process.env.NODE_ENV);\r\nconsole.log('[NextAuth Route Handler] - BACKEND_API_URL:', BACKEND_API_URL);\r\n\r\n/**\r\n * NextAuth Configuration\r\n * \r\n * This configuration integrates NextAuth with the existing backend authentication system.\r\n * \r\n * Key Features:\r\n * - Credentials Provider: Validates email/password against backend API\r\n * - OAuth Providers: Google and Facebook (optional, requires credentials)\r\n * - JWT Strategy: Uses JWT tokens for session management\r\n * - Backend Integration: All credential validation happens via backend API\r\n * - Backward Compatibility: Works with existing backend auth system\r\n */\r\nconst authOptions: NextAuthOptions = {\r\n  // Configure session strategy\r\n  session: {\r\n    strategy: 'jwt',\r\n    maxAge: 30 * 24 * 60 * 60, // 30 days\r\n  },\r\n\r\n  // Configure cookies for session persistence\r\n  cookies: {\r\n    // Session token cookie\r\n    sessionToken: {\r\n      name: 'next-auth.session-token',\r\n      options: {\r\n        httpOnly: true,\r\n        sameSite: 'lax',\r\n        path: '/',\r\n        // CRITICAL: In development, secure must be false for http://\r\n        // In production, secure must be true for https://\r\n        secure: process.env.NODE_ENV === 'production',\r\n        maxAge: 30 * 24 * 60 * 60, // 30 days\r\n        // CRITICAL: Don't set domain in development - it can cause cookie issues\r\n        // domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost',\r\n      },\r\n    },\r\n    // CSRF token cookie\r\n    csrfToken: {\r\n      name: 'next-auth.csrf-token',\r\n      options: {\r\n        httpOnly: true,\r\n        sameSite: 'lax',\r\n        path: '/',\r\n        secure: process.env.NODE_ENV === 'production',\r\n      },\r\n    },\r\n    // Callback URL cookie\r\n    callbackUrl: {\r\n      name: 'next-auth.callback-url',\r\n      options: {\r\n        httpOnly: true,\r\n        sameSite: 'lax',\r\n        path: '/',\r\n        secure: process.env.NODE_ENV === 'production',\r\n      },\r\n    },\r\n    // State cookie\r\n    state: {\r\n      name: 'next-auth.state',\r\n      options: {\r\n        httpOnly: true,\r\n        sameSite: 'lax',\r\n        path: '/',\r\n        secure: process.env.NODE_ENV === 'production',\r\n      },\r\n    },\r\n  },\r\n\r\n  // Configure JWT settings\r\n  jwt: {\r\n    maxAge: 30 * 24 * 60 * 60, // 30 days\r\n  },\r\n\r\n  // Configure pages\r\n  pages: {\r\n    signIn: '/login',\r\n    signOut: '/',  // Redirect to home page after logout\r\n    newUser: '/register',\r\n  },\r\n\r\n  // Configure providers\r\n  providers: [\r\n    // Credentials Provider - Validates against backend API\r\n    CredentialsProvider({\r\n      name: 'Credentials',\r\n      credentials: {\r\n        identifier: { label: 'Email or Phone', type: 'text' },\r\n        password: { label: 'Password', type: 'password' },\r\n        rememberMe: { label: 'Remember Me', type: 'checkbox' }\r\n      },\r\n      async authorize(credentials) {\r\n        console.log('[NextAuth] === CREDENTIALS AUTHORIZE START ===');\r\n        console.log('[NextAuth] BACKEND_API_URL:', BACKEND_API_URL);\r\n        console.log('[NextAuth] NODE_ENV:', process.env.NODE_ENV);\r\n\r\n        if (!credentials?.identifier || !credentials?.password) {\r\n          console.log('[NextAuth] Missing credentials');\r\n          console.log('[NextAuth] identifier present:', !!credentials?.identifier);\r\n          console.log('[NextAuth] password present:', !!credentials?.password);\r\n          return null;\r\n        }\r\n\r\n        console.log('[NextAuth] Attempting login with:', {\r\n          identifier: credentials.identifier,\r\n          password: credentials.password ? '[REDACTED]' : 'MISSING',\r\n          rememberMe: credentials.rememberMe,\r\n          endpoint: `${BACKEND_API_URL}/auth/login`\r\n        });\r\n\r\n        try {\r\n          console.log('[NextAuth] === STARTING BACKEND REQUEST ===');\r\n          const loginUrl = `${BACKEND_API_URL}/auth/login`;\r\n          console.log('[NextAuth] URL:', loginUrl);\r\n          console.log('[NextAuth] Method:', 'POST');\r\n          console.log('[NextAuth] Headers:', { 'Content-Type': 'application/json' });\r\n          console.log('[NextAuth] Body:', JSON.stringify({\r\n            identifier: credentials.identifier,\r\n            password: '[REDACTED]',\r\n            rememberMe: credentials.rememberMe || false,\r\n          }));\r\n\r\n          const response = await fetch(loginUrl, {\r\n            method: 'POST',\r\n            headers: {\r\n              'Content-Type': 'application/json',\r\n            },\r\n            body: JSON.stringify({\r\n              identifier: credentials.identifier,\r\n              password: credentials.password,\r\n              rememberMe: credentials.rememberMe || false,\r\n            }),\r\n          });\r\n\r\n          console.log('[NextAuth] === BACKEND RESPONSE RECEIVED ===');\r\n          console.log('[NextAuth] Status:', response.status);\r\n          console.log('[NextAuth] Status Text:', response.statusText);\r\n          console.log('[NextAuth] OK:', response.ok);\r\n          console.log('[NextAuth] Headers:', Object.fromEntries(response.headers.entries()));\r\n\r\n          // Get raw text first to see what we're dealing with\r\n          const rawText = await response.text();\r\n          console.log('[NextAuth] Raw response body:', rawText.substring(0, 500));\r\n\r\n          let data;\r\n          try {\r\n            data = JSON.parse(rawText);\r\n            console.log('[NextAuth] Parsed response data:', JSON.stringify(data, null, 2));\r\n          } catch (parseError) {\r\n            console.error('[NextAuth] === JSON PARSE ERROR ===');\r\n            console.error('[NextAuth] Failed to parse JSON response:', parseError);\r\n            console.log('[NextAuth] Response is not valid JSON');\r\n            return null;\r\n          }\r\n\r\n          // Check for errors in response\r\n          if (!response.ok) {\r\n            console.error('[NextAuth] === BACKEND ERROR RESPONSE ===');\r\n            console.error('[NextAuth] Backend returned error status:', {\r\n              status: response.status,\r\n              statusText: response.statusText,\r\n              error: data.error,\r\n              message: data.message\r\n            });\r\n            return null;\r\n          }\r\n\r\n          // Validate response structure\r\n          console.log('[NextAuth] === VALIDATING RESPONSE STRUCTURE ===');\r\n          console.log('[NextAuth] Has token?', !!data.token);\r\n          console.log('[NextAuth] Has user?', !!data.user);\r\n          console.log('[NextAuth] Has sessionId?', !!data.sessionId);\r\n\r\n          if (!data.token) {\r\n            console.error('[NextAuth] Backend response missing token');\r\n            return null;\r\n          }\r\n\r\n          if (!data.user) {\r\n            console.error('[NextAuth] Backend response missing user');\r\n            return null;\r\n          }\r\n\r\n          console.log('[NextAuth] === LOGIN SUCCESSFUL ===');\r\n          console.log('[NextAuth] Backend login successful, returning user object');\r\n          console.log('[NextAuth] User data:', {\r\n            id: data.user.id,\r\n            email: data.user.email,\r\n            phone: data.user.phone,\r\n            firstName: data.user.firstName,\r\n            lastName: data.user.lastName,\r\n            role: data.user.role\r\n          });\r\n\r\n          // Return user object for NextAuth session\r\n          return {\r\n            id: data.user.id,\r\n            email: data.user.email,\r\n            phone: data.user.phone,\r\n            name: `${data.user.firstName} ${data.user.lastName}`,\r\n            firstName: data.user.firstName,\r\n            lastName: data.user.lastName,\r\n            role: data.user.role,\r\n            image: null,\r\n            backendToken: data.token, // Store backend JWT token\r\n            sessionId: data.sessionId,\r\n            rememberMe: data.rememberMe,\r\n            rememberToken: data.rememberToken,\r\n          };\r\n        } catch (error) {\r\n          console.error('[NextAuth] === FETCH ERROR ===');\r\n          console.error('[NextAuth] Error:', error instanceof Error ? error.message : String(error));\r\n          console.error('[NextAuth] Stack:', error instanceof Error ? error.stack : undefined);\r\n          console.error('[NextAuth] Name:', error instanceof Error ? error.name : String(error));\r\n          if (error instanceof Error && 'code' in error) {\r\n            console.error('[NextAuth] Code:', (error as any).code);\r\n          }\r\n          return null;\r\n        }\r\n      },\r\n    }),\r\n\r\n    // Google OAuth Provider (optional - requires credentials)\r\n    GoogleProvider({\r\n      clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',\r\n      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',\r\n      allowDangerousEmailAccountLinking: true,\r\n    }),\r\n\r\n    // Facebook OAuth Provider (optional - requires credentials)\r\n    FacebookProvider({\r\n      clientId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || '',\r\n      clientSecret: process.env.FACEBOOK_APP_SECRET || '',\r\n    }),\r\n  ],\r\n\r\n  // Configure callbacks\r\n  callbacks: {\r\n    /**\r\n     * JWT Callback\r\n     * Called whenever a JWT is created or updated\r\n     * CRITICAL: ALWAYS generates a new token on login, never preserves existing tokens\r\n     */\r\n    async jwt({ token, user, account, trigger, session }) {\r\n      // ALWAYS generate a new token on login, never preserve existing\r\n      if (user) {\r\n        console.log('[NextAuth] JWT callback - generating NEW token for user:', user.email);\r\n        \r\n        // Create a fresh token with all user data\r\n        token.id = user.id;\r\n        token.email = user.email;\r\n        token.phone = user.phone;\r\n        token.firstName = user.firstName;\r\n        token.lastName = user.lastName;\r\n        token.role = user.role;\r\n        token.backendToken = user.backendToken;\r\n        token.sessionId = user.sessionId;\r\n        token.rememberMe = user.rememberMe;\r\n        token.rememberToken = user.rememberToken;\r\n        \r\n        // Add timestamps to track token creation\r\n        token.createdAt = new Date().toISOString();\r\n        token.updatedAt = new Date().toISOString();\r\n        \r\n        // Track token version to ensure freshness\r\n        token.tokenVersion = Date.now();\r\n        \r\n        console.log('[NextAuth] NEW token generated with version:', token.tokenVersion);\r\n      } else if (token) {\r\n        // CRITICAL FIX: Do NOT preserve existing tokens\r\n        // When a user logs out and logs back in, a fresh token will be generated\r\n        // This block only returns the existing token for session updates, not for new logins\r\n        console.log('[NextAuth] JWT callback - existing token (only for session updates, not new logins)');\r\n      } else {\r\n        console.log('[NextAuth] JWT callback - no token or user, skipping token population');\r\n      }\r\n\r\n      // Handle session updates\r\n      if (trigger === 'update' && session) {\r\n        console.log('[NextAuth] JWT callback - session update');\r\n        token = { ...token, ...session };\r\n      }\r\n\r\n      // OAuth sign in\r\n      if (account && account.provider !== 'credentials') {\r\n        console.log('[NextAuth] JWT callback - OAuth sign in:', account.provider);\r\n        // For OAuth, we would need to create/update user in backend\r\n        // This is a placeholder for OAuth integration\r\n        token.oauthProvider = account.provider;\r\n        token.oauthAccessToken = account.access_token;\r\n      }\r\n\r\n      return token;\r\n    },\r\n\r\n    /**\r\n     * Session Callback\r\n     * Called whenever a session is checked\r\n     * CRITICAL: ALWAYS uses the new token from JWT callback, never preserves existing ones\r\n     */\r\n    async session({ session, token }) {\r\n      console.log('[NextAuth] Session callback - using NEW token from JWT callback');\r\n      console.log('[NextAuth] Token in session callback:', !!token);\r\n\r\n      if (token) {\r\n        session.user = {\r\n          id: token.id as string,\r\n          email: token.email as string,\r\n          phone: token.phone as string,\r\n          firstName: token.firstName as string,\r\n          lastName: token.lastName as string,\r\n          name: token.name as string,\r\n          role: token.role as string,\r\n          image: token.picture as string | null,\r\n          preferredLanguage: 'en', // Default, can be updated from backend\r\n          // Use createdAt from token if available, otherwise use current time\r\n          createdAt: token.createdAt ? (token.createdAt as string) : new Date().toISOString(),\r\n          updatedAt: token.updatedAt ? (token.updatedAt as string) : new Date().toISOString(),\r\n        };\r\n        \r\n        // ALWAYS use the new token from JWT callback\r\n        session.backendToken = token.backendToken as string;\r\n        session.sessionId = token.sessionId as string;\r\n        session.rememberMe = token.rememberMe;\r\n        session.rememberToken = token.rememberToken;\r\n        session.oauthProvider = token.oauthProvider as string | undefined;\r\n        \r\n        // Track token version to ensure we're using the new token\r\n        session.tokenVersion = token.tokenVersion as number;\r\n        session.createdAt = token.createdAt as string;\r\n        session.updatedAt = token.updatedAt as string;\r\n        \r\n        console.log('[NextAuth] Session created successfully with token version:', session.tokenVersion);\r\n      } else {\r\n        console.log('[NextAuth] No token in session callback');\r\n      }\r\n\r\n      // Always return session if token exists\r\n      // Don't return null as this can cause unexpected logout behavior\r\n      return token ? session : (undefined as any);\r\n    },\r\n\r\n    /**\r\n     * Sign In Callback\r\n     * Called when user signs in\r\n     * Returns true to allow sign-in, false to deny\r\n     *\r\n     * Note: Redirect logic is handled on client-side after session is loaded\r\n     */\r\n    async signIn({ user, account, profile }) {\r\n      console.log('[NextAuth] Sign in callback:', { user: user?.email, provider: account?.provider, role: user?.role });\r\n\r\n      // Allow sign-in for all authenticated users\r\n      // Client-side will handle role-based redirects after session loads\r\n      return true;\r\n    },\r\n\r\n    /**\r\n     * Redirect Callback\r\n     * Called after sign in/sign out\r\n     *\r\n     * CRITICAL: Always return baseUrl to prevent redirect loops\r\n     * Client-side login page will handle role-based redirects\r\n     */\r\n    async redirect({ url, baseUrl }) {\r\n      console.log('[NextAuth] Redirect callback:', { url, baseUrl });\r\n      console.log('[NextAuth] Returning baseUrl to prevent redirect loop:', baseUrl);\r\n\r\n      // Always return baseUrl - let client-side handle redirects\r\n      return baseUrl;\r\n    },\r\n  },\r\n\r\n  // Configure events\r\n  events: {\r\n    async signIn({ user, account, profile, isNewUser }) {\r\n      console.log('[NextAuth] Event - signIn:', { user: user?.email, provider: account?.provider, isNewUser });\r\n\r\n      // TODO: Track sign-in events in backend\r\n      // This could be used for analytics, security logging, etc.\r\n    },\r\n\r\n    async signOut({ token, session }) {\r\n      console.log('[NextAuth] Event - signOut');\r\n\r\n      // Call backend logout API to invalidate session\r\n      if (token?.sessionId || token?.backendToken) {\r\n        try {\r\n          await fetch(`${BACKEND_API_URL}/auth/logout`, {\r\n            method: 'POST',\r\n            headers: {\r\n              'Content-Type': 'application/json',\r\n              'Authorization': `Bearer ${token.backendToken}`,\r\n            },\r\n          });\r\n        } catch (error) {\r\n          console.error('[NextAuth] Backend logout error:', error);\r\n          // Don't throw - allow frontend logout to proceed\r\n        }\r\n      }\r\n    },\r\n\r\n    async createUser({ user }) {\r\n      console.log('[NextAuth] Event - createUser:', user?.email);\r\n\r\n      // TODO: Create user in backend for OAuth sign-ins\r\n      // This would involve calling backend registration API with OAuth data\r\n    },\r\n\r\n    async updateUser({ user }) {\r\n      console.log('[NextAuth] Event - updateUser:', user?.email);\r\n\r\n      // TODO: Sync user updates with backend\r\n    },\r\n\r\n    async session({ session, token }) {\r\n      console.log('[NextAuth] Event - session');\r\n\r\n      // TODO: Track session events\r\n    },\r\n  },\r\n\r\n  // Configure debug mode\r\n  debug: process.env.NODE_ENV === 'development',\r\n\r\n  // Configure secret\r\n  secret: process.env.NEXTAUTH_SECRET,\r\n};\r\n\r\n// DIAGNOSTIC: Log configuration on load\r\nconsole.log('[NextAuth] Configuration loaded:');\r\nconsole.log('[NextAuth] - Session Strategy:', authOptions.session?.strategy);\r\nconsole.log('[NextAuth] - Session Max Age:', authOptions.session?.maxAge);\r\nconsole.log('[NextAuth] - JWT Max Age:', authOptions.jwt?.maxAge);\r\nconsole.log('[NextAuth] - Secret:', authOptions.secret ? 'SET' : 'NOT SET');\r\nconsole.log('[NextAuth] - NEXTAUTH_URL:', process.env.NEXTAUTH_URL);\r\nconsole.log('[NextAuth] - NODE_ENV:', process.env.NODE_ENV);\r\n\r\n// NextAuth route handler\r\nconst handler = NextAuth(authOptions);\r\n\r\n// Type assertion for Next.js 15 compatibility\r\nexport { handler as GET, handler as POST };\r\n\r\n// Add cache headers to prevent caching of auth pages\r\nexport const dynamic = 'force-dynamic';\r\nexport const revalidate = 0;\r\nexport const fetchCache = 'force-no-store';\r\n",
+      "message": "All required files are present",
+      "details": null
+    },
+    {
+      "name": "Consistent z-index (99999) used across loading overlays",
+      "passed": true,
+      "message": "Both logout and login use same high z-index",
+      "details": null
+    },
+    {
+      "name": "Consistent white background used across loading overlays",
+      "passed": true,
+      "message": "Both logout and login use white background",
+      "details": null
+    },
+    {
+      "name": "Consistent page clearing across logout and login",
+      "passed": true,
+      "message": "Both logout and login clear body and head content",
+      "details": null
+    },
+    {
+      "name": "Consistent cache headers across middleware and NextAuth",
+      "passed": true,
+      "message": "All cache prevention mechanisms are in place",
+      "details": null
+    },
+    {
+      "name": "just_logged_out flag is used consistently",
+      "passed": true,
+      "message": "Flag is set, checked, and cleared properly",
+      "details": null
+    },
+    {
+      "name": "Loading overlay IDs are unique",
+      "passed": true,
+      "message": "Each loading overlay has a unique ID",
+      "details": null
+    },
+    {
+      "name": "Loading overlay messages are appropriate",
+      "passed": true,
+      "message": "Each loading overlay has context-appropriate message",
+      "details": null
+    },
+    {
+      "name": "Logout handles errors gracefully",
+      "passed": true,
+      "message": "Logout has error handling with logging",
+      "details": null
+    },
+    {
+      "name": "Login redirect checks for cart merge prompt",
+      "passed": true,
+      "message": "Redirect is prevented if cart merge prompt is shown",
+      "details": null
+    },
+    {
+      "name": "Login redirect validates redirect target",
+      "passed": true,
+      "message": "Redirect target is validated against safe list",
+      "details": null
+    },
+    {
+      "name": "Login redirect uses role-based routing",
+      "passed": true,
+      "message": "Redirect target is based on user role",
+      "details": null
+    },
+    {
+      "name": "Logout loading overlay is created before async operations",
+      "passed": true,
+      "message": "Overlay is created before calling NextAuth signOut",
+      "details": null
+    },
+    {
+      "name": "Login loading overlay is created before redirect",
+      "passed": true,
+      "message": "Overlay is created before redirect",
+      "details": null
+    },
+    {
+      "name": "Page content is cleared after loading overlay is added",
+      "passed": true,
+      "message": "Content clearing happens after overlay is visible",
+      "details": null
+    },
+    {
+      "name": "Multiple logout cycles are supported",
+      "passed": true,
+      "message": "Flag mechanism supports multiple cycles",
+      "details": null
+    },
+    {
+      "name": "Middleware protects admin routes with authentication",
+      "passed": true,
+      "message": "Admin routes require authentication",
+      "details": null
+    },
+    {
+      "name": "Middleware checks for admin role",
+      "passed": true,
+      "message": "Only admin users can access admin routes",
+      "details": null
+    },
+    {
+      "name": "Cache headers prevent caching of sensitive admin data",
+      "passed": true,
+      "message": "Admin pages are not cached by browser",
+      "details": null
+    },
+    {
+      "name": "NextAuth route is configured to not be cached",
+      "passed": true,
+      "message": "Auth route is always dynamically generated",
+      "details": null
+    },
+    {
+      "name": "Session tokens are not cached",
+      "passed": true,
+      "message": "Session cookies are HTTP-only for security",
+      "details": null
+    },
+    {
+      "name": "SameSite attribute is set for cookies",
+      "passed": true,
+      "message": "Cookies have SameSite protection against CSRF",
+      "details": null
+    },
+    {
+      "name": "Secure flag is set for production cookies",
+      "passed": true,
+      "message": "Cookies are secure in production environment",
+      "details": null
+    }
+  ],
+  "summary": {
+    "total": 65,
+    "passed": 65,
+    "failed": 0,
+    "skipped": 0
+  }
+}

@@ -63,7 +63,7 @@ router.get('/me', authMiddleware.authenticate(), async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -169,7 +169,7 @@ router.put('/me', [
     const { firstName, lastName, phone, dateOfBirth, gender } = req.body;
 
     // Check if user exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { id: userId }
     });
 
@@ -182,7 +182,7 @@ router.put('/me', [
 
     // Check if phone is already used by another user
     if (phone && phone !== existingUser.phone) {
-      const phoneUser = await prisma.user.findFirst({
+      const phoneUser = await prisma.users.findFirst({
         where: { phone, NOT: { id: userId } }
       });
 
@@ -204,7 +204,7 @@ router.put('/me', [
     if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
     if (gender !== undefined) updateData.gender = gender;
 
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: userId },
       data: updateData,
       select: {
@@ -265,7 +265,7 @@ router.post('/me/picture', authMiddleware.authenticate(), upload.single('picture
     const pictureUrl = `/uploads/profile-pictures/${req.file.filename}`;
 
     // Delete old profile picture if exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { id: userId },
       select: { image: true }
     });
@@ -280,7 +280,7 @@ router.post('/me/picture', authMiddleware.authenticate(), upload.single('picture
     }
 
     // Update user with new picture
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: userId },
       data: { image: pictureUrl },
       select: {
@@ -335,7 +335,7 @@ router.delete('/me/picture', authMiddleware.authenticate(), async (req, res) => 
     const userId = req.user.id;
 
     // Get current user
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { id: userId },
       select: { image: true }
     });
@@ -358,7 +358,7 @@ router.delete('/me/picture', authMiddleware.authenticate(), async (req, res) => 
     }
 
     // Update user
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: userId },
       data: { image: null },
       select: {
@@ -416,7 +416,7 @@ router.post('/me/email/change', [
     const { newEmail } = req.body;
 
     // Check if email is already used
-    const existingUser = await prisma.user.findFirst({
+    const existingUser = await prisma.users.findFirst({
       where: { email: newEmail }
     });
 
@@ -489,7 +489,7 @@ router.post('/me/email/confirm', [
     }
 
     // Update user email
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: userId },
       data: {
         email: newEmail,
@@ -538,7 +538,7 @@ router.post('/me/phone/change', [
     const { newPhone } = req.body;
 
     // Check if phone is already used
-    const existingUser = await prisma.user.findFirst({
+    const existingUser = await prisma.users.findFirst({
       where: { phone: newPhone }
     });
 
@@ -616,7 +616,7 @@ router.post('/me/phone/confirm', [
     }
 
     // Update user phone
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: userId },
       data: {
         phone: newPhone,

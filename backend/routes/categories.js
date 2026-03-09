@@ -1,6 +1,6 @@
 const express = require('express');
 const { body, param, query, validationResult } = require('express-validator');
-const { PrismaClient } = require('@prisma/client');
+const { databaseService } = require('../services/database');
 const { authMiddleware } = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
@@ -9,7 +9,8 @@ const { elasticsearchConfig } = require('../config/elasticsearch');
 const { ProductIndexingService } = require('../services/elasticsearch/productIndexingService');
 
 const router = express.Router();
-const prisma = new PrismaClient();
+// Use shared PrismaClient instance from databaseService
+const prisma = databaseService.getClient();
 const productIndexingService = new ProductIndexingService();
 
 // Helper function to convert Decimal values to numbers
@@ -136,7 +137,7 @@ const buildCategoryTree = (categories, parentId = null, visited = new Set(), dep
 // Helper function to get category path
 const getCategoryPath = async (categoryId) => {
   const path = [];
-  let current = await prisma.category.findUnique({
+  let current = await prisma.categories.findUnique({
     where: { id: categoryId },
     select: { id: true, name: true, slug: true, parentId: true }
   });
@@ -144,7 +145,7 @@ const getCategoryPath = async (categoryId) => {
   while (current) {
     path.unshift(current);
     if (!current.parentId) break;
-    current = await prisma.category.findUnique({
+    current = await prisma.categories.findUnique({
       where: { id: current.parentId },
       select: { id: true, name: true, slug: true, parentId: true }
     });
@@ -165,11 +166,11 @@ router.get('/tree', async (req, res) => {
 
     const where = status ? { status } : {};
 
-    const categories = await prisma.category.findMany({
+    const categories = await prisma.categories.findMany({
       where,
       include: {
         _count: {
-          select: { productCategories: true }
+          select: { product_categories: true }
         }
       },
       orderBy: { displayOrder: 'asc' }
@@ -209,22 +210,22 @@ router.get('/slug/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
 
-    const category = await prisma.category.findUnique({
+    const category = await prisma.categories.findUnique({
       where: { slug },
       include: {
-        parent: {
+        categories: {
           select: { id: true, name: true, slug: true }
         },
-        children: {
+        other_categories: {
           include: {
             _count: {
-              select: { productCategories: true }
+              select: { product_categories: true }
             }
           },
           orderBy: { displayOrder: 'asc' }
         },
         _count: {
-          select: { productCategories: true }
+          select: { product_categories: true }
         }
       }
     });
@@ -281,12 +282,12 @@ router.get('/', [
 
     if (tree === 'true') {
       // Return tree structure
-      const categories = await prisma.category.findMany({
+      const categories = await prisma.categories.findMany({
         where,
         include: {
           children: true,
           _count: includeProducts ? {
-            select: { products: true }
+            select: { product_categories: true }
           } : undefined
         },
         orderBy: { displayOrder: 'asc' }
@@ -304,15 +305,15 @@ router.get('/', [
     const skip = (page - 1) * limit;
 
     const [categories, total] = await Promise.all([
-      prisma.category.findMany({
+      prisma.categories.findMany({
         where,
         skip: parseInt(skip),
         take: parseInt(limit),
         include: {
-          parent: {
+          categories: {
             select: { id: true, name: true, slug: true }
           },
-          children: {
+          other_categories: {
             select: { id: true, name: true, slug: true },
             orderBy: { displayOrder: 'asc' }
           },
@@ -322,7 +323,7 @@ router.get('/', [
         },
         orderBy: { displayOrder: 'asc' }
       }),
-      prisma.category.count({ where })
+      prisma.categories.count({ where })
     ]);
 
     res.json({
@@ -348,9 +349,9 @@ router.get('/', [
 router.get('/stats', async (req, res) => {
   try {
     const [total, active, inactive] = await Promise.all([
-      prisma.category.count(),
-      prisma.category.count({ where: { status: 'active' } }),
-      prisma.category.count({ where: { status: 'inactive' } })
+      prisma.categories.count(),
+      prisma.categories.count({ where: { status: 'active' } }),
+      prisma.categories.count({ where: { status: 'inactive' } })
     ]);
 
     res.json({
@@ -374,22 +375,22 @@ router.get('/:id', [
   try {
     const { id } = req.params;
 
-    const category = await prisma.category.findUnique({
+    const category = await prisma.categories.findUnique({
       where: { id },
       include: {
-        parent: {
+        categories: {
           select: { id: true, name: true, slug: true }
         },
-        children: {
+        other_categories: {
           include: {
             _count: {
-              select: { productCategories: true }
+              select: { product_categories: true }
             }
           },
           orderBy: { displayOrder: 'asc' }
         },
         _count: {
-          select: { productCategories: true }
+          select: { product_categories: true }
         }
       }
     });
@@ -421,9 +422,9 @@ router.get('/:id', [
 router.get('/stats', async (req, res) => {
   try {
     const [total, active, inactive] = await Promise.all([
-      prisma.category.count(),
-      prisma.category.count({ where: { status: 'active' } }),
-      prisma.category.count({ where: { status: 'inactive' } })
+      prisma.categories.count(),
+      prisma.categories.count({ where: { status: 'active' } }),
+      prisma.categories.count({ where: { status: 'inactive' } })
     ]);
 
     res.json({
@@ -459,7 +460,7 @@ router.post('/', [
     const categoryData = req.body;
 
     // Check if slug already exists
-    const existingSlug = await prisma.category.findUnique({
+    const existingSlug = await prisma.categories.findUnique({
       where: { slug: categoryData.slug }
     });
 
@@ -471,7 +472,7 @@ router.post('/', [
 
     // If parentId is provided, check if parent exists
     if (categoryData.parentId) {
-      const parent = await prisma.category.findUnique({
+      const parent = await prisma.categories.findUnique({
         where: { id: categoryData.parentId }
       });
 
@@ -482,7 +483,7 @@ router.post('/', [
       }
     }
 
-    const category = await prisma.category.create({
+    const category = await prisma.categories.create({
       data: {
         name: categoryData.name,
         slug: categoryData.slug,
@@ -498,8 +499,8 @@ router.post('/', [
         metaKeywords: categoryData.metaKeywords || null
       },
       include: {
-        parent: true,
-        children: true
+        categories: true,
+        other_categories: true
       }
     });
 
@@ -553,7 +554,7 @@ router.put('/:id', [
     }
 
     // Check if category exists
-    const existingCategory = await prisma.category.findUnique({
+    const existingCategory = await prisma.categories.findUnique({
       where: { id }
     });
 
@@ -565,7 +566,7 @@ router.put('/:id', [
 
     // Check if slug conflicts with another category
     if (updateData.slug && updateData.slug !== existingCategory.slug) {
-      const slugConflict = await prisma.category.findFirst({
+      const slugConflict = await prisma.categories.findFirst({
         where: { slug: updateData.slug, NOT: { id } }
       });
 
@@ -585,7 +586,7 @@ router.put('/:id', [
 
     // If parentId is provided, check if parent exists
     if (updateData.parentId) {
-      const parent = await prisma.category.findUnique({
+      const parent = await prisma.categories.findUnique({
         where: { id: updateData.parentId }
       });
 
@@ -604,19 +605,19 @@ router.put('/:id', [
       }
     }
 
-    const updatedCategory = await prisma.category.update({
+    const updatedCategory = await prisma.categories.update({
       where: { id },
       data: updateData,
       include: {
-        parent: true,
-        children: true
+        categories: true,
+        other_categories: true
       }
     });
 
     // Reindex all products in this category (non-blocking)
     if (elasticsearchConfig.isAvailable()) {
       // Get all products in this category
-      const productCategories = await prisma.productCategory.findMany({
+      const productCategories = await prisma.product_categories.findMany({
         where: { categoryId: id },
         select: { productId: true }
       });
@@ -653,7 +654,7 @@ router.put('/:id', [
 
 // Helper function to check circular reference
 const checkCircularReference = async (categoryId, newParentId) => {
-  let current = await prisma.category.findUnique({
+  let current = await prisma.categories.findUnique({
     where: { id: newParentId },
     select: { id: true, parentId: true }
   });
@@ -662,7 +663,7 @@ const checkCircularReference = async (categoryId, newParentId) => {
     if (current.parentId === categoryId) {
       return true;
     }
-    current = await prisma.category.findUnique({
+    current = await prisma.categories.findUnique({
       where: { id: current.parentId },
       select: { id: true, parentId: true }
     });
@@ -679,13 +680,13 @@ router.delete('/:id', [
     const { id } = req.params;
 
     // Check if category exists
-    const category = await prisma.category.findUnique({
+    const category = await prisma.categories.findUnique({
       where: { id },
       include: {
         _count: {
           select: {
-            productCategories: true,
-            children: true
+            product_categories: true,
+            other_categories: true
           }
         }
       }
@@ -698,7 +699,7 @@ router.delete('/:id', [
     }
 
     // Check if category has products
-    if (category._count.products > 0) {
+    if (category._count.product_categories > 0) {
       return res.status(400).json({
         error: 'Cannot delete category with products',
         suggestion: 'Move products to another category first'
@@ -706,14 +707,14 @@ router.delete('/:id', [
     }
 
     // Check if category has subcategories
-    if (category._count.children > 0) {
+    if (category._count.other_categories > 0) {
       return res.status(400).json({
         error: 'Cannot delete category with subcategories',
         suggestion: 'Delete or move subcategories first'
       });
     }
 
-    await prisma.category.delete({
+    await prisma.categories.delete({
       where: { id }
     });
 
@@ -750,7 +751,7 @@ router.post('/:id/subcategories', [
     const subcategoryData = req.body;
 
     // Check if parent category exists
-    const parent = await prisma.category.findUnique({
+    const parent = await prisma.categories.findUnique({
       where: { id }
     });
 
@@ -761,7 +762,7 @@ router.post('/:id/subcategories', [
     }
 
     // Check if slug already exists
-    const existingSlug = await prisma.category.findUnique({
+    const existingSlug = await prisma.categories.findUnique({
       where: { slug: subcategoryData.slug }
     });
 
@@ -771,7 +772,7 @@ router.post('/:id/subcategories', [
       });
     }
 
-    const subcategory = await prisma.category.create({
+    const subcategory = await prisma.categories.create({
       data: {
         name: subcategoryData.name,
         slug: subcategoryData.slug,
@@ -787,7 +788,7 @@ router.post('/:id/subcategories', [
         metaKeywords: subcategoryData.metaKeywords || null
       },
       include: {
-        parent: true
+        categories: true
       }
     });
 
@@ -815,7 +816,7 @@ router.put('/:id/move', [
     const { parentId } = req.body;
 
     // Check if category exists
-    const category = await prisma.category.findUnique({
+    const category = await prisma.categories.findUnique({
       where: { id }
     });
 
@@ -834,7 +835,7 @@ router.put('/:id/move', [
 
     // If parentId is provided, check if parent exists
     if (parentId) {
-      const parent = await prisma.category.findUnique({
+      const parent = await prisma.categories.findUnique({
         where: { id: parentId }
       });
 
@@ -853,12 +854,12 @@ router.put('/:id/move', [
       }
     }
 
-    const updatedCategory = await prisma.category.update({
+    const updatedCategory = await prisma.categories.update({
       where: { id },
       data: { parentId: parentId || null },
       include: {
-        parent: true,
-        children: true
+        categories: true,
+        other_categories: true
       }
     });
 
@@ -890,7 +891,7 @@ router.patch('/:id/reorder', [
     const { displayOrder } = req.body;
 
     // Check if category exists
-    const category = await prisma.category.findUnique({
+    const category = await prisma.categories.findUnique({
       where: { id }
     });
 
@@ -900,7 +901,7 @@ router.patch('/:id/reorder', [
       });
     }
 
-    const updatedCategory = await prisma.category.update({
+    const updatedCategory = await prisma.categories.update({
       where: { id },
       data: { displayOrder: parseInt(displayOrder) }
     });
@@ -931,7 +932,7 @@ router.patch('/reorder-batch', [
     // Update all categories in a transaction
     const updates = await prisma.$transaction(
       orders.map(order =>
-        prisma.category.update({
+        prisma.categories.update({
           where: { id: order.id },
           data: { displayOrder: order.displayOrder }
         })
@@ -978,11 +979,11 @@ router.get('/:id/products', [
     } = req.query;
 
     // Check if category exists
-    const category = await prisma.category.findUnique({
+    const category = await prisma.categories.findUnique({
       where: { id },
       include: {
         _count: {
-          select: { productCategories: true }
+          select: { product_categories: true }
         }
       }
     });
@@ -997,7 +998,7 @@ router.get('/:id/products', [
     
     // Build where clause using ProductCategory junction table
     const where = {
-      categories: {
+      product_categories: {
         some: {
           categoryId: id
         }
@@ -1012,14 +1013,14 @@ router.get('/:id/products', [
     }
     
     const [products, total] = await Promise.all([
-      prisma.product.findMany({
+      prisma.products.findMany({
         where,
         skip: parseInt(skip),
         take: parseInt(limit),
         include: {
-          categories: {
-            select: {
-              category: {
+          product_categories: {
+            include: {
+              categories: {
                 select: { id: true, name: true, slug: true }
               }
             },
@@ -1028,13 +1029,13 @@ router.get('/:id/products', [
             },
             take: 1
           },
-          brand: {
+          brands: {
             select: { id: true, name: true, slug: true }
           },
-          images: {
-            where: { displayOrder: 0 },
+          product_images: {
+            where: { display_order: 0 },
             take: 1,
-            select: { id: true, originalUrl: true, altTextEn: true }
+            select: { id: true, original_url: true, alt_text_en: true }
           },
           _count: {
             select: { reviews: true }
@@ -1042,7 +1043,7 @@ router.get('/:id/products', [
         },
         orderBy: { [sortBy]: sortOrder }
       }),
-      prisma.product.count({ where })
+      prisma.products.count({ where })
     ]);
 
     // Serialize Decimal values to numbers
@@ -1099,7 +1100,7 @@ router.post('/:id/image', upload.single('image'), [
     }
 
     // Check if category exists
-    const category = await prisma.category.findUnique({
+    const category = await prisma.categories.findUnique({
       where: { id }
     });
 
@@ -1137,7 +1138,7 @@ router.post('/:id/image', upload.single('image'), [
         : 'Directory does not exist'
     });
 
-    const updatedCategory = await prisma.category.update({
+    const updatedCategory = await prisma.categories.update({
       where: { id },
       data: { imageUrl }
     });
@@ -1178,7 +1179,7 @@ router.post('/:id/icon', upload.single('icon'), [
     }
 
     // Check if category exists
-    const category = await prisma.category.findUnique({
+    const category = await prisma.categories.findUnique({
       where: { id }
     });
 
@@ -1216,7 +1217,7 @@ router.post('/:id/icon', upload.single('icon'), [
         : 'Directory does not exist'
     });
 
-    const updatedCategory = await prisma.category.update({
+    const updatedCategory = await prisma.categories.update({
       where: { id },
       data: { iconUrl }
     });
@@ -1243,7 +1244,7 @@ router.delete('/:id/image', [
     const { id } = req.params;
 
     // Check if category exists
-    const category = await prisma.category.findUnique({
+    const category = await prisma.categories.findUnique({
       where: { id }
     });
 
@@ -1265,7 +1266,7 @@ router.delete('/:id/image', [
       fs.unlinkSync(filePath);
     }
 
-    const updatedCategory = await prisma.category.update({
+    const updatedCategory = await prisma.categories.update({
       where: { id },
       data: { imageUrl: null }
     });
@@ -1292,7 +1293,7 @@ router.delete('/:id/icon', [
     const { id } = req.params;
 
     // Check if category exists
-    const category = await prisma.category.findUnique({
+    const category = await prisma.categories.findUnique({
       where: { id }
     });
 
@@ -1314,7 +1315,7 @@ router.delete('/:id/icon', [
       fs.unlinkSync(filePath);
     }
 
-    const updatedCategory = await prisma.category.update({
+    const updatedCategory = await prisma.categories.update({
       where: { id },
       data: { iconUrl: null }
     });
@@ -1362,7 +1363,7 @@ router.post('/bulk', [
     }
 
     // Check if slugs already exist in database
-    const existingSlugs = await prisma.category.findMany({
+    const existingSlugs = await prisma.categories.findMany({
       where: { slug: { in: slugs } },
       select: { slug: true }
     });
@@ -1376,7 +1377,7 @@ router.post('/bulk', [
 
     // Check if all parent categories exist
     if (parentIds.length > 0) {
-      const existingParents = await prisma.category.findMany({
+      const existingParents = await prisma.categories.findMany({
         where: { id: { in: parentIds } },
         select: { id: true }
       });
@@ -1396,7 +1397,7 @@ router.post('/bulk', [
       let displayOrder = 0;
 
       for (const categoryData of categories) {
-        const category = await tx.category.create({
+        const category = await tx.categories.create({
           data: {
             name: categoryData.name,
             slug: categoryData.slug,
@@ -1412,8 +1413,8 @@ router.post('/bulk', [
             metaKeywords: categoryData.metaKeywords || null
           },
           include: {
-            parent: true,
-            children: true
+            categories: true,
+            other_categories: true
           }
         });
         results.push(category);
@@ -1456,7 +1457,7 @@ router.put('/bulk', [
     const categoryIds = categories.map(c => c.id);
 
     // Check if all categories exist
-    const existingCategories = await prisma.category.findMany({
+    const existingCategories = await prisma.categories.findMany({
       where: { id: { in: categoryIds } },
       select: { id: true, slug: true, parentId: true }
     });
@@ -1472,7 +1473,7 @@ router.put('/bulk', [
     // Check for slug conflicts
     const slugsToUpdate = categories.filter(c => c.slug).map(c => ({ slug: c.slug, id: c.id }));
     if (slugsToUpdate.length > 0) {
-      const slugConflicts = await prisma.category.findMany({
+      const slugConflicts = await prisma.categories.findMany({
         where: {
           slug: { in: slugsToUpdate.map(s => s.slug) },
           NOT: { id: { in: categoryIds } }
@@ -1500,7 +1501,7 @@ router.put('/bulk', [
       }
 
       // Check if parent exists
-      const parent = await prisma.category.findUnique({
+      const parent = await prisma.categories.findUnique({
         where: { id: parentId }
       });
 
@@ -1529,12 +1530,12 @@ router.put('/bulk', [
         const updateData = { ...categoryData };
         delete updateData.id;
 
-        const category = await tx.category.update({
+        const category = await tx.categories.update({
           where: { id: categoryData.id },
           data: updateData,
           include: {
-            parent: true,
-            children: true
+            categories: true,
+            other_categories: true
           }
         });
         results.push(category);
@@ -1544,7 +1545,7 @@ router.put('/bulk', [
 
     // Reindex all products in updated categories (non-blocking)
     if (elasticsearchConfig.isAvailable()) {
-      const productCategories = await prisma.productCategory.findMany({
+      const productCategories = await prisma.product_categories.findMany({
         where: { categoryId: { in: categoryIds } },
         select: { productId: true }
       });
@@ -1587,13 +1588,13 @@ router.delete('/bulk', [
     const { categoryIds } = req.body;
 
     // Check if all categories exist
-    const categories = await prisma.category.findMany({
+    const categories = await prisma.categories.findMany({
       where: { id: { in: categoryIds } },
       include: {
         _count: {
           select: {
-            productCategories: true,
-            children: true
+            product_categories: true,
+            other_categories: true
           }
         }
       }
@@ -1608,7 +1609,7 @@ router.delete('/bulk', [
     }
 
     // Check if any category has products
-    const categoriesWithProducts = categories.filter(c => c._count.productCategories > 0);
+    const categoriesWithProducts = categories.filter(c => c._count.product_categories > 0);
     if (categoriesWithProducts.length > 0) {
       return res.status(400).json({
         error: 'Cannot delete categories with products',
@@ -1617,7 +1618,7 @@ router.delete('/bulk', [
     }
 
     // Check if any category has subcategories
-    const categoriesWithChildren = categories.filter(c => c._count.children > 0);
+    const categoriesWithChildren = categories.filter(c => c._count.other_categories > 0);
     if (categoriesWithChildren.length > 0) {
       return res.status(400).json({
         error: 'Cannot delete categories with subcategories',
@@ -1627,7 +1628,7 @@ router.delete('/bulk', [
 
     // Delete categories in a transaction
     const deletedCategoryIds = await prisma.$transaction(async (tx) => {
-      await tx.category.deleteMany({
+      await tx.categories.deleteMany({
         where: { id: { in: categoryIds } }
       });
       return categoryIds;
@@ -1668,7 +1669,7 @@ router.patch('/:id/seo', [
     const { metaTitle, metaDescription, metaKeywords } = req.body;
 
     // Check if category exists
-    const category = await prisma.category.findUnique({
+    const category = await prisma.categories.findUnique({
       where: { id }
     });
 
@@ -1683,7 +1684,7 @@ router.patch('/:id/seo', [
     if (metaDescription !== undefined) updateData.metaDescription = metaDescription;
     if (metaKeywords !== undefined) updateData.metaKeywords = metaKeywords;
 
-    const updatedCategory = await prisma.category.update({
+    const updatedCategory = await prisma.categories.update({
       where: { id },
       data: updateData
     });

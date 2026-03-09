@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Confirmation - {{companyName}}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .content {
+            padding: 30px;
+        }
+        .delivery-box {
+            background-color: #f0fdf4;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .delivery-icon {
+            font-size: 64px;
+            margin-bottom: 10px;
+        }
+        .delivery-box h2 {
+            margin: 0 0 10px 0;
+            color: #16a34a;
+            font-size: 24px;
+        }
+        .order-info {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .order-info h3 {
+            margin: 0 0 10px 0;
+            color: #667eea;
+            font-size: 18px;
+        }
+        .order-info p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .address-box {
+            background-color: #fef3c7;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .address-box h4 {
+            margin: 0 0 10px 0;
+            color: #d97706;
+        }
+        .address-box p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .thank-you {
+            background-color: #e0f2fe;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .thank-you h3 {
+            margin: 0 0 10px 0;
+            color: #1e40af;
+        }
+        .thank-you p {
+            margin: 5px 0;
+            color: #333;
+        }
+        .review-request {
+            background-color: #f3e8ff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .review-request h3 {
+            margin: 0 0 10px 0;
+            color: #7c3aed;
+        }
+        .button {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #667eea;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background-color: #5568d3;
+        }
+        .footer {
+            background-color: #f4f4f4;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .social-links {
+            margin-top: 20px;
+        }
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            font-size: 24px;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{companyName}}</h1>
+            <p style="color: #ffffff; margin-top: 10px;">Order Delivered!</p>
+        </div>
+
+        <div class="content">
+            <div class="delivery-box">
+                <div class="delivery-icon">📦</div>
+                <h2>Order #{{orderNumber}} Delivered!</h2>
+                <p>We're pleased to inform you that your order has been successfully delivered.</p>
+            </div>
+
+            <div class="order-info">
+                <h3>Delivery Information</h3>
+                <p><strong>Delivery Date:</strong> {{deliveryDate}}</p>
+                <p><strong>Delivery Time:</strong> {{deliveryTime}}</p>
+                <p><strong>Recipient:</strong> {{recipientName}}</p>
+                <p><strong>Delivery Address:</strong> {{deliveryAddress}}</p>
+            </div>
+
+            <div class="address-box">
+                <h4>Delivered To</h4>
+                <p>{{recipientName}}</p>
+                <p>{{deliveryAddress}}</p>
+            </div>
+
+            <div class="thank-you">
+                <h3>Thank You for Your Order!</h3>
+                <p>We hope you enjoy your purchase. If you have any questions or concerns, please don't hesitate to reach out to us.</p>
+            </div>
+
+            <div class="review-request">
+                <h3>Share Your Experience</h3>
+                <p>We'd love to hear about your shopping experience. Please take a moment to leave a review.</p>
+                <a href="{{reviewUrl}}" class="button">Leave a Review</a>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="{{orderDetailsUrl}}" class="button">View Order Details</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Thank you for choosing {{companyName}}!</p>
+            <p style="margin-top: 10px;">If you need any assistance, please contact us:</p>
+            <p style="margin-top: 5px;">
+                <a href="mailto:{{supportEmail}}">{{supportEmail}}</a>
+            </p>
+            <p style="margin-top: 5px;">
+                <a href="{{websiteUrl}}">{{websiteUrl}}</a>
+            </p>
+
+            <div class="social-links">
+                <a href="{{facebookUrl}}" title="Facebook">📘</a>
+                <a href="{{twitterUrl}}" title="Twitter">🐦</a>
+                <a href="{{instagramUrl}}" title="Instagram">📷</a>
+            </div>
+
+            <p style="margin-top: 20px; font-size: 12px; color: #999;">
+                © {{currentYear}} {{companyName}}. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

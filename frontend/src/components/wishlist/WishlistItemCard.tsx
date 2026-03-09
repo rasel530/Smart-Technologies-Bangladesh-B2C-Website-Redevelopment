@@ -172,6 +172,7 @@ export const WishlistItemCard: React.FC<WishlistItemCardProps> = ({
           src={imageUrl}
           alt={product.name}
           fill
+          unoptimized={true}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="product-image"
           priority={false}

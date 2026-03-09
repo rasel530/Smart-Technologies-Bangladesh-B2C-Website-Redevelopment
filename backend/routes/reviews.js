@@ -139,7 +139,7 @@ router.post('/', [
 
     // Validate product and user exist
     const [product, user] = await Promise.all([
-      prisma.product.findUnique({ where: { id: productId } }),
+      prisma.products.findUnique({ where: { id: productId } }),
       prisma.user.findUnique({ where: { id: userId } })
     ]);
 

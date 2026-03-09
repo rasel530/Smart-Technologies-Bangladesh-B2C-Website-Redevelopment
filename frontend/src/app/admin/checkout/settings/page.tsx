@@ -3,18 +3,20 @@
 import React, { useState, useEffect } from 'react';
 import { withAuth } from '@/components/auth/withAuth';
 import { apiClient } from '@/lib/api/client';
-import { 
-  Settings, 
-  Loader2, 
-  Save, 
-  RefreshCw, 
+import {
+  Settings,
+  Loader2,
+  Save,
+  RefreshCw,
   Clock,
   Mail,
   Shield,
   Smartphone,
   CheckCircle,
-  X
+  X,
+  Users
 } from 'lucide-react';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 // Types
 interface CheckoutSettings {
@@ -99,8 +101,8 @@ function AdminCheckoutSettingsPage() {
     setError(null);
 
     try {
-      const response: SettingsResponse = await apiClient.get('/admin/checkout/settings');
-      setSettings(response.data);
+      const response: CheckoutSettings = await apiClient.get('/admin/checkout/settings');
+      setSettings(response);
     } catch (err: any) {
       console.error('Error fetching checkout settings:', err);
       setError(err.message || 'Failed to load checkout settings. Please try again.');
@@ -177,20 +179,21 @@ function AdminCheckoutSettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-blue-100 rounded-lg">
-            <Settings className="w-6 h-6 text-blue-600" />
+    <AdminLayout title="Checkout Settings">
+      <div className="space-y-6">
+        {/* Page Header */}
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-blue-100 rounded-lg">
+              <Settings className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Checkout Settings</h1>
+              <p className="text-gray-600 mt-1">
+                Configure checkout behavior and options
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Checkout Settings</h1>
-            <p className="text-gray-600 mt-1">
-              Configure checkout behavior and options
-            </p>
-          </div>
-        </div>
         <div className="flex gap-2">
           <button
             onClick={fetchSettings}
@@ -578,11 +581,9 @@ function AdminCheckoutSettingsPage() {
         </div>
       </div>
     </div>
+    </AdminLayout>
   );
 }
-
-// Import Users icon
-import { Users } from 'lucide-react';
 
 // Wrap with authentication HOC
 export default withAuth(AdminCheckoutSettingsPage, {

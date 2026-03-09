@@ -27,7 +27,7 @@ class AdminCartAuditController {
       } = req.query;
 
       // Validate cart exists
-      const cart = await cartService.prisma.cart.findUnique({
+      const cart = await cartService.prisma.carts.findUnique({
         where: { id: cartId },
         select: { id: true, userId: true, status: true }
       });
@@ -86,7 +86,7 @@ class AdminCartAuditController {
       const { id: cartId } = req.params;
 
       // Validate cart exists
-      const cart = await cartService.prisma.cart.findUnique({
+      const cart = await cartService.prisma.carts.findUnique({
         where: { id: cartId },
         select: { id: true, userId: true, status: true }
       });
@@ -205,7 +205,7 @@ class AdminCartAuditController {
       const userId = req.user?.id || null;
 
       // Validate cart exists
-      const cart = await cartService.prisma.cart.findUnique({
+      const cart = await cartService.prisma.carts.findUnique({
         where: { id: cartId },
         select: { id: true, userId: true, status: true }
       });
@@ -418,7 +418,7 @@ class AdminCartAuditController {
       }
 
       // Validate cart exists
-      const cart = await cartService.prisma.cart.findUnique({
+      const cart = await cartService.prisma.carts.findUnique({
         where: { id: cartId },
         select: { id: true, userId: true, status: true }
       });
@@ -484,7 +484,7 @@ class AdminCartAuditController {
       const { fromDate, toDate, actions, format = 'json' } = req.query;
 
       // Validate cart exists
-      const cart = await cartService.prisma.cart.findUnique({
+      const cart = await cartService.prisma.carts.findUnique({
         where: { id: cartId },
         select: { id: true, userId: true, status: true }
       });
@@ -591,7 +591,7 @@ class AdminCartAuditController {
       }
 
       // Validate cart exists
-      const cart = await cartService.prisma.cart.findUnique({
+      const cart = await cartService.prisma.carts.findUnique({
         where: { id: cartId },
         select: { id: true, userId: true, status: true }
       });

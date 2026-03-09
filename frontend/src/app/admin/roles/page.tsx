@@ -2,9 +2,14 @@
 
 import RoleManagement from '@/components/account/RoleManagement';
 import { withAuth } from '@/components/auth/withAuth';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 function RolesPage() {
-  return <RoleManagement />;
+  return (
+    <AdminLayout title="Roles Management">
+      <RoleManagement />
+    </AdminLayout>
+  );
 }
 
 export default withAuth(RolesPage, {

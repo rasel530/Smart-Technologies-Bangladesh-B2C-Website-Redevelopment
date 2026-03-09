@@ -41,6 +41,7 @@ const validateCheckoutSessionId = (req, res, next) => {
 
 /**
  * Verify checkout session ownership
+ * Now supports both CheckoutSession and GuestSession
  * @param {Object} req - Express request
  * @param {Object} res - Express response
  * @param {Function} next - Next middleware
@@ -51,9 +52,52 @@ const verifyCheckoutSessionOwnership = async (req, res, next) => {
   const reqSessionId = req.headers['x-session-id'] || null;
 
   try {
-    const checkoutSession = await prisma.checkoutSession.findUnique({
+    // First, try to find a CheckoutSession (for authenticated users or main checkout)
+    let checkoutSession = await prisma.checkout_sessions.findUnique({
       where: { id: sessionId }
     });
+
+    // If not found, try to find a GuestSession (for guest checkout)
+    if (!checkoutSession) {
+      const guestSession = await prisma.guest_sessions.findUnique({
+        where: { sessionId }
+      });
+
+      if (guestSession) {
+        // Check if guest session is expired
+        if (guestSession.expiresAt && new Date(guestSession.expiresAt) < new Date()) {
+          return res.status(410).json({
+            success: false,
+            error: {
+              message: 'Guest session has expired',
+              code: 410,
+              details: null
+            }
+          });
+        }
+
+        // Check if guest session was converted to user
+        if (guestSession.convertedToUserId) {
+          return res.status(400).json({
+            success: false,
+            error: {
+              message: 'Guest session has been converted to user',
+              code: 400,
+              details: null
+            }
+          });
+        }
+
+        // Attach guest session to request for use in controller
+        req.guestSession = guestSession;
+        req.isGuestSession = true;
+        loggerService.info('[verifyCheckoutSessionOwnership] Using GuestSession for checkout', {
+          sessionId,
+          guestSessionId: guestSession.id
+        });
+        return next();
+      }
+    }
 
     if (!checkoutSession) {
       return res.status(404).json({
@@ -90,6 +134,7 @@ const verifyCheckoutSessionOwnership = async (req, res, next) => {
 
     // Attach checkout session to request for use in controller
     req.checkoutSession = checkoutSession;
+    req.isGuestSession = false;
     next();
   } catch (error) {
     loggerService.error('Error in checkout session ownership verification', {
@@ -184,10 +229,17 @@ class CheckoutController {
         message: 'Checkout session initiated successfully',
         messageBn: 'চেকআউট সেশন সফলভাবে শুরু হয়েছে',
         data: {
-          sessionId: checkoutSession.id,
+          id: checkoutSession.id,
+          userId: checkoutSession.userId,
+          sessionId: checkoutSession.sessionId,
+          cartId: checkoutSession.cartId,
           currentStep: checkoutSession.currentStep,
           status: checkoutSession.status,
+          createdAt: checkoutSession.createdAt,
+          updatedAt: checkoutSession.updatedAt,
           expiresAt: checkoutSession.expiresAt,
+          isGuest: !checkoutSession.userId,
+          data: {},
           totals: checkoutSession.totals
         }
       });
@@ -280,6 +332,7 @@ class CheckoutController {
 
   /**
    * Update checkout step
+   * Now supports both CheckoutSession and GuestSession
    * @route PUT /api/v1/checkout/session/:sessionId/step
    */
   async updateCheckoutStep(req, res) {
@@ -290,6 +343,7 @@ class CheckoutController {
       loggerService.info('[updateCheckoutStep] Updating checkout step', {
         sessionId,
         step,
+        isGuestSession: req.isGuestSession,
         userId: req.user?.id,
         timestamp: new Date().toISOString()
       });
@@ -304,14 +358,64 @@ class CheckoutController {
         });
       }
 
-      // Update checkout step
-      const checkoutSession = await checkoutService.updateCheckoutStep(sessionId, step, data);
+      let result;
+
+      // Check if this is a guest session
+      if (req.isGuestSession && req.guestSession) {
+        // Handle guest session update
+        const { guestCheckoutService } = require('../services/guestCheckoutService');
+        
+        // For 'info' step, update guest info
+        if (step === 'info' && data) {
+          result = await guestCheckoutService.updateGuestSession(sessionId, {
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            phone: data.phone
+          });
+        } else {
+          // For other steps, store in metadata
+          const currentMetadata = req.guestSession.metadata || {};
+          result = await guestCheckoutService.updateGuestSession(sessionId, {
+            metadata: {
+              ...currentMetadata,
+              [step]: data,
+              lastStepUpdate: new Date().toISOString()
+            }
+          });
+        }
+
+        // Get updated session with cart
+        const updatedSession = await guestCheckoutService.getGuestSession(sessionId);
+        
+        return res.json({
+          success: true,
+          message: 'Guest checkout step updated successfully',
+          messageBn: 'অতিথি চেকআউট ধাপ সফলভাবে আপডেট করা হয়েছে',
+          data: {
+            sessionId: updatedSession.sessionId,
+            cartId: updatedSession.cartId,
+            currentStep: step,
+            status: 'active',
+            firstName: updatedSession.firstName,
+            lastName: updatedSession.lastName,
+            email: updatedSession.email,
+            phone: updatedSession.phone,
+            metadata: updatedSession.metadata,
+            totals: updatedSession.totals,
+            isGuest: true
+          }
+        });
+      }
+
+      // Regular checkout session update
+      result = await checkoutService.updateCheckoutStep(sessionId, step, data);
 
       res.json({
         success: true,
         message: 'Checkout step updated successfully',
         messageBn: 'চেকআউট ধাপ সফলভাবে আপডেট করা হয়েছে',
-        data: checkoutSession
+        data: result
       });
     } catch (error) {
       loggerService.error('Error in updateCheckoutStep controller', {
@@ -341,6 +445,14 @@ class CheckoutController {
         statusCode = 400;
         errorMessage = 'Cannot go back to previous step';
         errorMessageBn = 'পূর্ববর্তী ধাপে ফিরে যাওয়া যাবে না';
+      } else if (error.message === 'Guest session not found') {
+        statusCode = 404;
+        errorMessage = 'Guest session not found';
+        errorMessageBn = 'অতিথি সেশন পাওয়া যায়নি';
+      } else if (error.message === 'Guest session has expired') {
+        statusCode = 410;
+        errorMessage = 'Guest session has expired';
+        errorMessageBn = 'অতিথি সেশন মেয়াদোত্তীর্ণ হয়েছে';
       }
 
       res.status(statusCode).json({
@@ -360,6 +472,17 @@ class CheckoutController {
     try {
       const { sessionId } = req.params;
       const { shippingAddress, billingAddress, savedAddressId } = req.body;
+
+      // DIAGNOSTIC: Log incoming address data
+      loggerService.info('[saveAddressStep] Incoming address data', {
+        sessionId,
+        hasShippingAddress: !!shippingAddress,
+        shippingAddress,
+        hasBillingAddress: !!billingAddress,
+        billingAddress,
+        savedAddressId,
+        reqBodyKeys: Object.keys(req.body)
+      });
 
       loggerService.info('[saveAddressStep] Saving address step', {
         sessionId,
@@ -384,7 +507,7 @@ class CheckoutController {
 
       // If saved address is selected, use it
       if (savedAddressId) {
-        const savedAddress = await prisma.address.findUnique({
+        const savedAddress = await prisma.addresses.findUnique({
           where: { id: savedAddressId }
         });
 
@@ -424,6 +547,66 @@ class CheckoutController {
           });
         }
 
+        // For guest users (no req.user), we need to create a temporary user first
+        let userId = req.user?.id;
+        if (!userId) {
+          // This is a guest checkout - create temporary user
+          const tempUser = await prisma.users.create({
+            data: {
+              email: addressToValidate.email || `guest_${Date.now()}@temp.com`,
+              firstName: addressToValidate.firstName || addressToValidate.name?.split(' ')[0] || 'Guest',
+              lastName: addressToValidate.lastName || addressToValidate.name?.split(' ').slice(1).join(' ') || 'User',
+              phone: addressToValidate.phone || '',
+              role: 'customer',
+              status: 'guest',
+              password: null
+            }
+          });
+          userId = tempUser.id;
+          loggerService.info('[saveAddressStep] Created temporary user for guest checkout', {
+            userId: tempUser.id,
+            email: tempUser.email
+          });
+        }
+
+        // Create new address record in database
+        const newAddress = await prisma.addresses.create({
+          data: {
+            userId: userId,
+            type: 'shipping',
+            firstName: addressToValidate.firstName || addressToValidate.name?.split(' ')[0] || '',
+            lastName: addressToValidate.lastName || addressToValidate.name?.split(' ').slice(1).join(' ') || '',
+            phone: addressToValidate.phone || '',
+            address: addressToValidate.address || addressToValidate.street || '',
+            addressLine2: addressToValidate.addressLine2 || addressToValidate.apartment || '',
+            city: addressToValidate.city || '',
+            district: addressToValidate.district || '',
+            division: addressToValidate.division || 'dhaka',
+            upazila: addressToValidate.upazila || '',
+            postalCode: addressToValidate.postalCode || '',
+            isDefault: false
+          }
+        });
+
+        // DIAGNOSTIC: Log created address
+        loggerService.info('[saveAddressStep] New address created', {
+          sessionId,
+          newAddress,
+          newAddressId: newAddress?.id,
+          hasNewAddressId: !!newAddress?.id
+        });
+
+        if (!newAddress || !newAddress.id) {
+          return res.status(500).json({
+            success: false,
+            error: 'Failed to create address record',
+            message: 'Failed to create address record',
+            messageBn: 'ঠিকানা সংরক্ষিত হয়েছে'
+          });
+        }
+
+        addressData.shippingAddressId = newAddress.id;
+        addressData.billingAddressId = newAddress.id;
         addressData.shippingAddress = shippingAddress;
         addressData.billingAddress = billingAddress || shippingAddress;
       }
@@ -431,9 +614,19 @@ class CheckoutController {
       // Update checkout step with address data
       const checkoutSession = await checkoutService.updateCheckoutStep(sessionId, 'address', addressData);
 
+      // DIAGNOSTIC: Log data after updateCheckoutStep
+      loggerService.info('[saveAddressStep] Data after updateCheckoutStep', {
+        sessionId,
+        addressData,
+        checkoutSessionStepData: checkoutSession.stepData,
+        checkoutSessionStepDataKeys: checkoutSession.stepData ? Object.keys(checkoutSession.stepData) : [],
+        checkoutSessionAddressStepData: checkoutSession.stepData?.address,
+        checkoutSessionShippingAddressId: checkoutSession.shippingAddressId
+      });
+
       // Update checkout session with address IDs if new addresses were created
       if (addressData.shippingAddressId) {
-        await prisma.checkoutSession.update({
+        await prisma.checkout_sessions.update({
           where: { id: sessionId },
           data: {
             shippingAddressId: addressData.shippingAddressId,
@@ -480,6 +673,7 @@ class CheckoutController {
 
   /**
    * Save shipping step
+   * Now supports both CheckoutSession and GuestSession
    * @route POST /api/v1/checkout/session/:sessionId/shipping
    */
   async saveShippingStep(req, res) {
@@ -490,6 +684,7 @@ class CheckoutController {
       loggerService.info('[saveShippingStep] Saving shipping step', {
         sessionId,
         method,
+        isGuestSession: req.isGuestSession,
         userId: req.user?.id,
         timestamp: new Date().toISOString()
       });
@@ -521,8 +716,42 @@ class CheckoutController {
       // Calculate shipping cost
       const shippingCost = shippingMethods[method].cost;
 
-      // Update checkout step with shipping data
-      const checkoutSession = await checkoutService.updateCheckoutStep(sessionId, 'shipping', {
+      let result;
+
+      // Check if this is a guest session
+      if (req.isGuestSession && req.guestSession) {
+        const { guestCheckoutService } = require('../services/guestCheckoutService');
+        
+        const currentMetadata = req.guestSession.metadata || {};
+        result = await guestCheckoutService.updateGuestSession(sessionId, {
+          metadata: {
+            ...currentMetadata,
+            shipping: {
+              method,
+              cost: shippingCost,
+              estimatedDays: shippingMethods[method].estimatedDays
+            },
+            lastStepUpdate: new Date().toISOString()
+          }
+        });
+
+        const updatedSession = await guestCheckoutService.getGuestSession(sessionId);
+
+        return res.json({
+          success: true,
+          message: 'Guest shipping method saved successfully',
+          messageBn: 'অতিথি শিপিং পদ্ধতি সফলভাবে সংরক্ষিত হয়েছে',
+          data: {
+            ...updatedSession,
+            shippingMethod: method,
+            shippingCost,
+            isGuest: true
+          }
+        });
+      }
+
+      // Regular checkout session update
+      result = await checkoutService.updateCheckoutStep(sessionId, 'shipping', {
         method,
         cost: shippingCost,
         estimatedDays: shippingMethods[method].estimatedDays
@@ -533,7 +762,7 @@ class CheckoutController {
         message: 'Shipping method saved successfully',
         messageBn: 'শিপিং পদ্ধতি সফলভাবে সংরক্ষিত হয়েছে',
         data: {
-          ...checkoutSession,
+          ...result,
           shippingCost
         }
       });
@@ -561,6 +790,14 @@ class CheckoutController {
         statusCode = 400;
         errorMessage = 'Invalid checkout step';
         errorMessageBn = 'অবৈধ চেকআউট ধাপ';
+      } else if (error.message === 'Guest session not found') {
+        statusCode = 404;
+        errorMessage = 'Guest session not found';
+        errorMessageBn = 'অতিথি সেশন পাওয়া যায়নি';
+      } else if (error.message === 'Guest session has expired') {
+        statusCode = 410;
+        errorMessage = 'Guest session has expired';
+        errorMessageBn = 'অতিথি সেশন মেয়াদোত্তীর্ণ হয়েছে';
       }
 
       res.status(statusCode).json({
@@ -635,7 +872,7 @@ class CheckoutController {
 
       // Calculate payment fee
       let paymentFee = 0;
-      const checkoutSession = await prisma.checkoutSession.findUnique({
+      const checkoutSession = await prisma.checkout_sessions.findUnique({
         where: { id: sessionId },
         include: {
           cart: true
@@ -705,20 +942,82 @@ class CheckoutController {
 
   /**
    * Complete checkout and create order
+   * Now supports both CheckoutSession and GuestSession
    * @route POST /api/v1/checkout/session/:sessionId/complete
    */
   async completeCheckout(req, res) {
     try {
       const { sessionId } = req.params;
+      const { data, address } = req.body;  // Extract checkout data and address from request body
+
+      // DIAGNOSTIC: Log raw request body
+      loggerService.info('[completeCheckout] RAW REQUEST BODY', {
+        sessionId,
+        userId: req.user?.id,
+        isGuestSession: req.isGuestSession,
+        reqBodyKeys: Object.keys(req.body),
+        hasData: !!data,
+        hasAddress: !!address,
+        dataKeys: data ? Object.keys(data) : [],
+        addressKeys: address ? Object.keys(address) : [],
+        rawData: JSON.stringify(data),
+        rawAddress: JSON.stringify(address),
+        rawDataLength: data ? JSON.stringify(data).length : 0,
+        rawAddressLength: address ? JSON.stringify(address).length : 0,
+        timestamp: new Date().toISOString()
+      });
 
       loggerService.info('[completeCheckout] Completing checkout', {
         sessionId,
         userId: req.user?.id,
+        isGuestSession: req.isGuestSession,
+        hasData: !!data,
+        hasAddress: !!address,
         timestamp: new Date().toISOString()
       });
 
-      // Complete checkout session and create order
-      const order = await checkoutService.completeCheckoutSession(sessionId);
+      // Validate sessionId
+      if (!sessionId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Session ID is required',
+          message: 'Session ID is required',
+          messageBn: 'সেশন আইডি প্রয়োজন'
+        });
+      }
+
+      // Check if this is a guest session - redirect to guestCheckoutController
+      if (req.isGuestSession && req.guestSession) {
+        const { guestCheckoutController } = require('./guestCheckoutController');
+        
+        // Map the data to guest checkout format
+        const guestData = data || {};
+        
+        // Call the guest checkout complete method
+        return await guestCheckoutController.completeGuestCheckout(req, res);
+      }
+
+      // Merge address data into the data object for the service
+      const checkoutData = data || {};
+      if (address) {
+        checkoutData.address = address;
+      }
+
+      // DIAGNOSTIC: Log merged checkout data
+      loggerService.info('[completeCheckout] MERGED CHECKOUT DATA', {
+        sessionId,
+        checkoutDataKeys: Object.keys(checkoutData),
+        checkoutData: JSON.stringify(checkoutData),
+        checkoutDataLength: JSON.stringify(checkoutData).length,
+        hasCheckoutDataAddress: !!checkoutData.address,
+        checkoutDataAddressKeys: checkoutData.address ? Object.keys(checkoutData.address) : [],
+        hasShippingAddress: !!checkoutData.address?.shippingAddress,
+        hasBillingAddress: !!checkoutData.address?.billingAddress
+      });
+
+      // Complete checkout session with data from request body
+      // The data parameter contains address, shipping, payment, and review information
+      const order = await checkoutService.completeCheckoutSession(sessionId, checkoutData);
 
       res.status(201).json({
         success: true,
@@ -758,6 +1057,14 @@ class CheckoutController {
         statusCode = 400;
         errorMessage = 'Checkout validation failed';
         errorMessageBn = 'চেকআউট যাচাইকরণ ব্যর্থ হয়েছে';
+      } else if (error.message === 'Guest session not found') {
+        statusCode = 404;
+        errorMessage = 'Guest session not found';
+        errorMessageBn = 'অতিথি সেশন পাওয়া যায়নি';
+      } else if (error.message === 'Guest session has expired') {
+        statusCode = 410;
+        errorMessage = 'Guest session has expired';
+        errorMessageBn = 'অতিথি সেশন মেয়াদোত্তীর্ণ হয়েছে';
       }
 
       res.status(statusCode).json({
@@ -809,6 +1116,107 @@ class CheckoutController {
         statusCode = 404;
         errorMessage = 'Checkout session not found';
         errorMessageBn = 'চেকআউট সেশন পাওয়া যায়নি';
+      }
+
+      res.status(statusCode).json({
+        success: false,
+        error: error.message || errorMessage,
+        message: errorMessage,
+        messageBn: errorMessageBn
+      });
+    }
+  }
+
+  /**
+   * Save checkout progress (alias for updateCheckoutStep)
+   * Now supports both CheckoutSession and GuestSession
+   * @route POST /api/v1/checkout/save
+   */
+  async saveProgress(req, res) {
+    try {
+      const { sessionId, step, data } = req.body;
+      const currentStep = step || req.checkoutSession?.currentStep || 'address';
+
+      loggerService.info('[saveProgress] Saving checkout progress', {
+        sessionId,
+        step: currentStep,
+        isGuestSession: req.isGuestSession,
+        userId: req.user?.id,
+        timestamp: new Date().toISOString()
+      });
+
+      // Check if this is a guest session
+      if (req.isGuestSession && req.guestSession) {
+        const { guestCheckoutService } = require('../services/guestCheckoutService');
+        
+        const currentMetadata = req.guestSession.metadata || {};
+        const result = await guestCheckoutService.updateGuestSession(sessionId, {
+          metadata: {
+            ...currentMetadata,
+            progress: currentStep,
+            data: { ...currentMetadata.data, ...data },
+            lastSave: new Date().toISOString()
+          }
+        });
+
+        const updatedSession = await guestCheckoutService.getGuestSession(sessionId);
+
+        return res.json({
+          success: true,
+          message: 'Guest checkout progress saved successfully',
+          messageBn: 'অতিথি চেকআউট অগ্রগতি সফলভাবে সংরক্ষিত হয়েছে',
+          data: {
+            sessionId: updatedSession.sessionId,
+            cartId: updatedSession.cartId,
+            currentStep: currentStep,
+            status: 'active',
+            firstName: updatedSession.firstName,
+            lastName: updatedSession.lastName,
+            email: updatedSession.email,
+            phone: updatedSession.phone,
+            metadata: updatedSession.metadata,
+            totals: updatedSession.totals,
+            isGuest: true
+          }
+        });
+      }
+
+      // Regular checkout session update
+      const checkoutSession = await checkoutService.updateCheckoutStep(sessionId, currentStep, data);
+
+      res.json({
+        success: true,
+        message: 'Checkout progress saved successfully',
+        messageBn: 'চেকআউট অগ্রগতি সফলভাবে সংরক্ষিত হয়েছে',
+        data: checkoutSession
+      });
+    } catch (error) {
+      loggerService.error('Error in saveProgress controller', {
+        error: error.message,
+        stack: error.stack,
+        sessionId: req.body.sessionId
+      });
+
+      let statusCode = 500;
+      let errorMessage = 'Failed to save checkout progress';
+      let errorMessageBn = 'চেকআউট অগ্রগতি সংরক্ষণ করতে ব্যর্থ হয়েছে';
+
+      if (error.message === 'Checkout session not found') {
+        statusCode = 404;
+        errorMessage = 'Checkout session not found';
+        errorMessageBn = 'চেকআউট সেশন পাওয়া যায়নি';
+      } else if (error.message === 'Checkout session has expired') {
+        statusCode = 410;
+        errorMessage = 'Checkout session has expired';
+        errorMessageBn = 'চেকআউট সেশন মেয়াদোত্তীর্ণ হয়েছে';
+      } else if (error.message === 'Guest session not found') {
+        statusCode = 404;
+        errorMessage = 'Guest session not found';
+        errorMessageBn = 'অতিথি সেশন পাওয়া যায়নি';
+      } else if (error.message === 'Guest session has expired') {
+        statusCode = 410;
+        errorMessage = 'Guest session has expired';
+        errorMessageBn = 'অতিথি সেশন মেয়াদোত্তীর্ণ হয়েছে';
       }
 
       res.status(statusCode).json({

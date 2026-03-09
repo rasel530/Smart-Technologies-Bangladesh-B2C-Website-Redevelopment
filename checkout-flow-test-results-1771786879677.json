@@ -1,0 +1,56 @@
+{
+  "timestamp": "2026-02-22T19:01:15.764Z",
+  "scenarios": [
+    {
+      "scenario": "Main checkout flow with valid data",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T19:01:16.485Z",
+      "error": "Cannot read properties of undefined (reading 'token')"
+    },
+    {
+      "scenario": "Different billing and shipping addresses",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T19:01:17.034Z",
+      "error": "Cannot read properties of undefined (reading 'token')"
+    },
+    {
+      "scenario": "\"Same as shipping address\" option",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T19:01:17.681Z",
+      "error": "Cannot read properties of undefined (reading 'token')"
+    },
+    {
+      "scenario": "Invalid data - Missing shipping address",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T19:01:18.133Z",
+      "error": "Cannot read properties of undefined (reading 'token')",
+      "message": "Error handling not working as expected"
+    },
+    {
+      "scenario": "Invalid data - Invalid phone number",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T19:01:18.643Z",
+      "error": "Cannot read properties of undefined (reading 'token')",
+      "message": "Error handling not working as expected"
+    },
+    {
+      "scenario": "Address data from request body is used",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T19:01:19.195Z",
+      "error": "Cannot read properties of undefined (reading 'token')",
+      "message": "Failed to use address data from request body"
+    },
+    {
+      "scenario": "Priority of address sources",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T19:01:19.676Z",
+      "error": "Cannot read properties of undefined (reading 'token')",
+      "message": "Failed to prioritize address sources correctly"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "passed": 0,
+    "failed": 7
+  }
+}

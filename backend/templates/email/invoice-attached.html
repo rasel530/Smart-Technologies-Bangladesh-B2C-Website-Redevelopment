@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice - {{companyName}}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .content {
+            padding: 30px;
+        }
+        .invoice-badge {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .invoice-badge h2 {
+            margin: 0;
+            color: #667eea;
+            font-size: 24px;
+        }
+        .invoice-badge p {
+            margin: 5px 0 0 0;
+            color: #666;
+        }
+        .invoice-details {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .invoice-details h3 {
+            margin: 0 0 15px 0;
+            color: #667eea;
+            font-size: 18px;
+        }
+        .invoice-details p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .order-summary {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .order-summary h3 {
+            margin: 0 0 15px 0;
+            color: #667eea;
+            font-size: 18px;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+        .summary-row.total {
+            border-top: 2px solid #667eea;
+            padding-top: 15px;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        .summary-label {
+            color: #666;
+        }
+        .summary-value {
+            color: #333;
+            font-weight: 500;
+        }
+        .download-box {
+            background-color: #e8f5e9;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .download-box h3 {
+            margin: 0 0 10px 0;
+            color: #2e7d32;
+        }
+        .download-box p {
+            margin: 5px 0;
+            color: #333;
+        }
+        .download-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #2e7d32;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .download-button:hover {
+            background-color: #1b5e20;
+        }
+        .button {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #667eea;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background-color: #5568d3;
+        }
+        .footer {
+            background-color: #f4f4f4;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .social-links {
+            margin-top: 20px;
+        }
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            font-size: 24px;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{companyName}}</h1>
+            <p style="color: #ffffff; margin-top: 10px;">Invoice Attached</p>
+        </div>
+
+        <div class="content">
+            <div class="invoice-badge">
+                <h2>Invoice #{{invoiceNumber}}</h2>
+                <p>Invoice Date: {{invoiceDate}}</p>
+                {{#if dueDate}}
+                <p>Due Date: {{dueDate}}</p>
+                {{/if}}
+            </div>
+
+            <div class="invoice-details">
+                <h3>Invoice Details</h3>
+                <p><strong>Order Number:</strong> {{orderNumber}}</p>
+                <p><strong>Invoice Date:</strong> {{invoiceDate}}</p>
+                {{#if dueDate}}
+                <p><strong>Due Date:</strong> {{dueDate}}</p>
+                {{/if}}
+                <p><strong>Status:</strong> {{status}}</p>
+            </div>
+
+            <div class="order-summary">
+                <h3>Order Summary</h3>
+                <div class="summary-row">
+                    <span class="summary-label">Subtotal</span>
+                    <span class="summary-value">{{currency}}{{subtotal}}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Tax</span>
+                    <span class="summary-value">{{currency}}{{tax}}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Shipping</span>
+                    <span class="summary-value">{{currency}}{{shipping}}</span>
+                </div>
+                {{#if discount}}
+                <div class="summary-row">
+                    <span class="summary-label">Discount</span>
+                    <span class="summary-value" style="color: #2e7d32;">-{{currency}}{{discount}}</span>
+                </div>
+                {{/if}}
+                <div class="summary-row total">
+                    <span class="summary-label">Total</span>
+                    <span class="summary-value">{{currency}}{{total}}</span>
+                </div>
+            </div>
+
+            <div class="download-box">
+                <h3>Download Your Invoice</h3>
+                <p>Your invoice is attached to this email. You can also download it from your order details page.</p>
+                <a href="{{invoiceDownloadUrl}}" class="download-button">Download Invoice</a>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="{{orderDetailsUrl}}" class="button">View Order Details</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>If you have any questions about this invoice, please contact us:</p>
+            <p style="margin-top: 10px;">
+                <a href="mailto:{{supportEmail}}">{{supportEmail}}</a>
+            </p>
+            <p style="margin-top: 10px;">
+                <a href="{{websiteUrl}}">{{websiteUrl}}</a>
+            </p>
+
+            <div class="social-links">
+                <a href="{{facebookUrl}}" title="Facebook">📘</a>
+                <a href="{{twitterUrl}}" title="Twitter">🐦</a>
+                <a href="{{instagramUrl}}" title="Instagram">📷</a>
+            </div>
+
+            <p style="margin-top: 20px; font-size: 12px; color: #999;">
+                © {{currentYear}} {{companyName}}. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

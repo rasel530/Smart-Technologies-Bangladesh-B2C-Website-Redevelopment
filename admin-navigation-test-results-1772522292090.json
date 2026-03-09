@@ -1,0 +1,296 @@
+{
+  "timestamp": "2026-03-03T07:18:09.372Z",
+  "summary": {
+    "total": 15,
+    "passed": 15,
+    "failed": 0,
+    "warnings": 57
+  },
+  "pageTests": [
+    {
+      "page": "Dashboard Overview",
+      "path": "/admin",
+      "category": "dashboard",
+      "status": "PASS (Redirect)",
+      "statusCode": 307,
+      "hasSidebar": false,
+      "hasNavigation": false,
+      "hasAdminLayout": false,
+      "hasActiveHighlight": false,
+      "contentLength": 27,
+      "issues": [
+        "Sidebar not found in page",
+        "AdminLayout not found in page"
+      ]
+    },
+    {
+      "page": "All Orders",
+      "path": "/admin/orders",
+      "category": "orders",
+      "status": "PASS (Redirect)",
+      "statusCode": 307,
+      "hasSidebar": false,
+      "hasNavigation": false,
+      "hasAdminLayout": false,
+      "hasActiveHighlight": false,
+      "contentLength": 36,
+      "issues": [
+        "Sidebar not found in page",
+        "AdminLayout not found in page"
+      ]
+    },
+    {
+      "page": "Order Modifications",
+      "path": "/admin/orders/modifications",
+      "category": "orders",
+      "status": "PASS (Redirect)",
+      "statusCode": 307,
+      "hasSidebar": false,
+      "hasNavigation": false,
+      "hasAdminLayout": false,
+      "hasActiveHighlight": false,
+      "contentLength": 52,
+      "issues": [
+        "Sidebar not found in page",
+        "AdminLayout not found in page"
+      ]
+    },
+    {
+      "page": "Order Cancellations",
+      "path": "/admin/orders/cancellations",
+      "category": "orders",
+      "status": "PASS (Redirect)",
+      "statusCode": 307,
+      "hasSidebar": false,
+      "hasNavigation": false,
+      "hasAdminLayout": false,
+      "hasActiveHighlight": false,
+      "contentLength": 52,
+      "issues": [
+        "Sidebar not found in page",
+        "AdminLayout not found in page"
+      ]
+    },
+    {
+      "page": "Order Fulfillments",
+      "path": "/admin/orders/fulfillments",
+      "category": "orders",
+      "status": "PASS (Redirect)",
+      "statusCode": 307,
+      "hasSidebar": false,
+      "hasNavigation": false,
+      "hasAdminLayout": false,
+      "hasActiveHighlight": false,
+      "contentLength": 51,
+      "issues": [
+        "Sidebar not found in page",
+        "AdminLayout not found in page"
+      ]
+    },
+    {
+      "page": "Manage Couriers",
+      "path": "/admin/courier-services",
+      "category": "couriers",
+      "status": "PASS (Redirect)",
+      "statusCode": 307,
+      "hasSidebar": false,
+      "hasNavigation": false,
+      "hasAdminLayout": false,
+      "hasActiveHighlight": false,
+      "contentLength": 46,
+      "issues": [
+        "Sidebar not found in page",
+        "AdminLayout not found in page"
+      ]
+    },
+    {
+      "page": "All Notifications",
+      "path": "/admin/notifications",
+      "category": "notifications",
+      "status": "PASS (Redirect)",
+      "statusCode": 307,
+      "hasSidebar": false,
+      "hasNavigation": false,
+      "hasAdminLayout": false,
+      "hasActiveHighlight": false,
+      "contentLength": 43,
+      "issues": [
+        "Sidebar not found in page",
+        "AdminLayout not found in page"
+      ]
+    },
+    {
+      "page": "Notification Statistics",
+      "path": "/admin/notifications/stats",
+      "category": "notifications",
+      "status": "PASS (Redirect)",
+      "statusCode": 307,
+      "hasSidebar": false,
+      "hasNavigation": false,
+      "hasAdminLayout": false,
+      "hasActiveHighlight": false,
+      "contentLength": 51,
+      "issues": [
+        "Sidebar not found in page",
+        "AdminLayout not found in page"
+      ]
+    },
+    {
+      "page": "Invoice Management",
+      "path": "/admin/invoices",
+      "category": "invoices",
+      "status": "PASS (Redirect)",
+      "statusCode": 307,
+      "hasSidebar": false,
+      "hasNavigation": false,
+      "hasAdminLayout": false,
+      "hasActiveHighlight": false,
+      "contentLength": 38,
+      "issues": [
+        "Sidebar not found in page",
+        "AdminLayout not found in page"
+      ]
+    },
+    {
+      "page": "Order Sharing",
+      "path": "/admin/orders/sharing",
+      "category": "orders",
+      "status": "PASS (Redirect)",
+      "statusCode": 307,
+      "hasSidebar": false,
+      "hasNavigation": false,
+      "hasAdminLayout": false,
+      "hasActiveHighlight": false,
+      "contentLength": 46,
+      "issues": [
+        "Sidebar not found in page",
+        "AdminLayout not found in page"
+      ]
+    },
+    {
+      "page": "Tracking Analytics",
+      "path": "/admin/tracking/analytics",
+      "category": "tracking",
+      "status": "PASS (Redirect)",
+      "statusCode": 307,
+      "hasSidebar": false,
+      "hasNavigation": false,
+      "hasAdminLayout": false,
+      "hasActiveHighlight": false,
+      "contentLength": 50,
+      "issues": [
+        "Sidebar not found in page",
+        "AdminLayout not found in page"
+      ]
+    },
+    {
+      "page": "Tracking Issues",
+      "path": "/admin/tracking/issues",
+      "category": "tracking",
+      "status": "PASS (Redirect)",
+      "statusCode": 307,
+      "hasSidebar": false,
+      "hasNavigation": false,
+      "hasAdminLayout": false,
+      "hasActiveHighlight": false,
+      "contentLength": 47,
+      "issues": [
+        "Sidebar not found in page",
+        "AdminLayout not found in page"
+      ]
+    },
+    {
+      "page": "Delivery Performance",
+      "path": "/admin/delivery/performance",
+      "category": "tracking",
+      "status": "PASS (Redirect)",
+      "statusCode": 307,
+      "hasSidebar": false,
+      "hasNavigation": false,
+      "hasAdminLayout": false,
+      "hasActiveHighlight": false,
+      "contentLength": 52,
+      "issues": [
+        "Sidebar not found in page",
+        "AdminLayout not found in page"
+      ]
+    },
+    {
+      "page": "Tracking Sync",
+      "path": "/admin/tracking/sync",
+      "category": "tracking",
+      "status": "PASS (Redirect)",
+      "statusCode": 307,
+      "hasSidebar": false,
+      "hasNavigation": false,
+      "hasAdminLayout": false,
+      "hasActiveHighlight": false,
+      "contentLength": 45,
+      "issues": [
+        "Sidebar not found in page",
+        "AdminLayout not found in page"
+      ]
+    },
+    {
+      "page": "Delivery Confirmations",
+      "path": "/admin/delivery/confirmations",
+      "category": "tracking",
+      "status": "PASS (Redirect)",
+      "statusCode": 307,
+      "hasSidebar": false,
+      "hasNavigation": false,
+      "hasAdminLayout": false,
+      "hasActiveHighlight": false,
+      "contentLength": 54,
+      "issues": [
+        "Sidebar not found in page",
+        "AdminLayout not found in page"
+      ]
+    }
+  ],
+  "sidebarTests": [
+    {
+      "hasCategories": false,
+      "hasIcons": false,
+      "hasChevronIndicators": false,
+      "hasMenuButton": false,
+      "hasCloseButton": false,
+      "hasBackToWebsite": false,
+      "hasLogoutButton": false,
+      "hasComingSoonBadge": false,
+      "issues": [
+        "Not all menu categories are present",
+        "Icons not found in sidebar",
+        "Chevron indicators not found",
+        "Mobile menu button not found",
+        "Close button not found",
+        "\"Back to Website\" link not found",
+        "LOGOUT BUTTON IS MISSING - CRITICAL ISSUE",
+        "\"Coming Soon\" badge not found"
+      ]
+    }
+  ],
+  "missingItems": [
+    {
+      "item": "RBAC Management",
+      "category": "System",
+      "status": "MISSING"
+    },
+    {
+      "item": "Product Management",
+      "category": "System",
+      "status": "MISSING"
+    },
+    {
+      "item": "User Management",
+      "category": "System",
+      "status": "MISSING"
+    },
+    {
+      "item": "Settings",
+      "category": "System",
+      "status": "MISSING"
+    }
+  ],
+  "issues": []
+}

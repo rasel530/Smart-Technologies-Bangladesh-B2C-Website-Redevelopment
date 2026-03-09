@@ -9,6 +9,7 @@ import { withAuth } from '@/components/auth/withAuth';
 import { getCategoryStats } from '@/lib/api/categories';
 import { PageWrapper, StatsGrid } from '@/components/design-system';
 import { ButtonPrimary } from '@/components/design-system';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 /**
  * Categories Admin Page
@@ -66,19 +67,7 @@ function CategoriesPage() {
   ];
 
   return (
-    <PageWrapper
-      title="Categories"
-      description="Manage your product categories and hierarchy"
-      actions={
-        <Link
-          href="/admin/categories/new"
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Create New Category
-        </Link>
-      }
-    >
+    <AdminLayout title="Category Management" description="Manage your product categories and hierarchy">
       {/* Statistics */}
       <StatsGrid stats={statsData} columns={3} />
 
@@ -113,7 +102,7 @@ function CategoriesPage() {
           </div>
         </details>
       </div>
-    </PageWrapper>
+    </AdminLayout>
   );
 }
 

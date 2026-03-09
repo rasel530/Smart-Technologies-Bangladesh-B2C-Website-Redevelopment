@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useState } from 'react';
 import {
@@ -65,7 +65,7 @@ const UserBehaviorTracker: React.FC<UserBehaviorTrackerProps> = ({ language = 'e
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    if (document.body && a.parentNode === document.body) { document.body.removeChild(a); }
   };
 
   const formatDate = (date: string) => {

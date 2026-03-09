@@ -45,7 +45,7 @@ class AdminSearchAnalyticsService {
           break;
       }
 
-      const analytics = await this.prisma.searchAnalytics.findMany({
+      const analytics = await this.prisma.search_analytics.findMany({
         where: {
           timestamp: {
             gte: startDate
@@ -72,7 +72,7 @@ class AdminSearchAnalyticsService {
       const conversions = analytics.filter(a => a.conversionType).length;
       const conversionRate = totalSearches > 0 ? ((conversions / totalSearches) * 100).toFixed(2) : '0';
 
-      const clicks = await this.prisma.searchClickTracking.count({
+      const clicks = await this.prisma.search_click_tracking.count({
         where: {
           searchAnalytics: {
             timestamp: {
@@ -85,7 +85,7 @@ class AdminSearchAnalyticsService {
       const clickThroughRate = totalSearches > 0 ? ((clicks / totalSearches) * 100).toFixed(2) : '0';
 
       // Get time series data
-      const timeSeries = await this.prisma.searchAnalytics.groupBy({
+      const timeSeries = await this.prisma.search_analytics.groupBy({
         by: ['timestamp'],
         where: {
           timestamp: {
@@ -152,7 +152,7 @@ class AdminSearchAnalyticsService {
    */
   async getAnalyticsMetrics(startDate, endDate) {
     try {
-      const analytics = await this.prisma.searchAnalytics.findMany({
+      const analytics = await this.prisma.search_analytics.findMany({
         where: {
           timestamp: {
             gte: startDate,
@@ -188,7 +188,7 @@ class AdminSearchAnalyticsService {
       const conversions = analytics.filter(a => a.conversionType).length;
       const conversionRate = totalSearches > 0 ? ((conversions / totalSearches) * 100).toFixed(2) : '0';
 
-      const clicks = await this.prisma.searchClickTracking.count({
+      const clicks = await this.prisma.search_click_tracking.count({
         where: {
           searchAnalytics: {
             timestamp: {
@@ -290,7 +290,7 @@ class AdminSearchAnalyticsService {
       const skip = (page - 1) * limit;
 
       // Get grouped queries with counts
-      const groupedQueries = await this.prisma.searchAnalytics.groupBy({
+      const groupedQueries = await this.prisma.search_analytics.groupBy({
         by: ['query'],
         where,
         _count: {
@@ -312,7 +312,7 @@ class AdminSearchAnalyticsService {
         skip
       });
 
-      const total = await this.prisma.searchAnalytics.groupBy({
+      const total = await this.prisma.search_analytics.groupBy({
         by: ['query'],
         where,
       });
@@ -356,7 +356,7 @@ class AdminSearchAnalyticsService {
    */
   async getQueryDetails(queryId) {
     try {
-      const analytics = await this.prisma.searchAnalytics.findMany({
+      const analytics = await this.prisma.search_analytics.findMany({
         where: {
           query: queryId
         },
@@ -470,7 +470,7 @@ class AdminSearchAnalyticsService {
    */
   async getZeroResultQueries(limit = 50) {
     try {
-      const zeroResultAnalytics = await this.prisma.searchAnalytics.findMany({
+      const zeroResultAnalytics = await this.prisma.search_analytics.findMany({
         where: {
           resultsCount: 0
         },
@@ -543,7 +543,7 @@ class AdminSearchAnalyticsService {
           break;
       }
 
-      const analytics = await this.prisma.searchAnalytics.findMany({
+      const analytics = await this.prisma.search_analytics.findMany({
         where: {
           timestamp: {
             gte: startDate
@@ -568,7 +568,7 @@ class AdminSearchAnalyticsService {
 
       // Conversion funnel
       const searchesWithResults = analytics.filter(a => a.resultsCount > 0).length;
-      const clicks = await this.prisma.searchClickTracking.count({
+      const clicks = await this.prisma.search_click_tracking.count({
         where: {
           searchAnalytics: {
             timestamp: {
@@ -639,7 +639,7 @@ class AdminSearchAnalyticsService {
         if (maxResults !== undefined) where.resultsCount.lte = maxResults;
       }
 
-      const analytics = await this.prisma.searchAnalytics.findMany({
+      const analytics = await this.prisma.search_analytics.findMany({
         where,
         orderBy: {
           timestamp: 'desc'
@@ -710,7 +710,7 @@ class AdminSearchAnalyticsService {
           break;
       }
 
-      const analytics = await this.prisma.searchAnalytics.findMany({
+      const analytics = await this.prisma.search_analytics.findMany({
         where: {
           timestamp: {
             gte: startDate
@@ -797,7 +797,7 @@ class AdminSearchAnalyticsService {
           break;
       }
 
-      const analytics = await this.prisma.searchAnalytics.findMany({
+      const analytics = await this.prisma.search_analytics.findMany({
         where: {
           timestamp: {
             gte: startDate
@@ -893,7 +893,7 @@ class AdminSearchAnalyticsService {
       const alerts = [];
 
       // Check for slow queries
-      const slowQueries = await this.prisma.searchAnalytics.findMany({
+      const slowQueries = await this.prisma.search_analytics.findMany({
         where: {
           responseTime: {
             gt: slowQueryThreshold
@@ -923,7 +923,7 @@ class AdminSearchAnalyticsService {
       }
 
       // Check for high zero-result queries
-      const zeroResultGroups = await this.prisma.searchAnalytics.groupBy({
+      const zeroResultGroups = await this.prisma.search_analytics.groupBy({
         by: ['query'],
         where: {
           resultsCount: 0,
@@ -1028,7 +1028,7 @@ class AdminSearchAnalyticsService {
             endDate = new Date();
         }
 
-        const analytics = await this.prisma.searchAnalytics.findMany({
+        const analytics = await this.prisma.search_analytics.findMany({
           where: {
             timestamp: {
               gte: startDate,
@@ -1134,7 +1134,7 @@ class AdminSearchAnalyticsService {
           break;
       }
 
-      const analytics = await this.prisma.searchAnalytics.findMany({
+      const analytics = await this.prisma.search_analytics.findMany({
         where: {
           timestamp: {
             gte: startDate
@@ -1262,7 +1262,7 @@ class AdminSearchAnalyticsService {
         where.isActive = status === 'active';
       }
 
-      const experiments = await this.prisma.searchExperiment.findMany({
+      const experiments = await this.prisma.search_experiments.findMany({
         where,
         orderBy: {
           [sortBy]: sortOrder
@@ -1289,7 +1289,7 @@ class AdminSearchAnalyticsService {
    */
   async getExperimentDetails(experimentId) {
     try {
-      const experiment = await this.prisma.searchExperiment.findUnique({
+      const experiment = await this.prisma.search_experiments.findUnique({
         where: { id: experimentId },
         include: {
           metrics: true
@@ -1320,7 +1320,7 @@ class AdminSearchAnalyticsService {
    */
   async createExperiment(experimentData) {
     try {
-      const experiment = await this.prisma.searchExperiment.create({
+      const experiment = await this.prisma.search_experiments.create({
         data: {
           name: experimentData.name,
           description: experimentData.description,
@@ -1365,7 +1365,7 @@ class AdminSearchAnalyticsService {
         updateData.endDate = new Date();
       }
 
-      const experiment = await this.prisma.searchExperiment.update({
+      const experiment = await this.prisma.search_experiments.update({
         where: { id: experimentId },
         data: updateData
       });
@@ -1391,7 +1391,7 @@ class AdminSearchAnalyticsService {
    */
   async deleteExperiment(experimentId) {
     try {
-      await this.prisma.searchExperiment.delete({
+      await this.prisma.search_experiments.delete({
         where: { id: experimentId }
       });
 
@@ -1429,7 +1429,7 @@ class AdminSearchAnalyticsService {
       }
 
       // Check for slow queries
-      const slowQueries = await this.prisma.searchAnalytics.findMany({
+      const slowQueries = await this.prisma.search_analytics.findMany({
         where: {
           responseTime: {
             gt: 1000
@@ -1454,7 +1454,7 @@ class AdminSearchAnalyticsService {
       }
 
       // Check filter usage
-      const analytics = await this.prisma.searchAnalytics.findMany({
+      const analytics = await this.prisma.search_analytics.findMany({
         take: 1000
       });
 
@@ -1504,8 +1504,8 @@ class AdminSearchAnalyticsService {
    */
   async getPersonalizationOverview() {
     try {
-      const totalUsers = await this.prisma.user.count();
-      const usersWithPreferences = await this.prisma.userPreference.count();
+      const totalUsers = await this.prisma.users.count();
+      const usersWithPreferences = await this.prisma.user_preferences.count();
 
       const overview = {
         totalUsers,
@@ -1538,7 +1538,7 @@ class AdminSearchAnalyticsService {
       const { page = 1, limit = 20 } = pagination;
       const skip = (page - 1) * limit;
 
-      const preferences = await this.prisma.userPreference.findMany({
+      const preferences = await this.prisma.user_preferences.findMany({
         include: {
           user: {
             select: {
@@ -1553,7 +1553,7 @@ class AdminSearchAnalyticsService {
         take: limit
       });
 
-      const total = await this.prisma.userPreference.count();
+      const total = await this.prisma.user_preferences.count();
 
       const result = {
         preferences,
@@ -1586,7 +1586,7 @@ class AdminSearchAnalyticsService {
    */
   async getUserPreferencesDetail(userId) {
     try {
-      const preferences = await this.prisma.userPreference.findUnique({
+      const preferences = await this.prisma.user_preferences.findUnique({
         where: { userId },
         include: {
           user: {
@@ -1605,14 +1605,14 @@ class AdminSearchAnalyticsService {
       }
 
       // Get user search history
-      const searchHistory = await this.prisma.searchAnalytics.findMany({
+      const searchHistory = await this.prisma.search_analytics.findMany({
         where: { userId },
         orderBy: { timestamp: 'desc' },
         take: 20
       });
 
       // Get user clicks
-      const clicks = await this.prisma.searchClickTracking.findMany({
+      const clicks = await this.prisma.search_click_tracking.findMany({
         where: {
           searchAnalytics: {
             userId
@@ -1651,7 +1651,7 @@ class AdminSearchAnalyticsService {
    */
   async updateUserPreferencesAdmin(userId, preferences) {
     try {
-      const updated = await this.prisma.userPreference.update({
+      const updated = await this.prisma.user_preferences.update({
         where: { userId },
         data: preferences
       });
@@ -1696,7 +1696,7 @@ class AdminSearchAnalyticsService {
           break;
       }
 
-      const analytics = await this.prisma.searchAnalytics.findMany({
+      const analytics = await this.prisma.search_analytics.findMany({
         where: {
           timestamp: {
             gte: startDate
@@ -1708,7 +1708,7 @@ class AdminSearchAnalyticsService {
       const personalizedSearches = analytics.filter(a => a.userId).length;
       const personalizedRate = totalSearches > 0 ? ((personalizedSearches / totalSearches) * 100).toFixed(2) : '0';
 
-      const clicks = await this.prisma.searchClickTracking.count({
+      const clicks = await this.prisma.search_click_tracking.count({
         where: {
           searchAnalytics: {
             timestamp: {
@@ -1718,7 +1718,7 @@ class AdminSearchAnalyticsService {
         }
       });
 
-      const personalizedClicks = await this.prisma.searchClickTracking.count({
+      const personalizedClicks = await this.prisma.search_click_tracking.count({
         where: {
           searchAnalytics: {
             userId: { not: null },
@@ -1905,7 +1905,7 @@ class AdminSearchAnalyticsService {
       }
 
       // Get search counts for the period
-      const searchCounts = await this.prisma.searchAnalytics.groupBy({
+      const searchCounts = await this.prisma.search_analytics.groupBy({
         by: ['query'],
         where: {
           timestamp: {
@@ -1975,7 +1975,7 @@ class AdminSearchAnalyticsService {
       }
 
       // Get products that were clicked most frequently
-      const productClicks = await this.prisma.searchClickTracking.groupBy({
+      const productClicks = await this.prisma.search_click_tracking.groupBy({
         by: ['productId'],
         where: {
           searchAnalytics: {
@@ -1996,7 +1996,7 @@ class AdminSearchAnalyticsService {
       });
 
       const productIds = productClicks.map(pc => pc.productId);
-      const products = await this.prisma.product.findMany({
+      const products = await this.prisma.products.findMany({
         where: {
           id: {
             in: productIds
@@ -2126,7 +2126,7 @@ class AdminSearchAnalyticsService {
    */
   async getRelatedQueries(query) {
     try {
-      const analytics = await this.prisma.searchAnalytics.findMany({
+      const analytics = await this.prisma.search_analytics.findMany({
         where: {
           query: {
             contains: query.split(' ')[0], // Use first word for relation

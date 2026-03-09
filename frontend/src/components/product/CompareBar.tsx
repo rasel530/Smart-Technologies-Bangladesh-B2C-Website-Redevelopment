@@ -49,6 +49,7 @@ export function CompareBar({ onCompare }: CompareBarProps) {
                       src={getImageUrl(product.images[0], 'thumbnail')}
                       alt={product.name}
                       fill
+                      unoptimized={true}
                       className="object-cover"
                     />
                   ) : (

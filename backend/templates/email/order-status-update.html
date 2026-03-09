@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status Update - {{companyName}}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .content {
+            padding: 30px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .status-confirmed {
+            background-color: #10b981;
+            color: #ffffff;
+        }
+        .status-processing {
+            background-color: #3b82f6;
+            color: #ffffff;
+        }
+        .status-shipped {
+            background-color: #8b5cf6;
+            color: #ffffff;
+        }
+        .status-delivered {
+            background-color: #22c55e;
+            color: #ffffff;
+        }
+        .status-cancelled {
+            background-color: #ef4444;
+            color: #ffffff;
+        }
+        .status-refunded {
+            background-color: #6b7280;
+            color: #ffffff;
+        }
+        .order-info {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .order-info h2 {
+            margin: 0 0 10px 0;
+            color: #667eea;
+            font-size: 24px;
+        }
+        .order-info p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .status-change {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .status-change h3 {
+            margin: 0 0 10px 0;
+            color: #92400e;
+        }
+        .status-change p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .timeline {
+            margin-top: 20px;
+        }
+        .timeline-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 20px;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .timeline-content {
+            flex: 1;
+        }
+        .timeline-content h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+        .timeline-content p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .timeline-date {
+            color: #999;
+            font-size: 12px;
+        }
+        .button {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #667eea;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .button:hover {
+            background-color: #5568d3;
+        }
+        .footer {
+            background-color: #f4f4f4;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .social-links {
+            margin-top: 20px;
+        }
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            font-size: 24px;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{companyName}}</h1>
+            <p style="color: #ffffff; margin-top: 10px;">Order Status Update</p>
+        </div>
+
+        <div class="content">
+            <div class="status-badge status-{{statusClass}}">
+                {{newStatus}}
+            </div>
+
+            <div class="order-info">
+                <h2>Order #{{orderNumber}}</h2>
+                <p><strong>Previous Status:</strong> {{previousStatus}}</p>
+                <p><strong>New Status:</strong> {{newStatus}}</p>
+                <p><strong>Updated:</strong> {{updatedAt}}</p>
+            </div>
+
+            {{#if statusReason}}
+            <div class="status-change">
+                <h3>Reason for Status Change</h3>
+                <p>{{statusReason}}</p>
+            </div>
+            {{/if}}
+
+            <div class="timeline">
+                <h3 style="margin: 0 0 20px 0; color: #667eea;">Order Timeline</h3>
+                {{#each timeline}}
+                <div class="timeline-item">
+                    <div class="timeline-icon">
+                        {{icon}}
+                    </div>
+                    <div class="timeline-content">
+                        <h4>{{status}}</h4>
+                        <p>{{description}}</p>
+                        <p class="timeline-date">{{date}}</p>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+
+            {{#if estimatedCompletion}}
+            <div style="background-color: #e8f5e9; padding: 20px; border-radius: 8px; text-align: center; margin-top: 20px;">
+                <h3 style="margin: 0 0 10px 0; color: #2e7d32;">Estimated Completion</h3>
+                <p style="font-size: 24px; font-weight: bold; margin: 10px 0;">{{estimatedCompletion}}</p>
+                <p style="margin: 0;">This is an estimated date and may change.</p>
+            </div>
+            {{/if}}
+
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="{{orderDetailsUrl}}" class="button">View Order Details</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>If you have any questions about your order, please don't hesitate to contact us.</p>
+            <p style="margin-top: 10px;">
+                <a href="mailto:{{supportEmail}}">{{supportEmail}}</a>
+            </p>
+            <p style="margin-top: 10px;">
+                <a href="{{websiteUrl}}">{{websiteUrl}}</a>
+            </p>
+
+            <div class="social-links">
+                <a href="{{facebookUrl}}" title="Facebook">📘</a>
+                <a href="{{twitterUrl}}" title="Twitter">🐦</a>
+                <a href="{{instagramUrl}}" title="Instagram">📷</a>
+            </div>
+
+            <p style="margin-top: 20px; font-size: 12px; color: #999;">
+                © {{currentYear}} {{companyName}}. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

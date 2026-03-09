@@ -140,7 +140,7 @@ class ComparisonService {
     // BUG-LOW-002: No console logging - Added console.log for debugging
     console.log('Fetching specifications for products:', productIds);
     
-    const specifications = await this.prisma.productSpecification.findMany({
+    const specifications = await this.prisma.product_specifications.findMany({
       where: {
         productId: { in: productIds }
       },
@@ -245,7 +245,7 @@ class ComparisonService {
   async generateComparison(comparisonId) {
     console.log('Generating comparison for:', comparisonId);
     // Get comparison with items
-    const comparison = await this.prisma.productComparison.findUnique({
+    const comparison = await this.prisma.product_comparisons.findUnique({
       where: { id: comparisonId },
       include: {
         items: {
@@ -500,7 +500,7 @@ class ComparisonService {
   async createHistoryEntry(userId, comparisonId, action, metadata = {}) {
     console.log('Creating history entry:', { userId, comparisonId, action, metadata });
     try {
-      await this.prisma.comparisonHistory.create({
+      await this.prisma.comparison_histories.create({
         data: {
           userId,
           comparisonId,

@@ -50,6 +50,20 @@ const formatCurrency = (amount: number): string => {
   return `৳${amount.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
+// Map frontend payment method IDs to backend payment method names
+const mapPaymentMethodToBackend = (methodId: string): string => {
+  const paymentMethodMap: { [key: string]: string } = {
+    'cod': 'CASH_ON_DELIVERY',
+    'card': 'CREDIT_CARD',
+    'emi': 'EMI',
+    'bkash': 'BKASH',
+    'nagad': 'NAGAD',
+    'rocket': 'ROCKET',
+    'mcash': 'MCASH',
+  };
+  return paymentMethodMap[methodId] || methodId;
+};
+
 const paymentMethods: PaymentMethod[] = [
   {
     id: 'cod',
@@ -101,7 +115,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const isAuthenticated = !!user;
-  const { items, subtotal, tax, shippingCost, discount, total, isLoading, isInitializing, setShippingMethod, clearCart } = useCart();
+  const { items, subtotal, tax, shippingCost, discount, total, isLoading, isInitializing, setShippingMethod, clearCart, cartId } = useCart();
   
   // Use new checkout hook
   const {
@@ -181,6 +195,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState<CheckoutStep>('address');
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<string>('cod');
+  const [selectedShippingMethod, setSelectedShippingMethod] = useState<string>('STANDARD');
   const [hasAutoSelectedDefault, setHasAutoSelectedDefault] = useState(false);
   const [isPopulatingAddress, setIsPopulatingAddress] = useState(false);
   const [codValidation, setCodValidation] = useState<CodValidationResult | null>(null);
@@ -267,9 +282,9 @@ export default function CheckoutPage() {
   // Initialize checkout session when component mounts
   useEffect(() => {
     if (!authLoading && isAuthenticated && !isInitializing && items.length > 0) {
-      initializeSession(user?.id || null);
+      initializeSession(user?.id || null, undefined, cartId);
     }
-  }, [authLoading, isAuthenticated, isInitializing, items.length, user?.id, initializeSession]);
+  }, [authLoading, isAuthenticated, isInitializing, items.length, user?.id, initializeSession, cartId]);
 
   // Handle abandonment warning
   useEffect(() => {
@@ -694,14 +709,81 @@ export default function CheckoutPage() {
     return true;
   };
   
-  const handleShippingSubmit = (e: React.FormEvent) => {
+  const handleShippingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateShipping() && validateBilling()) {
+      try {
+        // Save address to checkout session
+        await saveProgress({ 
+          address: { 
+            shippingAddress: shippingAddress,
+            billingAddress: useSameAddress ? shippingAddress : billingAddress,
+            useSameAddress,
+            completed: true 
+          } 
+        });
+        
+        // Update step in backend
+        await updateStep('shipping');
+        
+        // Move to shipping step
+        setStep('shipping');
+      } catch (error) {
+        console.error('Error saving address:', error);
+        toast.error('Failed to save address');
+      }
+    }
+  };
+
+  const handleShippingMethodSubmit = async () => {
+    try {
+      // Get shipping method details - Updated costs to match backend
+      const shippingMethodDetails: { cost: number; estimatedDays: number } = (() => {
+        switch (selectedShippingMethod) {
+          case 'STANDARD':
+            return { cost: 100, estimatedDays: 3 };
+          case 'EXPRESS':
+            return { cost: 200, estimatedDays: 1 };
+          case 'INSIDE_DHAKA':
+            return { cost: 60, estimatedDays: 2 };
+          case 'OUTSIDE_DHAKA':
+            return { cost: 120, estimatedDays: 4 };
+          default:
+            return { cost: 100, estimatedDays: 3 };
+        }
+      })();
+
+      // Update cart shipping method and cost in CartContext
+      setShippingMethod(selectedShippingMethod, shippingMethodDetails.cost);
+
+      // Save shipping method selection to checkout session
+      await saveProgress({ 
+        shipping: { 
+          method: selectedShippingMethod,
+          cost: shippingMethodDetails.cost,
+          estimatedDays: shippingMethodDetails.estimatedDays,
+          completed: true 
+        } 
+      });
+      
+      // Update step in backend
+      await updateStep('payment');
+      
+      // Move to payment step
       setStep('payment');
+    } catch (error) {
+      console.error('Error saving shipping method:', error);
+      toast.error('Failed to save shipping method');
     }
   };
   
-  const handlePaymentSubmit = () => {
+  const handlePaymentSubmit = async () => {
+    // Validate that a payment method is selected
+    if (!selectedPayment) {
+      toast.error('Please select a payment method');
+      return;
+    }
+
     // Validate COD before proceeding to review
     if (selectedPayment === 'cod') {
       if (!codValidation || !codValidation.valid) {
@@ -720,49 +802,19 @@ export default function CheckoutPage() {
       return;
     }
 
-    setStep('review');
-  };
-  
-  const handlePlaceOrder = async () => {
-    setIsPlacingOrder(true);
-    setPaymentErrors('');
-    
     try {
-      // Build order items from cart
-      const orderItems = items.map(item => ({
-        productId: item.product.id,
-        variantId: item.variantId || null,
-        quantity: item.quantity,
-        unitPrice: item.price  // Send the actual price from cart (may include discounts)
-      }));
-      
-      // Determine payment method enum value
-      const paymentMethodMap: Record<string, string> = {
-        'cod': 'CASH_ON_DELIVERY',
-        'card': 'CREDIT_CARD',
-        'emi': 'EMI',
-        'mcash': 'MCASH',
-        'bkash': 'BKASH',
-        'nagad': 'NAGAD',
-        'rocket': 'ROCKET'
-      };
-      
-      // Build order data with Milestone 5 features
-      const orderData: any = {
-        addressId: selectedShippingAddressId,
-        items: orderItems,
-        paymentMethod: paymentMethodMap[selectedPayment] || 'CASH_ON_DELIVERY',
-        notes: '',
-        // Mobile optimization flags
-        isMobileOrder: isMobile,
-        platform: isMobile ? 'mobile' : 'desktop',
-        // Milestone 5 payment details
-        paymentDetails: {}
+      // Save payment details to checkout session
+      // Map frontend payment method to backend format
+      const backendPaymentMethod = mapPaymentMethodToBackend(selectedPayment);
+      const paymentDetails: any = {
+        method: backendPaymentMethod,
+        originalMethod: selectedPayment, // Keep original for reference
+        completed: true
       };
 
       // Add EMI details if selected
       if (selectedPayment === 'emi' && emiDetails && selectedEmiPlan) {
-        orderData.paymentDetails = {
+        paymentDetails.details = {
           emiPlanId: selectedEmiPlan.id,
           emiProviderId: emiDetails.provider.id,
           emiAmount: emiDetails.emiAmount,
@@ -775,7 +827,7 @@ export default function CheckoutPage() {
 
       // Add COD details if selected
       if (selectedPayment === 'cod' && codValidation) {
-        orderData.paymentDetails = {
+        paymentDetails.details = {
           codFee: codFee,
           deliveryDays: codValidation.deliveryDays,
           requiresPhoneVerification: codValidation.requiresVerification.phone,
@@ -785,16 +837,44 @@ export default function CheckoutPage() {
 
       // Add local payment details if selected
       if (['bkash', 'nagad', 'rocket'].includes(selectedPayment) && selectedLocalPaymentMethod) {
-        orderData.paymentDetails = {
+        paymentDetails.details = {
           paymentMethodCode: selectedLocalPaymentMethod.code,
           phoneNumber: localPaymentPhone,
           paymentFee: localPaymentFee?.totalFee || 0,
           totalAmount: localPaymentFee?.totalAmount || total
         };
       }
+
+      await saveProgress({ payment: paymentDetails });
       
-      // Call the backend API to create an order
-      const response = await apiClient.post('/orders', orderData);
+      // Update step in backend
+      await updateStep('review');
+      
+      // Move to review step
+      setStep('review');
+    } catch (error) {
+      console.error('Error saving payment details:', error);
+      toast.error('Failed to save payment details');
+    }
+  };
+  
+  const handlePlaceOrder = async () => {
+    setIsPlacingOrder(true);
+    setPaymentErrors('');
+    
+    try {
+      // Save review data to checkout session
+      await saveProgress({ 
+        review: { 
+          reviewed: true,
+          confirmed: true,
+          reviewedAt: new Date().toISOString(),
+          confirmedAt: new Date().toISOString()
+        } 
+      });
+      
+      // Complete checkout using checkout API
+      const response = await completeCheckout();
       
       toast.success('Order placed successfully!');
       
@@ -802,7 +882,7 @@ export default function CheckoutPage() {
       await clearCart();
       
       // Redirect with real order ID
-      router.push(`/order-confirmation?orderId=${response.order.id}`);
+      router.push(`/order-confirmation?orderId=${response.orderId}`);
     } catch (error: any) {
       console.error('Order placement error:', error);
       setPaymentErrors(error.message || 'Failed to place order');
@@ -993,8 +1073,8 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            {/* Shipping Address Form */}
-            {step === 'shipping' && (
+            {/* Address Form */}
+            {step === 'address' && (
               <div className="space-y-6">
                 {/* Saved Addresses Selector */}
                 <SavedAddressesSelector
@@ -1018,11 +1098,11 @@ export default function CheckoutPage() {
                   </div>
                 )}
                 
-                {/* Shipping Address Form */}
+                {/* Address Form */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                   <div className="flex items-center gap-3 mb-6">
                     <MapPin className="w-6 h-6 text-blue-600" />
-                    <h2 className="text-lg font-semibold text-gray-900">Shipping Address</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">Address</h2>
                   </div>
                   
                   <form onSubmit={handleShippingSubmit} className="space-y-4">
@@ -1174,7 +1254,23 @@ export default function CheckoutPage() {
                 {/* Billing Address Toggle */}
                 <BillingAddressToggle
                   isSameAsShipping={useSameAddress}
-                  onToggle={setUseSameAddress}
+                  onToggle={async (useSame: boolean) => {
+                    setUseSameAddress(useSame);
+                    try {
+                      // Save billing address preference to checkout session
+                      await saveProgress({ 
+                        address: { 
+                          ...session?.data?.address,
+                          useSameAddress: useSame,
+                          billingAddress: useSame ? shippingAddress : billingAddress,
+                          completed: session?.data?.address?.completed || false
+                        } 
+                      });
+                    } catch (error) {
+                      console.error('Error saving billing address preference:', error);
+                      toast.error('Failed to save billing address preference');
+                    }
+                  }}
                   shippingAddress={shippingAddress}
                   language="en"
                 />
@@ -1303,6 +1399,157 @@ export default function CheckoutPage() {
                     </form>
                   </div>
                 )}
+              </div>
+            )}
+            
+            {/* Shipping Method Selection */}
+            {step === 'shipping' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <Truck className="w-6 h-6 text-blue-600" />
+                    <h2 className="text-lg font-semibold text-gray-900">Shipping Method</h2>
+                  </div>
+
+                  <div className="space-y-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedShippingMethod('STANDARD');
+                        setShippingMethod('STANDARD', 100);
+                      }}
+                      className={cn(
+                        "w-full flex items-center justify-between p-4 border rounded-lg transition-colors",
+                        selectedShippingMethod === 'STANDARD'
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      )}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "w-5 h-5 rounded-full border-2 flex items-center justify-center",
+                          selectedShippingMethod === 'STANDARD' ? "border-blue-600" : "border-gray-300"
+                        )}>
+                          {selectedShippingMethod === 'STANDARD' && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+                          )}
+                        </div>
+                        <div className="text-left">
+                          <p className="font-medium text-gray-900">Standard Delivery</p>
+                          <p className="text-sm text-gray-600">3-5 business days</p>
+                        </div>
+                      </div>
+                      <span className="font-semibold text-gray-900">৳100</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedShippingMethod('EXPRESS');
+                        setShippingMethod('EXPRESS', 200);
+                      }}
+                      className={cn(
+                        "w-full flex items-center justify-between p-4 border rounded-lg transition-colors",
+                        selectedShippingMethod === 'EXPRESS'
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      )}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "w-5 h-5 rounded-full border-2 flex items-center justify-center",
+                          selectedShippingMethod === 'EXPRESS' ? "border-blue-600" : "border-gray-300"
+                        )}>
+                          {selectedShippingMethod === 'EXPRESS' && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+                          )}
+                        </div>
+                        <div className="text-left">
+                          <p className="font-medium text-gray-900">Express Delivery</p>
+                          <p className="text-sm text-gray-600">1-2 business days</p>
+                        </div>
+                      </div>
+                      <span className="font-semibold text-gray-900">৳200</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedShippingMethod('INSIDE_DHAKA');
+                        setShippingMethod('INSIDE_DHAKA', 60);
+                      }}
+                      className={cn(
+                        "w-full flex items-center justify-between p-4 border rounded-lg transition-colors",
+                        selectedShippingMethod === 'INSIDE_DHAKA'
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      )}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "w-5 h-5 rounded-full border-2 flex items-center justify-center",
+                          selectedShippingMethod === 'INSIDE_DHAKA' ? "border-blue-600" : "border-gray-300"
+                        )}>
+                          {selectedShippingMethod === 'INSIDE_DHAKA' && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+                          )}
+                        </div>
+                        <div className="text-left">
+                          <p className="font-medium text-gray-900">Inside Dhaka</p>
+                          <p className="text-sm text-gray-600">2-3 business days</p>
+                        </div>
+                      </div>
+                      <span className="font-semibold text-gray-900">৳60</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedShippingMethod('OUTSIDE_DHAKA');
+                        setShippingMethod('OUTSIDE_DHAKA', 120);
+                      }}
+                      className={cn(
+                        "w-full flex items-center justify-between p-4 border rounded-lg transition-colors",
+                        selectedShippingMethod === 'OUTSIDE_DHAKA'
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      )}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "w-5 h-5 rounded-full border-2 flex items-center justify-center",
+                          selectedShippingMethod === 'OUTSIDE_DHAKA' ? "border-blue-600" : "border-gray-300"
+                        )}>
+                          {selectedShippingMethod === 'OUTSIDE_DHAKA' && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+                          )}
+                        </div>
+                        <div className="text-left">
+                          <p className="font-medium text-gray-900">Outside Dhaka</p>
+                          <p className="text-sm text-gray-600">4-6 business days</p>
+                        </div>
+                      </div>
+                      <span className="font-semibold text-gray-900">৳120</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex justify-between pt-6">
+                  <button
+                    type="button"
+                    onClick={() => setStep('address')}
+                    className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleShippingMethodSubmit}
+                    className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  >
+                    Continue to Payment
+                  </button>
+                </div>
               </div>
             )}
             
@@ -1812,18 +2059,21 @@ export default function CheckoutPage() {
                 ))}
               </div>
               
-              {/* Price Breakdown */}
+                {/* Price Breakdown */}
               <div className="space-y-3 border-t border-gray-200 pt-4">
                 <div className="flex items-center justify-between text-sm text-gray-600">
                   <span>Subtotal</span>
                   <span className="font-medium">{formatCurrency(subtotal)}</span>
                 </div>
-                <div className="flex items-center justify-between text-sm text-gray-600">
-                  <span>Shipping</span>
-                  <span className="font-medium">
-                    {shippingCost === 0 ? 'Free' : formatCurrency(shippingCost)}
-                  </span>
-                </div>
+                {/* Shipping cost is only shown after user has selected a shipping method (on 'shipping', 'payment', and 'review' steps) */}
+                {step !== 'address' && (
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <span>Shipping</span>
+                    <span className="font-medium">
+                      {shippingCost === 0 ? 'Free' : formatCurrency(shippingCost)}
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between text-sm text-gray-600">
                   <span>Tax</span>
                   <span className="font-medium">{formatCurrency(tax)}</span>
@@ -1856,7 +2106,7 @@ export default function CheckoutPage() {
                   <span className="text-base font-semibold text-gray-900">Total</span>
                   <span className="text-xl font-bold text-gray-900">
                     {formatCurrency(
-                      total +
+                      (step === 'address' ? subtotal + tax - discount : total) +
                       (selectedPayment === 'cod' ? codFee : 0) +
                       (selectedPayment === 'emi' && emiDetails ? emiDetails.processingFee : 0) +
                       (localPaymentFee ? localPaymentFee.totalFee : 0)

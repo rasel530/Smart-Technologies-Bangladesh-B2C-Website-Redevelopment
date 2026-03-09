@@ -49,7 +49,7 @@ class CodService {
    */
   async getCodSettings() {
     try {
-      const settings = await this.prisma.codSettings.findFirst();
+      const settings = await this.prisma.cod_settings.findFirst();
 
       if (!settings) {
         this.logger.warn('[getCodSettings] No COD settings found, returning defaults');
@@ -355,7 +355,7 @@ class CodService {
       startOfWeek.setHours(0, 0, 0, 0);
 
       // Count COD orders today
-      const dailyOrders = await this.prisma.order.count({
+      const dailyOrders = await this.prisma.orders.count({
         where: {
           userId: userId,
           paymentMethod: 'cash_on_delivery',
@@ -366,7 +366,7 @@ class CodService {
       });
 
       // Count COD orders this week
-      const weeklyOrders = await this.prisma.order.count({
+      const weeklyOrders = await this.prisma.orders.count({
         where: {
           userId: userId,
           paymentMethod: 'cash_on_delivery',
@@ -438,13 +438,13 @@ class CodService {
       }
 
       // Get existing settings
-      const existingSettings = await this.prisma.codSettings.findFirst();
+      const existingSettings = await this.prisma.cod_settings.findFirst();
 
       let updatedSettings;
 
       if (existingSettings) {
         // Update existing settings
-        updatedSettings = await this.prisma.codSettings.update({
+        updatedSettings = await this.prisma.cod_settings.update({
           where: {
             id: existingSettings.id
           },
@@ -466,7 +466,7 @@ class CodService {
         });
       } else {
         // Create new settings
-        updatedSettings = await this.prisma.codSettings.create({
+        updatedSettings = await this.prisma.cod_settings.create({
           data: {
             id: settingsData.id || 'default-cod-settings',
             is_enabled: settingsData.isEnabled !== undefined ? settingsData.isEnabled : true,

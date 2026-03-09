@@ -145,9 +145,24 @@ export const useCheckout = () => {
   /**
    * Calculate progress percentage based on current step
    */
-  const calculateProgress = useCallback((currentStep: CheckoutStep, completedSteps: CheckoutStep[]): CheckoutProgress => {
+  const calculateProgress = useCallback((currentStep: CheckoutStep, sessionData?: CheckoutSessionData): CheckoutProgress => {
     const stepIndex = CHECKOUT_STEPS.indexOf(currentStep);
     const progressPercentage = Math.round((stepIndex / (CHECKOUT_STEPS.length - 1)) * 100);
+    
+    // Build completedSteps array from session data completion statuses
+    const completedSteps: CheckoutStep[] = [];
+    if (sessionData?.address?.completed) {
+      completedSteps.push('address');
+    }
+    if (sessionData?.shipping?.completed) {
+      completedSteps.push('shipping');
+    }
+    if (sessionData?.payment?.completed) {
+      completedSteps.push('payment');
+    }
+    if (sessionData?.review?.confirmed) {
+      completedSteps.push('review');
+    }
     
     const pendingSteps = CHECKOUT_STEPS.filter(step => 
       step !== currentStep && !completedSteps.includes(step)
@@ -163,10 +178,28 @@ export const useCheckout = () => {
     };
   }, []);
 
+  // Helper to map backend stepData to frontend data format
+  const mapStepDataToSessionData = useCallback((response: any) => {
+    // Create a copy of the response
+    const mapped = { ...response };
+    
+    // Map stepData to data if stepData exists and data doesn't
+    if (mapped.stepData && !mapped.data) {
+      mapped.data = mapped.stepData;
+    }
+    
+    // Also handle the case where both might exist (prefer data)
+    if (!mapped.data) {
+      mapped.data = {};
+    }
+    
+    return mapped;
+  }, []);
+
   /**
    * Initialize checkout session
    */
-  const initializeSession = useCallback(async (userId?: string | null, sessionId?: string) => {
+  const initializeSession = useCallback(async (userId?: string | null, sessionId?: string, cartId?: string) => {
     setIsLoading(true);
     setError(null);
 
@@ -174,15 +207,17 @@ export const useCheckout = () => {
       const request: InitializeCheckoutRequest = {
         userId,
         sessionId,
-        cartId: '', // Will be fetched from cart context
+        cartId: cartId || '', // Pass cartId from cart context
         platform: typeof window !== 'undefined' && window.innerWidth < 768 ? 'mobile' : 'desktop',
         language: 'en', // Will be fetched from language context
       };
 
       const response = await apiClient.post<CheckoutSession>('/checkout/initialize', request);
       
-      setSession(response);
-      setProgress(calculateProgress(response.currentStep, []));
+      // Map stepData to data format expected by frontend
+      const mappedResponse = mapStepDataToSessionData(response);
+      setSession(mappedResponse);
+      setProgress(calculateProgress(mappedResponse.currentStep, mappedResponse.data));
       
       // Set session expiration
       const expiresAt = new Date(Date.now() + DEFAULT_SESSION_TIMEOUT * 60 * 1000).toISOString();
@@ -227,8 +262,10 @@ export const useCheckout = () => {
 
       const response = await apiClient.post<CheckoutSession>('/checkout/step', request);
       
-      setSession(response);
-      setProgress(calculateProgress(step, response.data.address?.completed ? ['address'] : []));
+      // Map stepData to data format expected by frontend
+      const mappedResponse = mapStepDataToSessionData(response);
+      setSession(mappedResponse);
+      setProgress(calculateProgress(step, mappedResponse.data));
       
       // Update last activity
       lastActivityRef.current = Date.now();
@@ -264,7 +301,10 @@ export const useCheckout = () => {
 
       const response = await apiClient.post<CheckoutSession>('/checkout/save', request);
       
-      setSession(response);
+      // Map stepData to data format expected by frontend
+      const mappedResponse = mapStepDataToSessionData(response);
+      setSession(mappedResponse);
+      setProgress(calculateProgress(mappedResponse.currentStep, mappedResponse.data));
       
       // Update last activity
       lastActivityRef.current = Date.now();
@@ -278,7 +318,7 @@ export const useCheckout = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [session]);
+  }, [session, calculateProgress]);
 
   /**
    * Validate checkout step
@@ -331,10 +371,104 @@ export const useCheckout = () => {
     setError(null);
 
     try {
+      // DIAGNOSTIC: Log session state before building request
+      console.log('[completeCheckout] Session state:', {
+        sessionId: session.id,
+        sessionData: session.data,
+        sessionDataKeys: session.data ? Object.keys(session.data) : [],
+        hasAddress: !!session.data?.address,
+        hasShipping: !!session.data?.shipping,
+        hasPayment: !!session.data?.payment,
+        addressData: session.data?.address,
+        shippingData: session.data?.shipping,
+        paymentData: session.data?.payment
+      });
+
+      // Prepare address data from session state to ensure it's included in the request
+      // The backend expects address data in data.address or in the top-level address field
+      const addressData = session.stepData?.address || session.data?.address;
+      const shippingData = session.stepData?.shipping;  // ← Use stepData directly
+      const paymentData = session.stepData?.payment;    // ← Use stepData directly
+      
+      // DIAGNOSTIC: Log extracted data
+      console.log('[completeCheckout] Extracted data:', {
+        hasAddressData: !!addressData,
+        hasShippingData: !!shippingData,
+        hasPaymentData: !!paymentData,
+        addressDataDetails: addressData,
+        shippingDataDetails: shippingData,
+        paymentDataDetails: paymentData
+      });
+
+      // Handle case where session.data might still be undefined
+      if (!addressData && !shippingData && !paymentData) {
+        console.error('[completeCheckout] ERROR: No checkout data found in session!');
+        console.error('[completeCheckout] Session:', JSON.stringify(session, null, 2));
+        throw new Error('Checkout data is missing. Please complete all checkout steps before placing your order.');
+      }
+      
+      // Convert address fields from frontend format to backend format
+      // Frontend uses: fullName, addressLine1, addressLine2
+      // Backend expects: firstName, lastName, address, addressLine2
+      const convertToBackendAddressFormat = (addr: any) => {
+        if (!addr) return undefined;
+        
+        const nameParts = (addr.fullName || addr.name || '').trim().split(/\s+/);
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+        
+        return {
+          firstName,
+          lastName,
+          phone: addr.phone || '',
+          address: addr.addressLine1 || addr.address || '',
+          addressLine2: addr.addressLine2 || '',
+          city: addr.city || '',
+          district: addr.district || '',
+          division: addr.division || 'dhaka',
+          postalCode: addr.postalCode || '',
+        };
+      };
+      
+      // Build comprehensive request with all checkout data
+      // Use type assertion to handle the format conversion
+      const requestData = {
+        ...session.data,
+        // Ensure address, shipping, and payment are properly structured
+        address: addressData ? {
+          ...addressData,
+          shippingAddress: addressData.shippingAddress ? convertToBackendAddressFormat(addressData.shippingAddress) : undefined,
+          billingAddress: addressData.billingAddress ? convertToBackendAddressFormat(addressData.billingAddress) : undefined,
+        } : undefined,
+        shipping: shippingData,
+        payment: paymentData
+      };
+      
+      const requestAddress = addressData ? {
+        shippingAddress: (addressData.address?.shippingAddress || addressData.shippingAddress) ? convertToBackendAddressFormat(addressData.address?.shippingAddress || addressData.shippingAddress) : undefined,
+        billingAddress: (addressData.address?.billingAddress || addressData.billingAddress) ? convertToBackendAddressFormat(addressData.address?.billingAddress || addressData.billingAddress) : undefined,
+        useSameAddress: addressData.useSameAddress ?? addressData.address?.useSameAddress
+      } : undefined;
+
+      // DIAGNOSTIC: Log the final request being sent
+      console.log('[completeCheckout] Request payload:', {
+        sessionId: session.id,
+        requestData: JSON.stringify(requestData),
+        requestDataSize: JSON.stringify(requestData).length,
+        requestAddress: JSON.stringify(requestAddress),
+        requestAddressSize: JSON.stringify(requestAddress).length,
+        addressData_converted: requestAddress?.shippingAddress,
+        hasAddressData: !!requestAddress?.shippingAddress
+      });
+
       const request: CompleteCheckoutRequest = {
         sessionId: session.id,
-        data: session.data,
+        data: requestData as any,
+        address: requestAddress as any
       };
+
+      // DIAGNOSTIC: Log final request structure
+      console.log('[completeCheckout] Final request:', JSON.stringify(request, null, 2));
 
       const response = await apiClient.post<{ orderId: string }>('/checkout/complete', request);
       
@@ -409,9 +543,11 @@ export const useCheckout = () => {
 
       const response = await apiClient.post<{ session: CheckoutSession; recovery: CheckoutRecovery }>('/checkout/recover', request);
       
-      setSession(response.session);
+      // Map stepData to data format expected by frontend
+      const mappedSession = mapStepDataToSessionData(response.session);
+      setSession(mappedSession);
       setRecovery(response.recovery);
-      setProgress(calculateProgress(response.session.currentStep, []));
+      setProgress(calculateProgress(mappedSession.currentStep, mappedSession.data));
       
       // Set session expiration
       const expiresAt = new Date(Date.now() + DEFAULT_SESSION_TIMEOUT * 60 * 1000).toISOString();

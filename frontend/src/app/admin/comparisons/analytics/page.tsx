@@ -1,9 +1,10 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Download, Calendar, TrendingUp, BarChart3, PieChart as PieChartIcon, Users, Activity, Package, RefreshCw } from 'lucide-react';
 import { withAuth } from '@/components/auth/withAuth';
-import { PageWrapper, StatsGrid } from '@/components/design-system';
+import { AdminLayout } from '@/components/admin/AdminLayout';
+import { StatsGrid } from '@/components/design-system';
 import adminComparisonsApi, { AdminComparisonAnalytics, AdminComparisonStats } from '@/lib/api/admin-comparisons';
 import { format } from 'date-fns';
 
@@ -72,7 +73,7 @@ function AdminComparisonAnalyticsPage() {
       a.download = `comparison-analytics-${period}-${format(new Date(), 'yyyy-MM-dd')}.json`;
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
+      if (document.body && a.parentNode === document.body) { document.body.removeChild(a); }
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Error exporting data:', err);
@@ -348,295 +349,302 @@ function AdminComparisonAnalyticsPage() {
   ];
 
   return (
-    <PageWrapper
-      title="Comparison Analytics"
-      description="View analytics and insights for product comparisons"
-      actions={
-        <button
-          onClick={handleExport}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-        >
-          <Download className="w-5 h-5 mr-2" />
-          Export Analytics
-        </button>
-      }
-    >
-      {/* Filters */}
-      <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-        <div className="flex flex-wrap gap-4 items-center">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-gray-400" />
-            <label className="text-sm font-medium text-gray-700">Period:</label>
-            <select
-              value={period}
-              onChange={(e) => setPeriod(e.target.value as any)}
-              className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            >
-              <option value="all">All Time</option>
-              <option value="today">Today</option>
-              <option value="week">Last 7 Days</option>
-              <option value="month">Last 30 Days</option>
-              <option value="year">Last Year</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-gray-400" />
-            <label className="text-sm font-medium text-gray-700">Group By:</label>
-            <select
-              value={groupBy}
-              onChange={(e) => setGroupBy(e.target.value as any)}
-              className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            >
-              <option value="day">Day</option>
-              <option value="week">Week</option>
-              <option value="month">Month</option>
-            </select>
+    <AdminLayout title="Comparison Analytics">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Header */}
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Comparison Analytics</h1>
+            <p className="mt-2 text-gray-600">
+              View analytics and insights for product comparisons
+            </p>
           </div>
           <button
-            onClick={fetchData}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            onClick={handleExport}
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
           >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
+            <Download className="w-5 h-5 mr-2" />
+            Export Analytics
           </button>
         </div>
-      </div>
 
-      {/* Error Display */}
-      {error && (
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3 flex-1">
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-            <div className="flex-shrink-0">
-              <button
-                onClick={fetchData}
-                className="text-sm text-red-600 hover:text-red-800 font-medium"
+        {/* Filters */}
+        <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+          <div className="flex flex-wrap gap-4 items-center">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-gray-400" />
+              <label className="text-sm font-medium text-gray-700">Period:</label>
+              <select
+                value={period}
+                onChange={(e) => setPeriod(e.target.value as any)}
+                className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               >
-                Retry
-              </button>
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">Last 7 Days</option>
+                <option value="month">Last 30 Days</option>
+                <option value="year">Last Year</option>
+              </select>
             </div>
+            <div className="flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-gray-400" />
+              <label className="text-sm font-medium text-gray-700">Group By:</label>
+              <select
+                value={groupBy}
+                onChange={(e) => setGroupBy(e.target.value as any)}
+                className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              >
+                <option value="day">Day</option>
+                <option value="week">Week</option>
+                <option value="month">Month</option>
+              </select>
+            </div>
+            <button
+              onClick={fetchData}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
+            </button>
           </div>
         </div>
-      )}
 
-      {/* Loading State */}
-      {loading && (
-        <div className="p-12 text-center text-gray-500">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-          <p className="mt-2">Loading analytics...</p>
-        </div>
-      )}
-
-      {!loading && stats && (
-        <>
-          {/* Statistics */}
-          <StatsGrid stats={statsData} columns={4} />
-
-          {/* Section Divider */}
-          <div className="border-t border-neutral-200 my-8"></div>
-
-          {/* Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Comparison Creation Trends */}
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <TrendingUp className="w-5 h-5 mr-2 text-primary-600" />
-                Comparison Creation Trends
-              </h3>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <LineChart data={analytics?.timeline || []} />
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
               </div>
-              <p className="text-sm text-gray-500 mt-2 text-center">
-                Comparisons created over time
-              </p>
-            </div>
-
-            {/* Action Distribution */}
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <PieChartIcon className="w-5 h-5 mr-2 text-purple-600" />
-                Action Distribution
-              </h3>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <CustomPieChart
-                  data={
-                    analytics?.actionDistribution.map((action, i) => ({
-                      label: action.action,
-                      value: action.count,
-                      color: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'][i % 5],
-                    })) || []
-                  }
-                />
+              <div className="ml-3 flex-1">
+                <p className="text-sm text-red-700">{error}</p>
               </div>
-              <p className="text-sm text-gray-500 mt-2 text-center">
-                Distribution of comparison actions
-              </p>
-            </div>
-
-            {/* Popular Products */}
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <BarChart3 className="w-5 h-5 mr-2 text-green-600" />
-                Top Compared Products
-              </h3>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <BarChart
-                  data={
-                    topComparedProducts?.slice(0, 10).map((p, i) => ({
-                      name: p.product?.name || `Product ${i + 1}`,
-                      value: p._count.productId,
-                    })) || []
-                  }
-                />
-              </div>
-              <p className="text-sm text-gray-500 mt-2 text-center">
-                Most frequently compared products
-              </p>
-            </div>
-
-            {/* User Activity */}
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <Users className="w-5 h-5 mr-2 text-blue-600" />
-                Top Active Users
-              </h3>
-              <div className="space-y-3">
-                {analytics?.topUsers?.slice(0, 10).map((user, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                  >
-                    <div className="flex items-center">
-                      <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-medium mr-3">
-                        {i + 1}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          {user.user?.firstName} {user.user?.lastName}
-                        </p>
-                        <p className="text-xs text-gray-500">{user.user?.email}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900">
-                        {user._count.userId}
-                      </p>
-                      <p className="text-xs text-gray-500">comparisons</p>
-                    </div>
-                  </div>
-                ))}
-                {(!analytics?.topUsers || analytics.topUsers.length === 0) && (
-                  <p className="text-sm text-gray-500 text-center py-4">No user activity data available</p>
-                )}
+              <div className="flex-shrink-0">
+                <button
+                  onClick={fetchData}
+                  className="text-sm text-red-600 hover:text-red-800 font-medium"
+                >
+                  Retry
+                </button>
               </div>
             </div>
           </div>
+        )}
 
-          {/* Section Divider */}
-          <div className="border-t border-neutral-200 my-8"></div>
+        {/* Loading State */}
+        {loading && (
+          <div className="p-12 text-center text-gray-500">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            <p className="mt-2">Loading analytics...</p>
+          </div>
+        )}
 
-          {/* Detailed Statistics Table */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <Activity className="w-5 h-5 mr-2 text-orange-600" />
-              Detailed Statistics
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">Total Comparisons</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalComparisons}</p>
-              </div>
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">Active Comparisons</p>
-                <p className="text-2xl font-bold text-green-600">{stats.activeComparisons}</p>
-              </div>
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">Expired Comparisons</p>
-                <p className="text-2xl font-bold text-red-600">{stats.expiredComparisons}</p>
-              </div>
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">User Comparisons</p>
-                <p className="text-2xl font-bold text-blue-600">{stats.userComparisons}</p>
-              </div>
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">Guest Comparisons</p>
-                <p className="text-2xl font-bold text-purple-600">{stats.guestComparisons}</p>
-              </div>
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">Total Items Compared</p>
-                <p className="text-2xl font-bold text-orange-600">{stats.totalItems}</p>
-              </div>
-              <div className="p-4 bg-gray-50 rounded-lg md:col-span-2 lg:col-span-1">
-                <p className="text-sm text-gray-600">Average Items per Comparison</p>
-                <p className="text-2xl font-bold text-primary-600">
-                  {stats.avgItemsPerComparison.toFixed(1)}
+        {!loading && stats && (
+          <>
+            {/* Statistics */}
+            <StatsGrid stats={statsData} columns={4} />
+
+            {/* Section Divider */}
+            <div className="border-t border-neutral-200 my-8"></div>
+
+            {/* Charts Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Comparison Creation Trends */}
+              <div className="bg-white rounded-xl shadow-md p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <TrendingUp className="w-5 h-5 mr-2 text-primary-600" />
+                  Comparison Creation Trends
+                </h3>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <LineChart data={analytics?.timeline || []} />
+                </div>
+                <p className="text-sm text-gray-500 mt-2 text-center">
+                  Comparisons created over time
                 </p>
               </div>
-            </div>
-          </div>
 
-          {/* Timeline Table */}
-          <div className="mt-6 bg-white rounded-xl shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <Calendar className="w-5 h-5 mr-2 text-teal-600" />
-              Timeline Details
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Comparisons
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Total Items
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Avg Items/Comparison
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {analytics?.timeline.map((item, i) => (
-                    <tr key={i} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {item.date}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {item.comparisons}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {item.totalItems}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {item.comparisons > 0 ? (item.totalItems / item.comparisons).toFixed(1) : '0'}
-                      </td>
-                    </tr>
+              {/* Action Distribution */}
+              <div className="bg-white rounded-xl shadow-md p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <PieChartIcon className="w-5 h-5 mr-2 text-purple-600" />
+                  Action Distribution
+                </h3>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <CustomPieChart
+                    data={
+                      analytics?.actionDistribution.map((action, i) => ({
+                        label: action.action,
+                        value: action.count,
+                        color: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'][i % 5],
+                      })) || []
+                    }
+                  />
+                </div>
+                <p className="text-sm text-gray-500 mt-2 text-center">
+                  Distribution of comparison actions
+                </p>
+              </div>
+
+              {/* Popular Products */}
+              <div className="bg-white rounded-xl shadow-md p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <BarChart3 className="w-5 h-5 mr-2 text-green-600" />
+                  Top Compared Products
+                </h3>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <BarChart
+                    data={
+                      topComparedProducts?.slice(0, 10).map((p, i) => ({
+                        name: p.product?.name || `Product ${i + 1}`,
+                        value: p._count.productId,
+                      })) || []
+                    }
+                  />
+                </div>
+                <p className="text-sm text-gray-500 mt-2 text-center">
+                  Most frequently compared products
+                </p>
+              </div>
+
+              {/* User Activity */}
+              <div className="bg-white rounded-xl shadow-md p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <Users className="w-5 h-5 mr-2 text-blue-600" />
+                  Top Active Users
+                </h3>
+                <div className="space-y-3">
+                  {analytics?.topUsers?.slice(0, 10).map((user, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    >
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-medium mr-3">
+                          {i + 1}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {user.user?.firstName} {user.user?.lastName}
+                          </p>
+                          <p className="text-xs text-gray-500">{user.user?.email}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-gray-900">
+                          {user._count.userId}
+                        </p>
+                        <p className="text-xs text-gray-500">comparisons</p>
+                      </div>
+                    </div>
                   ))}
-                  {(!analytics?.timeline || analytics.timeline.length === 0) && (
-                    <tr>
-                      <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
-                        No timeline data available
-                      </td>
-                    </tr>
+                  {(!analytics?.topUsers || analytics.topUsers.length === 0) && (
+                    <p className="text-sm text-gray-500 text-center py-4">No user activity data available</p>
                   )}
-                </tbody>
-              </table>
+                </div>
+              </div>
             </div>
-          </div>
-        </>
-      )}
-    </PageWrapper>
+
+            {/* Section Divider */}
+            <div className="border-t border-neutral-200 my-8"></div>
+
+            {/* Detailed Statistics Table */}
+            <div className="bg-white rounded-xl shadow-md p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <Activity className="w-5 h-5 mr-2 text-orange-600" />
+                Detailed Statistics
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">Total Comparisons</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.totalComparisons}</p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">Active Comparisons</p>
+                  <p className="text-2xl font-bold text-green-600">{stats.activeComparisons}</p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">Expired Comparisons</p>
+                  <p className="text-2xl font-bold text-red-600">{stats.expiredComparisons}</p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">User Comparisons</p>
+                  <p className="text-2xl font-bold text-blue-600">{stats.userComparisons}</p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">Guest Comparisons</p>
+                  <p className="text-2xl font-bold text-purple-600">{stats.guestComparisons}</p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">Total Items Compared</p>
+                  <p className="text-2xl font-bold text-orange-600">{stats.totalItems}</p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-lg md:col-span-2 lg:col-span-1">
+                  <p className="text-sm text-gray-600">Average Items per Comparison</p>
+                  <p className="text-2xl font-bold text-primary-600">
+                    {stats.avgItemsPerComparison.toFixed(1)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Timeline Table */}
+            <div className="mt-6 bg-white rounded-xl shadow-md p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <Calendar className="w-5 h-5 mr-2 text-teal-600" />
+                Timeline Details
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Comparisons
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Total Items
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Avg Items/Comparison
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {analytics?.timeline.map((item, i) => (
+                      <tr key={i} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {item.date}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {item.comparisons}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {item.totalItems}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {item.comparisons > 0 ? (item.totalItems / item.comparisons).toFixed(1) : '0'}
+                        </td>
+                      </tr>
+                    ))}
+                    {(!analytics?.timeline || analytics.timeline.length === 0) && (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
+                          No timeline data available
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </AdminLayout>
   );
 }
 

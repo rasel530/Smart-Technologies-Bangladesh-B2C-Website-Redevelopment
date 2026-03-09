@@ -1,0 +1,375 @@
+{
+  "timestamp": "2026-02-23T17:50:21.370Z",
+  "tests": [
+    {
+      "name": "1.1: initializeSession accepts cartId parameter",
+      "status": "passed",
+      "message": "Function signature correctly includes cartId parameter",
+      "details": {
+        "matches": [
+          "const initializeSession = useCallback(async (guestId?: string, sessionId?: string, cartId?: string)"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.376Z"
+    },
+    {
+      "name": "1.2: cartId is set to undefined for guest users",
+      "status": "passed",
+      "message": "cartId is correctly set to undefined",
+      "details": {
+        "matches": [
+          "cartId: undefined"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.376Z"
+    },
+    {
+      "name": "1.3: Explanatory comment is present",
+      "status": "passed",
+      "message": "Explanatory comment explaining why cartId is not passed is present",
+      "details": {
+        "matches": [
+          "Note: cartId is not passed for guest users"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.377Z"
+    },
+    {
+      "name": "1.4: Request object correctly sets cartId to undefined",
+      "status": "passed",
+      "message": "Request object construction is correct",
+      "details": {
+        "hasUndefinedCartId": true,
+        "hasComment": true,
+        "codeSnippet": "\r\n  /**\r\n   * Initialize guest checkout session\r\n   */\r\n  const initializeSession = useCallback(async (guestId?: string, sessionId?: string, cartId?: string) => {\r\n    setIsLoading(true);\r\n    setError(null);\r\n\r\n    try {\r\n      // Check for existing guest session in localStorage\r\n      const existingSessionId = localStorage.getItem(GUEST_SESSION_KEY);\r\n      \r\n      // Note: cartId is not passed for guest users because:\r\n      // 1. Guest carts use sessionId as identifier, not UUID cartId\r\n      // 2. Backend can derive the cart from sessionId\r\n      // 3. This avoids validation errors when cartId is not a valid UUID\r\n      const request: InitializeGuestCheckoutRequest = {\r\n        guestId,\r\n        sessionId: sessionId || existingSessionId || undefined,\r\n        cartId: undefined,  // Don't pass cartId for guest users - let backend derive from sessionId\r\n        platform: typeof window !== 'undefined' && window.innerWidth < 768 ? 'mobile' : 'desktop',\r\n        language: 'en', // Will be fetched from language context\r\n      };\r\n\r"
+      },
+      "timestamp": "2026-02-23T17:50:21.377Z"
+    },
+    {
+      "name": "1.5: \"guest\" string is NOT being sent as cartId",
+      "status": "passed",
+      "message": "No instances of cartId: \"guest\" found (correct)",
+      "details": {
+        "matches": []
+      },
+      "timestamp": "2026-02-23T17:50:21.377Z"
+    },
+    {
+      "name": "1.6: guest/page.tsx extracts cartId from useCart()",
+      "status": "passed",
+      "message": "cartId is correctly extracted from useCart()",
+      "details": {
+        "matches": [
+          "const { items, subtotal, tax, shippingCost, discount, total, isLoading, isInitializing, clearCart, cartId } = useCart()"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.378Z"
+    },
+    {
+      "name": "1.7: guest/page.tsx passes cartId to initializeSession()",
+      "status": "passed",
+      "message": "cartId is correctly passed to initializeSession()",
+      "details": {
+        "matches": [
+          "initializeSession(undefined, undefined, cartId"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.378Z"
+    },
+    {
+      "name": "2.1: 500ms delay is added to redirect check",
+      "status": "passed",
+      "message": "setTimeout is used with cart empty check",
+      "details": {
+        "matches": [
+          "setTimeout(() =>"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.379Z"
+    },
+    {
+      "name": "2.2: Delay is set to 500ms",
+      "status": "passed",
+      "message": "Delay is correctly set to 500ms",
+      "details": {
+        "matches": [
+          "}, 500)"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.381Z"
+    },
+    {
+      "name": "2.3: Comment explaining the delay is present",
+      "status": "passed",
+      "message": "Comment explaining the delay is present",
+      "details": {
+        "matches": [
+          "Add a small delay to allow cart to load from localStorage"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.381Z"
+    },
+    {
+      "name": "2.4: Complete redirect check useEffect is correct",
+      "status": "passed",
+      "message": "Complete useEffect is correctly implemented",
+      "details": {
+        "hasDelay": true,
+        "has500ms": true,
+        "hasComment": true,
+        "checksIsInitializing": true,
+        "checksItemsLength": true,
+        "checksIsLoading": true,
+        "codeSnippet": "  // Redirect if cart is empty\r\n  useEffect(() => {\r\n    // Add a small delay to allow cart to load from localStorage\r\n    const timer = setTimeout(() => {\r\n      if (!isInitializing && items.length === 0 && !isLoading) {\r\n        toast.error('Your cart is empty');\r\n        router.push('/cart');\r\n      }\r\n    }, 500); // 500ms delay to allow cart initialization to complete\r\n\r\n    return () => clearTimeout(timer);\r\n  }, [items.length, isLoading, isInitializing, router]);\r\n\r"
+      },
+      "timestamp": "2026-02-23T17:50:21.382Z"
+    },
+    {
+      "name": "2.5: Cleanup function is present",
+      "status": "passed",
+      "message": "Cleanup function is present",
+      "details": {
+        "matches": [
+          "return () => clearTimeout(timer)"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.384Z"
+    },
+    {
+      "name": "3.1: Redirect to cart page on empty cart",
+      "status": "passed",
+      "message": "Redirect to cart page is implemented",
+      "details": {
+        "matches": [
+          "router.push('/cart')",
+          "router.push('/cart')",
+          "router.push('/cart')"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.385Z"
+    },
+    {
+      "name": "3.2: Toast error message is displayed",
+      "status": "passed",
+      "message": "Toast error message is displayed",
+      "details": {
+        "matches": [
+          "toast.error('Your cart is empty"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.386Z"
+    },
+    {
+      "name": "3.3: All conditions for redirect are checked",
+      "status": "passed",
+      "message": "All conditions for redirect are checked",
+      "details": {
+        "checksNotInitializing": true,
+        "checksEmptyCart": true,
+        "checksNotLoading": true
+      },
+      "timestamp": "2026-02-23T17:50:21.386Z"
+    },
+    {
+      "name": "4.1: initializeSession is called when items are in cart",
+      "status": "passed",
+      "message": "initializeSession is called when cart has items",
+      "details": {
+        "matches": [
+          "if (!isInitializing && items.length > 0)"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.387Z"
+    },
+    {
+      "name": "4.2: useEffect dependencies are correct",
+      "status": "passed",
+      "message": "useEffect dependencies include isInitializing, items.length, initializeSession, and cartId",
+      "details": {
+        "matches": [
+          "[isInitializing, items.length, initializeSession, cartId]"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.388Z"
+    },
+    {
+      "name": "4.3: API endpoint is correct",
+      "status": "passed",
+      "message": "API endpoint is /guest/checkout/initialize",
+      "details": {
+        "matches": [
+          "apiClient.post<GuestSession>('/guest/checkout/initialize"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.388Z"
+    },
+    {
+      "name": "4.4: Session is stored in localStorage",
+      "status": "passed",
+      "message": "Session ID is stored in localStorage",
+      "details": {
+        "matches": [
+          "localStorage.setItem(GUEST_SESSION_KEY, response.sessionId"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.389Z"
+    },
+    {
+      "name": "4.5: Progress is calculated correctly",
+      "status": "passed",
+      "message": "Progress is calculated with initial step \"info\"",
+      "details": {
+        "matches": [
+          "setProgress(calculateProgress",
+          "setProgress(calculateProgress"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.389Z"
+    },
+    {
+      "name": "4.6: Session timeout timer is started",
+      "status": "passed",
+      "message": "Session timeout timer is started",
+      "details": {
+        "matches": [
+          "startSessionTimeoutTimer()"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.389Z"
+    },
+    {
+      "name": "5.1: sessionId is included in request",
+      "status": "passed",
+      "message": "sessionId is correctly included in the request",
+      "details": {
+        "matches": [
+          "sessionId: sessionId || existingSessionId"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.390Z"
+    },
+    {
+      "name": "5.2: existingSessionId is retrieved from localStorage",
+      "status": "passed",
+      "message": "existingSessionId is retrieved from localStorage",
+      "details": {
+        "matches": [
+          "const existingSessionId = localStorage.getItem(GUEST_SESSION_KEY)",
+          "const existingSessionId = localStorage.getItem(GUEST_SESSION_KEY)"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.391Z"
+    },
+    {
+      "name": "5.3: sessionId is used in subsequent API calls",
+      "status": "passed",
+      "message": "sessionId is used in subsequent API calls",
+      "details": {
+        "matches": [
+          "sessionId: session.sessionId",
+          "sessionId: session.sessionId",
+          "sessionId: session.sessionId"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.391Z"
+    },
+    {
+      "name": "5.4: cartId is NOT used in request body (sessionId is used instead)",
+      "status": "passed",
+      "message": "Request uses sessionId instead of cartId",
+      "details": {
+        "hasCartIdUndefined": true,
+        "hasCartIdGuest": false,
+        "hasSessionId": true,
+        "codeSnippet": "\r\n  /**\r\n   * Initialize guest checkout session\r\n   */\r\n  const initializeSession = useCallback(async (guestId?: string, sessionId?: string, cartId?: string) => {\r\n    setIsLoading(true);\r\n    setError(null);\r\n\r\n    try {\r\n      // Check for existing guest session in localStorage\r\n      const existingSessionId = localStorage.getItem(GUEST_SESSION_KEY);\r\n      \r\n      // Note: cartId is not passed for guest users because:\r\n      // 1. Guest carts use sessionId as identifier, not UUID cartId\r\n      // 2. Backend can derive the cart from sessionId\r\n      // 3. This avoids validation errors when cartId is not a valid UUID\r\n      const request: InitializeGuestCheckoutRequest = {\r\n        guestId,\r\n        sessionId: sessionId || existingSessionId || undefined,\r\n        cartId: undefined,  // Don't pass cartId for guest users - let backend derive from sessionId\r\n        platform: typeof window !== 'undefined' && window.innerWidth < 768 ? 'mobile' : 'desktop',\r\n        language: 'en', // Will be fetched from language context\r\n      };\r\n\r"
+      },
+      "timestamp": "2026-02-23T17:50:21.392Z"
+    },
+    {
+      "name": "5.5: GUEST_SESSION_KEY constant is defined",
+      "status": "passed",
+      "message": "GUEST_SESSION_KEY constant is defined",
+      "details": {
+        "matches": [
+          "const GUEST_SESSION_KEY = 'guest_session_id'"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.392Z"
+    },
+    {
+      "name": "A1: No \"guest\" string is used as cartId in useGuestCheckout.ts",
+      "status": "passed",
+      "message": "No instances of cartId: \"guest\" found",
+      "details": {
+        "matches": []
+      },
+      "timestamp": "2026-02-23T17:50:21.393Z"
+    },
+    {
+      "name": "A2: No \"guest\" string is used as cartId in guest/page.tsx",
+      "status": "passed",
+      "message": "No instances of cartId: \"guest\" found",
+      "details": {
+        "matches": []
+      },
+      "timestamp": "2026-02-23T17:50:21.393Z"
+    },
+    {
+      "name": "A3: cartId is properly typed as optional string",
+      "status": "passed",
+      "message": "cartId is properly typed as optional string",
+      "details": {
+        "matches": [
+          "cartId?: string"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.394Z"
+    },
+    {
+      "name": "A4: Error handling is present in initializeSession",
+      "status": "passed",
+      "message": "Error handling is present",
+      "details": {
+        "matches": [
+          "catch (err",
+          "catch (err",
+          "catch (err",
+          "catch (err",
+          "catch (err",
+          "catch (err",
+          "catch (err",
+          "catch (err",
+          "catch (err",
+          "catch (err"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.394Z"
+    },
+    {
+      "name": "A5: Toast error is shown on initialization failure",
+      "status": "passed",
+      "message": "Toast error is shown on failure",
+      "details": {
+        "matches": [
+          "toast.error",
+          "toast.error",
+          "toast.error",
+          "toast.error",
+          "toast.error",
+          "toast.error",
+          "toast.error",
+          "toast.error",
+          "toast.error",
+          "toast.error"
+        ]
+      },
+      "timestamp": "2026-02-23T17:50:21.395Z"
+    }
+  ],
+  "summary": {
+    "total": 31,
+    "passed": 31,
+    "failed": 0,
+    "skipped": 0
+  }
+}

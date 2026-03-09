@@ -176,7 +176,7 @@ interface ImageThumbnailStripProps {
                 alt={getAltText(image) || `Thumbnail ${index + 1}`}
                 fill
                 // FIX: Use unoptimized for external URLs to prevent Next.js Image optimization issues
-                unoptimized={!hasError && getImageUrl(image, 'thumbnail').startsWith('http://localhost:3001')}
+                unoptimized={true}
                 className={`object-cover transition-transform duration-200 ${
                   isActive ? 'scale-105' : 'hover:scale-105'
                 } ${isLoading ? 'opacity-0' : 'opacity-100'}`}

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -115,7 +115,7 @@ const CartList: React.FC<CartListProps> = ({ language = 'en' }) => {
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      if (document.body && a.parentNode === document.body) { document.body.removeChild(a); }
     } catch (error) {
       console.error('Error exporting carts:', error);
       alert('Failed to export carts');
@@ -489,7 +489,7 @@ const CartList: React.FC<CartListProps> = ({ language = 'en' }) => {
           <div className="p-8 text-center text-gray-500">{t.noCarts}</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-[800px] divide-y divide-gray-200">
+            <table className="w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   {/* AP-HIGH-002: Bulk selection checkbox */}

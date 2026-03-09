@@ -127,7 +127,7 @@ class LocalPaymentService {
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        const method = await this.prisma.localPaymentMethod.findUnique({
+        const method = await this.prisma.local_payment_methods.findUnique({
           where: { code: code }
         });
 
@@ -356,7 +356,7 @@ class LocalPaymentService {
       }
 
       // Check if user already has an active subscription
-      const existingSubscription = await this.prisma.smsSubscription.findUnique({
+      const existingSubscription = await this.prisma.sms_subscriptions.findUnique({
         where: {
           userId: userId
         }

@@ -68,11 +68,13 @@ export interface GuestCartItemWithProduct extends GuestCartItem {
 
 /**
  * Complete guest cart data structure for localStorage
+ * Updated ShippingMethod to match backend: STANDARD, EXPRESS, INSIDE_DHAKA, OUTSIDE_DHAKA
  */
 export interface GuestCartStorageData {
+  cartId?: string;  // Real database cart ID (returned by backend)
   sessionId: string;
   items: GuestCartItem[];
-  shippingMethod: 'standard' | 'express' | 'overnight' | 'pickup';
+  shippingMethod: 'STANDARD' | 'EXPRESS' | 'INSIDE_DHAKA' | 'OUTSIDE_DHAKA';
   discountCode: string | null;
   expiresAt: string; // ISO 8601 timestamp
   createdAt: string;
@@ -103,7 +105,19 @@ export interface InvalidItem {
 }
 
 /**
+ * Helper function to validate if a string is a valid UUID
+ * FIX 2: Validate cartId is a real database UUID, not a temporary sessionId
+ */
+function isValidUUID(id: string | undefined): boolean {
+  if (!id) return false;
+  // UUID v4 format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(id);
+}
+
+/**
  * Load guest cart from localStorage with validation
+ * FIX 2: Add validation to ensure cartId is a valid UUID
  * @returns Guest cart data or null if not found, expired, or invalid
  */
 export function loadGuestCartFromStorage(): GuestCartStorageData | null {
@@ -114,6 +128,7 @@ export function loadGuestCartFromStorage(): GuestCartStorageData | null {
   try {
     const data = localStorage.getItem(GUEST_CART_KEY);
     if (!data) {
+      debugLog('No guest cart found in localStorage');
       return null;
     }
 
@@ -121,22 +136,39 @@ export function loadGuestCartFromStorage(): GuestCartStorageData | null {
 
     // Check version - migrate if needed
     if (cart.version !== GUEST_CART_VERSION) {
+      debugLog('Cart version mismatch, migrating...');
       migrateGuestCart(cart);
       return loadGuestCartFromStorage(); // Reload after migration
     }
 
     // Validate expiration
     if (new Date(cart.expiresAt) < new Date()) {
-    debugLog('Cart expired, clearing');
+      debugLog('Cart expired, clearing');
       clearGuestCartFromStorage();
       return null;
     }
 
     // Validate structure
     if (!cart.sessionId || !Array.isArray(cart.items)) {
-    debugError('Invalid cart structure, clearing');
+      debugError('Invalid cart structure, clearing');
       clearGuestCartFromStorage();
       return null;
+    }
+
+    // FIX 2: Validate cartId if present - ensure it's a valid UUID
+    if (cart.cartId && !isValidUUID(cart.cartId)) {
+      debugWarn('Invalid cartId format (not a UUID):', cart.cartId);
+      // Remove invalid cartId to prevent using it
+      delete cart.cartId;
+      saveGuestCartToStorage(cart);
+      debugLog('Removed invalid cartId from storage');
+    }
+
+    // FIX 2: Log cartId status for debugging
+    if (cart.cartId) {
+      debugLog('Valid cartId found in storage:', cart.cartId);
+    } else {
+      debugLog('No cartId in storage (only sessionId available):', cart.sessionId);
     }
 
     // Validate items
@@ -160,6 +192,7 @@ export function loadGuestCartFromStorage(): GuestCartStorageData | null {
 
 /**
  * Save guest cart to localStorage
+ * FIX 2: Validate cartId before saving and add detailed logging
  * @param data - Guest cart data to save
  */
 export function saveGuestCartToStorage(data: GuestCartStorageData): void {
@@ -168,6 +201,14 @@ export function saveGuestCartToStorage(data: GuestCartStorageData): void {
   }
 
   try {
+    // FIX 2: Validate cartId if present - ensure it's a valid UUID
+    if (data.cartId && !isValidUUID(data.cartId)) {
+      debugError('Attempted to save invalid cartId:', data.cartId);
+      // Remove invalid cartId to prevent using it
+      delete data.cartId;
+      debugLog('Removed invalid cartId before saving');
+    }
+
     // Update timestamp
     data.updatedAt = new Date().toISOString();
     data.version = GUEST_CART_VERSION;
@@ -180,9 +221,12 @@ export function saveGuestCartToStorage(data: GuestCartStorageData): void {
       detail: { items: data.items, sessionId: data.sessionId }
     }));
 
+    // FIX 2: Add detailed logging including cartId status
     debugLog('Cart saved successfully', {
       itemCount: data.items.length,
-      sessionId: data.sessionId
+      sessionId: data.sessionId,
+      hasCartId: !!data.cartId,
+      cartId: data.cartId || 'none'
     });
   } catch (error: any) {
     debugError('Error saving to storage:', error);
@@ -304,12 +348,20 @@ export function removeGuestSessionId(): void {
 
 /**
  * Generate guest session ID
- * @returns Unique guest session ID
+ * FIX 2: Generate proper UUID format to match backend validation
+ * @returns Unique guest session ID in UUID format
  */
 export function generateGuestSessionId(): string {
-  const timestamp = Date.now();
-  const random = Math.random().toString(36).substring(2, 15);
-  return `guest_${timestamp}_${random}`;
+  // FIX 2: Use crypto.randomUUID() for modern browsers
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // Fallback for older browsers
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
 }
 
 /**
@@ -324,7 +376,7 @@ export function createEmptyGuestCart(sessionId: string): GuestCartStorageData {
   return {
     sessionId,
     items: [],
-    shippingMethod: 'standard',
+    shippingMethod: 'STANDARD',
     discountCode: null,
     expiresAt: expiresAt.toISOString(),
     createdAt: now.toISOString(),
@@ -450,7 +502,7 @@ function migrateGuestCart(legacyData: any): void {
     const newFormat: GuestCartStorageData = {
       sessionId: legacyData.sessionId || generateGuestSessionId(),
       items: legacyData.items || [],
-      shippingMethod: legacyData.shippingMethod || 'standard',
+      shippingMethod: legacyData.shippingMethod || 'STANDARD',
       discountCode: legacyData.discountCode || null,
       expiresAt: legacyData.expiresAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       createdAt: legacyData.createdAt || new Date().toISOString(),

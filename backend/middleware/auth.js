@@ -8,7 +8,8 @@ const { databaseService } = require('../services/database');
 
 class AuthMiddleware {
   constructor() {
-    this.prisma = databaseService.getClient();
+    // FIX: Don't store reference in constructor to avoid stale reference
+    // this.prisma = databaseService.getClient();
     this.config = configService;
     this.logger = loggerService;
     // SECURITY FIX: Use Redis for token blacklist instead of in-memory Set
@@ -195,6 +196,18 @@ class AuthMiddleware {
   authenticate() {
     return async (req, res, next) => {
       try {
+        // FIX: Get fresh client on each request
+        const prisma = databaseService.getClient();
+
+        // FIX: Validate client before use
+        if (!prisma) {
+          this.logger.error('[AUTH] Prisma client is not available');
+          return res.status(500).json({
+            error: 'Database connection error',
+            message: 'Authentication service unavailable'
+          });
+        }
+
         // Log incoming request
         this.logger.info('Authentication attempt', {
           method: req.method,
@@ -231,6 +244,9 @@ class AuthMiddleware {
         
         // Fetch user from database
         let user;
+        // DIAGNOSTIC LOGGING: Track user lookup start time (declare outside try block for error handling)
+        const userLookupStartTime = Date.now();
+
         try {
           // FIX 1: Extract userId from multiple possible field names to handle different JWT payload structures
           // NextAuth and other auth providers may use different field names (sub, id, user_id, userId)
@@ -247,30 +263,66 @@ class AuthMiddleware {
             });
           }
 
-          user = await this.prisma.user.findUnique({
-            where: { id: userId },
-            select: {
-              id: true,
-              email: true,
-              phone: true,
-              firstName: true,
-              lastName: true,
-              role: true,
-              status: true, // Changed from isActive to status
-              emailVerified: true, // Changed from isEmailVerified to emailVerified
-              phoneVerified: true, // Changed from isPhoneVerified to phoneVerified
-              createdAt: true,
-              updatedAt: true
-            }
+          this.logger.info('[USER LOOKUP DIAGNOSTIC] Starting user lookup', {
+            userId,
+            method: req.method,
+            path: req.path,
+            timestamp: new Date().toISOString()
+          });
+
+          // FIX: Use fresh prisma variable instead of this.prisma
+          user = await Promise.race([
+            prisma.users.findUnique({
+              where: { id: userId },
+              select: {
+                id: true,
+                email: true,
+                phone: true,
+                firstName: true,
+                lastName: true,
+                role: true,
+                status: true, // Changed from isActive to status
+                emailVerified: true, // Changed from isEmailVerified to emailVerified
+                phoneVerified: true, // Changed from isPhoneVerified to phoneVerified
+                createdAt: true,
+                updatedAt: true
+              }
+            }),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('User lookup timeout after 5000ms')), 5000)
+            )
+          ]);
+
+          // DIAGNOSTIC LOGGING: Track user lookup completion time
+          const userLookupDuration = Date.now() - userLookupStartTime;
+          this.logger.info('[USER LOOKUP DIAGNOSTIC] User lookup completed', {
+            userId,
+            userFound: !!user,
+            duration: userLookupDuration,
+            method: req.method,
+            path: req.path,
+            timestamp: new Date().toISOString()
           });
         } catch (error) {
-          this.logger.error('Database error during user lookup', {
+          // DIAGNOSTIC LOGGING: Track user lookup failure
+          const userLookupDuration = Date.now() - userLookupStartTime;
+          this.logger.error('[USER LOOKUP DIAGNOSTIC] Database error during user lookup', {
             userId: decoded.userId,
-            error: error.message
+            error: error.message,
+            errorType: error.name,
+            isTimeout: error.message.includes('timeout'),
+            duration: userLookupDuration,
+            method: req.method,
+            path: req.path,
+            timestamp: new Date().toISOString()
           });
           return res.status(401).json({
             error: 'Authentication failed',
-            message: 'User lookup failed'
+            message: 'User lookup failed',
+            diagnostic: process.env.NODE_ENV === 'development' ? {
+              error: error.message,
+              duration: userLookupDuration
+            } : undefined
           });
         }
         
@@ -381,8 +433,11 @@ class AuthMiddleware {
   // Optional authentication middleware
   optional() {
     return async (req, res, next) => {
-  try {
-    const token = this.extractToken(req);
+      try {
+        // FIX: Get fresh client on each request
+        const prisma = databaseService.getClient();
+
+        const token = this.extractToken(req);
     
     if (token) {
       const decoded = await this.verifyToken(token);
@@ -401,7 +456,7 @@ class AuthMiddleware {
               // For optional auth, continue without user
               user = null;
             } else {
-              user = await this.prisma.user.findUnique({
+              user = await prisma.users.findUnique({
                 where: { id: userId },
                 select: {
                   id: true,
@@ -446,7 +501,7 @@ class AuthMiddleware {
         }
         
         next();
-        
+
       } catch (error) {
         // For optional auth, we don't return error, just continue without user
         this.logger.debug('Optional authentication failed', error.message);
@@ -483,6 +538,9 @@ class AuthMiddleware {
   requireOwnership(resourceType) {
     return async (req, res, next) => {
       try {
+        // FIX: Get fresh client on each request
+        const prisma = databaseService.getClient();
+
         if (!req.user) {
           return res.status(401).json({
             error: 'Authentication required',
@@ -503,7 +561,7 @@ class AuthMiddleware {
           case 'order':
             let order;
             try {
-              order = await this.prisma.order.findUnique({
+              order = await prisma.orders.findUnique({
                 where: { id: resourceId },
                 select: { userId: true }
               });
@@ -524,7 +582,7 @@ class AuthMiddleware {
           case 'cart':
             let cart;
             try {
-              cart = await this.prisma.cart.findUnique({
+              cart = await prisma.carts.findUnique({
                 where: { id: resourceId },
                 select: { userId: true }
               });
@@ -545,7 +603,7 @@ class AuthMiddleware {
           case 'wishlist':
             let wishlist;
             try {
-              wishlist = await this.prisma.wishlist.findUnique({
+              wishlist = await prisma.wishlists.findUnique({
                 where: { id: resourceId },
                 select: { userId: true }
               });
@@ -566,7 +624,7 @@ class AuthMiddleware {
           case 'review':
             let review;
             try {
-              review = await this.prisma.review.findUnique({
+              review = await prisma.reviews.findUnique({
                 where: { id: resourceId },
                 select: { userId: true }
               });
@@ -677,6 +735,9 @@ class AuthMiddleware {
   authenticateApiKey() {
     return async (req, res, next) => {
       try {
+        // FIX: Get fresh client on each request
+        const prisma = databaseService.getClient();
+
         const apiKey = req.headers['x-api-key'];
         
         if (!apiKey) {
@@ -689,7 +750,7 @@ class AuthMiddleware {
         // Find API key in database
         let keyRecord;
         try {
-          keyRecord = await this.prisma.apiKey.findUnique({
+          keyRecord = await prisma.api_keys.findUnique({
             where: { key: apiKey },
             include: {
               user: {
@@ -749,7 +810,7 @@ class AuthMiddleware {
           const now = Date.now();
           const oneHourAgo = now - (60 * 60 * 1000);
           
-          const requestCount = await this.prisma.apiRequest.count({
+          const requestCount = await prisma.api_requests.count({
             where: {
               apiKeyId: keyRecord.id,
               timestamp: {
@@ -766,7 +827,7 @@ class AuthMiddleware {
           }
           
           // Log API request
-          await this.prisma.apiRequest.create({
+          await prisma.api_requests.create({
             data: {
               apiKeyId: keyRecord.id,
               endpoint: req.path,

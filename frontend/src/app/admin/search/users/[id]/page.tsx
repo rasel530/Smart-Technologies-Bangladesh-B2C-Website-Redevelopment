@@ -79,7 +79,10 @@ function UserSearchBehaviorAdminPage(): JSX.Element {
       a.download = `user-${userId}-behavior.json`;
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
+      // Safe removal with null check to prevent error during logout
+      if (document.body && a.parentNode === document.body) {
+        document.body.removeChild(a);
+      }
       URL.revokeObjectURL(url);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to export user data');

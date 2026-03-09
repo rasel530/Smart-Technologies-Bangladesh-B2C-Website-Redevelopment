@@ -402,7 +402,7 @@ class SearchService {
    */
   async getPopularSearches(limit = 10) {
     try {
-      const popularSearches = await this.prisma.searchLog.groupBy({
+      const popularSearches = await this.prisma.search_logs.groupBy({
         by: ['query'],
         where: {
           timestamp: {
@@ -797,7 +797,7 @@ class SearchService {
   async getRelatedSearches(query) {
     try {
       // Find similar searches from analytics
-      const similarSearches = await this.prisma.searchLog.findMany({
+      const similarSearches = await this.prisma.search_logs.findMany({
         where: {
           query: {
             contains: query.split(' ')[0]
@@ -830,7 +830,7 @@ class SearchService {
    */
   async logSearchAnalytics(analytics) {
     try {
-      await this.prisma.searchLog.create({
+      await this.prisma.search_logs.create({
         data: {
           query: analytics.query,
           userId: analytics.userId,

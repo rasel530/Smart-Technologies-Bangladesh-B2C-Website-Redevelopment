@@ -24,6 +24,7 @@ import type {
   TrendingProduct,
   RisingSearch,
 } from '@/types/searchAnalytics';
+import { getImageUrl } from '@/lib/utils/image';
 
 export interface TrendingSearchesProps {
   limit?: number;
@@ -264,7 +265,7 @@ export default function TrendingSearches({
                       {product.imageUrl && (
                         <div className="aspect-square relative overflow-hidden">
                           <img
-                            src={product.imageUrl}
+                            src={getImageUrl(product.imageUrl) || ''}
                             alt={product.productName}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                           />

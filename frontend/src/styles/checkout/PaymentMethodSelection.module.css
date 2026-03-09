@@ -1,0 +1,651 @@
+/**
+ * Payment Method Selection Styles
+ * Phase 7 Milestone 2: Payment Gateway Integration
+ * Responsive styles for payment method selection UI
+ */
+
+/* Main Container */
+.paymentMethodSelection {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Header Section */
+.header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #666666;
+  margin-bottom: 0.5rem;
+}
+
+/* Order Summary */
+.orderSummary {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid #e0e0e0;
+}
+
+.orderSummaryTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 1rem;
+}
+
+.orderSummaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  font-size: 0.9375rem;
+  color: #555555;
+}
+
+.orderSummaryRow:last-child {
+  margin-bottom: 0;
+}
+
+.orderSummaryLabel {
+  font-weight: 500;
+}
+
+.orderSummaryValue {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.orderSummaryTotal {
+  border-top: 2px solid #e0e0e0;
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+.orderSummaryTotal .orderSummaryRow {
+  font-size: 1.125rem;
+  color: #1a1a1a;
+}
+
+.orderSummaryTotal .orderSummaryValue {
+  color: #1976d2;
+  font-weight: 700;
+}
+
+/* Payment Methods Grid */
+.paymentMethodGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+@media (max-width: 640px) {
+  .paymentMethodGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Payment Method Card */
+.paymentMethodCard {
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.paymentMethodCard:hover:not(.disabled) {
+  border-color: #1976d2;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.15);
+  transform: translateY(-2px);
+}
+
+.paymentMethodCard:focus-visible {
+  outline: 3px solid #1976d2;
+  outline-offset: 2px;
+}
+
+.paymentMethodCard.selected {
+  border-color: #1976d2;
+  background: #e3f2fd;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.2);
+}
+
+.paymentMethodCard.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Payment Method Icon */
+.paymentMethodIconContainer {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.paymentMethodIcon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.paymentMethodIconPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.paymentMethodIconSvg {
+  width: 48px;
+  height: 48px;
+  color: #1976d2;
+}
+
+/* Payment Method Name */
+.paymentMethodName {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333333;
+}
+
+/* Payment Method Description */
+.paymentMethodDescription {
+  font-size: 0.875rem;
+  color: #666666;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+/* Payment Method Features */
+.paymentMethodFeatures {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.paymentMethodFeature {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  background: #f5f5f5;
+  border-radius: 4px;
+  color: #666666;
+  font-weight: 500;
+}
+
+/* Processing Time */
+.paymentMethodProcessingTime {
+  font-size: 0.8125rem;
+  color: #666666;
+  margin-bottom: 0.5rem;
+}
+
+.processingTimeLabel {
+  font-weight: 500;
+}
+
+.processingTimeValue {
+  color: #1976d2;
+  font-weight: 600;
+}
+
+/* Fee Display */
+.paymentMethodFee {
+  font-size: 0.8125rem;
+  color: #666666;
+  margin-bottom: 0.5rem;
+}
+
+.feeLabel {
+  font-weight: 500;
+}
+
+.feeValue {
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+/* Selection Indicator */
+.selectionIndicator {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.radioButton {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e0e0e0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.radioButtonSelected {
+  border-color: #1976d2;
+}
+
+.radioButtonInner {
+  width: 12px;
+  height: 12px;
+  background: #1976d2;
+  border-radius: 50%;
+}
+
+/* Loading State */
+.loadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.loadingSpinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #1976d2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error Message */
+.errorMessage {
+  color: #d32f2f;
+  background: #ffebee;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin: 1rem 0;
+  font-size: 0.875rem;
+  border: 1px solid #ffcdd2;
+}
+
+/* Unavailable Badge */
+.unavailableBadge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Global Loading State */
+.globalLoadingSpinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+}
+
+.globalLoadingSpinner .loadingSpinner {
+  width: 48px;
+  height: 48px;
+  border-width: 4px;
+  margin-bottom: 1rem;
+}
+
+.globalLoadingText {
+  font-size: 1rem;
+  color: #666666;
+}
+
+/* Continue Button */
+.continueButton {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.continueButton:hover:not(:disabled) {
+  background: #1565c0;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+}
+
+.continueButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.continueButton:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.continueButton:focus-visible {
+  outline: 3px solid #1976d2;
+  outline-offset: 2px;
+}
+
+/* Back Button */
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: #666666;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 1rem;
+}
+
+.backButton:hover {
+  background: #f5f5f5;
+  border-color: #cccccc;
+  color: #333333;
+}
+
+.backButton:focus-visible {
+  outline: 3px solid #1976d2;
+  outline-offset: 2px;
+}
+
+/* Button Container */
+.buttonContainer {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 640px) {
+  .buttonContainer {
+    flex-direction: column;
+  }
+
+  .backButton {
+    width: 100%;
+    margin-right: 0;
+  }
+}
+
+/* Section Title */
+.sectionTitle {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.sectionSubtitle {
+  font-size: 0.9375rem;
+  color: #666666;
+  margin-bottom: 1.5rem;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px dashed #e0e0e0;
+}
+
+.emptyStateIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #cccccc;
+}
+
+.emptyStateTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 0.5rem;
+}
+
+.emptyStateMessage {
+  font-size: 0.9375rem;
+  color: #666666;
+  margin-bottom: 1.5rem;
+}
+
+.retryButton {
+  padding: 0.75rem 1.5rem;
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retryButton:hover {
+  background: #1565c0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .paymentMethodSelection {
+    padding: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .paymentMethodCard {
+    padding: 1.25rem;
+  }
+
+  .paymentMethodName {
+    font-size: 1.125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .paymentMethodSelection {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .orderSummary {
+    padding: 1rem;
+  }
+
+  .paymentMethodCard {
+    padding: 1rem;
+  }
+
+  .paymentMethodIconContainer {
+    width: 56px;
+    height: 56px;
+  }
+
+  .paymentMethodIconSvg {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .paymentMethodCard,
+  .continueButton,
+  .backButton,
+  .loadingSpinner,
+  .retryButton {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .paymentMethodCard {
+    border-width: 3px;
+  }
+
+  .paymentMethodCard.selected {
+    border-width: 3px;
+  }
+
+  .continueButton {
+    border: 2px solid transparent;
+  }
+}
+
+/* Dark Mode Support (if needed in future) */
+@media (prefers-color-scheme: dark) {
+  .paymentMethodSelection {
+    background: #1a1a1a;
+    color: #ffffff;
+  }
+
+  .title {
+    color: #ffffff;
+  }
+
+  .subtitle {
+    color: #cccccc;
+  }
+
+  .orderSummary {
+    background: #2a2a2a;
+    border-color: #404040;
+  }
+
+  .orderSummaryTitle {
+    color: #ffffff;
+  }
+
+  .orderSummaryRow {
+    color: #cccccc;
+  }
+
+  .orderSummaryValue {
+    color: #ffffff;
+  }
+
+  .paymentMethodCard {
+    background: #2a2a2a;
+    border-color: #404040;
+  }
+
+  .paymentMethodCard:hover:not(.disabled) {
+    border-color: #1976d2;
+  }
+
+  .paymentMethodCard.selected {
+    background: #0d47a1;
+    border-color: #1976d2;
+  }
+
+  .paymentMethodName {
+    color: #ffffff;
+  }
+
+  .paymentMethodDescription {
+    color: #cccccc;
+  }
+
+  .paymentMethodFeature {
+    background: #404040;
+    color: #cccccc;
+  }
+
+  .processingTimeLabel,
+  .feeLabel {
+    color: #cccccc;
+  }
+
+  .radioButton {
+    border-color: #404040;
+  }
+
+  .radioButtonSelected {
+    border-color: #1976d2;
+  }
+
+  .errorMessage {
+    background: #5c1818;
+    border-color: #7f2a2a;
+  }
+
+  .emptyState {
+    background: #2a2a2a;
+    border-color: #404040;
+  }
+
+  .emptyStateTitle {
+    color: #ffffff;
+  }
+
+  .emptyStateMessage {
+    color: #cccccc;
+  }
+}

@@ -1,9 +1,10 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Plus, Trash2, Download, Upload, Search, Edit, Save, X, FileText, Tag, RefreshCcw } from 'lucide-react';
 import { withAuth } from '@/components/auth/withAuth';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 interface SynonymCategory {
   name: string;
@@ -157,7 +158,7 @@ function SynonymManagement() {
       a.download = 'synonyms.txt';
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
+      if (document.body && a.parentNode === document.body) { document.body.removeChild(a); }
       URL.revokeObjectURL(url);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to export synonyms');
@@ -213,7 +214,8 @@ function SynonymManagement() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AdminLayout title="Elasticsearch Synonyms">
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -539,6 +541,7 @@ function SynonymManagement() {
         </div>
       )}
     </div>
+    </AdminLayout>
   );
 }
 

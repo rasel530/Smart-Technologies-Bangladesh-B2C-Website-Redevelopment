@@ -8,6 +8,7 @@ import { CategoryImageUploader } from '@/components/admin/CategoryImageUploader'
 import { CategorySEOEditor } from '@/components/admin/CategorySEOEditor';
 import { Category } from '@/types/category';
 import { withAuth } from '@/components/auth/withAuth';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 /**
  * Admin Category Creation Page
@@ -39,33 +40,7 @@ function NewCategoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/admin/categories"
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Create New Category</h1>
-                <p className="text-sm text-gray-500 mt-1">
-                  Add a new category to your product catalog
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AdminLayout title="New Category" description="Add a new category to your product catalog">
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
             <div className="flex">
@@ -148,8 +123,7 @@ function NewCategoryPage() {
             )}
           </div>
         </div>
-      </div>
-    </div>
+    </AdminLayout>
   );
 }
 

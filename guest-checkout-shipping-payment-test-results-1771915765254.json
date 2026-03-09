@@ -1,0 +1,433 @@
+{
+  "timestamp": "2026-02-24T06:49:22.157Z",
+  "summary": {
+    "total": 44,
+    "passed": 39,
+    "failed": 5,
+    "skipped": 0
+  },
+  "testSuites": [
+    {
+      "name": "1. API Endpoint Testing",
+      "results": [
+        {
+          "description": "POST /api/v1/guest/checkout/session/:sessionId/shipping works with valid sessionId",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 255
+        },
+        {
+          "description": "POST /api/v1/guest/checkout/session/:sessionId/shipping returns 404 for invalid sessionId",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 21
+        },
+        {
+          "description": "POST /api/v1/guest/checkout/session/:sessionId/shipping returns 400 for invalid UUID format",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 11
+        },
+        {
+          "description": "POST /api/v1/guest/checkout/session/:sessionId/shipping requires only { method } in payload",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 101
+        },
+        {
+          "description": "POST /api/v1/guest/checkout/session/:sessionId/shipping validates method field",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 53
+        },
+        {
+          "description": "POST /api/v1/guest/checkout/session/:sessionId/shipping accepts all valid shipping methods",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 312
+        }
+      ],
+      "summary": {
+        "total": 6,
+        "passed": 6,
+        "failed": 0
+      }
+    },
+    {
+      "name": "2. Shipping Method Display Testing",
+      "results": [
+        {
+          "description": "Shipping method STANDARD displays correct cost (৳100)",
+          "passed": false,
+          "failed": true,
+          "skipped": false,
+          "error": "STANDARD shipping should display ৳100: expected truthy value, got false",
+          "duration": 0
+        },
+        {
+          "description": "Shipping method EXPRESS displays correct cost (৳200)",
+          "passed": false,
+          "failed": true,
+          "skipped": false,
+          "error": "EXPRESS shipping should display ৳200: expected truthy value, got false",
+          "duration": 0
+        },
+        {
+          "description": "Shipping method INSIDE_DHAKA displays correct cost (৳60)",
+          "passed": false,
+          "failed": true,
+          "skipped": false,
+          "error": "INSIDE_DHAKA shipping should display ৳60: expected truthy value, got false",
+          "duration": 0
+        },
+        {
+          "description": "Shipping method OUTSIDE_DHAKA displays correct cost (৳120)",
+          "passed": false,
+          "failed": true,
+          "skipped": false,
+          "error": "OUTSIDE_DHAKA shipping should display ৳120: expected truthy value, got false",
+          "duration": 0
+        },
+        {
+          "description": "All 4 shipping methods are displayed in the UI",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 1
+        },
+        {
+          "description": "Shipping costs do NOT show \"Free\" at selection time",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 1
+        }
+      ],
+      "summary": {
+        "total": 6,
+        "passed": 2,
+        "failed": 4
+      }
+    },
+    {
+      "name": "3. Shipping Method Selection and Persistence Testing",
+      "results": [
+        {
+          "description": "User can select STANDARD shipping method",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 66
+        },
+        {
+          "description": "User can select EXPRESS shipping method",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 70
+        },
+        {
+          "description": "User can select INSIDE_DHAKA shipping method",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 94
+        },
+        {
+          "description": "User can select OUTSIDE_DHAKA shipping method",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 63
+        },
+        {
+          "description": "Clicking \"Continue to Payment\" saves the method without 404 error",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 60
+        },
+        {
+          "description": "Shipping method is persisted to backend",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 103
+        },
+        {
+          "description": "Shipping cost is calculated correctly for all methods",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 233
+        }
+      ],
+      "summary": {
+        "total": 7,
+        "passed": 7,
+        "failed": 0
+      }
+    },
+    {
+      "name": "4. Free Shipping Logic Testing",
+      "results": [
+        {
+          "description": "Free shipping is NOT applied at selection time",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 65
+        },
+        {
+          "description": "Free shipping IS applied at order completion for orders >= ৳5,000",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 1
+        },
+        {
+          "description": "Free shipping threshold is set to ৳5,000",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 1
+        },
+        {
+          "description": "Orders below ৳5,000 pay shipping cost",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 0
+        },
+        {
+          "description": "Free shipping logic is only applied at order completion",
+          "passed": false,
+          "failed": true,
+          "skipped": false,
+          "error": "Free shipping logic should NOT be in saveGuestShippingStep: expected falsy value, got async saveGuestShippingStep(req, res) {\r\n    try {\r\n      const { sessionId } = req.params;\r\n      const { method } = req.body;\r\n\r\n      loggerService.info('[saveGuestShippingStep] Saving guest shipping method', {\r\n        sessionId,\r\n        method,\r\n        timestamp: new Date().toISOString()\r\n      });\r\n\r\n      // Validate required fields\r\n      if (!method) {\r\n        return res.status(400).json({\r\n          success: false,\r\n          error: 'Shipping method is required',\r\n          message: 'Shipping method is required',\r\n          messageBn: 'শিপিং পদ্ধতি প্রয়োজন'\r\n        });\r\n      }\r\n\r\n      // Get guest session\r\n      const guestSession = await guestCheckoutService.getGuestSession(sessionId);\r\n\r\n      // Get available shipping methods\r\n      const availableMethods = checkoutService.getShippingMethods();\r\n\r\n      // Validate shipping method exists\r\n      if (!availableMethods[method]) {\r\n        return res.status(400).json({\r\n          success: false,\r\n          error: 'Invalid shipping method',\r\n          message: 'Invalid shipping method',\r\n          messageBn: 'অবৈধ শিপিং পদ্ধতি',\r\n          availableMethods: Object.keys(availableMethods)\r\n        });\r\n      }\r\n\r\n      // Calculate shipping cost based on selected method\r\n      const shippingMethodConfig = availableMethods[method];\r\n      const shippingCost = shippingMethodConfig.cost;\r\n\r\n      // Update guest session with shipping data\r\n      const updatedSession = await prisma.guestSession.update({\r\n        where: { sessionId },\r\n        data: {\r\n          shippingMethod: method,\r\n          currentStep: 'payment',\r\n          metadata: {\r\n            ...guestSession.metadata,\r\n            shipping: {\r\n              method: method,\r\n              cost: shippingCost,\r\n              estimatedDays: shippingMethodConfig.estimatedDays,\r\n              completed: true\r\n            }\r\n          }\r\n        }\r\n      });\r\n\r\n      res.json({\r\n        success: true,\r\n        message: 'Shipping method saved successfully',\r\n        messageBn: 'শিপিং পদ্ধতি সফলভাবে সংরক্ষিত হয়েছে',\r\n        data: {\r\n          sessionId: updatedSession.sessionId,\r\n          shippingMethod: method,\r\n          shippingCost,\r\n          estimatedDays: shippingMethodConfig.estimatedDays,\r\n          currentStep: updatedSession.currentStep\r\n        }\r\n      });\r\n    } catch (error) {\r\n      loggerService.error('Error in saveGuestShippingStep controller', {\r\n        error: error.message,\r\n        stack: error.stack,\r\n        sessionId: req.params.sessionId\r\n      });\r\n\r\n      let statusCode = 500;\r\n      let errorMessage = 'Failed to save shipping method';\r\n      let errorMessageBn = 'শিপিং পদ্ধতি সংরক্ষণ করতে ব্যর্থ হয়েছে';\r\n\r\n      if (error.message === 'Guest session not found') {\r\n        statusCode = 404;\r\n        errorMessage = 'Guest session not found';\r\n        errorMessageBn = 'অতিথি সেশন পাওয়া যায়নি';\r\n      } else if (error.message === 'Guest session has expired') {\r\n        statusCode = 410;\r\n        errorMessage = 'Guest session has expired';\r\n        errorMessageBn = 'অতিথি সেশন মেয়াদোত্তীর্ণ হয়েছে';\r\n      } else if (error.message === 'Guest session has been converted to user') {\r\n        statusCode = 400;\r\n        errorMessage = 'Guest session has been converted to user';\r\n        errorMessageBn = 'অতিথি সেশন ব্যবহারকারীতে রূপান্তরিত হয়েছে';\r\n      }\r\n\r\n      res.status(statusCode).json({\r\n        success: false,\r\n        error: error.message || errorMessage,\r\n        message: errorMessage,\r\n        messageBn: errorMessageBn\r\n      });\r\n    }\r\n  }\r\n\r\n  /**\r\n   * Complete guest checkout\r\n   * @route POST /api/v1/guest/checkout/session/:sessionId/complete\r\n   */\r\n  async completeGuestCheckout(req, res) {\r\n    try {\r\n      const { sessionId } = req.params;\r\n      const { shippingAddress, billingAddress, paymentMethod, paymentDetails, notes, shippingMethod } = req.body;\r\n\r\n      loggerService.info('[completeGuestCheckout] Completing guest checkout', {\r\n        sessionId,\r\n        paymentMethod,\r\n        shippingMethod,\r\n        timestamp: new Date().toISOString()\r\n      });\r\n\r\n      // Get guest session\r\n      const guestSession = await guestCheckoutService.getGuestSession(sessionId);\r\n\r\n      // Validate guest information is complete\r\n      if (!guestSession.firstName || !guestSession.lastName) {\r\n        return res.status(400).json({\r\n          success: false,\r\n          error: 'Guest name is required',\r\n          message: 'Guest name is required',\r\n          messageBn: 'অতিথির নাম প্রয়োজন'\r\n        });\r\n      }\r\n\r\n      if (!guestSession.email && !guestSession.phone) {\r\n        return res.status(400).json({\r\n          success: false,\r\n          error: 'Email or phone is required',\r\n          message: 'Email or phone is required',\r\n          messageBn: 'ইমেইল বা ফোন প্রয়োজন'\r\n        });\r\n      }\r\n\r\n      // Validate shipping address\r\n      if (!shippingAddress) {\r\n        return res.status(400).json({\r\n          success: false,\r\n          error: 'Shipping address is required',\r\n          message: 'Shipping address is required',\r\n          messageBn: 'শিপিং ঠিকানা প্রয়োজন'\r\n        });\r\n      }\r\n\r\n      // Validate payment method\r\n      if (!paymentMethod) {\r\n        return res.status(400).json({\r\n          success: false,\r\n          error: 'Payment method is required',\r\n          message: 'Payment method is required',\r\n          messageBn: 'পেমেন্ট পদ্ধতি প্রয়োজন'\r\n        });\r\n      }\r\n\r\n      // Create address for guest order\r\n      const address = await prisma.address.create({\r\n        data: {\r\n          userId: null, // Guest order\r\n          firstName: shippingAddress.firstName || guestSession.firstName,\r\n          lastName: shippingAddress.lastName || guestSession.lastName,\r\n          phone: shippingAddress.phone || guestSession.phone,\r\n          address: shippingAddress.addressLine1 || shippingAddress.address || '',\r\n          addressLine2: shippingAddress.addressLine2 || '',\r\n          city: shippingAddress.city,\r\n          district: shippingAddress.district,\r\n          division: shippingAddress.division || 'Dhaka',\r\n          postalCode: shippingAddress.postalCode || '',\r\n          upazila: shippingAddress.upazila || '',\r\n          isDefault: false,\r\n          type: 'shipping'\r\n        }\r\n      });\r\n\r\n      // Get cart items\r\n      const cart = await prisma.cart.findUnique({\r\n        where: { id: guestSession.cartId },\r\n        include: {\r\n          items: {\r\n            include: {\r\n              product: true,\r\n              variant: true\r\n            }\r\n          }\r\n        }\r\n      });\r\n\r\n      // Calculate totals\r\n      const totals = await cartService.calculateCartTotals(guestSession.cartId);\r\n\r\n      // Determine shipping method and cost\r\n      const selectedShippingMethod = shippingMethod || guestSession.shippingMethod;\r\n      const availableMethods = checkoutService.getShippingMethods();\r\n      let finalShippingCost = 0;\r\n\r\n      // Apply free shipping threshold (৳5,000)\r\n      if (totals.subtotal",
+          "duration": 0
+        }
+      ],
+      "summary": {
+        "total": 5,
+        "passed": 4,
+        "failed": 1
+      }
+    },
+    {
+      "name": "5. Regression Testing",
+      "results": [
+        {
+          "description": "Guest checkout initialization still works",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 29
+        },
+        {
+          "description": "Guest cart functionality is not broken",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 33
+        },
+        {
+          "description": "Guest address entry still works",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 53
+        },
+        {
+          "description": "Guest payment flow still works",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 104
+        },
+        {
+          "description": "Logged-in user checkout still works (no regression)",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 0
+        },
+        {
+          "description": "Guest session management still works",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 106
+        }
+      ],
+      "summary": {
+        "total": 6,
+        "passed": 6,
+        "failed": 0
+      }
+    },
+    {
+      "name": "6. Error Handling Testing",
+      "results": [
+        {
+          "description": "Invalid shipping method returns proper error",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 88
+        },
+        {
+          "description": "Missing sessionId returns proper error",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 11
+        },
+        {
+          "description": "Empty method field returns proper error",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 46
+        },
+        {
+          "description": "Expired session returns proper error",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 1
+        },
+        {
+          "description": "Network errors are handled gracefully",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 1019
+        },
+        {
+          "description": "Error messages are user-friendly",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 70
+        }
+      ],
+      "summary": {
+        "total": 6,
+        "passed": 6,
+        "failed": 0
+      }
+    },
+    {
+      "name": "7. Code Quality and Implementation Verification",
+      "results": [
+        {
+          "description": "Frontend uses correct API endpoint path",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 1
+        },
+        {
+          "description": "Frontend sends only { method } in payload",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 1
+        },
+        {
+          "description": "saveShippingMethod function exists in useGuestCheckout hook",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 0
+        },
+        {
+          "description": "Guest checkout page uses saveShippingMethod function",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 1
+        },
+        {
+          "description": "Backend route exists for shipping method endpoint",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 1
+        },
+        {
+          "description": "Backend controller has saveGuestShippingStep method",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 0
+        },
+        {
+          "description": "Error handling is implemented in saveShippingMethod",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 0
+        },
+        {
+          "description": "Local state is updated after saving shipping method",
+          "passed": true,
+          "failed": false,
+          "skipped": false,
+          "error": null,
+          "duration": 0
+        }
+      ],
+      "summary": {
+        "total": 8,
+        "passed": 8,
+        "failed": 0
+      }
+    }
+  ]
+}

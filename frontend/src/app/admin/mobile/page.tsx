@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Smartphone, TrendingUp, Activity, Download, RefreshCw, Clock, Wifi, WifiOff } from 'lucide-react';
 import { withAuth } from '@/components/auth/withAuth';
-import { PageWrapper, StatsGrid, Badge, ButtonPrimary } from '@/components/design-system';
+import { AdminLayout } from '@/components/admin/AdminLayout';
+import { StatsGrid, Badge, ButtonPrimary } from '@/components/design-system';
 import { apiClient } from '@/lib/api/client';
 
 interface MobileAnalytics {
@@ -40,24 +41,37 @@ function MobileAnalyticsDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState('7d');
-
+  
   const fetchAnalytics = async () => {
     try {
       setIsLoading(true);
       setError(null);
-
+ 
       // Fetch analytics and performance metrics
       const [analyticsResponse, performanceResponse] = await Promise.all([
         apiClient.get<{ data: MobileAnalytics }>('/admin/mobile/analytics'),
         apiClient.get<{ data: any }>('/admin/mobile/performance'),
       ]);
-
-      const analyticsData = analyticsResponse.data || {};
+ 
+      const analyticsData: Partial<MobileAnalytics> = analyticsResponse.data || {};
       const performanceData = performanceResponse.data || {};
 
       setAnalytics({
-        ...analyticsData,
-        performanceMetrics: performanceData.performanceMetrics || analyticsData.performanceMetrics,
+        totalUsers: analyticsData.totalUsers ?? 0,
+        activeUsers: analyticsData.activeUsers ?? 0,
+        offlineUsers: analyticsData.offlineUsers ?? 0,
+        totalCarts: analyticsData.totalCarts ?? 0,
+        syncedCarts: analyticsData.syncedCarts ?? 0,
+        pendingSync: analyticsData.pendingSync ?? 0,
+        averageSyncTime: analyticsData.averageSyncTime ?? 0,
+        platformBreakdown: analyticsData.platformBreakdown ?? { mobile: 0, desktop: 0, tablet: 0 },
+        recentActivity: analyticsData.recentActivity ?? [],
+        performanceMetrics: performanceData.performanceMetrics ?? analyticsData.performanceMetrics ?? {
+          averageLoadTime: 0,
+          averageSyncTime: 0,
+          successRate: 0,
+          errorRate: 0,
+        },
       });
     } catch (err: any) {
       setError(err.message || 'Failed to fetch mobile analytics');
@@ -65,23 +79,35 @@ function MobileAnalyticsDashboard() {
       setIsLoading(false);
     }
   };
-
+ 
   useEffect(() => {
     fetchAnalytics();
   }, [selectedPeriod]);
-
+ 
   const handleRefresh = () => {
     fetchAnalytics();
   };
-
+ 
   const handleExport = async () => {
     try {
-      const response = await apiClient.get('/admin/mobile/analytics/export', {
-        responseType: 'blob',
+      // Use native fetch for blob download since apiClient doesn't support responseType
+      const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/mobile/analytics/export`, {
+        method: 'GET',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json',
+        },
       });
-      
+
+      if (!response.ok) {
+        throw new Error('Failed to export analytics');
+      }
+
+      const blob = await response.blob();
+
       // Create download link
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `mobile-analytics-${selectedPeriod}.json`);
@@ -92,13 +118,10 @@ function MobileAnalyticsDashboard() {
       setError(err.message || 'Failed to export analytics');
     }
   };
-
+ 
   if (!analytics) {
     return (
-      <PageWrapper
-        title="Mobile Analytics"
-        description="View mobile usage statistics and offline sync data"
-      >
+      <AdminLayout title="Mobile Analytics">
         {isLoading ? (
           <div className="p-8 text-center text-gray-500">Loading analytics...</div>
         ) : error ? (
@@ -106,10 +129,10 @@ function MobileAnalyticsDashboard() {
             <p className="text-red-800">{error}</p>
           </div>
         ) : null}
-      </PageWrapper>
+      </AdminLayout>
     );
   }
-
+ 
   const statsData = [
     {
       title: 'Total Mobile Users',
@@ -136,7 +159,7 @@ function MobileAnalyticsDashboard() {
       color: 'danger' as const,
     },
   ];
-
+ 
   const syncStatsData = [
     {
       title: 'Total Carts',
@@ -163,35 +186,15 @@ function MobileAnalyticsDashboard() {
       color: 'success' as const,
     },
   ];
-
+ 
   return (
-    <PageWrapper
-      title="Mobile Analytics"
-      description="View mobile usage statistics and offline sync data"
-      actions={
-        <div className="flex gap-2">
-          <ButtonPrimary
-            leftIcon={<RefreshCw className="w-5 h-5" />}
-            onClick={handleRefresh}
-            disabled={isLoading}
-          >
-            Refresh
-          </ButtonPrimary>
-          <ButtonPrimary
-            leftIcon={<Download className="w-5 h-5" />}
-            onClick={handleExport}
-          >
-            Export
-          </ButtonPrimary>
-        </div>
-      }
-    >
+    <AdminLayout title="Mobile Analytics">
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
           <p className="text-red-800">{error}</p>
         </div>
       )}
-
+ 
       {/* Period Selector */}
       <div className="bg-white rounded-xl shadow-md p-4 mb-6">
         <div className="flex gap-2">
@@ -212,25 +215,25 @@ function MobileAnalyticsDashboard() {
           ))}
         </div>
       </div>
-
+ 
       {/* User Statistics */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">User Statistics</h3>
         <StatsGrid stats={statsData} columns={4} />
       </div>
-
+ 
       {/* Section Divider */}
       <div className="border-t border-neutral-200 my-8"></div>
-
+ 
       {/* Sync Statistics */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Sync Statistics</h3>
         <StatsGrid stats={syncStatsData} columns={4} />
       </div>
-
+ 
       {/* Section Divider */}
       <div className="border-t border-neutral-200 my-8"></div>
-
+ 
       {/* Platform Breakdown */}
       <div className="bg-white rounded-xl shadow-md p-6 mb-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-6">Platform Breakdown</h3>
@@ -250,7 +253,7 @@ function MobileAnalyticsDashboard() {
                 : 0}% of users
             </div>
           </div>
-
+ 
           <div className="p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-600">Desktop</span>
@@ -265,7 +268,7 @@ function MobileAnalyticsDashboard() {
                 : 0}% of users
             </div>
           </div>
-
+ 
           <div className="p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-600">Tablet</span>
@@ -282,7 +285,7 @@ function MobileAnalyticsDashboard() {
           </div>
         </div>
       </div>
-
+ 
       {/* Performance Metrics */}
       <div className="bg-white rounded-xl shadow-md p-6 mb-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-6">Performance Metrics</h3>
@@ -294,21 +297,21 @@ function MobileAnalyticsDashboard() {
               {(analytics.performanceMetrics?.averageLoadTime ?? 0).toFixed(2)}s
             </p>
           </div>
-
+ 
           <div className="p-4 bg-green-50 rounded-lg">
             <p className="text-sm text-gray-600 mb-1">Average Sync Time</p>
             <p className="text-xl font-bold text-green-900">
               {(analytics.performanceMetrics?.averageSyncTime ?? 0).toFixed(2)}s
             </p>
           </div>
-
+ 
           <div className="p-4 bg-purple-50 rounded-lg">
             <p className="text-sm text-gray-600 mb-1">Success Rate</p>
             <p className="text-xl font-bold text-purple-900">
               {(analytics.performanceMetrics?.successRate ?? 0).toFixed(1)}%
             </p>
           </div>
-
+ 
           <div className="p-4 bg-red-50 rounded-lg">
             <p className="text-sm text-gray-600 mb-1">Error Rate</p>
             <p className="text-xl font-bold text-red-900">
@@ -317,7 +320,7 @@ function MobileAnalyticsDashboard() {
           </div>
         </div>
       </div>
-
+ 
       {/* Recent Activity */}
       <div className="bg-white rounded-xl shadow-md">
         <div className="px-6 py-4 border-b border-gray-200">
@@ -359,10 +362,10 @@ function MobileAnalyticsDashboard() {
           )}
         </div>
       </div>
-    </PageWrapper>
+    </AdminLayout>
   );
 }
-
+ 
 export default withAuth(MobileAnalyticsDashboard, {
   requiredRole: ['admin', 'super_admin'],
   redirectTo: '/login',

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Admin Cart-Wishlist Integration Zustand Store
  *
  * State management for admin cart-wishlist integration features
@@ -644,7 +644,7 @@ export const useAdminCartWishlistStore = create<
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      if (document.body && a.parentNode === document.body) { document.body.removeChild(a); }
       
       set({ isLoading: false });
     } catch (error) {

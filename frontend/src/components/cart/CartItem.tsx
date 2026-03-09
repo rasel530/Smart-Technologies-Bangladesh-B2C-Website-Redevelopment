@@ -188,6 +188,7 @@ const CartItem: React.FC<CartItemProps> = ({
                 src={getProductImage()}
                 alt={productName}
                 fill
+                unoptimized={true}
                 className={cn(
                   "object-cover rounded-md transition-opacity duration-300",
                   isImageLoading ? "opacity-0" : "opacity-100"

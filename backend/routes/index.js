@@ -32,6 +32,10 @@ const comparisonsGuestRoutes = require('./comparisons-guest');
 const adminComparisonsRoutes = require('./admin/comparisons');
 const adminDiscountRoutes = require('./admin/discount');
 const adminWishlistRoutes = require('./adminWishlistRoutes');
+const adminCheckoutRoutes = require('./admin/checkout');
+const adminDashboardRoutes = require('./admin/dashboard');
+const adminProductsRoutes = require('./admin/products');
+const adminUsersRoutes = require('./admin/users');
 // Cart-Wishlist Integration Routes (Phase 6 Milestone 3)
 const cartWishlistIntegrationRoutes = require('./cartWishlist/cartWishlistIntegration.routes');
 const cartWishlistSyncRoutes = require('./cartWishlist/cartWishlistSync.routes');
@@ -40,6 +44,20 @@ const adminCartWishlistRoutes = require('./cartWishlist/adminCartWishlist.routes
 const codRoutes = require('./cod');
 const adminCodRoutes = require('./admin/cod');
 const emiRoutes = require('./emi');
+const checkoutRoutes = require('./checkout');
+const guestCheckoutRoutes = require('./guestCheckout');
+const { router: paymentRoutes } = require('./payments');
+const localPaymentRoutes = require('./localPayment');
+const adminLocalPaymentRoutes = require('./admin/localPayment');
+const adminCourierRoutes = require('./admin/courierServices');
+const adminTrackingRoutes = require('./admin/tracking');
+const adminNotificationsRoutes = require('./admin/notifications');
+const adminInvoicesRoutes = require('./admin/invoices');
+const adminOrdersRoutes = require('./admin/orders');
+const adminDeliveryRoutes = require('./admin/delivery');
+const orderManagementRoutes = require('./orderManagement');
+const orderConfirmationRoutes = require('./orderConfirmation');
+const orderTrackingRoutes = require('./orderTracking');
 
 // Cart Analytics Routes (Phase 6 Milestone 4)
 const cartAnalyticsRoutes = require('./analytics/cart');
@@ -85,6 +103,12 @@ router.use('/v1/cod', codRoutes);
 // EMI routes
 router.use('/v1/emi', emiRoutes);
 
+// Checkout routes
+router.use('/v1/checkout', checkoutRoutes);
+
+// Guest checkout routes
+router.use('/v1/guest', guestCheckoutRoutes);
+
 // Admin COD management routes
 router.use('/v1/admin/cod', adminCodRoutes);
 
@@ -102,6 +126,14 @@ router.use('/v1/admin', adminDiscountRoutes);
 // Admin wishlist management routes
 router.use('/v1/admin/wishlists', adminWishlistRoutes);
 
+// Admin checkout management routes
+router.use('/v1/admin/checkout', adminCheckoutRoutes);
+
+// Admin dashboard, products, and users routes
+router.use('/v1/admin/dashboard', adminDashboardRoutes);
+router.use('/v1/admin/products', adminProductsRoutes);
+router.use('/v1/admin/users', adminUsersRoutes);
+
 // Cart-Wishlist Integration Routes (Phase 6 Milestone 3)
 router.use('/v1', cartWishlistIntegrationRoutes);
 router.use('/v1', cartWishlistSyncRoutes);
@@ -113,6 +145,38 @@ router.use('/v1/analytics/cart', cartAnalyticsRoutes);
 
 // Cart Recovery Routes (Phase 6 Milestone 4 - Task 3)
 router.use('/v1/cart', cartRecoveryRoutes);
+
+// Payment Routes (Phase 7 Milestone 2 - Payment Gateway Integration)
+router.use('/v1/payments', paymentRoutes);
+
+// Local Payment Routes (Phase 7 Milestone 2 - Local Payment Methods)
+router.use('/v1/local-payment', localPaymentRoutes);
+
+// Admin Local Payment Routes (Phase 7 Milestone 2 - Admin Local Payment Management)
+router.use('/v1/admin/local-payment', adminLocalPaymentRoutes);
+
+// Admin Courier Service Routes
+router.use('/v1/admin/courier-services', adminCourierRoutes);
+
+// Admin Notifications Routes
+router.use('/v1/admin/notifications', adminNotificationsRoutes);
+
+// Admin Invoices Routes
+router.use('/v1/admin/invoices', adminInvoicesRoutes);
+
+// Admin Orders Routes
+router.use('/v1/admin/orders', adminOrdersRoutes);
+
+// Admin Delivery Routes
+router.use('/v1/admin/delivery', adminDeliveryRoutes);
+
+// Admin Tracking Routes
+router.use('/v1/admin/tracking', adminTrackingRoutes);
+
+// Order Management Routes (Phase 7 Milestone 3 - Order Processing)
+router.use('/v1/orders', orderManagementRoutes);
+router.use('/v1/orders', orderConfirmationRoutes);
+router.use('/v1/orders', orderTrackingRoutes);
 
 // Product comparison routes
 router.use('/v1/comparisons', comparisonsRoutes);
@@ -147,7 +211,52 @@ router.get('/', (req, res) => {
         roles: '/api/v1/roles',
         corporate: '/api/v1/corporate',
         cod: '/api/v1/cod',
-        emi: '/api/v1/emi'
+        emi: '/api/v1/emi',
+        payments: '/api/v1/payments',
+        localPayment: '/api/v1/local-payment',
+        orderManagement: {
+          modifications: '/api/v1/orders/:id/modifications',
+          cancellations: '/api/v1/orders/:id/cancellations',
+          fulfillments: '/api/v1/orders/:id/fulfillments',
+          trackingEvents: '/api/v1/orders/:id/tracking-events',
+          trackingTimeline: '/api/v1/orders/:id/tracking-timeline',
+          notes: '/api/v1/orders/:id/notes',
+          statusHistory: '/api/v1/orders/:id/status-history',
+          history: '/api/v1/orders/history',
+          courierServices: '/api/v1/admin/courier-services',
+          reports: '/api/v1/admin/orders/reports',
+          analytics: '/api/v1/admin/orders/analytics',
+          bulkStatus: '/api/v1/admin/orders/bulk/status',
+          bulkCancel: '/api/v1/admin/orders/bulk/cancel',
+          bulkExport: '/api/v1/admin/orders/bulk/export'
+        },
+        orderConfirmation: {
+          confirmation: '/api/v1/orders/:id/confirmation',
+          confirmationView: '/api/v1/orders/:id/confirmation/view',
+          sendNotification: '/api/v1/orders/:id/notifications/send',
+          notifications: '/api/v1/orders/:id/notifications',
+          adminNotifications: '/api/v1/admin/notifications',
+          resendNotification: '/api/v1/admin/notifications/:id/resend',
+          notificationStats: '/api/v1/admin/notifications/stats',
+          generateInvoice: '/api/v1/orders/:id/invoices/generate',
+          invoices: '/api/v1/orders/:id/invoices',
+          downloadInvoice: '/api/v1/orders/:id/invoices/:invoiceId/download',
+          adminInvoices: '/api/v1/admin/invoices',
+          adminInvoicesStats: '/api/v1/admin/invoices/stats',
+          resendInvoice: '/api/v1/admin/invoices/:invoiceId/resend',
+          deleteInvoice: '/api/v1/admin/invoices/:invoiceId',
+          bulkResendInvoices: '/api/v1/admin/invoices/bulk-resend',
+          bulkDeleteInvoices: '/api/v1/admin/invoices/bulk-delete',
+          bulkEmailInvoices: '/api/v1/admin/invoices/bulk-email',
+          createShare: '/api/v1/orders/:id/share',
+          accessShare: '/api/v1/orders/share/:token',
+          shares: '/api/v1/orders/:id/shares',
+          updateShare: '/api/v1/orders/:id/shares/:shareId',
+          deleteShare: '/api/v1/orders/:id/shares/:shareId',
+          updateTracking: '/api/v1/orders/:id/track',
+          getTracking: '/api/v1/orders/:id/track',
+          syncCourier: '/api/v1/admin/courier/:courierServiceId/sync'
+        }
       },
       rbac: {
         roles: '/api/rbac/roles',
@@ -160,7 +269,32 @@ router.get('/', (req, res) => {
       admin: {
         elasticsearch: '/api/v1/admin/elasticsearch',
         comparisons: '/api/v1/admin/comparisons',
-        cod: '/api/v1/admin/cod'
+        cod: '/api/v1/admin/cod',
+        payments: '/api/v1/admin/payments',
+        gateways: '/api/v1/admin/gateways',
+        localPayment: '/api/v1/admin/local-payment',
+        notifications: '/api/v1/admin/notifications',
+        notificationsStats: '/api/v1/admin/notifications/stats',
+        resendNotification: '/api/v1/admin/notifications/:id/resend',
+        bulkResendNotifications: '/api/v1/admin/notifications/bulk-resend',
+        bulkDeleteNotifications: '/api/v1/admin/notifications/bulk-delete',
+        invoices: '/api/v1/admin/invoices',
+        invoicesStats: '/api/v1/admin/invoices/stats',
+        resendInvoice: '/api/v1/admin/invoices/:invoiceId/resend',
+        deleteInvoice: '/api/v1/admin/invoices/:invoiceId',
+        bulkResendInvoices: '/api/v1/admin/invoices/bulk-resend',
+        bulkDeleteInvoices: '/api/v1/admin/invoices/bulk-delete',
+        bulkEmailInvoices: '/api/v1/admin/invoices/bulk-email',
+        orders: '/api/v1/admin/orders',
+        ordersSharing: '/api/v1/admin/orders/sharing',
+        ordersSharingStats: '/api/v1/admin/orders/sharing/stats',
+        ordersSharingDisable: '/api/v1/admin/orders/sharing/:shareId/disable',
+        ordersSharingDelete: '/api/v1/admin/orders/sharing/:shareId',
+        ordersSharingBulkDisable: '/api/v1/admin/orders/sharing/bulk-disable',
+        ordersSharingBulkDelete: '/api/v1/admin/orders/sharing/bulk-delete',
+        delivery: {
+          performance: '/api/v1/admin/delivery/performance'
+        }
       },
       comparisons: {
         comparisons: '/api/v1/comparisons',

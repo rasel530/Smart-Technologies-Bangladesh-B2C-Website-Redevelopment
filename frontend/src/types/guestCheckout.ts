@@ -5,6 +5,16 @@
  * including guest session, information, order tracking, cart merging, and account creation.
  */
 
+// Import types from existing modules for reference
+import type { EmiPlan, EmiDetails } from './emi';
+import type { CodValidationResult } from './cod';
+import type { LocalPaymentMethod, PaymentFeeResult } from './localPayment';
+
+// Re-export for convenience
+export type { EmiPlan, EmiDetails } from './emi';
+export type { CodValidationResult } from './cod';
+export type { LocalPaymentMethod, PaymentFeeResult } from './localPayment';
+
 /**
  * Guest Session Type
  * Tracks guest checkout session state
@@ -48,6 +58,7 @@ export interface GuestCheckoutData {
   guestInfo: GuestInfo;
   shippingAddress: GuestShippingAddress;
   billingAddress: GuestBillingAddress;
+  shippingMethod?: string;
   paymentMethod: string;
   paymentDetails?: GuestPaymentDetails;
   notes?: string;
@@ -110,6 +121,7 @@ export interface GuestOrder {
   status: string;
   subtotal: number;
   shippingCost: number;
+  shippingMethod?: string;
   tax: number;
   discount: number;
   total: number;
@@ -306,9 +318,9 @@ export interface GuestAccountCreationResponse {
 
 /**
  * Guest Checkout Step Type
- * Defines 4-step guest checkout process
+ * Defines 5-step guest checkout process including shipping
  */
-export type GuestCheckoutStep = 'info' | 'address' | 'payment' | 'review';
+export type GuestCheckoutStep = 'info' | 'address' | 'shipping' | 'payment' | 'review';
 
 /**
  * Guest Checkout Progress Type
@@ -370,7 +382,12 @@ export interface ValidateGuestCheckoutStepRequest {
 
 export interface CompleteGuestCheckoutRequest {
   sessionId: string;
-  data: GuestCheckoutData;
+  guestInfo?: GuestInfo;
+  shippingAddress?: GuestShippingAddress;
+  billingAddress?: GuestBillingAddress;
+  shippingMethod?: string;
+  paymentMethod?: string;
+  paymentDetails?: GuestPaymentDetails;
 }
 
 export interface CreateGuestOrderRequest {
@@ -480,4 +497,109 @@ export interface GuestAccountCreationProps {
   className?: string;
   guestId?: string;
   guestCartId?: string;
+}
+
+/**
+ * Guest Checkout Security Type
+ */
+export interface GuestCheckoutSecurity {
+  isSecure: boolean;
+  isHttps: boolean;
+  sslCertificate: {
+    valid: boolean;
+    issuer: string;
+    expiresAt: string;
+  };
+  sessionTimeout: number; // in minutes
+  sessionExpiresAt: string; // ISO 8601 timestamp
+  warnings: GuestSecurityWarning[];
+  badges: GuestSecurityBadge[];
+  compliance: GuestComplianceInfo;
+}
+
+/**
+ * Guest Security Warning Type
+ */
+export interface GuestSecurityWarning {
+  type: 'session_timeout' | 'insecure_connection' | 'suspicious_activity' | 'other';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  message: string;
+  messageBn: string;
+  timestamp: string; // ISO 8601 timestamp
+  dismissible: boolean;
+  dismissed: boolean;
+}
+
+/**
+ * Guest Security Badge Type
+ */
+export interface GuestSecurityBadge {
+  type: 'ssl' | 'pci_dss' | 'data_protection' | 'payment_security' | 'trust';
+  label: string;
+  labelBn: string;
+  icon: string;
+  description: string;
+  descriptionBn: string;
+  verified: boolean;
+  verifiedAt?: string;
+}
+
+/**
+ * Guest Compliance Info Type
+ */
+export interface GuestComplianceInfo {
+  pciDss: {
+    compliant: boolean;
+    version: string;
+    lastAudit: string;
+  };
+  gdpr: {
+    compliant: boolean;
+    consentRequired: boolean;
+  };
+  dataProtection: {
+    compliant: boolean;
+    encryptionLevel: string;
+  };
+}
+
+/**
+ * Guest Payment Validation Result Type
+ */
+export interface GuestPaymentValidationResult {
+  isValid: boolean;
+  method: string;
+  details?: {
+    emiDetails?: EmiDetails;
+    codDetails?: CodValidationResult;
+    localPaymentDetails?: LocalPaymentMethod;
+  };
+  errors: string[];
+  warnings: string[];
+  canProceed: boolean;
+}
+
+/**
+ * Payment Summary Details Type
+ */
+export interface PaymentSummaryDetails {
+  type: "card" | "cod" | "emi" | "local";
+  method?: string;
+  details?: {
+    emiDetails?: EmiDetails;
+    codDetails?: {
+      codFee: number;
+      deliveryDays: number;
+      requiresVerification: {
+        phone: boolean;
+        address: boolean;
+      };
+    };
+    localPaymentDetails?: {
+      method: LocalPaymentMethod;
+      paymentFee: number;
+      totalAmount: number;
+      phoneNumber: string;
+    };
+  };
 }

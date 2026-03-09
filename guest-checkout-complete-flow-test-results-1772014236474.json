@@ -1,0 +1,77 @@
+{
+  "testEnvironment": {
+    "timestamp": "2026-02-25T10:10:36.252Z",
+    "os": "win32",
+    "nodeVersion": "v20.19.6",
+    "apiBaseUrl": "http://localhost:3001/api/v1",
+    "frontendUrl": "http://localhost:3000"
+  },
+  "testCases": [
+    {
+      "name": "Test Case 1: Add Item to Cart as Guest",
+      "startTime": "2026-02-25T10:10:36.406Z",
+      "steps": [
+        {
+          "name": "Fetching products list",
+          "details": null,
+          "passed": true,
+          "timestamp": "2026-02-25T10:10:36.406Z"
+        }
+      ],
+      "passed": false,
+      "error": "Failed to fetch products: 404",
+      "duration": 18
+    },
+    {
+      "name": "Test Case 2: Check Cart State",
+      "startTime": "2026-02-25T10:10:36.424Z",
+      "steps": [
+        {
+          "name": "Retrieving cart state from backend",
+          "details": {},
+          "passed": true,
+          "timestamp": "2026-02-25T10:10:36.425Z"
+        }
+      ],
+      "passed": false,
+      "error": "Failed to retrieve cart: 404",
+      "duration": 11
+    },
+    {
+      "name": "Test Case 3: Guest Checkout Initialization",
+      "startTime": "2026-02-25T10:10:36.435Z",
+      "steps": [
+        {
+          "name": "Initializing guest checkout",
+          "details": {},
+          "passed": true,
+          "timestamp": "2026-02-25T10:10:36.436Z"
+        }
+      ],
+      "passed": false,
+      "error": "Guest checkout initialization failed: 404 - {\"error\":\"Route not found\",\"message\":\"The requested route POST /guest/checkout/initiate was not found\",\"messageBn\":\"অনুরোধকৃত রুট POST /guest/checkout/initiate পাওয়া যায়নি\",\"path\":\"/guest/checkout/initiate\",\"method\":\"POST\",\"timestamp\":\"2026-02-25T10:10:36.452Z\",\"availableEndpoints\":{\"auth\":\"/api/v1/auth\",\"users\":\"/api/v1/users\",\"profile\":\"/api/v1/profile\",\"oauth\":\"/api/v1/oauth\",\"products\":\"/api/v1/products\",\"categories\":\"/api/v1/categories\",\"brands\":\"/api/v1/brands\",\"orders\":\"/api/v1/orders\",\"cart\":\"/api/v1/cart\",\"wishlist\":\"/api/v1/wishlist\",\"reviews\":\"/api/v1/reviews\",\"coupons\":\"/api/v1/coupons\",\"user\":\"/api/v1/user\",\"sessions\":\"/api/v1/sessions\",\"rbac\":{\"roles\":\"/api/v1/rbac/roles\",\"permissions\":\"/api/v1/rbac/permissions\",\"rolePermissions\":\"/api/v1/rbac/roles/:roleId/permissions\",\"userRoles\":\"/api/v1/rbac/users/:userId/roles\",\"escalation\":\"/api/v1/rbac/role-escalation-requests\",\"auth\":\"/api/v1/rbac/auth\"},\"search\":{\"products\":\"/api/search/products\",\"autocomplete\":\"/api/search/autocomplete\",\"suggestions\":\"/api/search/suggestions\",\"popular\":\"/api/search/popular\"},\"adminSearch\":{\"analytics\":\"/api/admin/search/analytics\",\"popular\":\"/api/admin/search/popular\",\"performance\":\"/api/admin/search/performance\"},\"corporate\":\"/api/v1/corporate\",\"productImages\":{\"upload\":\"/api/v1/products/:id/images\",\"list\":\"/api/v1/products/:id/images\",\"update\":\"/api/v1/images/:id\",\"reorder\":\"/api/v1/products/:id/images/reorder\",\"delete\":\"/api/v1/images/:id\",\"setPrimary\":\"/api/v1/images/:id/primary\",\"versions\":\"/api/v1/images/:id/versions\"},\"adminProductImages\":{\"statistics\":\"/api/v1/admin/products/:productId/images/statistics\",\"quota\":\"/api/v1/admin/products/:productId/images/quota\",\"bulkUpdate\":\"/api/v1/admin/images/bulk-update\",\"bulkDelete\":\"/api/v1/admin/images/bulk-delete\",\"queue\":\"/api/v1/admin/products/:productId/images/queue\",\"queueCancel\":\"/api/v1/admin/products/:productId/images/queue/cancel\",\"queueRetry\":\"/api/v1/admin/products/:productId/images/queue/retry\",\"overallStatistics\":\"/api/v1/admin/products/images/statistics\",\"cdnStatus\":\"/api/v1/admin/products/:productId/images/cdn-status\",\"cdnSync\":\"/api/v1/admin/products/:productId/images/cdn-sync\",\"optimizationSuggestions\":\"/api/v1/admin/products/:productId/images/optimization-suggestions\"},\"health\":\"/api/v1/health\",\"docs\":\"/api-docs\",\"mobile\":{\"syncOffline\":\"/api/v1/mobile/cart/sync-offline\",\"syncStatus\":\"/api/v1/mobile/cart/sync-status/:userId\",\"cartSummary\":\"/api/v1/mobile/cart/summary/:userId\",\"cartItems\":\"/api/v1/mobile/cart/items/:userId\",\"subscribeSms\":\"/api/v1/mobile/cart/subscribe-sms\",\"unsubscribeSms\":\"/api/v1/mobile/cart/unsubscribe-sms\",\"smsStatus\":\"/api/v1/mobile/cart/sms-status/:userId\"}}}",
+      "duration": 19
+    },
+    {
+      "name": "Test Case 4: Complete Guest Checkout Flow",
+      "startTime": "2026-02-25T10:10:36.454Z",
+      "steps": [
+        {
+          "name": "Saving guest information",
+          "details": null,
+          "passed": true,
+          "timestamp": "2026-02-25T10:10:36.455Z"
+        }
+      ],
+      "passed": false,
+      "error": "Failed to save guest info: 404",
+      "duration": 19
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "passed": 0,
+    "failed": 4,
+    "warnings": []
+  }
+}

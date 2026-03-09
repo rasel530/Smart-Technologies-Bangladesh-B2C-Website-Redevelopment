@@ -23,7 +23,7 @@ class AccountDeletionService {
   async requestAccountDeletion(userId, reason = null) {
     try {
       // Check if there's already a pending deletion request
-      const existingRequest = await this.prisma.accountDeletionRequests.findFirst({
+      const existingRequest = await this.prisma.account_deletion_requests.findFirst({
         where: {
           userId,
           status: 'pending'
@@ -35,7 +35,7 @@ class AccountDeletionService {
       }
 
       // Check if user has active orders
-      const user = await this.prisma.user.findUnique({
+      const user = await this.prisma.users.findUnique({
         where: { id: userId },
         include: {
           orders: {
@@ -62,7 +62,7 @@ class AccountDeletionService {
       const scheduledDeletionDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
       // Create deletion request
-      const deletionRequest = await this.prisma.accountDeletionRequests.create({
+      const deletionRequest = await this.prisma.account_deletion_requests.create({
         data: {
           userId,
           deletionToken,
@@ -74,7 +74,7 @@ class AccountDeletionService {
       });
 
       // Update user account status
-      await this.prisma.user.update({
+      await this.prisma.users.update({
         where: { id: userId },
         data: {
           accountStatus: 'pending_deletion',
@@ -115,7 +115,7 @@ class AccountDeletionService {
   async confirmAccountDeletion(userId, deletionToken) {
     try {
       // Find deletion request
-      const deletionRequest = await this.prisma.accountDeletionRequests.findUnique({
+      const deletionRequest = await this.prisma.account_deletion_requests.findUnique({
         where: { deletionToken }
       });
 
@@ -139,7 +139,7 @@ class AccountDeletionService {
       }
 
       // Update deletion request status
-      await this.prisma.accountDeletionRequests.update({
+      await this.prisma.account_deletion_requests.update({
         where: { id: deletionRequest.id },
         data: {
           status: 'confirmed',
@@ -148,7 +148,7 @@ class AccountDeletionService {
       });
 
       // Update user account status
-      await this.prisma.user.update({
+      await this.prisma.users.update({
         where: { id: userId },
         data: {
           accountStatus: 'deleted',
@@ -159,52 +159,52 @@ class AccountDeletionService {
 
       // Clean up related data (cascade delete handled by database)
       // Delete user sessions
-      await this.prisma.userSession.deleteMany({
+      await this.prisma.user_sessions.deleteMany({
         where: { userId }
       });
 
       // Delete user preferences
-      await this.prisma.userPreferences.deleteMany({
+      await this.prisma.user_preferences.deleteMany({
         where: { userId }
       });
 
       // Delete addresses
-      await this.prisma.address.deleteMany({
+      await this.prisma.addresses.deleteMany({
         where: { userId }
       });
 
       // Delete cart
-      await this.prisma.cart.deleteMany({
+      await this.prisma.carts.deleteMany({
         where: { userId }
       });
 
       // Delete wishlist
-      await this.prisma.wishlist.deleteMany({
+      await this.prisma.wishlists.deleteMany({
         where: { userId }
       });
 
       // Delete email verification tokens
-      await this.prisma.emailVerificationToken.deleteMany({
+      await this.prisma.email_verification_tokens.deleteMany({
         where: { userId }
       });
 
       // Delete phone OTPs
-      await this.prisma.phoneOTP.deleteMany({
+      await this.prisma.phone_otps.deleteMany({
         where: { userId }
       });
 
       // Delete password history
-      await this.prisma.passwordHistory.deleteMany({
+      await this.prisma.password_histories.deleteMany({
         where: { userId }
       });
 
       // Delete social accounts
-      await this.prisma.userSocialAccount.deleteMany({
+      await this.prisma.user_social_accounts.deleteMany({
         where: { userId }
       });
 
       // Delete data exports
-      await this.prisma.userDataExports.deleteMany({
+      await this.prisma.user_data_exports.deleteMany({
         where: { userId }
       });
 
@@ -230,7 +230,7 @@ class AccountDeletionService {
   async cancelAccountDeletion(userId) {
     try {
       // Find pending deletion request
-      const deletionRequest = await this.prisma.accountDeletionRequests.findFirst({
+      const deletionRequest = await this.prisma.account_deletion_requests.findFirst({
         where: {
           userId,
           status: 'pending'
@@ -242,7 +242,7 @@ class AccountDeletionService {
       }
 
       // Update deletion request status
-      await this.prisma.accountDeletionRequests.update({
+      await this.prisma.account_deletion_requests.update({
         where: { id: deletionRequest.id },
         data: {
           status: 'cancelled'
@@ -250,7 +250,7 @@ class AccountDeletionService {
       });
 
       // Update user account status
-      await this.prisma.user.update({
+      await this.prisma.users.update({
         where: { id: userId },
         data: {
           accountStatus: 'active',
@@ -281,7 +281,7 @@ class AccountDeletionService {
     console.log('[DEBUG] getDeletionStatus - Entry point with userId:', userId);
     try {
       console.log('[DEBUG] getDeletionStatus - Executing Prisma query to find user');
-      const user = await this.prisma.user.findUnique({
+      const user = await this.prisma.users.findUnique({
         where: { id: userId },
         select: {
           id: true,
@@ -377,7 +377,7 @@ class AccountDeletionService {
   async processExpiredDeletions() {
     try {
       // Find confirmed deletion requests that haven't been completed
-      const pendingDeletions = await this.prisma.accountDeletionRequests.findMany({
+      const pendingDeletions = await this.prisma.account_deletion_requests.findMany({
         where: {
           status: 'confirmed',
           completedAt: null
@@ -386,7 +386,7 @@ class AccountDeletionService {
 
       for (const deletion of pendingDeletions) {
         // Check if user still exists and is in pending_deletion status
-        const user = await this.prisma.user.findUnique({
+        const user = await this.prisma.users.findUnique({
           where: { id: deletion.userId }
         });
 
@@ -396,7 +396,7 @@ class AccountDeletionService {
         }
 
         // Mark deletion request as completed
-        await this.prisma.accountDeletionRequests.update({
+        await this.prisma.account_deletion_requests.update({
           where: { id: deletion.id },
           data: {
             status: 'completed',
@@ -421,7 +421,7 @@ class AccountDeletionService {
       // const anonymizedEmail = `deleted_${userId}@deleted.local`; // REMOVED: No longer modify email
       // const anonymizedPhone = `deleted_${userId}`; // REMOVED: No longer modify phone
 
-      await this.prisma.user.update({
+      await this.prisma.users.update({
         where: { id: userId },
         data: {
           // email: anonymizedEmail, // REMOVED: No longer modify email
@@ -479,7 +479,7 @@ class AccountDeletionService {
    */
   async cleanupExpiredRequests() {
     try {
-      const expiredRequests = await this.prisma.accountDeletionRequests.findMany({
+      const expiredRequests = await this.prisma.account_deletion_requests.findMany({
         where: {
           expiresAt: {
             lt: new Date()
@@ -489,7 +489,7 @@ class AccountDeletionService {
       });
 
       if (expiredRequests.length > 0) {
-        await this.prisma.accountDeletionRequests.updateMany({
+        await this.prisma.account_deletion_requests.updateMany({
           where: {
             id: {
               in: expiredRequests.map(r => r.id)
@@ -502,7 +502,7 @@ class AccountDeletionService {
 
         // Reset user account status for expired requests
         const userIds = expiredRequests.map(r => r.userId);
-        await this.prisma.user.updateMany({
+        await this.prisma.users.updateMany({
           where: {
             id: {
               in: userIds

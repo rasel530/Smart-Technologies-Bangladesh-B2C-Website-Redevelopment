@@ -1,0 +1,617 @@
+{
+  "timestamp": "2026-02-24T05:43:07.923Z",
+  "summary": {
+    "total": 53,
+    "passed": 34,
+    "failed": 19
+  },
+  "categories": {
+    "backendApiTests": {
+      "total": 8,
+      "passed": 1,
+      "failed": 7,
+      "tests": [
+        {
+          "name": "Guest checkout session initialized",
+          "passed": false,
+          "message": "No sessionId in response",
+          "details": {
+            "data": {
+              "success": true,
+              "message": "Guest checkout initiated successfully",
+              "messageBn": "অতিথি চেকআউট সফলভাবে শুরু হয়েছে",
+              "data": {
+                "sessionId": "402e4253-dd07-4cb7-921a-b974199bbab9",
+                "cartId": "13554cd6-9678-4c02-a6e1-f25c66a1cb92",
+                "expiresAt": "2026-02-25T05:43:05.656Z",
+                "totals": {
+                  "subtotal": 0,
+                  "tax": 0,
+                  "shippingCost": 100,
+                  "total": 100,
+                  "itemCount": 0,
+                  "totalItems": 0
+                }
+              }
+            }
+          },
+          "timestamp": "2026-02-24T05:43:05.687Z"
+        },
+        {
+          "name": "Save STANDARD shipping method",
+          "passed": false,
+          "message": "No guest session available",
+          "details": {},
+          "timestamp": "2026-02-24T05:43:05.689Z"
+        },
+        {
+          "name": "Save EXPRESS shipping method",
+          "passed": false,
+          "message": "No guest session available",
+          "details": {},
+          "timestamp": "2026-02-24T05:43:05.689Z"
+        },
+        {
+          "name": "Save INSIDE_DHAKA shipping method",
+          "passed": false,
+          "message": "No guest session available",
+          "details": {},
+          "timestamp": "2026-02-24T05:43:05.690Z"
+        },
+        {
+          "name": "Save OUTSIDE_DHAKA shipping method",
+          "passed": false,
+          "message": "No guest session available",
+          "details": {},
+          "timestamp": "2026-02-24T05:43:05.690Z"
+        },
+        {
+          "name": "Invalid shipping method returns error",
+          "passed": false,
+          "message": "No guest session available",
+          "details": {},
+          "timestamp": "2026-02-24T05:43:05.690Z"
+        },
+        {
+          "name": "Missing shipping method returns error",
+          "passed": false,
+          "message": "No guest session available",
+          "details": {},
+          "timestamp": "2026-02-24T05:43:05.690Z"
+        },
+        {
+          "name": "Invalid sessionId returns error",
+          "passed": true,
+          "message": "Correctly returns error",
+          "details": {
+            "statusCode": 404,
+            "data": {
+              "success": false,
+              "error": "Guest session not found",
+              "message": "Guest session not found",
+              "messageBn": "অতিথি সেশন পাওয়া যায়নি"
+            }
+          },
+          "timestamp": "2026-02-24T05:43:05.730Z"
+        }
+      ]
+    },
+    "backendControllerTests": {
+      "total": 3,
+      "passed": 0,
+      "failed": 3,
+      "tests": [
+        {
+          "name": "Validate shipping step",
+          "passed": false,
+          "message": "No guest session available",
+          "details": {},
+          "timestamp": "2026-02-24T05:43:05.731Z"
+        },
+        {
+          "name": "Shipping step without method cannot proceed",
+          "passed": false,
+          "message": "Validation failed: 400",
+          "details": {
+            "data": {
+              "success": false,
+              "error": "Validation failed",
+              "message": "Validation failed",
+              "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+              "details": [
+                {
+                  "type": "field",
+                  "msg": "Invalid session ID",
+                  "path": "sessionId",
+                  "location": "body"
+                }
+              ]
+            }
+          },
+          "timestamp": "2026-02-24T05:43:05.823Z"
+        },
+        {
+          "name": "Update checkout step to shipping",
+          "passed": false,
+          "message": "No guest session available",
+          "details": {},
+          "timestamp": "2026-02-24T05:43:05.823Z"
+        }
+      ]
+    },
+    "frontendUiTests": {
+      "total": 29,
+      "passed": 29,
+      "failed": 0,
+      "tests": [
+        {
+          "name": "All 4 shipping methods are displayed",
+          "passed": true,
+          "message": "Shipping method UI displays all methods",
+          "details": {
+            "methods": [
+              "STANDARD",
+              "EXPRESS",
+              "INSIDE_DHAKA",
+              "OUTSIDE_DHAKA"
+            ],
+            "count": 4
+          },
+          "timestamp": "2026-02-24T05:43:05.824Z"
+        },
+        {
+          "name": "STANDARD method is displayed",
+          "passed": true,
+          "message": "STANDARD (Standard Delivery) is shown in UI",
+          "details": {
+            "method": "STANDARD",
+            "name": "Standard Delivery"
+          },
+          "timestamp": "2026-02-24T05:43:05.824Z"
+        },
+        {
+          "name": "EXPRESS method is displayed",
+          "passed": true,
+          "message": "EXPRESS (Express Delivery) is shown in UI",
+          "details": {
+            "method": "EXPRESS",
+            "name": "Express Delivery"
+          },
+          "timestamp": "2026-02-24T05:43:05.825Z"
+        },
+        {
+          "name": "INSIDE_DHAKA method is displayed",
+          "passed": true,
+          "message": "INSIDE_DHAKA (Inside Dhaka) is shown in UI",
+          "details": {
+            "method": "INSIDE_DHAKA",
+            "name": "Inside Dhaka"
+          },
+          "timestamp": "2026-02-24T05:43:05.825Z"
+        },
+        {
+          "name": "OUTSIDE_DHAKA method is displayed",
+          "passed": true,
+          "message": "OUTSIDE_DHAKA (Outside Dhaka) is shown in UI",
+          "details": {
+            "method": "OUTSIDE_DHAKA",
+            "name": "Outside Dhaka"
+          },
+          "timestamp": "2026-02-24T05:43:05.825Z"
+        },
+        {
+          "name": "STANDARD cost is displayed correctly",
+          "passed": true,
+          "message": "STANDARD cost: ৳100",
+          "details": {
+            "method": "STANDARD",
+            "expected": "৳100",
+            "actual": "৳100"
+          },
+          "timestamp": "2026-02-24T05:43:05.826Z"
+        },
+        {
+          "name": "EXPRESS cost is displayed correctly",
+          "passed": true,
+          "message": "EXPRESS cost: ৳200",
+          "details": {
+            "method": "EXPRESS",
+            "expected": "৳200",
+            "actual": "৳200"
+          },
+          "timestamp": "2026-02-24T05:43:05.826Z"
+        },
+        {
+          "name": "INSIDE_DHAKA cost is displayed correctly",
+          "passed": true,
+          "message": "INSIDE_DHAKA cost: ৳60",
+          "details": {
+            "method": "INSIDE_DHAKA",
+            "expected": "৳60",
+            "actual": "৳60"
+          },
+          "timestamp": "2026-02-24T05:43:05.826Z"
+        },
+        {
+          "name": "OUTSIDE_DHAKA cost is displayed correctly",
+          "passed": true,
+          "message": "OUTSIDE_DHAKA cost: ৳120",
+          "details": {
+            "method": "OUTSIDE_DHAKA",
+            "expected": "৳120",
+            "actual": "৳120"
+          },
+          "timestamp": "2026-02-24T05:43:05.826Z"
+        },
+        {
+          "name": "All shipping method costs are correct",
+          "passed": true,
+          "message": "All costs match expected values",
+          "details": {},
+          "timestamp": "2026-02-24T05:43:05.826Z"
+        },
+        {
+          "name": "STANDARD delivery days are displayed",
+          "passed": true,
+          "message": "STANDARD delivery time: 3-5 business days",
+          "details": {
+            "method": "STANDARD",
+            "days": "3-5 business days"
+          },
+          "timestamp": "2026-02-24T05:43:05.827Z"
+        },
+        {
+          "name": "EXPRESS delivery days are displayed",
+          "passed": true,
+          "message": "EXPRESS delivery time: 1-2 business days",
+          "details": {
+            "method": "EXPRESS",
+            "days": "1-2 business days"
+          },
+          "timestamp": "2026-02-24T05:43:05.827Z"
+        },
+        {
+          "name": "INSIDE_DHAKA delivery days are displayed",
+          "passed": true,
+          "message": "INSIDE_DHAKA delivery time: 1-2 business days",
+          "details": {
+            "method": "INSIDE_DHAKA",
+            "days": "1-2 business days"
+          },
+          "timestamp": "2026-02-24T05:43:05.827Z"
+        },
+        {
+          "name": "OUTSIDE_DHAKA delivery days are displayed",
+          "passed": true,
+          "message": "OUTSIDE_DHAKA delivery time: 3-5 business days",
+          "details": {
+            "method": "OUTSIDE_DHAKA",
+            "days": "3-5 business days"
+          },
+          "timestamp": "2026-02-24T05:43:05.827Z"
+        },
+        {
+          "name": "Checkout progress shows 5 steps",
+          "passed": true,
+          "message": "Progress bar displays all 5 checkout steps",
+          "details": {
+            "steps": [
+              "info",
+              "address",
+              "shipping",
+              "payment",
+              "review"
+            ],
+            "count": 5
+          },
+          "timestamp": "2026-02-24T05:43:05.828Z"
+        },
+        {
+          "name": "info step is in progress bar",
+          "passed": true,
+          "message": "info (Info) step is shown",
+          "details": {
+            "step": "info",
+            "label": "Info"
+          },
+          "timestamp": "2026-02-24T05:43:05.828Z"
+        },
+        {
+          "name": "address step is in progress bar",
+          "passed": true,
+          "message": "address (Address) step is shown",
+          "details": {
+            "step": "address",
+            "label": "Address"
+          },
+          "timestamp": "2026-02-24T05:43:05.828Z"
+        },
+        {
+          "name": "shipping step is in progress bar",
+          "passed": true,
+          "message": "shipping (Shipping) step is shown",
+          "details": {
+            "step": "shipping",
+            "label": "Shipping"
+          },
+          "timestamp": "2026-02-24T05:43:05.828Z"
+        },
+        {
+          "name": "payment step is in progress bar",
+          "passed": true,
+          "message": "payment (Payment) step is shown",
+          "details": {
+            "step": "payment",
+            "label": "Payment"
+          },
+          "timestamp": "2026-02-24T05:43:05.828Z"
+        },
+        {
+          "name": "review step is in progress bar",
+          "passed": true,
+          "message": "review (Review) step is shown",
+          "details": {
+            "step": "review",
+            "label": "Review"
+          },
+          "timestamp": "2026-02-24T05:43:05.828Z"
+        },
+        {
+          "name": "Checkout steps are in correct order",
+          "passed": true,
+          "message": "Steps are in correct order",
+          "details": {
+            "order": [
+              "info",
+              "address",
+              "shipping",
+              "payment",
+              "review"
+            ]
+          },
+          "timestamp": "2026-02-24T05:43:05.828Z"
+        },
+        {
+          "name": "Shipping step is in correct position",
+          "passed": true,
+          "message": "Shipping is between address and payment",
+          "details": {
+            "addressIndex": 1,
+            "shippingIndex": 2,
+            "paymentIndex": 3
+          },
+          "timestamp": "2026-02-24T05:43:05.829Z"
+        },
+        {
+          "name": "Selected shipping method is highlighted",
+          "passed": true,
+          "message": "Selected method has visual indicator (blue border and background)",
+          "details": {
+            "highlightStyle": "border-blue-500 bg-blue-50",
+            "indicator": "Radio button shows blue dot"
+          },
+          "timestamp": "2026-02-24T05:43:05.829Z"
+        },
+        {
+          "name": "Unselected shipping methods are not highlighted",
+          "passed": true,
+          "message": "Unselected methods have gray border",
+          "details": {
+            "unhighlightStyle": "border-gray-200 hover:border-gray-300",
+            "indicator": "Radio button is empty"
+          },
+          "timestamp": "2026-02-24T05:43:05.829Z"
+        },
+        {
+          "name": "Review step displays shipping method",
+          "passed": true,
+          "message": "Shipping method is shown in order review",
+          "details": {
+            "section": "Order Review",
+            "field": "Shipping Method"
+          },
+          "timestamp": "2026-02-24T05:43:05.829Z"
+        },
+        {
+          "name": "Review step shows shipping method name",
+          "passed": true,
+          "message": "Method name and delivery time are displayed",
+          "details": {
+            "example": "Standard Delivery (3-5 days)"
+          },
+          "timestamp": "2026-02-24T05:43:05.829Z"
+        },
+        {
+          "name": "Order summary shows shipping cost",
+          "passed": true,
+          "message": "Shipping cost is displayed in order summary",
+          "details": {
+            "field": "Shipping",
+            "condition": "Shown on shipping, payment, and review steps"
+          },
+          "timestamp": "2026-02-24T05:43:05.830Z"
+        },
+        {
+          "name": "Shipping cost is hidden on info and address steps",
+          "passed": true,
+          "message": "Shipping cost is only shown after shipping method is selected",
+          "details": {
+            "hiddenSteps": [
+              "info",
+              "address"
+            ],
+            "shownSteps": [
+              "shipping",
+              "payment",
+              "review"
+            ]
+          },
+          "timestamp": "2026-02-24T05:43:05.830Z"
+        },
+        {
+          "name": "Free shipping is displayed when applicable",
+          "passed": true,
+          "message": "Shows \"Free\" when shipping cost is 0",
+          "details": {
+            "condition": "subtotal >= 5000",
+            "display": "Free / বিনামূল্যে"
+          },
+          "timestamp": "2026-02-24T05:43:05.830Z"
+        }
+      ]
+    },
+    "integrationTests": {
+      "total": 6,
+      "passed": 2,
+      "failed": 4,
+      "tests": [
+        {
+          "name": "Initialize guest checkout",
+          "passed": true,
+          "message": "Guest checkout session created",
+          "details": {},
+          "timestamp": "2026-02-24T05:43:05.903Z"
+        },
+        {
+          "name": "Save guest info",
+          "passed": false,
+          "message": "Guest information saved",
+          "details": {
+            "statusCode": 400
+          },
+          "timestamp": "2026-02-24T05:43:05.940Z"
+        },
+        {
+          "name": "Save shipping method",
+          "passed": false,
+          "message": "Shipping method saved",
+          "details": {
+            "statusCode": 400
+          },
+          "timestamp": "2026-02-24T05:43:05.961Z"
+        },
+        {
+          "name": "Complete guest checkout",
+          "passed": false,
+          "message": "Checkout failed",
+          "details": {
+            "statusCode": 400
+          },
+          "timestamp": "2026-02-24T05:43:05.988Z"
+        },
+        {
+          "name": "Initialize guest checkout for free shipping test",
+          "passed": true,
+          "message": "Guest checkout session created",
+          "details": {},
+          "timestamp": "2026-02-24T05:43:06.108Z"
+        },
+        {
+          "name": "Checkout with free shipping scenario",
+          "passed": false,
+          "message": "Checkout failed",
+          "details": {
+            "statusCode": 400,
+            "note": "Free shipping is applied when subtotal >= 5000"
+          },
+          "timestamp": "2026-02-24T05:43:06.175Z"
+        }
+      ]
+    },
+    "regressionTests": {
+      "total": 7,
+      "passed": 2,
+      "failed": 5,
+      "tests": [
+        {
+          "name": "Guest info step works",
+          "passed": false,
+          "message": "Guest info save failed",
+          "details": {
+            "statusCode": 400
+          },
+          "timestamp": "2026-02-24T05:43:06.354Z"
+        },
+        {
+          "name": "Address step works",
+          "passed": false,
+          "message": "Address step failed",
+          "details": {
+            "statusCode": 400
+          },
+          "timestamp": "2026-02-24T05:43:06.477Z"
+        },
+        {
+          "name": "Payment step works",
+          "passed": false,
+          "message": "Payment step failed",
+          "details": {
+            "statusCode": 400
+          },
+          "timestamp": "2026-02-24T05:43:06.594Z"
+        },
+        {
+          "name": "Review step works",
+          "passed": false,
+          "message": "Review step failed",
+          "details": {
+            "statusCode": 400
+          },
+          "timestamp": "2026-02-24T05:43:06.720Z"
+        },
+        {
+          "name": "Complete checkout works",
+          "passed": false,
+          "message": "Checkout failed",
+          "details": {
+            "statusCode": 400
+          },
+          "timestamp": "2026-02-24T05:43:06.788Z"
+        },
+        {
+          "name": "Logged-in user can login",
+          "passed": true,
+          "message": "User authenticated successfully",
+          "details": {
+            "userId": "2bdca14e-ac33-43ca-b98a-5117c8ecdeb9"
+          },
+          "timestamp": "2026-02-24T05:43:07.794Z"
+        },
+        {
+          "name": "Logged-in user can access cart",
+          "passed": true,
+          "message": "Cart retrieved",
+          "details": {
+            "statusCode": 200
+          },
+          "timestamp": "2026-02-24T05:43:07.920Z"
+        }
+      ]
+    }
+  },
+  "shippingMethods": {
+    "STANDARD": {
+      "cost": 100,
+      "estimatedDays": 3,
+      "name": "Standard Delivery"
+    },
+    "EXPRESS": {
+      "cost": 200,
+      "estimatedDays": 1,
+      "name": "Express Delivery"
+    },
+    "INSIDE_DHAKA": {
+      "cost": 60,
+      "estimatedDays": 2,
+      "name": "Inside Dhaka"
+    },
+    "OUTSIDE_DHAKA": {
+      "cost": 120,
+      "estimatedDays": 4,
+      "name": "Outside Dhaka"
+    }
+  },
+  "freeShippingThreshold": 5000,
+  "errors": [],
+  "warnings": []
+}

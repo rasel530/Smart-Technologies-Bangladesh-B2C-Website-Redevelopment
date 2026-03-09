@@ -47,7 +47,7 @@ const checkCorporateAccess = async (req, res, next) => {
     }
 
     // Check if user is admin or super admin
-    const isAdmin = await prisma.user.findFirst({
+    const isAdmin = await prisma.users.findFirst({
       where: {
         id: userId,
         role: { in: ['admin', 'super_admin'] }
@@ -97,7 +97,7 @@ const checkCorporateAdmin = async (req, res, next) => {
     const userId = req.user.id;
 
     // Check if user is admin or super admin
-    const isAdmin = await prisma.user.findFirst({
+    const isAdmin = await prisma.users.findFirst({
       where: {
         id: userId,
         role: { in: ['admin', 'super_admin'] }
@@ -301,7 +301,7 @@ router.post('/register',
 
       // Check if user exists
       console.log('[CORPORATE REGISTRATION DEBUG] Checking if user exists:', userId);
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: userId }
       });
       console.log('[CORPORATE REGISTRATION DEBUG] User found:', !!user);
@@ -619,7 +619,7 @@ router.post('/:accountId/users', [
     const { userId, role, expiresAt } = req.body;
 
     // Check if user exists
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId }
     });
 
@@ -1271,7 +1271,7 @@ router.get('/:accountId/invoices', [
 
     // Fetch orders (invoices)
     const [orders, total] = await Promise.all([
-      prisma.order.findMany({
+      prisma.orders.findMany({
         where,
         skip: parseInt(skip),
         take: parseInt(limit),
@@ -1286,7 +1286,7 @@ router.get('/:accountId/invoices', [
         },
         orderBy: { createdAt: 'desc' }
       }),
-      prisma.order.count({ where })
+      prisma.orders.count({ where })
     ]);
 
     res.json({
@@ -1317,7 +1317,7 @@ router.get('/:accountId/invoices/:id/download', [
     const { accountId, id: invoiceId } = req.params;
 
     // Check if order exists and belongs to corporate account
-    const order = await prisma.order.findFirst({
+    const order = await prisma.orders.findFirst({
       where: {
         id: invoiceId,
         corporateAccountId: accountId
@@ -1345,7 +1345,7 @@ router.get('/:accountId/invoices/:id/download', [
             }
           }
         },
-        address: true,
+        addresses: true,
         transactions: true
       }
     });
@@ -1420,15 +1420,15 @@ router.get('/:accountId/invoices/:id/download', [
     }
 
     // Shipping address
-    if (order.address) {
+    if (order.addresses) {
       doc.fontSize(12).font('Helvetica-Bold').text('Ship To:', 300, 160);
-      doc.fontSize(10).font('Helvetica').text(order.address.firstName + ' ' + order.address.lastName, 300, 178);
-      doc.text(order.address.addressLine1, 300, 192);
-      if (order.address.addressLine2) {
-        doc.text(order.address.addressLine2, 300, 206);
+      doc.fontSize(10).font('Helvetica').text(order.addresses.firstName + ' ' + order.addresses.lastName, 300, 178);
+      doc.text(order.addresses.addressLine1, 300, 192);
+      if (order.addresses.addressLine2) {
+        doc.text(order.addresses.addressLine2, 300, 206);
       }
-      doc.text(`${order.address.city}, ${order.address.state}`, 300, order.address.addressLine2 ? 220 : 206);
-      doc.text(order.address.postalCode, 300, order.address.addressLine2 ? 234 : 220);
+      doc.text(`${order.addresses.city}, ${order.addresses.state}`, 300, order.addresses.addressLine2 ? 220 : 206);
+      doc.text(order.addresses.postalCode, 300, order.addresses.addressLine2 ? 234 : 220);
     }
 
     // Line separator
@@ -1650,7 +1650,7 @@ router.post('/:accountId/purchase-orders', [
     }
 
     // Create order
-    const order = await prisma.order.create({
+    const order = await prisma.orders.create({
       data: {
         userId,
         addressId: deliveryAddress.addressId,
@@ -1758,7 +1758,7 @@ router.get('/:accountId/purchase-orders', [
 
     // Fetch orders
     const [orders, total] = await Promise.all([
-      prisma.order.findMany({
+      prisma.orders.findMany({
         where,
         skip: parseInt(skip),
         take: parseInt(limit),
@@ -1782,7 +1782,7 @@ router.get('/:accountId/purchase-orders', [
         },
         orderBy: { createdAt: 'desc' }
       }),
-      prisma.order.count({ where })
+      prisma.orders.count({ where })
     ]);
 
     res.json({
@@ -1833,7 +1833,7 @@ router.post('/:accountId/purchase-orders/:id/approve', [
     }
 
     // Check if order exists and belongs to corporate account
-    const order = await prisma.order.findFirst({
+    const order = await prisma.orders.findFirst({
       where: {
         id,
         corporateAccountId: accountId
@@ -1853,7 +1853,7 @@ router.post('/:accountId/purchase-orders/:id/approve', [
     }
 
     // Update order status
-    const updatedOrder = await prisma.order.update({
+    const updatedOrder = await prisma.orders.update({
       where: { id },
       data: {
         status: 'confirmed',
@@ -2023,7 +2023,7 @@ router.get('/:accountId/dashboard', [
     });
 
     // Get recent orders
-    const recentOrders = await prisma.order.findMany({
+    const recentOrders = await prisma.orders.findMany({
       where: {
         corporateAccountId: accountId
       },
@@ -2040,7 +2040,7 @@ router.get('/:accountId/dashboard', [
     });
 
     // Get pending invoices (orders with pending payment)
-    const pendingInvoices = await prisma.order.findMany({
+    const pendingInvoices = await prisma.orders.findMany({
       where: {
         corporateAccountId: accountId,
         paymentStatus: 'pending',
@@ -2056,7 +2056,7 @@ router.get('/:accountId/dashboard', [
     });
 
     // Get total orders count
-    const totalOrders = await prisma.order.count({
+    const totalOrders = await prisma.orders.count({
       where: { corporateAccountId: accountId }
     });
 
@@ -2122,7 +2122,7 @@ router.get('/:accountId/users/:userId/activity', [
     }
 
     // Get orders placed by this user for the corporate account
-    const orders = await prisma.order.findMany({
+    const orders = await prisma.orders.findMany({
       where: {
         userId,
         corporateAccountId: accountId
@@ -2229,7 +2229,7 @@ router.get('/:accountId/purchase-orders/:id', [
   try {
     const { accountId, id } = req.params;
 
-    const order = await prisma.order.findFirst({
+    const order = await prisma.orders.findFirst({
       where: {
         id,
         corporateAccountId: accountId
@@ -2255,7 +2255,7 @@ router.get('/:accountId/purchase-orders/:id', [
             }
           }
         },
-        address: true
+        addresses: true
       }
     });
 
@@ -2287,7 +2287,7 @@ router.get('/:accountId/purchase-orders/:id', [
         deliveredAt: order.deliveredAt,
         user: order.user,
         items: order.items,
-        address: order.address
+        address: order.addresses
       },
       message: 'Purchase order details retrieved successfully'
     });
@@ -2332,7 +2332,7 @@ router.post('/:accountId/purchase-orders/:id/reject', [
     }
 
     // Check if order exists and belongs to corporate account
-    const order = await prisma.order.findFirst({
+    const order = await prisma.orders.findFirst({
       where: {
         id,
         corporateAccountId: accountId
@@ -2354,7 +2354,7 @@ router.post('/:accountId/purchase-orders/:id/reject', [
     }
 
     // Update order status
-    const updatedOrder = await prisma.order.update({
+    const updatedOrder = await prisma.orders.update({
       where: { id },
       data: {
         status: 'cancelled',
@@ -2412,7 +2412,7 @@ router.post('/:accountId/purchase-orders/:id/cancel', [
     const userId = req.user.id;
 
     // Check if order exists and belongs to corporate account
-    const order = await prisma.order.findFirst({
+    const order = await prisma.orders.findFirst({
       where: {
         id,
         corporateAccountId: accountId
@@ -2435,7 +2435,7 @@ router.post('/:accountId/purchase-orders/:id/cancel', [
     }
 
     // Update order status
-    const updatedOrder = await prisma.order.update({
+    const updatedOrder = await prisma.orders.update({
       where: { id },
       data: {
         status: 'cancelled'
@@ -2516,7 +2516,7 @@ router.get('/:accountId/credit-history', [
 
     // Build credit history with user details
     const creditHistory = await Promise.all(approvals.map(async (approval) => {
-      const requestedBy = await prisma.user.findUnique({
+      const requestedBy = await prisma.users.findUnique({
         where: { id: approval.requestedBy },
         select: {
           id: true,
@@ -2526,7 +2526,7 @@ router.get('/:accountId/credit-history', [
         }
       });
 
-      const approvedBy = approval.approvedBy ? await prisma.user.findUnique({
+      const approvedBy = approval.approvedBy ? await prisma.users.findUnique({
         where: { id: approval.approvedBy },
         select: {
           id: true,
@@ -2578,7 +2578,7 @@ router.get('/:accountId/invoices/:id', [
   try {
     const { accountId, id } = req.params;
 
-    const order = await prisma.order.findFirst({
+    const order = await prisma.orders.findFirst({
       where: {
         id,
         corporateAccountId: accountId
@@ -2605,7 +2605,7 @@ router.get('/:accountId/invoices/:id', [
             }
           }
         },
-        address: true,
+        addresses: true,
         transactions: {
           orderBy: { createdAt: 'desc' }
         }
@@ -2632,7 +2632,7 @@ router.get('/:accountId/invoices/:id', [
           unitPrice: item.unitPrice,
           totalPrice: item.totalPrice
         })),
-        address: order.address,
+        address: order.addresses,
         subtotal: order.subtotal,
         tax: order.tax,
         shippingCost: order.shippingCost,

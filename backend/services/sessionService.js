@@ -111,7 +111,7 @@ class SessionService {
             error: redisError.message
           });
           // Fall through to database storage
-          await this.prisma.userSession.create({
+          await this.prisma.user_sessions.create({
             data: {
               userId,
               token: sessionId,
@@ -123,7 +123,7 @@ class SessionService {
         }
       } else {
         // Fallback to database
-        await this.prisma.userSession.create({
+        await this.prisma.user_sessions.create({
           data: {
             userId,
             token: sessionId,
@@ -193,7 +193,7 @@ class SessionService {
         }
       } else {
         // Fallback to database
-        const session = await this.prisma.userSession.findUnique({
+        const session = await this.prisma.user_sessions.findUnique({
           where: { token: sessionId },
           include: { user: true }
         });
@@ -321,7 +321,7 @@ class SessionService {
         await this.redis.setEx(sessionKey, ttl, JSON.stringify(session));
       } else {
         // Update in database
-        await this.prisma.userSession.update({
+        await this.prisma.user_sessions.update({
           where: { token: sessionId },
           data: { expiresAt: newExpiry }
         });
@@ -370,12 +370,12 @@ class SessionService {
         }
       } else {
         // Remove from database
-        const session = await this.prisma.userSession.findUnique({
+        const session = await this.prisma.user_sessions.findUnique({
           where: { token: sessionId }
         });
 
         if (session) {
-          await this.prisma.userSession.delete({
+          await this.prisma.user_sessions.delete({
             where: { id: session.id }
           });
           
@@ -411,7 +411,7 @@ class SessionService {
         }
       } else {
         // Database fallback
-        const sessions = await this.prisma.userSession.findMany({
+        const sessions = await this.prisma.user_sessions.findMany({
           where: { 
             userId,
             ...(exceptSessionId && { token: { not: exceptSessionId } })
@@ -524,7 +524,7 @@ class SessionService {
         }
       } else {
         // Database cleanup
-        const result = await this.prisma.userSession.deleteMany({
+        const result = await this.prisma.user_sessions.deleteMany({
           where: { expiresAt: { lt: new Date() } }
         });
         cleanedCount = result.count;
@@ -573,8 +573,8 @@ class SessionService {
       } else {
         // Database stats
         const [total, active] = await Promise.all([
-          this.prisma.userSession.count(),
-          this.prisma.userSession.count({
+          this.prisma.user_sessions.count(),
+          this.prisma.user_sessions.count({
             where: { expiresAt: { gt: new Date() } }
           })
         ]);
@@ -622,7 +622,7 @@ class SessionService {
         }
       } else {
         // Database fallback - look for remember me token in UserSession table with special prefix
-        const rememberMeSession = await this.prisma.userSession.findUnique({
+        const rememberMeSession = await this.prisma.user_sessions.findUnique({
           where: { token: `remember_me:${token}` },
           include: { user: true }
         });
@@ -685,7 +685,7 @@ class SessionService {
       } else {
         // Database fallback - store in UserSession table with special prefix
         try {
-          await this.prisma.userSession.create({
+          await this.prisma.user_sessions.create({
             data: {
               userId,
               token: `remember_me:${token}`, // Special prefix to identify as remember me token
@@ -762,7 +762,7 @@ class SessionService {
       } else {
         // Clean up from database
         try {
-          await this.prisma.userSession.delete({
+          await this.prisma.user_sessions.delete({
             where: { token: `remember_me:${token}` }
           });
         } catch (dbError) {

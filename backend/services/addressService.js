@@ -426,11 +426,10 @@ const getAddressesForCheckout = async (userId, addressType) => {
     where.type = normalizedType;
   }
 
-  const addresses = await prisma.address.findMany({
+  const addresses = await prisma.addresses.findMany({
     where,
     orderBy: [
-      { isDefault: 'desc' },
-      { createdAt: 'desc' }
+      { isDefault: 'desc' }
     ]
   });
 
@@ -478,14 +477,14 @@ const createAddressForCheckout = async (userId, addressData) => {
       whereClause.type = validatedAddress.type;
     }
 
-    await prisma.address.updateMany({
+    await prisma.addresses.updateMany({
       where: whereClause,
       data: { isDefault: false }
     });
   }
 
   // Create address
-  const newAddress = await prisma.address.create({
+  const newAddress = await prisma.addresses.create({
     data: {
       userId,
       ...validatedAddress,
@@ -508,7 +507,7 @@ const createAddressForCheckout = async (userId, addressData) => {
  */
 const updateAddressForCheckout = async (userId, addressId, addressData) => {
   // Check if address exists and belongs to user
-  const existingAddress = await prisma.address.findUnique({
+  const existingAddress = await prisma.addresses.findUnique({
     where: { id: addressId }
   });
 
@@ -540,7 +539,7 @@ const updateAddressForCheckout = async (userId, addressId, addressData) => {
       whereClause.type = validatedAddress.type;
     }
 
-    await prisma.address.updateMany({
+    await prisma.addresses.updateMany({
       where: whereClause,
       data: { isDefault: false }
     });
@@ -575,7 +574,7 @@ const setDefaultAddress = async (userId, addressId, addressType) => {
   }
 
   // Check if address exists and belongs to user
-  const existingAddress = await prisma.address.findUnique({
+  const existingAddress = await prisma.addresses.findUnique({
     where: { id: addressId }
   });
 
@@ -598,7 +597,7 @@ const setDefaultAddress = async (userId, addressId, addressType) => {
   });
 
   // Set this address as default
-  const updatedAddress = await prisma.address.update({
+  const updatedAddress = await prisma.addresses.update({
     where: { id: addressId },
     data: { isDefault: true }
   });
@@ -613,7 +612,7 @@ const setDefaultAddress = async (userId, addressId, addressType) => {
  * @returns {Promise<object>} Address object
  */
 const getAddressById = async (addressId, userId) => {
-  const address = await prisma.address.findUnique({
+  const address = await prisma.addresses.findUnique({
     where: { id: addressId }
   });
 
@@ -639,7 +638,7 @@ const getAddressById = async (addressId, userId) => {
  */
 const deleteAddress = async (addressId, userId) => {
   // Check if address exists and belongs to user
-  const existingAddress = await prisma.address.findUnique({
+  const existingAddress = await prisma.addresses.findUnique({
     where: { id: addressId },
     include: {
       _count: {
@@ -663,7 +662,7 @@ const deleteAddress = async (addressId, userId) => {
     throw new Error('Cannot delete address that is used in orders');
   }
 
-  await prisma.address.delete({
+  await prisma.addresses.delete({
     where: { id: addressId }
   });
 };
@@ -697,16 +696,15 @@ const getUserAddresses = async (userId, options = {}) => {
   const skip = (page - 1) * limit;
 
   const [addresses, total] = await Promise.all([
-    prisma.address.findMany({
+    prisma.addresses.findMany({
       where,
       skip,
       take: parseInt(limit),
       orderBy: [
-        { isDefault: 'desc' },
-        { createdAt: 'desc' }
+        { isDefault: 'desc' }
       ]
     }),
-    prisma.address.count({ where })
+    prisma.addresses.count({ where })
   ]);
 
   // Add validation status to each address

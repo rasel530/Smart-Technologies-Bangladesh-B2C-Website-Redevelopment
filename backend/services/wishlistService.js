@@ -32,39 +32,39 @@ class WishlistService {
     try {
       const skip = (page - 1) * limit;
 
-      const wishlists = await this.prisma.wishlist.findMany({
-        where: { userId },
+      const wishlists = await this.prisma.wishlists.findMany({
+        where: { user_id: userId },
         include: includeItems ? {
           items: {
             include: {
               product: {
                 include: {
-                  images: {
-                    where: { displayOrder: 0 },
+                  product_images: {
+                    where: { display_order: 0 },
                     take: 1,
-                    select: { id: true, originalUrl: true, optimizedUrl: true, thumbnailUrl: true, altTextEn: true, altTextBn: true }
+                    select: { id: true, original_url: true, optimized_url: true, thumbnail_url: true, alt_text_en: true, alt_text_bn: true }
                   }
                 }
               }
             },
-            orderBy: { addedAt: 'desc' },
+            orderBy: { added_at: 'desc' },
             take: 5 // Limit preview items
           },
           _count: {
-            select: { items: true }
+            select: { wishlist_items: true }
           }
         } : {
           _count: {
-            select: { items: true }
+            select: { wishlist_items: true }
           }
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { created_at: 'desc' },
         skip,
         take: limit
       });
 
-      const total = await this.prisma.wishlist.count({
-        where: { userId }
+      const total = await this.prisma.wishlists.count({
+        where: { user_id: userId }
       });
 
       return {
@@ -90,29 +90,29 @@ class WishlistService {
    */
   async getWishlistById(id, includeItems = true) {
     try {
-      const wishlist = await this.prisma.wishlist.findUnique({
+      const wishlist = await this.prisma.wishlists.findUnique({
         where: { id },
         include: includeItems ? {
           items: {
             include: {
-              product: {
+              products: {
                 include: {
-                  images: {
-                    where: { displayOrder: 0 },
+                  product_images: {
+                    where: { display_order: 0 },
                     take: 1,
-                    select: { id: true, productId: true, originalUrl: true, optimizedUrl: true, thumbnailUrl: true, altTextEn: true, altTextBn: true }
+                    select: { id: true, product_id: true, original_url: true, optimized_url: true, thumbnail_url: true, alt_text_en: true, alt_text_bn: true }
                   }
                 }
               }
             },
-            orderBy: { addedAt: 'desc' }
+            orderBy: { added_at: 'desc' }
           },
           _count: {
-            select: { items: true }
+            select: { wishlist_items: true }
           }
         } : {
           _count: {
-            select: { items: true }
+            select: { wishlist_items: true }
           }
         }
       });
@@ -131,28 +131,28 @@ class WishlistService {
    */
   async getWishlistByShareToken(shareToken) {
     try {
-      const wishlist = await this.prisma.wishlist.findUnique({
+      const wishlist = await this.prisma.wishlists.findUnique({
         where: { shareToken },
         include: {
           items: {
             include: {
-              product: {
+              products: {
                 include: {
-                  images: {
-                    where: { displayOrder: 0 },
+                  product_images: {
+                    where: { display_order: 0 },
                     take: 1,
-                    select: { id: true, originalUrl: true, optimizedUrl: true, thumbnailUrl: true, altTextEn: true, altTextBn: true }
+                    select: { id: true, original_url: true, optimized_url: true, thumbnail_url: true, alt_text_en: true, alt_text_bn: true }
                   }
                 }
               }
             },
-            orderBy: { addedAt: 'desc' }
+            orderBy: { added_at: 'desc' }
           },
           _count: {
-            select: { items: true }
+            select: { wishlist_items: true }
           },
-          user: {
-            select: { id: true, firstName: true, lastName: true }
+          users: {
+            select: { id: true, first_name: true, last_name: true }
           }
         }
       });
@@ -183,7 +183,7 @@ class WishlistService {
 
       // If setting as default, remove default flag from other wishlists
       if (isDefault) {
-        await this.prisma.wishlist.updateMany({
+        await this.prisma.wishlists.updateMany({
           where: {
             userId,
             isDefault: true
@@ -194,12 +194,12 @@ class WishlistService {
         });
       }
 
-      const wishlist = await this.prisma.wishlist.create({
+      const wishlist = await this.prisma.wishlists.create({
         data: {
-          userId,
+          user_id: userId,
           name: name || 'My Wishlist',
-          isDefault: isDefault || false,
-          isPublic: isPublic || false
+          is_default: isDefault || false,
+          is_public: isPublic || false
         }
       });
 
@@ -225,9 +225,9 @@ class WishlistService {
       const { name, isDefault, isPublic } = data;
 
       // Get current wishlist
-      const currentWishlist = await this.prisma.wishlist.findUnique({
+      const currentWishlist = await this.prisma.wishlists.findUnique({
         where: { id },
-        select: { userId: true, isDefault: true }
+        select: { user_id: true, is_default: true }
       });
 
       if (!currentWishlist) {
@@ -235,24 +235,24 @@ class WishlistService {
       }
 
       // If setting as default, remove default flag from other wishlists
-      if (isDefault && !currentWishlist.isDefault) {
-        await this.prisma.wishlist.updateMany({
+      if (isDefault && !currentWishlist.is_default) {
+        await this.prisma.wishlists.updateMany({
           where: {
-            userId: currentWishlist.userId,
-            isDefault: true
+            user_id: currentWishlist.user_id,
+            is_default: true
           },
           data: {
-            isDefault: false
+            is_default: false
           }
         });
       }
 
-      const wishlist = await this.prisma.wishlist.update({
+      const wishlist = await this.prisma.wishlists.update({
         where: { id },
         data: {
           ...(name !== undefined && { name }),
-          ...(isDefault !== undefined && { isDefault }),
-          ...(isPublic !== undefined && { isPublic })
+          ...(isDefault !== undefined && { is_default }),
+          ...(isPublic !== undefined && { is_public })
         }
       });
 
@@ -275,20 +275,20 @@ class WishlistService {
   async deleteWishlist(id) {
     try {
       // Get wishlist before deletion for analytics
-      const wishlist = await this.prisma.wishlist.findUnique({
+      const wishlist = await this.prisma.wishlists.findUnique({
         where: { id },
-        select: { userId: true }
+        select: { user_id: true }
       });
 
       if (!wishlist) {
         throw new Error('Wishlist not found');
       }
 
-      await this.prisma.wishlist.delete({
+      await this.prisma.wishlists.delete({
         where: { id }
       });
 
-      this.logger.info('Wishlist deleted', { wishlistId: id, userId: wishlist.userId });
+      this.logger.info('Wishlist deleted', { wishlistId: id, userId: wishlist.user_id });
       return { success: true };
     } catch (error) {
       this.logger.error('Error deleting wishlist', { id, error: error.message });
@@ -306,7 +306,7 @@ class WishlistService {
   async addItemToWishlist(wishlistId, productId, userId) {
     try {
       // Validate wishlist exists
-      const wishlist = await this.prisma.wishlist.findUnique({
+      const wishlist = await this.prisma.wishlists.findUnique({
         where: { id: wishlistId }
       });
 
@@ -315,7 +315,7 @@ class WishlistService {
       }
 
       // Validate product exists
-      const product = await this.prisma.product.findUnique({
+      const product = await this.prisma.products.findUnique({
         where: { id: productId }
       });
 
@@ -324,7 +324,7 @@ class WishlistService {
       }
 
       // Check if item already exists
-      const existingItem = await this.prisma.wishlistItem.findFirst({
+      const existingItem = await this.prisma.wishlist_items.findFirst({
         where: {
           wishlistId,
           productId
@@ -335,7 +335,7 @@ class WishlistService {
         throw new Error('Product already in wishlist');
       }
 
-      const wishlistItem = await this.prisma.wishlistItem.create({
+      const wishlistItem = await this.prisma.wishlist_items.create({
         data: {
           wishlistId,
           productId
@@ -366,7 +366,7 @@ class WishlistService {
   async removeItemFromWishlist(wishlistId, itemId, userId) {
     try {
       // Check if item exists
-      const item = await this.prisma.wishlistItem.findFirst({
+      const item = await this.prisma.wishlist_items.findFirst({
         where: {
           id: itemId,
           wishlistId
@@ -377,7 +377,7 @@ class WishlistService {
         throw new Error('Wishlist item not found');
       }
 
-      await this.prisma.wishlistItem.delete({
+      await this.prisma.wishlist_items.delete({
         where: { id: itemId }
       });
 
@@ -402,7 +402,7 @@ class WishlistService {
   async moveItemsToCart(wishlistId, itemIds, userId) {
     try {
       // Get wishlist items
-      const items = await this.prisma.wishlistItem.findMany({
+      const items = await this.prisma.wishlist_items.findMany({
         where: {
           id: { in: itemIds },
           wishlistId
@@ -417,13 +417,13 @@ class WishlistService {
       }
 
       // Get or create user cart
-      let cart = await this.prisma.cart.findUnique({
+      let cart = await this.prisma.carts.findUnique({
         where: { userId }
       });
 
       if (!cart) {
         try {
-          cart = await this.prisma.cart.create({
+          cart = await this.prisma.carts.create({
             data: {
               userId,
               subtotal: 0,
@@ -447,7 +447,7 @@ class WishlistService {
       for (const item of items) {
         try {
           // Check if item already in cart
-          const existingCartItem = await this.prisma.cartItem.findFirst({
+          const existingCartItem = await this.prisma.cart_items.findFirst({
             where: {
               cartId: cart.id,
               productId: item.productId
@@ -456,7 +456,7 @@ class WishlistService {
 
           if (existingCartItem) {
             // Update quantity
-            await this.prisma.cartItem.update({
+            await this.prisma.cart_items.update({
               where: { id: existingCartItem.id },
               data: {
                 quantity: existingCartItem.quantity + 1,
@@ -466,7 +466,7 @@ class WishlistService {
           } else {
             // Add to cart
             const price = item.product.salePrice || item.product.regularPrice;
-            await this.prisma.cartItem.create({
+            await this.prisma.cart_items.create({
               data: {
                 cartId: cart.id,
                 productId: item.productId,
@@ -478,7 +478,7 @@ class WishlistService {
           }
 
           // Remove from wishlist
-          await this.prisma.wishlistItem.delete({
+          await this.prisma.wishlist_items.delete({
             where: { id: item.id }
           });
 
@@ -503,7 +503,7 @@ class WishlistService {
       const totals = await cartService.calculateCartTotals(cart.id);
 
       // FIX: Fetch updated cart with full item details
-      const updatedCart = await this.prisma.cart.findUnique({
+      const updatedCart = await this.prisma.carts.findUnique({
         where: { id: cart.id },
         include: {
           items: {
@@ -570,7 +570,7 @@ class WishlistService {
   async generateShareToken(wishlistId) {
     try {
       // Validate wishlist exists
-      const wishlist = await this.prisma.wishlist.findUnique({
+      const wishlist = await this.prisma.wishlists.findUnique({
         where: { id: wishlistId },
         select: { userId: true, isPublic: true }
       });
@@ -583,7 +583,7 @@ class WishlistService {
       const shareToken = crypto.randomBytes(32).toString('hex');
 
       // Update wishlist with share token
-      const updatedWishlist = await this.prisma.wishlist.update({
+      const updatedWishlist = await this.prisma.wishlists.update({
         where: { id: wishlistId },
         data: {
           shareToken,
@@ -614,7 +614,7 @@ class WishlistService {
    */
   async exportWishlistAsCSV(wishlistId) {
     try {
-      const wishlist = await this.prisma.wishlist.findUnique({
+      const wishlist = await this.prisma.wishlists.findUnique({
         where: { id: wishlistId },
         include: {
           items: {
@@ -670,7 +670,7 @@ class WishlistService {
    */
   async exportWishlistAsPDF(wishlistId) {
     try {
-      const wishlist = await this.prisma.wishlist.findUnique({
+      const wishlist = await this.prisma.wishlists.findUnique({
         where: { id: wishlistId },
         include: {
           items: {
@@ -807,7 +807,7 @@ class WishlistService {
       }
 
       // Get analytics events
-      const events = await this.prisma.wishlistAnalytics.findMany({
+      const events = await this.prisma.wishlist_analytics.findMany({
         where,
         orderBy: { createdAt: 'desc' }
       });
@@ -819,13 +819,13 @@ class WishlistService {
       }, {});
 
       // Get total wishlists
-      const totalWishlists = await this.prisma.wishlist.count();
+      const totalWishlists = await this.prisma.wishlists.count();
 
       // Get total wishlist items
-      const totalItems = await this.prisma.wishlistItem.count();
+      const totalItems = await this.prisma.wishlist_items.count();
 
       // Get public wishlists count
-      const publicWishlists = await this.prisma.wishlist.count({
+      const publicWishlists = await this.prisma.wishlists.count({
         where: { isPublic: true }
       });
 
@@ -856,7 +856,7 @@ class WishlistService {
    */
   async trackWishlistEvent(wishlistId, eventType, userId = null, metadata = {}) {
     try {
-      await this.prisma.wishlistAnalytics.create({
+      await this.prisma.wishlist_analytics.create({
         data: {
           wishlistId,
           eventType,
@@ -885,7 +885,7 @@ class WishlistService {
    */
   async verifyOwnership(wishlistId, userId) {
     try {
-      const wishlist = await this.prisma.wishlist.findUnique({
+      const wishlist = await this.prisma.wishlists.findUnique({
         where: { id: wishlistId },
         select: { userId: true }
       });
@@ -908,7 +908,7 @@ class WishlistService {
    */
   async getDefaultWishlist(userId) {
     try {
-      const wishlist = await this.prisma.wishlist.findFirst({
+      const wishlist = await this.prisma.wishlists.findFirst({
         where: {
           userId,
           isDefault: true
@@ -929,7 +929,7 @@ class WishlistService {
             orderBy: { addedAt: 'desc' }
           },
           _count: {
-            select: { items: true }
+            select: { wishlist_items: true }
           }
         }
       });

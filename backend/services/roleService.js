@@ -33,7 +33,7 @@ class RoleService {
    */
   async getRoleHierarchy() {
     try {
-      const hierarchy = await this.prisma.roleHierarchy.findMany({
+      const hierarchy = await this.prisma.role_hierarchies.findMany({
         orderBy: { createdAt: 'asc' }
       });
 
@@ -58,7 +58,7 @@ class RoleService {
    */
   async getAllPermissions() {
     try {
-      const permissions = await this.prisma.permission.findMany({
+      const permissions = await this.prisma.permissions.findMany({
         orderBy: [
           { category: 'asc' },
           { resource: 'asc' },
@@ -78,7 +78,7 @@ class RoleService {
    */
   async getPermissionsByCategory(category) {
     try {
-      const permissions = await this.prisma.permission.findMany({
+      const permissions = await this.prisma.permissions.findMany({
         where: { category },
         orderBy: [
           { resource: 'asc' },
@@ -98,7 +98,7 @@ class RoleService {
    */
   async getRolePermissions(role) {
     try {
-      const rolePermissions = await this.prisma.rolePermission.findMany({
+      const rolePermissions = await this.prisma.role_permissions.findMany({
         where: { roleId: role },
         include: {
           permission: true
@@ -122,7 +122,7 @@ class RoleService {
    */
   async hasPermission(role, permissionName) {
     try {
-      const rolePermission = await this.prisma.rolePermission.findFirst({
+      const rolePermission = await this.prisma.role_permissions.findFirst({
         where: {
           roleId: role,
           permission: {
@@ -143,7 +143,7 @@ class RoleService {
    */
   async getUserPermissions(userId) {
     try {
-      const user = await this.prisma.user.findUnique({
+      const user = await this.prisma.users.findUnique({
         where: { id: userId },
         select: { role: true }
       });
@@ -230,7 +230,7 @@ class RoleService {
    */
   async assignPermissionToRole(roleId, permissionId, grantedBy) {
     try {
-      const existingAssignment = await this.prisma.rolePermission.findUnique({
+      const existingAssignment = await this.prisma.role_permissions.findUnique({
         where: {
           roleId_permissionId: {
             roleId,
@@ -243,7 +243,7 @@ class RoleService {
         throw new Error('Permission already assigned to this role');
       }
 
-      const rolePermission = await this.prisma.rolePermission.create({
+      const rolePermission = await this.prisma.role_permissions.create({
         data: {
           roleId,
           permissionId,
@@ -269,7 +269,7 @@ class RoleService {
    */
   async removePermissionFromRole(roleId, permissionId) {
     try {
-      await this.prisma.rolePermission.delete({
+      await this.prisma.role_permissions.delete({
         where: {
           roleId_permissionId: {
             roleId,
@@ -297,7 +297,7 @@ class RoleService {
     try {
       const assignments = await this.prisma.$transaction(
         permissionIds.map(permissionId =>
-          this.prisma.rolePermission.create({
+          this.prisma.role_permissions.create({
             data: {
               roleId,
               permissionId,
@@ -325,7 +325,7 @@ class RoleService {
    */
   async updateUserRole(userId, newRole, updatedBy) {
     try {
-      const user = await this.prisma.user.findUnique({
+      const user = await this.prisma.users.findUnique({
         where: { id: userId }
       });
 
@@ -333,7 +333,7 @@ class RoleService {
         throw new Error('User not found');
       }
 
-      const updatedUser = await this.prisma.user.update({
+      const updatedUser = await this.prisma.users.update({
         where: { id: userId },
         data: { role: newRole },
         select: {
@@ -364,7 +364,7 @@ class RoleService {
    */
   async getRoleStatistics() {
     try {
-      const roleCounts = await this.prisma.user.groupBy({
+      const roleCounts = await this.prisma.users.groupBy({
         by: ['role'],
         _count: {
           id: true
@@ -383,7 +383,7 @@ class RoleService {
 
       // Get permission counts per role
       for (const role of Object.keys(stats.roles)) {
-        const permissionCount = await this.prisma.rolePermission.count({
+        const permissionCount = await this.prisma.role_permissions.count({
           where: { roleId: role }
         });
         stats.roles[role] = {
@@ -407,7 +407,7 @@ class RoleService {
       const skip = (page - 1) * limit;
 
       const [users, total] = await Promise.all([
-        this.prisma.user.findMany({
+        this.prisma.users.findMany({
           where: { role },
           skip,
           take: limit,
@@ -424,7 +424,7 @@ class RoleService {
           },
           orderBy: { createdAt: 'desc' }
         }),
-        this.prisma.user.count({ where: { role } })
+        this.prisma.users.count({ where: { role } })
       ]);
 
       return {
@@ -487,7 +487,7 @@ class RoleService {
    */
   async getPermissionCategories() {
     try {
-      const categories = await this.prisma.permission.groupBy({
+      const categories = await this.prisma.permissions.groupBy({
         by: ['category'],
         _count: {
           id: true

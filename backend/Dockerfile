@@ -32,10 +32,17 @@ RUN apk del gcc g++ make python3
 # Generate Prisma client
 RUN npx prisma generate
 
+# Copy TypeScript source files
+COPY tsconfig.json ./
+COPY src ./src
+
+# Compile TypeScript to JavaScript
+RUN npm run build
+
 # Remove dev dependencies to keep production image small
 RUN npm prune --production
 
-# Copy application code
+# Copy application code (excluding TypeScript source files)
 COPY . .
 
 # Create non-root user

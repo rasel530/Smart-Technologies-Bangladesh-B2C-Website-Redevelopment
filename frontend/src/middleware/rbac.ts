@@ -43,18 +43,28 @@ export const withAuth = (allowedRoles?: string[]) => {
       }
 
       // Check if user has any of the allowed roles
-      const userRole = (token.role as string)?.toLowerCase().trim();
+      // Handle both string and array formats for role
+      const userRole = token.role;
+      const userRoles = Array.isArray(userRole) 
+        ? userRole.map(r => r?.toLowerCase().trim()).filter(Boolean)
+        : [userRole?.toLowerCase().trim()].filter(Boolean);
+      
       const normalizedAllowedRoles = allowedRoles.map((role) => role.toLowerCase());
 
       if (isDev) {
-        console.log('[RBAC Middleware] Role check:', { userRole, allowedRoles: normalizedAllowedRoles });
+        console.log('[RBAC Middleware] Role check:', { userRoles, allowedRoles: normalizedAllowedRoles });
       }
 
-      if (!userRole || !normalizedAllowedRoles.includes(userRole)) {
+      // Check if user has any of the allowed roles
+      const hasRequiredRole = userRoles.some(role => 
+        role && normalizedAllowedRoles.includes(role)
+      );
+
+      if (!hasRequiredRole) {
         if (isDev) {
           console.log('[RBAC Middleware] User does not have required role');
         }
-        return redirectToUnauthorized(req, 'You do not have the required role to access this page.');
+        return redirectToUnauthorized(req, 'You do not have required role to access this page.');
       }
 
       return NextResponse.next();
@@ -98,7 +108,7 @@ export const withPermission = (requiredPermission: string) => {
           if (isDev) {
             console.log('[RBAC Middleware] User does not have required permission:', requiredPermission);
           }
-          return redirectToUnauthorized(req, `You do not have the required permission: ${requiredPermission}`);
+          return redirectToUnauthorized(req, `You do not have required permission: ${requiredPermission}`);
         }
       } catch (apiError) {
         console.error('[RBAC Middleware] Error checking permission:', apiError);
@@ -149,7 +159,7 @@ export const withMinimumRoleLevel = (minLevel: number) => {
               requiredLevel: minLevel,
             });
           }
-          return redirectToUnauthorized(req, `You do not have the required role level to access this page.`);
+          return redirectToUnauthorized(req, `You do not have required role level to access this page.`);
         }
       } catch (apiError) {
         console.error('[RBAC Middleware] Error checking role level:', apiError);
@@ -221,7 +231,7 @@ export const withAnyPermission = (permissions: string[]) => {
         return redirectToLogin(req);
       }
 
-      // Check if user has any of the required permissions
+      // Check if user has any of required permissions
       try {
         const response = await rbacApi.authCheck.checkPermissions(permissions, 'any');
         
@@ -229,7 +239,7 @@ export const withAnyPermission = (permissions: string[]) => {
           if (isDev) {
             console.log('[RBAC Middleware] User does not have any of the required permissions:', permissions);
           }
-          return redirectToUnauthorized(req, `You do not have the required permissions to access this page.`);
+          return redirectToUnauthorized(req, `You do not have required permissions to access this page.`);
         }
       } catch (apiError) {
         console.error('[RBAC Middleware] Error checking permissions:', apiError);
@@ -269,7 +279,7 @@ export const withAllPermissions = (permissions: string[]) => {
         return redirectToLogin(req);
       }
 
-      // Check if user has all of the required permissions
+      // Check if user has all of required permissions
       try {
         const response = await rbacApi.authCheck.checkPermissions(permissions, 'all');
         
@@ -277,7 +287,7 @@ export const withAllPermissions = (permissions: string[]) => {
           if (isDev) {
             console.log('[RBAC Middleware] User does not have all of the required permissions:', permissions);
           }
-          return redirectToUnauthorized(req, `You do not have all the required permissions to access this page.`);
+          return redirectToUnauthorized(req, `You do not have all of the required permissions to access this page.`);
         }
       } catch (apiError) {
         console.error('[RBAC Middleware] Error checking permissions:', apiError);
@@ -372,7 +382,7 @@ export const useHasRole = (role: string) => {
 };
 
 /**
- * Hook to check if user has any of the specified permissions
+ * Hook to check if user has any of specified permissions
  */
 export const useHasAnyPermission = (permissions: string[]) => {
   const [hasPermission, setHasPermission] = useState<boolean>(false);
@@ -392,7 +402,7 @@ export const useHasAnyPermission = (permissions: string[]) => {
 };
 
 /**
- * Hook to check if user has all of the specified permissions
+ * Hook to check if user has all of specified permissions
  */
 export const useHasAllPermissions = (permissions: string[]) => {
   const [hasPermission, setHasPermission] = useState<boolean>(false);

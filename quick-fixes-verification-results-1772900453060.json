@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-03-07T16:20:53.060Z",
+  "summary": {
+    "total": 6,
+    "passed": 0,
+    "failed": 6,
+    "duration": "0.07"
+  },
+  "tests": [
+    {
+      "name": "Wishlist Endpoint Authentication",
+      "status": "FAIL",
+      "details": "Request failed: socket hang up"
+    },
+    {
+      "name": "Admin Dashboard Endpoint",
+      "status": "FAIL",
+      "details": "Request failed: socket hang up"
+    },
+    {
+      "name": "Admin Products Endpoint",
+      "status": "FAIL",
+      "details": "Request failed: socket hang up"
+    },
+    {
+      "name": "Admin Users Endpoint",
+      "status": "FAIL",
+      "details": "Request failed: socket hang up"
+    },
+    {
+      "name": "Database Connection",
+      "status": "FAIL",
+      "details": "Request failed: socket hang up"
+    },
+    {
+      "name": "Products Endpoint",
+      "status": "FAIL",
+      "details": "Request failed: socket hang up"
+    }
+  ],
+  "verificationStatus": {
+    "wishlistAuthFixed": false,
+    "adminRoutesWorking": true,
+    "databaseConnected": false,
+    "existingFeaturesWorking": false,
+    "allIssuesResolved": false,
+    "anyFunctionalityBroken": true,
+    "readyForProduction": false
+  }
+}

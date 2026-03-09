@@ -1,0 +1,161 @@
+{
+  "timestamp": "2026-02-22T19:02:50.543Z",
+  "scenarios": [
+    {
+      "scenario": "Main checkout flow with valid data",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T19:02:51.101Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "test-product-id-1",
+            "msg": "Invalid product ID",
+            "path": "items[0].productId",
+            "location": "body"
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "Different billing and shipping addresses",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T19:02:51.528Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "test-product-id-1",
+            "msg": "Invalid product ID",
+            "path": "items[0].productId",
+            "location": "body"
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "\"Same as shipping address\" option",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T19:02:52.048Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "test-product-id-1",
+            "msg": "Invalid product ID",
+            "path": "items[0].productId",
+            "location": "body"
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "Invalid data - Missing shipping address",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T19:02:52.659Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "test-product-id-1",
+            "msg": "Invalid product ID",
+            "path": "items[0].productId",
+            "location": "body"
+          }
+        ]
+      },
+      "message": "Error handling not working as expected"
+    },
+    {
+      "scenario": "Invalid data - Invalid phone number",
+      "status": "PASS",
+      "timestamp": "2026-02-22T19:02:53.155Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "test-product-id-1",
+            "msg": "Invalid product ID",
+            "path": "items[0].productId",
+            "location": "body"
+          }
+        ]
+      },
+      "message": "Correctly validated phone number"
+    },
+    {
+      "scenario": "Address data from request body is used",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T19:02:53.612Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "test-product-id-1",
+            "msg": "Invalid product ID",
+            "path": "items[0].productId",
+            "location": "body"
+          }
+        ]
+      },
+      "message": "Failed to use address data from request body"
+    },
+    {
+      "scenario": "Priority of address sources",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T19:02:54.204Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "success": false,
+        "error": "Validation failed",
+        "message": "Validation failed",
+        "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+        "details": [
+          {
+            "type": "field",
+            "value": "test-product-id-1",
+            "msg": "Invalid product ID",
+            "path": "items[0].productId",
+            "location": "body"
+          }
+        ]
+      },
+      "message": "Failed to prioritize address sources correctly"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "passed": 1,
+    "failed": 6
+  }
+}

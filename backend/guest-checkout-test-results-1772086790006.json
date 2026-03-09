@@ -1,0 +1,359 @@
+{
+  "testRunDate": "2026-02-26T06:19:50.005Z",
+  "backendUrl": "http://localhost:3001/api/v1",
+  "summary": {
+    "total": 6,
+    "passed": 5,
+    "failed": 1,
+    "successRate": "83.33%"
+  },
+  "expectedResults": {
+    "guestCanAddItems": true,
+    "cartIdValidated": true,
+    "checkoutInitiationSucceeds": true,
+    "checkoutCompletionSucceeds": true,
+    "clearErrorMessages": false,
+    "noEmptyCartsCreated": false,
+    "fallbackMechanismsWork": true
+  },
+  "fixVerification": {
+    "fix1": true,
+    "fix2": true,
+    "fix3": false,
+    "fix4": true,
+    "fix5": true
+  },
+  "tests": {
+    "test1": {
+      "name": "Add Item to Cart as Guest",
+      "passed": true,
+      "details": [
+        {
+          "detail": "Created fresh session with deviceId and sessionId",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:43.927Z"
+        },
+        {
+          "detail": "Found product: Test Product 1771835195649 (ID: 03e33fc1-7348-4c31-8994-c4b5dd41c401)",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:43.988Z"
+        },
+        {
+          "detail": "Item added to cart. CartId: bd63a8b8-8949-43d0-8e0a-f2857936a95a",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:44.156Z"
+        },
+        {
+          "detail": "Cart found in database with status: active",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:44.168Z"
+        },
+        {
+          "detail": "cartId is a valid UUID",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:44.168Z"
+        },
+        {
+          "detail": "Cart has 1 item(s) in database",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:44.168Z"
+        },
+        {
+          "detail": "Cart item - ProductId: 03e33fc1-7348-4c31-8994-c4b5dd41c401, Quantity: 1",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:44.168Z"
+        },
+        {
+          "detail": "deviceId mismatch. Expected: test-device-1772086783927, Got: null",
+          "passed": false,
+          "timestamp": "2026-02-26T06:19:44.169Z"
+        },
+        {
+          "detail": "sessionId correctly stored: test-session-1772086783927",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:44.169Z"
+        }
+      ]
+    },
+    "test2": {
+      "name": "Initiate Guest Checkout",
+      "passed": true,
+      "details": [
+        {
+          "detail": "Calling initiate checkout with cartId: bd63a8b8-8949-43d0-8e0a-f2857936a95a",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:45.183Z"
+        },
+        {
+          "detail": "Guest checkout initiated. SessionId: a923506e-ba86-44c9-a47f-bd8792e0ffe9",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:45.225Z"
+        },
+        {
+          "detail": "Backend correctly linked cartId: bd63a8b8-8949-43d0-8e0a-f2857936a95a",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:45.225Z"
+        },
+        {
+          "detail": "GuestSession found in database with ID: cc277241-314e-4171-802c-a4c7bca2ae30",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:45.232Z"
+        },
+        {
+          "detail": "GuestSession correctly linked to cartId: bd63a8b8-8949-43d0-8e0a-f2857936a95a",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:45.232Z"
+        },
+        {
+          "detail": "Only one active cart found (no empty cart created)",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:45.237Z"
+        },
+        {
+          "detail": "Cart still has 1 item(s) after checkout initiation",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:45.241Z"
+        },
+        {
+          "detail": "Cart totals - Subtotal: 1000, Total: 1100",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:45.241Z"
+        }
+      ]
+    },
+    "test3": {
+      "name": "Complete Guest Checkout",
+      "passed": true,
+      "details": [
+        {
+          "detail": "Saving guest information",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:46.255Z"
+        },
+        {
+          "detail": "Guest information saved successfully",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:46.275Z"
+        },
+        {
+          "detail": "Completing guest checkout",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:46.275Z"
+        },
+        {
+          "detail": "Guest checkout completed. OrderId: 7182a786-b216-460d-b456-ceebeaf7599d, OrderNumber: ORD1772086786308569",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:46.330Z"
+        },
+        {
+          "detail": "Order found in database. Status: pending, Total: 1100",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:46.339Z"
+        },
+        {
+          "detail": "Order has 1 item(s)",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:46.339Z"
+        },
+        {
+          "detail": "Order item correctly linked to product: 03e33fc1-7348-4c31-8994-c4b5dd41c401",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:46.339Z"
+        },
+        {
+          "detail": "No \"Cart is empty\" error occurred",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:46.339Z"
+        },
+        {
+          "detail": "Cart correctly marked as converted",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:46.342Z"
+        },
+        {
+          "detail": "GuestSession correctly linked to orderId: 7182a786-b216-460d-b456-ceebeaf7599d",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:46.344Z"
+        }
+      ]
+    },
+    "test4": {
+      "name": "Error Handling - Empty Cart",
+      "passed": false,
+      "details": [
+        {
+          "detail": "Creating cart with items then removing them",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:47.355Z"
+        },
+        {
+          "detail": "Cart created with ID: ce371f06-c182-4410-8fc8-a27948485500",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:47.531Z"
+        },
+        {
+          "detail": "Removing all items from cart",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:47.531Z"
+        },
+        {
+          "detail": "Failed to remove items: Request failed with status code 404",
+          "passed": false,
+          "timestamp": "2026-02-26T06:19:47.555Z"
+        },
+        {
+          "detail": "Cart has 1 item(s) after removal",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:47.562Z"
+        },
+        {
+          "detail": "Attempting to initiate checkout with empty cart",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:47.562Z"
+        },
+        {
+          "detail": "API did not return error for empty cart",
+          "passed": false,
+          "timestamp": "2026-02-26T06:19:47.630Z"
+        }
+      ]
+    },
+    "test5": {
+      "name": "Error Handling - Invalid CartId",
+      "passed": true,
+      "details": [
+        {
+          "detail": "Testing with invalid cartId: \"not-a-uuid\"",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:48.645Z"
+        },
+        {
+          "detail": "API correctly returned 400 error for: \"not-a-uuid\"",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:48.652Z"
+        },
+        {
+          "detail": "Error message: \"Validation failed\" may not clearly indicate invalid format",
+          "passed": false,
+          "timestamp": "2026-02-26T06:19:48.652Z"
+        },
+        {
+          "detail": "Testing with invalid cartId: \"123456\"",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:48.652Z"
+        },
+        {
+          "detail": "API correctly returned 400 error for: \"123456\"",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:48.656Z"
+        },
+        {
+          "detail": "Error message: \"Validation failed\" may not clearly indicate invalid format",
+          "passed": false,
+          "timestamp": "2026-02-26T06:19:48.656Z"
+        },
+        {
+          "detail": "Testing with invalid cartId: \"invalid-format-123\"",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:48.656Z"
+        },
+        {
+          "detail": "API correctly returned 400 error for: \"invalid-format-123\"",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:48.660Z"
+        },
+        {
+          "detail": "Error message: \"Validation failed\" may not clearly indicate invalid format",
+          "passed": false,
+          "timestamp": "2026-02-26T06:19:48.660Z"
+        },
+        {
+          "detail": "Testing with invalid cartId: \"\"",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:48.660Z"
+        },
+        {
+          "detail": "API correctly returned 400 error for: \"\"",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:48.665Z"
+        },
+        {
+          "detail": "Error message: \"Validation failed\" may not clearly indicate invalid format",
+          "passed": false,
+          "timestamp": "2026-02-26T06:19:48.665Z"
+        },
+        {
+          "detail": "Testing with non-existent cartId: 00000000-0000-4000-8000-000000000000",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:48.665Z"
+        },
+        {
+          "detail": "API correctly returned 404 error for non-existent cartId",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:48.671Z"
+        },
+        {
+          "detail": "Error message: \"Your cart session has expired. Please add items to your cart and try again.\" correctly indicates cart not found",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:48.671Z"
+        },
+        {
+          "detail": "Verifying no empty carts were created during invalid cartId tests",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:48.671Z"
+        }
+      ]
+    },
+    "test6": {
+      "name": "Fallback Mechanism",
+      "passed": true,
+      "details": [
+        {
+          "detail": "Testing fallback with deviceId only: test-device-fallback-1772086789674",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:49.674Z"
+        },
+        {
+          "detail": "Cart created with deviceId. CartId: 90bf2f43-7281-4b52-b38e-6e0057176309",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:49.795Z"
+        },
+        {
+          "detail": "Fallback successful. Found cartId: 757c0e9d-ba38-4c29-9539-c12e63bea7f4",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:49.831Z"
+        },
+        {
+          "detail": "Fallback found different cart. Expected: 90bf2f43-7281-4b52-b38e-6e0057176309, Got: 757c0e9d-ba38-4c29-9539-c12e63bea7f4",
+          "passed": false,
+          "timestamp": "2026-02-26T06:19:49.831Z"
+        },
+        {
+          "detail": "Testing fallback with sessionId only: test-session-fallback-1772086789831",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:49.831Z"
+        },
+        {
+          "detail": "Cart created with sessionId. CartId: 2c45c097-cb3b-4cbe-9f1f-d39720cad849",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:49.969Z"
+        },
+        {
+          "detail": "SessionId fallback successful. Found cartId: 444f5c06-0816-44a3-befb-6130af16defe",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:50.002Z"
+        },
+        {
+          "detail": "SessionId fallback found different cart. Expected: 2c45c097-cb3b-4cbe-9f1f-d39720cad849, Got: 444f5c06-0816-44a3-befb-6130af16defe",
+          "passed": false,
+          "timestamp": "2026-02-26T06:19:50.002Z"
+        },
+        {
+          "detail": "Both deviceId and sessionId fallback mechanisms work correctly",
+          "passed": true,
+          "timestamp": "2026-02-26T06:19:50.002Z"
+        }
+      ]
+    }
+  }
+}

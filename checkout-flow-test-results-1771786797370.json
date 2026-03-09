@@ -1,0 +1,91 @@
+{
+  "timestamp": "2026-02-22T18:59:57.240Z",
+  "scenarios": [
+    {
+      "scenario": "Main checkout flow with valid data",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T18:59:57.307Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "error": "Missing identifier",
+        "message": "Email or phone number is required",
+        "messageBn": "ইমেল বা ফোন নম্বর প্রয়োজন"
+      }
+    },
+    {
+      "scenario": "Different billing and shipping addresses",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T18:59:57.320Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "error": "Missing identifier",
+        "message": "Email or phone number is required",
+        "messageBn": "ইমেল বা ফোন নম্বর প্রয়োজন"
+      }
+    },
+    {
+      "scenario": "\"Same as shipping address\" option",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T18:59:57.330Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "error": "Missing identifier",
+        "message": "Email or phone number is required",
+        "messageBn": "ইমেল বা ফোন নম্বর প্রয়োজন"
+      }
+    },
+    {
+      "scenario": "Invalid data - Missing shipping address",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T18:59:57.340Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "error": "Missing identifier",
+        "message": "Email or phone number is required",
+        "messageBn": "ইমেল বা ফোন নম্বর প্রয়োজন"
+      },
+      "message": "Error handling not working as expected"
+    },
+    {
+      "scenario": "Invalid data - Invalid phone number",
+      "status": "PASS",
+      "timestamp": "2026-02-22T18:59:57.350Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "error": "Missing identifier",
+        "message": "Email or phone number is required",
+        "messageBn": "ইমেল বা ফোন নম্বর প্রয়োজন"
+      },
+      "message": "Correctly validated phone number"
+    },
+    {
+      "scenario": "Address data from request body is used",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T18:59:57.361Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "error": "Missing identifier",
+        "message": "Email or phone number is required",
+        "messageBn": "ইমেল বা ফোন নম্বর প্রয়োজন"
+      },
+      "message": "Failed to use address data from request body"
+    },
+    {
+      "scenario": "Priority of address sources",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T18:59:57.370Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "error": "Missing identifier",
+        "message": "Email or phone number is required",
+        "messageBn": "ইমেল বা ফোন নম্বর প্রয়োজন"
+      },
+      "message": "Failed to prioritize address sources correctly"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "passed": 1,
+    "failed": 6
+  }
+}

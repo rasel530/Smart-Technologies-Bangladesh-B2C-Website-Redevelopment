@@ -27,14 +27,21 @@ RUN npm ci --build-from-source=sharp
 # Remove build dependencies to keep image smaller (optional for dev)
 RUN apk del gcc g++ make python3
 
+# Copy TypeScript configuration and source files
+COPY tsconfig.json ./
+COPY src ./src
+
 # Copy Prisma schema
 COPY prisma ./prisma/
 
-# Generate Prisma client
-RUN npx prisma generate
-
 # Copy application code
 COPY . .
+
+# Generate Prisma client (must be after all source files are copied)
+RUN npx prisma generate
+
+# Compile TypeScript to JavaScript
+RUN npm run build
 
 # Copy migration scripts
 COPY scripts/comprehensive-migration-solution.js ./scripts/comprehensive-migration-solution.js

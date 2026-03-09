@@ -1,0 +1,354 @@
+/**
+ * Payment Logs Styles
+ *
+ * CSS module styles for the Payment Logs page and related components.
+ */
+
+.container {
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navigationButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.description {
+  margin-bottom: 24px;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.divider {
+  margin-bottom: 24px;
+}
+
+/* Search Bar */
+.searchBar {
+  marginBottom: 24px;
+}
+
+/* Alert Styles */
+.alertContainer {
+  marginBottom: 24px;
+}
+
+.suspiciousAlert {
+  backgroundColor: #fff3e0;
+  borderLeft: 4px solid #ef6c00;
+}
+
+/* Filter Menu */
+.filterMenu {
+  position: absolute;
+  zIndex: 1300;
+  display: block;
+}
+
+.filterPaper {
+  padding: 16px;
+  width: 300px;
+}
+
+.filterTitle {
+  fontSize: 16px;
+  fontWeight: 600;
+  marginBottom: 16px;
+}
+
+.filterField {
+  marginBottom: 16px;
+}
+
+.filterButtons {
+  display: flex;
+  gap: 8px;
+}
+
+/* Logs Table */
+.logsTable {
+  marginBottom: 24px;
+}
+
+.tableRow {
+  transition: background-color 0.2s ease-in-out;
+}
+
+.tableRow:hover {
+  background-color: #f5f5f5;
+}
+
+.tableRowSecurityEvent {
+  backgroundColor: #ffebee;
+}
+
+.tableRowSuspicious {
+  backgroundColor: #fff3e0;
+}
+
+.eventTypeCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eventTypeText {
+  fontSize: 12px;
+  textTransform: uppercase;
+}
+
+.messageCell {
+  maxWidth: 300px;
+}
+
+.messageText {
+  whiteSpace: nowrap;
+  overflow: hidden;
+  textOverflow: ellipsis;
+}
+
+/* Log Details Dialog */
+.dialogContent {
+  paddingBottom: 16px;
+}
+
+.detailsSection {
+  display: flex;
+  flexDirection: column;
+  gap: 16px;
+}
+
+.detailsTitle {
+  fontSize: 16px;
+  fontWeight: 600;
+  marginBottom: 8px;
+}
+
+.detailsGrid {
+  display: grid;
+  gridTemplateColumns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.detailItem {
+  display: flex;
+  flexDirection: column;
+  gap: 4px;
+}
+
+.detailLabel {
+  fontSize: 12px;
+  color: #666;
+}
+
+.detailValue {
+  fontSize: 14px;
+  color: #333;
+}
+
+.messageSection {
+  marginTop: 8px;
+}
+
+.messageText {
+  fontSize: 14px;
+  color: #333;
+  lineHeight: 1.6;
+}
+
+/* Security Alerts */
+.securityAlert {
+  marginBottom: 16px;
+}
+
+.suspiciousAlert {
+  marginBottom: 16px;
+}
+
+/* Metadata Section */
+.metadataAccordion {
+  marginTop: 16px;
+}
+
+.metadataContent {
+  backgroundColor: #f5f5f5;
+  padding: 16px;
+  borderRadius: 8px;
+  overflow: auto;
+}
+
+.metadataPre {
+  margin: 0;
+  fontSize: 14px;
+  fontFamily: 'Courier New', monospace;
+  whiteSpace: pre-wrap;
+  wordBreak: break-word;
+}
+
+/* Responsive Design */
+@media (max-width: 960px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .navigationButtons {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .navigationButtons button {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .detailsGrid {
+    gridTemplateColumns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 16px;
+  }
+
+  .headerTitle {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .messageCell {
+    maxWidth: 150px;
+  }
+
+  .eventTypeText {
+    fontSize: 10px;
+  }
+}
+
+/* Accessibility */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Loading States */
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 64px 0;
+}
+
+/* Error States */
+.errorContainer {
+  padding: 16px;
+  background-color: #ffebee;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.errorMessage {
+  color: #c62828;
+  font-size: 14px;
+}
+
+/* Empty States */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  text-align: center;
+}
+
+.emptyStateIcon {
+  fontSize: 64px;
+  color: #bdbdbd;
+  marginBottom: 16px;
+}
+
+.emptyStateText {
+  fontSize: 16px;
+  color: #757575;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes highlight {
+  0% {
+    backgroundColor: #fff3e0;
+  }
+  100% {
+    backgroundColor: transparent;
+  }
+}
+
+.highlight {
+  animation: highlight 2s ease-in-out;
+}
+
+/* Chip Styles */
+.eventLevelChip {
+  fontSize: 11px;
+  padding: 4px 8px;
+}
+
+.eventLevelInfo {
+  backgroundColor: #e3f2fd;
+  color: #1565c0;
+}
+
+.eventLevelWarning {
+  backgroundColor: #fff3e0;
+  color: #ef6c00;
+}
+
+.eventLevelError {
+  backgroundColor: #ffebee;
+  color: #c62828;
+}
+
+.eventLevelCritical {
+  backgroundColor: #ffebee;
+  color: #b71c1c;
+  fontWeight: bold;
+}

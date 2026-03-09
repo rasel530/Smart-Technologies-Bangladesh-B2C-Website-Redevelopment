@@ -18,6 +18,7 @@ import {
   Send
 } from 'lucide-react';
 import Link from 'next/link';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 // Simple Tabs implementation
 const SimpleTabs: React.FC<{ defaultValue: string; children: React.ReactNode }> = ({ 
@@ -186,7 +187,8 @@ export default function RecoverySettingsPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <AdminLayout title="Recovery Settings">
+      <div className="container mx-auto py-8 px-4">
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
         <Link href="/admin/cart/recovery">
@@ -492,5 +494,6 @@ export default function RecoverySettingsPage() {
         </Button>
       </div>
     </div>
+    </AdminLayout>
   );
 }

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import RecoveryDashboard from '@/components/admin/cart/RecoveryDashboard';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 // Simple Tabs implementation
 const SimpleTabs: React.FC<{ defaultValue: string; children: React.ReactNode }> = ({ 
@@ -91,7 +92,8 @@ const SimpleTabsContent: React.FC<{
 
 export default function CartRecoveryPage() {
   return (
-    <div className="container mx-auto py-8 px-4">
+    <AdminLayout title="Cart Recovery">
+      <div className="container mx-auto py-8 px-4">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
@@ -256,5 +258,6 @@ export default function CartRecoveryPage() {
         </Link>
       </div>
     </div>
+    </AdminLayout>
   );
 }

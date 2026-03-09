@@ -36,7 +36,7 @@ class CartReminderService {
    */
   async scheduleFirstReminder(cartId) {
     try {
-      const cart = await this.prisma.cart.findUnique({
+      const cart = await this.prisma.carts.findUnique({
         where: { id: cartId },
         include: {
           user: { select: { id: true, email: true, firstName: true } }
@@ -94,7 +94,7 @@ class CartReminderService {
    */
   async scheduleSecondReminder(cartId) {
     try {
-      const cart = await this.prisma.cart.findUnique({
+      const cart = await this.prisma.carts.findUnique({
         where: { id: cartId },
         include: {
           user: { select: { id: true, email: true, firstName: true } }
@@ -146,7 +146,7 @@ class CartReminderService {
    */
   async scheduleFinalReminder(cartId) {
     try {
-      const cart = await this.prisma.cart.findUnique({
+      const cart = await this.prisma.carts.findUnique({
         where: { id: cartId },
         include: {
           user: { select: { id: true, email: true, firstName: true } }
@@ -324,7 +324,7 @@ class CartReminderService {
    */
   async cancelReminders(cartId) {
     try {
-      const cart = await this.prisma.cart.findUnique({
+      const cart = await this.prisma.carts.findUnique({
         where: { id: cartId }
       });
 
@@ -333,7 +333,7 @@ class CartReminderService {
       }
 
       // Update cart analytics to mark reminders as cancelled
-      const analytics = await this.prisma.cartAnalytics.findUnique({
+      const analytics = await this.prisma.cart_analytics.findUnique({
         where: { cartId }
       });
 
@@ -348,7 +348,7 @@ class CartReminderService {
           }
         });
 
-        await this.prisma.cartAnalytics.update({
+        await this.prisma.cart_analytics.update({
           where: { cartId },
           data: { events }
         });
@@ -389,7 +389,7 @@ class CartReminderService {
       };
 
       // Find all abandoned carts that need reminders
-      const abandonedCarts = await this.prisma.cart.findMany({
+      const abandonedCarts = await this.prisma.carts.findMany({
         where: {
           status: 'abandoned',
           userId: { not: null }, // Only for registered users
@@ -482,7 +482,7 @@ class CartReminderService {
       if (startDate) dateFilter.gte = new Date(startDate);
       if (endDate) dateFilter.lte = new Date(endDate);
 
-      const stats = await this.prisma.cart.groupBy({
+      const stats = await this.prisma.carts.groupBy({
         by: ['reminderCount'],
         where: {
           ...(Object.keys(dateFilter).length > 0 && { lastReminderAt: dateFilter }),
@@ -515,7 +515,7 @@ class CartReminderService {
    */
   async validateCartForReminder(cartId, type) {
     try {
-      const cart = await this.prisma.cart.findUnique({
+      const cart = await this.prisma.carts.findUnique({
         where: { id: cartId },
         include: {
           user: { select: { email: true } },
@@ -555,7 +555,7 @@ class CartReminderService {
    */
   async storeScheduledReminder(cartId, type, scheduledTime) {
     try {
-      const analytics = await this.prisma.cartAnalytics.findUnique({
+      const analytics = await this.prisma.cart_analytics.findUnique({
         where: { cartId }
       });
 
@@ -569,12 +569,12 @@ class CartReminderService {
         const events = analytics.events || {};
         events[`${type}Reminder`] = reminderData;
 
-        await this.prisma.cartAnalytics.update({
+        await this.prisma.cart_analytics.update({
           where: { cartId },
           data: { events }
         });
       } else {
-        await this.prisma.cartAnalytics.create({
+        await this.prisma.cart_analytics.create({
           data: {
             cartId,
             events: { [`${type}Reminder`]: reminderData },
@@ -594,7 +594,7 @@ class CartReminderService {
    */
   async updateReminderCount(cartId, type) {
     try {
-      await this.prisma.cart.update({
+      await this.prisma.carts.update({
         where: { id: cartId },
         data: {
           reminderCount: { increment: 1 },
@@ -603,7 +603,7 @@ class CartReminderService {
       });
 
       // Update analytics
-      const analytics = await this.prisma.cartAnalytics.findUnique({
+      const analytics = await this.prisma.cart_analytics.findUnique({
         where: { cartId }
       });
 
@@ -613,7 +613,7 @@ class CartReminderService {
           events[`${type}Reminder`].status = 'sent';
           events[`${type}Reminder`].sentAt = new Date().toISOString();
 
-          await this.prisma.cartAnalytics.update({
+          await this.prisma.cart_analytics.update({
             where: { cartId },
             data: { events }
           });
@@ -659,10 +659,10 @@ class CartReminderService {
 
       for (let i = 1; i <= 3; i++) {
         const [sent, converted] = await Promise.all([
-          this.prisma.cart.count({
+          this.prisma.carts.count({
             where: { reminderCount: { gte: i } }
           }),
-          this.prisma.cart.count({
+          this.prisma.carts.count({
             where: {
               reminderCount: { gte: i },
               status: 'converted'

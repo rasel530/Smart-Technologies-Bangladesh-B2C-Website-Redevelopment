@@ -1,4 +1,4 @@
-import { type ClassValue, clsx } from 'clsx';
+﻿import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
@@ -144,10 +144,10 @@ export function copyToClipboard(text: string): Promise<boolean> {
     
     try {
       document.execCommand('copy');
-      document.body.removeChild(textArea);
+      if (document.body && textArea.parentNode === document.body) { document.body.removeChild(textArea); }
       return Promise.resolve(true);
     } catch {
-      document.body.removeChild(textArea);
+      if (document.body && textArea.parentNode === document.body) { document.body.removeChild(textArea); }
       return Promise.resolve(false);
     }
   }
@@ -161,7 +161,7 @@ export function downloadFile(data: any, filename: string, type: string = 'applic
   link.download = filename;
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
+  if (document.body && link.parentNode === document.body) { document.body.removeChild(link); }
   URL.revokeObjectURL(url);
 }
 

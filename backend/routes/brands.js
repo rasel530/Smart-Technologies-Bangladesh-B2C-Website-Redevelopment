@@ -1,6 +1,6 @@
 const express = require('express');
 const { body, param, query, validationResult } = require('express-validator');
-const { PrismaClient } = require('@prisma/client');
+const { databaseService } = require('../services/database');
 const { authMiddleware } = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
@@ -9,7 +9,8 @@ const { elasticsearchConfig } = require('../config/elasticsearch');
 const { ProductIndexingService } = require('../services/elasticsearch/productIndexingService');
 
 const router = express.Router();
-const prisma = new PrismaClient();
+// Use shared PrismaClient instance from databaseService
+const prisma = databaseService.getClient();
 const productIndexingService = new ProductIndexingService();
 
 // Helper function to convert Decimal values to numbers
@@ -105,7 +106,7 @@ router.get('/', [
     const skip = (page - 1) * limit;
 
     const [brands, total] = await Promise.all([
-      prisma.brand.findMany({
+      prisma.brands.findMany({
         where,
         skip: parseInt(skip),
         take: parseInt(limit),
@@ -119,7 +120,7 @@ router.get('/', [
           { name: 'asc' }
         ]
       }),
-      prisma.brand.count({ where })
+      prisma.brands.count({ where })
     ]);
 
     res.json({
@@ -144,7 +145,7 @@ router.get('/', [
 // GET /api/v1/brands/featured - Get featured brands
 router.get('/featured', async (req, res) => {
   try {
-    const brands = await prisma.brand.findMany({
+    const brands = await prisma.brands.findMany({
       where: {
         status: 'active',
         isFeatured: true
@@ -176,7 +177,7 @@ router.get('/slug/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
 
-    const brand = await prisma.brand.findUnique({
+    const brand = await prisma.brands.findUnique({
       where: { slug },
       include: {
         _count: {
@@ -209,7 +210,7 @@ router.get('/:id', [
   try {
     const { id } = req.params;
 
-    const brand = await prisma.brand.findUnique({
+    const brand = await prisma.brands.findUnique({
       where: { id },
       include: {
         _count: {
@@ -257,7 +258,7 @@ router.post('/', [
     const brandData = req.body;
 
     // Check if slug already exists
-    const existingSlug = await prisma.brand.findUnique({
+    const existingSlug = await prisma.brands.findUnique({
       where: { slug: brandData.slug }
     });
 
@@ -267,7 +268,7 @@ router.post('/', [
       });
     }
 
-    const brand = await prisma.brand.create({
+    const brand = await prisma.brands.create({
       data: {
         name: brandData.name,
         slug: brandData.slug,
@@ -325,7 +326,7 @@ router.put('/:id', [
     const updateData = req.body;
 
     // Check if brand exists
-    const existingBrand = await prisma.brand.findUnique({
+    const existingBrand = await prisma.brands.findUnique({
       where: { id }
     });
 
@@ -337,7 +338,7 @@ router.put('/:id', [
 
     // Check if slug conflicts with another brand
     if (updateData.slug && updateData.slug !== existingBrand.slug) {
-      const slugConflict = await prisma.brand.findFirst({
+      const slugConflict = await prisma.brands.findFirst({
         where: { slug: updateData.slug, NOT: { id } }
       });
 
@@ -348,14 +349,14 @@ router.put('/:id', [
       }
     }
 
-    const updatedBrand = await prisma.brand.update({
+    const updatedBrand = await prisma.brands.update({
       where: { id },
       data: updateData
     });
 
     // Reindex all products in this brand (non-blocking)
     if (elasticsearchConfig.isAvailable()) {
-      const products = await prisma.product.findMany({
+      const products = await prisma.products.findMany({
         where: { brandId: id },
         select: { id: true }
       });
@@ -392,7 +393,7 @@ router.delete('/:id', [
     const { id } = req.params;
 
     // Check if brand exists
-    const brand = await prisma.brand.findUnique({
+    const brand = await prisma.brands.findUnique({
       where: { id },
       include: {
         _count: {
@@ -423,7 +424,7 @@ router.delete('/:id', [
       }
     }
 
-    await prisma.brand.delete({
+    await prisma.brands.delete({
       where: { id }
     });
 
@@ -454,7 +455,7 @@ router.patch('/:id/status', [
     const { status } = req.body;
 
     // Check if brand exists
-    const brand = await prisma.brand.findUnique({
+    const brand = await prisma.brands.findUnique({
       where: { id }
     });
 
@@ -464,7 +465,7 @@ router.patch('/:id/status', [
       });
     }
 
-    const updatedBrand = await prisma.brand.update({
+    const updatedBrand = await prisma.brands.update({
       where: { id },
       data: { status }
     });
@@ -498,7 +499,7 @@ router.patch('/:id/featured', [
     const { isFeatured, featuredOrder } = req.body;
 
     // Check if brand exists
-    const brand = await prisma.brand.findUnique({
+    const brand = await prisma.brands.findUnique({
       where: { id }
     });
 
@@ -513,7 +514,7 @@ router.patch('/:id/featured', [
       updateData.featuredOrder = featuredOrder;
     }
 
-    const updatedBrand = await prisma.brand.update({
+    const updatedBrand = await prisma.brands.update({
       where: { id },
       data: updateData
     });
@@ -544,7 +545,7 @@ router.patch('/featured-reorder', [
     // Update all brands in a transaction
     const updates = await prisma.$transaction(
       orders.map(order =>
-        prisma.brand.update({
+        prisma.brands.update({
           where: { id: order.id },
           data: { featuredOrder: order.featuredOrder }
         })
@@ -593,7 +594,7 @@ router.get('/:id/products', [
     } = req.query;
 
     // Check if brand exists
-    const brand = await prisma.brand.findUnique({
+    const brand = await prisma.brands.findUnique({
       where: { id },
       include: {
         _count: {
@@ -621,14 +622,14 @@ router.get('/:id/products', [
     }
 
     const [products, total] = await Promise.all([
-      prisma.product.findMany({
+      prisma.products.findMany({
         where,
         skip: parseInt(skip),
         take: parseInt(limit),
         include: {
-          categories: {
+          product_categories: {
             select: {
-              category: {
+              categories: {
                 select: { id: true, name: true, slug: true }
               }
             },
@@ -637,18 +638,18 @@ router.get('/:id/products', [
             },
             take: 1
           },
-          brand: {
+          brands: {
             select: { id: true, name: true, slug: true }
           },
-          images: {
-            where: { displayOrder: 0 },
+          product_images: {
+            where: { display_order: 0 },
             take: 1,
-            select: { id: true, originalUrl: true, altTextEn: true }
+            select: { id: true, original_url: true, alt_text_en: true }
           }
         },
         orderBy: { [sortBy]: sortOrder }
       }),
-      prisma.product.count({ where })
+      prisma.products.count({ where })
     ]);
 
     // Serialize Decimal values to numbers
@@ -697,7 +698,7 @@ router.post('/:id/logo', [
     }
 
     // Check if brand exists
-    const brand = await prisma.brand.findUnique({
+    const brand = await prisma.brands.findUnique({
       where: { id }
     });
 
@@ -717,7 +718,7 @@ router.post('/:id/logo', [
 
     const logoUrl = `${process.env.BACKEND_URL || 'http://localhost:3001'}/uploads/brands/${req.file.filename}`;
 
-    const updatedBrand = await prisma.brand.update({
+    const updatedBrand = await prisma.brands.update({
       where: { id },
       data: { logoUrl }
     });
@@ -744,7 +745,7 @@ router.delete('/:id/logo', [
     const { id } = req.params;
 
     // Check if brand exists
-    const brand = await prisma.brand.findUnique({
+    const brand = await prisma.brands.findUnique({
       where: { id }
     });
 
@@ -766,7 +767,7 @@ router.delete('/:id/logo', [
       fs.unlinkSync(logoPath);
     }
 
-    const updatedBrand = await prisma.brand.update({
+    const updatedBrand = await prisma.brands.update({
       where: { id },
       data: { logoUrl: null }
     });
@@ -812,7 +813,7 @@ router.post('/bulk', [
     }
 
     // Check if slugs already exist in database
-    const existingSlugs = await prisma.brand.findMany({
+    const existingSlugs = await prisma.brands.findMany({
       where: { slug: { in: slugs } },
       select: { slug: true }
     });
@@ -828,7 +829,7 @@ router.post('/bulk', [
     const createdBrands = await prisma.$transaction(async (tx) => {
       const results = [];
       for (const brandData of brands) {
-        const brand = await tx.brand.create({
+        const brand = await tx.brands.create({
           data: {
             name: brandData.name,
             slug: brandData.slug,
@@ -885,7 +886,7 @@ router.put('/bulk', [
     const brandIds = brands.map(b => b.id);
 
     // Check if all brands exist
-    const existingBrands = await prisma.brand.findMany({
+    const existingBrands = await prisma.brands.findMany({
       where: { id: { in: brandIds } },
       select: { id: true, slug: true }
     });
@@ -901,7 +902,7 @@ router.put('/bulk', [
     // Check for slug conflicts
     const slugsToUpdate = brands.filter(b => b.slug).map(b => ({ slug: b.slug, id: b.id }));
     if (slugsToUpdate.length > 0) {
-      const slugConflicts = await prisma.brand.findMany({
+      const slugConflicts = await prisma.brands.findMany({
         where: {
           slug: { in: slugsToUpdate.map(s => s.slug) },
           NOT: { id: { in: brandIds } }
@@ -924,7 +925,7 @@ router.put('/bulk', [
         const updateData = { ...brandData };
         delete updateData.id;
 
-        const brand = await tx.brand.update({
+        const brand = await tx.brands.update({
           where: { id: brandData.id },
           data: updateData
         });
@@ -935,7 +936,7 @@ router.put('/bulk', [
 
     // Reindex all products in updated brands (non-blocking)
     if (elasticsearchConfig.isAvailable()) {
-      const products = await prisma.product.findMany({
+      const products = await prisma.products.findMany({
         where: { brandId: { in: brandIds } },
         select: { id: true }
       });
@@ -978,7 +979,7 @@ router.delete('/bulk', [
     const { brandIds } = req.body;
 
     // Check if all brands exist
-    const brands = await prisma.brand.findMany({
+    const brands = await prisma.brands.findMany({
       where: { id: { in: brandIds } },
       include: {
         _count: {
@@ -1016,7 +1017,7 @@ router.delete('/bulk', [
         }
       }
 
-      await tx.brand.deleteMany({
+      await tx.brands.deleteMany({
         where: { id: { in: brandIds } }
       });
 
@@ -1058,7 +1059,7 @@ router.patch('/:id/seo', [
     const { metaTitle, metaDescription, metaKeywords } = req.body;
 
     // Check if brand exists
-    const brand = await prisma.brand.findUnique({
+    const brand = await prisma.brands.findUnique({
       where: { id }
     });
 
@@ -1073,7 +1074,7 @@ router.patch('/:id/seo', [
     if (metaDescription !== undefined) updateData.metaDescription = metaDescription;
     if (metaKeywords !== undefined) updateData.metaKeywords = metaKeywords;
 
-    const updatedBrand = await prisma.brand.update({
+    const updatedBrand = await prisma.brands.update({
       where: { id },
       data: updateData
     });

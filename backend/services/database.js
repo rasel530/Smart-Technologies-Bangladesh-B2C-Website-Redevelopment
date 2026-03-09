@@ -224,7 +224,37 @@ class DatabaseService {
     // Check if database is connected (synchronous check)
     if (!this.isConnected) {
       console.warn('⚠️ getClient() called but database is not connected. Connection may not be established yet.');
+      console.warn('⚠️ Prisma client may not have model methods available yet.');
     }
+    
+    // Add diagnostic logging
+    console.log('[DatabaseService.getClient] Called, returning prisma client:', {
+      isConnected: this.isConnected,
+      prismaExists: !!this.prisma,
+      prismaType: typeof this.prisma,
+      prismaHasFindMany: this.prisma && typeof this.prisma.findMany === 'function',
+      prismaHasOrderModel: this.prisma && !!this.prisma.order,
+      prismaHasFindUnique: this.prisma && typeof this.prisma.findUnique === 'function',
+      prismaHasFindFirst: this.prisma && typeof this.prisma.findFirst === 'function'
+    });
+    
+    // Return the prisma client - it will have methods once connected
+    return this.prisma;
+  }
+
+  // Get client with auto-connect (ensures database is connected first)
+  async getClientWithAutoConnect() {
+    // Ensure database is connected before returning client
+    if (!this.isConnected) {
+      console.log('[DatabaseService.getClientWithAutoConnect] Database not connected, connecting now...');
+      await this.connect();
+    }
+    
+    // Verify Prisma client has model methods
+    if (!this.prisma || typeof this.prisma.findUnique !== 'function') {
+      throw new Error('Prisma client is not properly initialized. Model methods are not available.');
+    }
+    
     return this.prisma;
   }
   

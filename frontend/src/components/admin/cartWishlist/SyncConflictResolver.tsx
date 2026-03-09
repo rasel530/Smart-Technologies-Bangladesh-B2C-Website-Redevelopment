@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useState } from 'react';
 import {
@@ -117,7 +117,7 @@ const SyncConflictResolver: React.FC<SyncConflictResolverProps> = ({ language = 
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    if (document.body && a.parentNode === document.body) { document.body.removeChild(a); }
   };
 
   const getStatusColor = (status: string) => {
@@ -357,7 +357,7 @@ const SyncConflictResolver: React.FC<SyncConflictResolverProps> = ({ language = 
           </span>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-[1000px] divide-y divide-gray-200">
+          <table className="w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-4 py-3 text-left">

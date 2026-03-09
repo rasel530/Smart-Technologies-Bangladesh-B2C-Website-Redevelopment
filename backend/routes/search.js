@@ -700,7 +700,7 @@ async function performPostgreSQLSearch(params) {
   const skip = (page - 1) * limit;
 
   const [products, total] = await Promise.all([
-    prisma.product.findMany({
+    prisma.products.findMany({
       where,
       skip: parseInt(skip),
       take: parseInt(limit),
@@ -725,7 +725,7 @@ async function performPostgreSQLSearch(params) {
       },
       orderBy: { [sortBy]: sortOrder }
     }),
-    prisma.product.count({ where })
+    prisma.products.count({ where })
   ]);
 
   // Transform to match Elasticsearch format
@@ -779,7 +779,7 @@ async function performPostgreSQLSearch(params) {
  * @returns {Promise<Object>} Suggestions
  */
 async function getPostgreSQLSuggestions(query, limit) {
-  const products = await prisma.product.findMany({
+  const products = await prisma.products.findMany({
     where: {
       OR: [
         { name: { startsWith: query, mode: 'insensitive' } },
@@ -847,7 +847,7 @@ async function getPostgreSQLFacets(query) {
   }
 
   // Get categories with counts
-  const categoryCounts = await prisma.productCategory.groupBy({
+  const categoryCounts = await prisma.product_categories.groupBy({
     by: ['categoryId'],
     where: {
       product: where
@@ -864,7 +864,7 @@ async function getPostgreSQLFacets(query) {
   });
 
   // Get brand counts
-  const brandCounts = await prisma.product.groupBy({
+  const brandCounts = await prisma.products.groupBy({
     by: ['brandId'],
     where,
     _count: {
@@ -879,7 +879,7 @@ async function getPostgreSQLFacets(query) {
   });
 
   // Get price ranges
-  const products = await prisma.product.findMany({
+  const products = await prisma.products.findMany({
     where,
     select: {
       regularPrice: true
@@ -897,15 +897,15 @@ async function getPostgreSQLFacets(query) {
 
   // Get status flags
   const statusFlags = [
-    { key: 'featured', count: await prisma.product.count({ where: { ...where, isFeatured: true } }) },
-    { key: 'newArrival', count: await prisma.product.count({ where: { ...where, isNewArrival: true } }) },
-    { key: 'bestSeller', count: await prisma.product.count({ where: { ...where, isBestSeller: true } }) }
+    { key: 'featured', count: await prisma.products.count({ where: { ...where, isFeatured: true } }) },
+    { key: 'newArrival', count: await prisma.products.count({ where: { ...where, isNewArrival: true } }) },
+    { key: 'bestSeller', count: await prisma.products.count({ where: { ...where, isBestSeller: true } }) }
   ];
 
   // Fetch category and brand names
   const categories = await Promise.all(
     categoryCounts.map(async cc => {
-      const category = await prisma.category.findUnique({
+      const category = await prisma.categories.findUnique({
         where: { id: cc.categoryId },
         select: { id: true, name: true, nameEn: true }
       });
@@ -920,7 +920,7 @@ async function getPostgreSQLFacets(query) {
 
   const brands = await Promise.all(
     brandCounts.map(async bc => {
-      const brand = await prisma.brand.findUnique({
+      const brand = await prisma.brands.findUnique({
         where: { id: bc.brandId },
         select: { id: true, name: true, nameEn: true }
       });

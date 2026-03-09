@@ -1,13 +1,13 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const { PrismaClient } = require('@prisma/client');
+const { databaseService } = require('../services/database');
 const { oauthService } = require('../services/oauthService');
 const { sessionMiddleware } = require('../middleware/session');
 const { authMiddleware } = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
 
 const router = express.Router();
-const prisma = new PrismaClient();
+const prisma = databaseService.getClient();
 
 // Validation middleware
 const handleValidationErrors = (req, res, next) => {

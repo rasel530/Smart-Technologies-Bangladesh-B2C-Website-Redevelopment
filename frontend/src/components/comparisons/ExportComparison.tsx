@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Export Comparison Component
  *
  * Component for exporting comparisons to PDF, Excel, CSV, or print view.
@@ -58,7 +58,7 @@ export function ExportComparison({
         link.download = `${comparisonName.replace(/\s+/g, '_')}_comparison.${selectedFormat}`;
         document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);
+        if (document.body && link.parentNode === document.body) { document.body.removeChild(link); }
       }
 
       onExported?.(response);

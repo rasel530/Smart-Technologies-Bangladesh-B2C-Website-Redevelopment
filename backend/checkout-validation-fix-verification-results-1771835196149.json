@@ -1,0 +1,64 @@
+{
+  "timestamp": "2026-02-23T08:26:36.149Z",
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0
+  },
+  "tests": {
+    "test1": {
+      "name": "Test 1: Verify validateCheckoutStep accepts checkoutData parameter",
+      "description": "Verify function signature includes optional checkoutData parameter",
+      "steps": [
+        "Test 1: Check function signature"
+      ],
+      "passed": true,
+      "errors": []
+    },
+    "test2": {
+      "name": "Test 2: Verify review step validation checks both session and request data",
+      "description": "Verify validation logic checks multiple data sources",
+      "steps": [
+        "Test 2: Check validation logic"
+      ],
+      "passed": true,
+      "errors": []
+    },
+    "test3": {
+      "name": "Test 3: Verify validation passes when data is in request body",
+      "description": "Verify checkout validation succeeds with data in request body only",
+      "steps": [
+        "Test 3: Validate with request body data"
+      ],
+      "passed": true,
+      "errors": []
+    },
+    "test4": {
+      "name": "Test 4: Verify validation passes when data is in session",
+      "description": "Verify existing behavior still works (data in session)",
+      "steps": [
+        "Test 4: Validate with session data"
+      ],
+      "passed": true,
+      "errors": []
+    },
+    "test5": {
+      "name": "Test 5: Verify diagnostic logging shows data flow",
+      "description": "Verify logs show which data sources are being validated",
+      "steps": [
+        "Test 5: Check diagnostic logs"
+      ],
+      "passed": true,
+      "errors": []
+    },
+    "test6": {
+      "name": "Test 6: Verify order can be completed with request body data",
+      "description": "Verify completeCheckoutSession works with request body data",
+      "steps": [
+        "Test 6: Complete checkout with request body data"
+      ],
+      "passed": true,
+      "errors": []
+    }
+  }
+}

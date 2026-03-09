@@ -10,8 +10,10 @@
 import { useState } from 'react';
 import { Heart, Plus, Check, X, ShoppingBag } from 'lucide-react';
 import { ProductWithRelations } from '@/types/product';
+import type { Wishlist } from '@/types/wishlist';
 // BUG-MED-003: Mock data in AddToWishlist.tsx - Import real API client
-import { getWishlists, createWishlist, addProductsToWishlist, type Wishlist } from '@/lib/api/wishlist';
+import { getWishlists, createWishlist, addItemToWishlist } from '@/lib/api/wishlist';
+import { getImageUrl } from '@/lib/utils/image';
 
 interface AddToWishlistProps {
   comparisonProducts: ProductWithRelations[];
@@ -83,10 +85,9 @@ export function AddToWishlist({
       // BUG-MED-003: Mock data in AddToWishlist.tsx - Use real API call
       const response = await createWishlist({
         name: newWishlistName,
-        productIds: Array.from(selectedProducts),
       });
 
-      onAdded?.(response.wishlist.id);
+      onAdded?.(response.id);
       handleClose();
     } catch (err: any) {
       setError(err?.message || 'Failed to create wishlist');
@@ -101,7 +102,11 @@ export function AddToWishlist({
 
     try {
       // BUG-MED-003: Mock data in AddToWishlist.tsx - Use real API call
-      await addProductsToWishlist(wishlistId, Array.from(selectedProducts));
+      // Add each product individually since addItemToWishlist only accepts a single productId
+      const productIds = Array.from(selectedProducts);
+      await Promise.all(
+        productIds.map((productId) => addItemToWishlist(wishlistId, productId))
+      );
 
       onAdded?.(wishlistId);
       handleClose();
@@ -225,7 +230,7 @@ export function AddToWishlist({
                         <div className="aspect-square bg-gray-100 rounded overflow-hidden mb-2">
                           {product.images && product.images.length > 0 ? (
                             <img
-                              src={product.images[0].optimizedUrl || product.images[0].originalUrl}
+                              src={getImageUrl(product.images[0].optimizedUrl || product.images[0].originalUrl) || ''}
                               alt={product.name}
                               className="w-full h-full object-cover"
                             />

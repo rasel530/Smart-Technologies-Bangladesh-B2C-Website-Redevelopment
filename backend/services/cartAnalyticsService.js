@@ -41,7 +41,7 @@ class CartAnalyticsService {
         eventData.user = { connect: { id: userId } };
       }
       
-      const event = await this.prisma.cartEvent.create({
+      const event = await this.prisma.cart_events.create({
         data: eventData
       });
 
@@ -106,12 +106,12 @@ class CartAnalyticsService {
    */
   async updateCartAnalytics(cartId, eventType, data) {
     try {
-      const analytics = await this.prisma.cartAnalytics.findUnique({
+      const analytics = await this.prisma.cart_analytics.findUnique({
         where: { cartId }
       });
 
       if (!analytics) {
-        analytics = await this.prisma.cartAnalytics.create({
+        analytics = await this.prisma.cart_analytics.create({
           data: {
             cart: { connect: { id: cartId } }
           }
@@ -127,7 +127,7 @@ class CartAnalyticsService {
         data: JSON.stringify(data || {})
       });
 
-      await this.prisma.cartAnalytics.update({
+      await this.prisma.cart_analytics.update({
         where: { cartId },
         data: { events }
       });
@@ -169,10 +169,10 @@ class CartAnalyticsService {
       }
 
       const [events, total] = await Promise.all([
-        this.prisma.cartEvent.count({
+        this.prisma.cart_events.count({
           where
         }),
-        this.prisma.cartEvent.findMany({
+        this.prisma.cart_events.findMany({
           where,
           include: {
             cart: {
@@ -223,7 +223,7 @@ class CartAnalyticsService {
   async getCartAbandonmentRate(startDate, endDate) {
     try {
       const [abandonedCarts, convertedCarts] = await Promise.all([
-        this.prisma.cart.count({
+        this.prisma.carts.count({
           where: {
             createdAt: {
               gte: startDate,
@@ -232,7 +232,7 @@ class CartAnalyticsService {
             status: 'abandoned'
           }
         }),
-        this.prisma.cart.count({
+        this.prisma.carts.count({
           where: {
             createdAt: {
               gte: startDate,
@@ -279,7 +279,7 @@ class CartAnalyticsService {
         dayEnd.setHours(23, 59, 59, 999);
 
         const [abandoned, converted] = await Promise.all([
-          this.prisma.cart.count({
+          this.prisma.carts.count({
             where: {
               createdAt: {
                 gte: dayStart,
@@ -288,7 +288,7 @@ class CartAnalyticsService {
               status: 'abandoned'
             }
           }),
-          this.prisma.cart.count({
+          this.prisma.carts.count({
             where: {
               createdAt: {
                 gte: dayStart,
@@ -333,7 +333,7 @@ class CartAnalyticsService {
         cartsWithCheckoutCompleted,
         convertedCarts
       ] = await Promise.all([
-        this.prisma.cart.count({
+        this.prisma.carts.count({
           where: {
             createdAt: {
               gte: startDate,
@@ -341,7 +341,7 @@ class CartAnalyticsService {
             }
           }
         }),
-        this.prisma.cart.count({
+        this.prisma.carts.count({
           where: {
             createdAt: {
               gte: startDate,
@@ -352,7 +352,7 @@ class CartAnalyticsService {
             }
           }
         }),
-        this.prisma.cart.count({
+        this.prisma.carts.count({
           where: {
             createdAt: {
               gte: startDate,
@@ -361,7 +361,7 @@ class CartAnalyticsService {
             checkoutInitiated: true
           }
         }),
-        this.prisma.cart.count({
+        this.prisma.carts.count({
           where: {
             createdAt: {
               gte: startDate,
@@ -402,7 +402,7 @@ class CartAnalyticsService {
    */
   async getAverageCartValue(startDate, endDate) {
     try {
-      const convertedCarts = await this.prisma.cart.findMany({
+      const convertedCarts = await this.prisma.carts.findMany({
         where: {
           createdAt: {
             gte: startDate,
@@ -424,7 +424,7 @@ class CartAnalyticsService {
         }
       });
 
-      const activeCarts = await this.prisma.cart.findMany({
+      const activeCarts = await this.prisma.carts.findMany({
         where: {
           createdAt: {
             gte: startDate,
@@ -492,7 +492,7 @@ class CartAnalyticsService {
    */
   async getPopularProductsInCarts(limit = 10, startDate, endDate) {
     try {
-      const cartItems = await this.prisma.cartItem.groupBy({
+      const cartItems = await this.prisma.cart_items.groupBy({
         by: ['productId'],
         where: {
           cart: {
@@ -514,7 +514,7 @@ class CartAnalyticsService {
       });
 
       const productIds = cartItems.map(item => item.productId).filter(id => id);
-      const products = await this.prisma.product.findMany({
+      const products = await this.prisma.products.findMany({
         where: {
           id: {
             in: productIds
@@ -563,7 +563,7 @@ class CartAnalyticsService {
         lowStockProducts,
         staleCarts
       ] = await Promise.all([
-        this.prisma.cart.count({
+        this.prisma.carts.count({
           where: {
             status: 'abandoned',
             updatedAt: {
@@ -571,7 +571,7 @@ class CartAnalyticsService {
             }
           }
         }),
-        this.prisma.product.findMany({
+        this.prisma.products.findMany({
           where: {
             stockQuantity: {
               lt: 10
@@ -579,7 +579,7 @@ class CartAnalyticsService {
           },
           take: 20
         }),
-        this.prisma.cart.findMany({
+        this.prisma.carts.findMany({
           where: {
             status: 'active',
             updatedAt: {
@@ -657,14 +657,14 @@ class CartAnalyticsService {
         checkoutInitiated,
         checkoutCompleted
       ] = await Promise.all([
-        this.prisma.cart.count(),
-        this.prisma.cartEvent.count(),
-        this.prisma.cartEvent.count({
+        this.prisma.carts.count(),
+        this.prisma.cart_events.count(),
+        this.prisma.cart_events.count({
           where: {
             eventType: 'checkout_initiated'
           }
         }),
-        this.prisma.cartEvent.count({
+        this.prisma.cart_events.count({
           where: {
             eventType: 'checkout_completed'
           }
@@ -709,7 +709,7 @@ class CartAnalyticsService {
         dayEnd.setHours(23, 59, 59, 999);
 
         const [totalCarts, abandoned, converted] = await Promise.all([
-          this.prisma.cart.count({
+          this.prisma.carts.count({
             where: {
               createdAt: {
                 gte: dayStart,
@@ -717,7 +717,7 @@ class CartAnalyticsService {
               }
             }
           }),
-          this.prisma.cart.count({
+          this.prisma.carts.count({
             where: {
               createdAt: {
                 gte: dayStart,
@@ -726,7 +726,7 @@ class CartAnalyticsService {
               status: 'abandoned'
             }
           }),
-          this.prisma.cart.count({
+          this.prisma.carts.count({
             where: {
               createdAt: {
                 gte: dayStart,
@@ -772,23 +772,23 @@ class CartAnalyticsService {
         abandonedCarts,
         convertedCarts
       ] = await Promise.all([
-        this.prisma.cart.count(),
-        this.prisma.cart.count({
+        this.prisma.carts.count(),
+        this.prisma.carts.count({
           where: {
             status: 'active'
           }
         }),
-        this.prisma.cart.count({
+        this.prisma.carts.count({
           where: {
             status: 'expired'
           }
         }),
-        this.prisma.cart.count({
+        this.prisma.carts.count({
           where: {
             status: 'abandoned'
           }
         }),
-        this.prisma.cart.count({
+        this.prisma.carts.count({
           where: {
             status: 'converted'
           }
@@ -800,7 +800,7 @@ class CartAnalyticsService {
         : 0;
 
       // Calculate average cart value using aggregation
-      const cartAggregations = await this.prisma.cart.aggregate({
+      const cartAggregations = await this.prisma.carts.aggregate({
         _avg: {
           total: true
         }
@@ -809,7 +809,7 @@ class CartAnalyticsService {
       const averageCartValue = cartAggregations._avg.total || 0;
 
       // Calculate average items per cart using aggregation
-      const itemAggregations = await this.prisma.cartItem.groupBy({
+      const itemAggregations = await this.prisma.cart_items.groupBy({
         by: ['cartId'],
         _count: {
           id: true
@@ -820,7 +820,7 @@ class CartAnalyticsService {
       const averageItemsPerCart = totalCarts > 0 ? totalItems / totalCarts : 0;
 
       // Get top abandoned products using aggregation
-      const topAbandonedProducts = await this.prisma.cartItem.groupBy({
+      const topAbandonedProducts = await this.prisma.cart_items.groupBy({
         by: ['productId'],
         where: {
           cart: {
@@ -840,7 +840,7 @@ class CartAnalyticsService {
 
       // Get product names for top abandoned products
       const productIds = topAbandonedProducts.map(item => item.productId);
-      const products = await this.prisma.product.findMany({
+      const products = await this.prisma.products.findMany({
         where: {
           id: { in: productIds }
         },
@@ -858,7 +858,7 @@ class CartAnalyticsService {
       }));
 
       // Get cart size distribution using aggregation
-      const cartSizeDistribution = await this.prisma.cartItem.groupBy({
+      const cartSizeDistribution = await this.prisma.cart_items.groupBy({
         by: ['cartId'],
         _count: {
           id: true
@@ -879,7 +879,7 @@ class CartAnalyticsService {
       });
 
       // Get time in cart distribution
-      const cartsForTimeDistribution = await this.prisma.cart.findMany({
+      const cartsForTimeDistribution = await this.prisma.carts.findMany({
         select: {
           id: true,
           createdAt: true
@@ -937,7 +937,7 @@ class CartAnalyticsService {
    */
   async recordAbandonmentReason(cartId, reason) {
     try {
-      const analytics = await this.prisma.cartAnalytics.findUnique({
+      const analytics = await this.prisma.cart_analytics.findUnique({
         where: { cartId }
       });
 
@@ -948,7 +948,7 @@ class CartAnalyticsService {
           recordedAt: new Date().toISOString()
         });
 
-        await this.prisma.cartAnalytics.update({
+        await this.prisma.cart_analytics.update({
           where: { cartId },
           data: { abandonmentReasons: reasons }
         });
@@ -975,7 +975,7 @@ class CartAnalyticsService {
       startDate.setDate(startDate.getDate() - days);
 
       // Get filtered recovery events first
-      const filteredRecoveryEvents = await this.prisma.cartRecoveryEvent.findMany({
+      const filteredRecoveryEvents = await this.prisma.cart_recovery_events.findMany({
         where: {
           createdAt: { gte: startDate }
         },
@@ -1002,27 +1002,27 @@ class CartAnalyticsService {
         recoveredRevenue
       ] = await Promise.all([
         // Total abandoned carts in period
-        this.prisma.cart.count({
+        this.prisma.carts.count({
           where: {
             abandonedAt: { gte: startDate }
           }
         }),
         // Total recovered carts
-        this.prisma.cart.count({
+        this.prisma.carts.count({
           where: {
             abandonedAt: { gte: startDate },
             recoveredAt: { not: null }
           }
         }),
         // Total pending recovery
-        this.prisma.cart.count({
+        this.prisma.carts.count({
           where: {
             abandonedAt: { gte: startDate },
             recoveredAt: null
           }
         }),
         // Recovered revenue
-        this.prisma.cart.aggregate({
+        this.prisma.carts.aggregate({
           where: {
             recoveredAt: { gte: startDate }
           },
@@ -1081,7 +1081,7 @@ class CartAnalyticsService {
         dayEnd.setHours(23, 59, 59, 999);
 
         const [abandoned, recovered, emails] = await Promise.all([
-          this.prisma.cart.count({
+          this.prisma.carts.count({
             where: {
               abandonedAt: {
                 gte: dayStart,
@@ -1089,14 +1089,14 @@ class CartAnalyticsService {
               }
             }
           }),
-          this.prisma.cart.count({
+          this.prisma.carts.count({
             where: {
               abandonedAt: { gte: dayStart },
               recoveredAt: { not: null },
               abandonedAt: { not: null }
             }
           }),
-          this.prisma.cartRecoveryEvent.groupBy({
+          this.prisma.cart_recovery_events.groupBy({
             by: ['eventType'],
             where: {
               createdAt: {
@@ -1108,7 +1108,7 @@ class CartAnalyticsService {
           })
         ]);
 
-        const revenue = await this.prisma.cart.aggregate({
+        const revenue = await this.prisma.carts.aggregate({
           where: {
             recoveredAt: { gte: dayStart }
           },
@@ -1139,7 +1139,7 @@ class CartAnalyticsService {
    */
   async getTemplateStats(days = 30) {
     try {
-      const events = await this.prisma.cartRecoveryEvent.findMany({
+      const events = await this.prisma.cart_recovery_events.findMany({
         where: {
           createdAt: {
             gte: new Date(Date.now() - days * 24 * 60 * 60 * 1000)
@@ -1216,7 +1216,7 @@ class CartAnalyticsService {
    */
   async getDiscountStats(days = 30) {
     try {
-      const recoveredCarts = await this.prisma.cart.findMany({
+      const recoveredCarts = await this.prisma.carts.findMany({
         where: {
           recoveredAt: {
             gte: new Date(Date.now() - days * 24 * 60 * 60 * 1000)
@@ -1263,7 +1263,7 @@ class CartAnalyticsService {
    */
   async getHourlyStats(days = 30) {
     try {
-      const events = await this.prisma.cartRecoveryEvent.findMany({
+      const events = await this.prisma.cart_recovery_events.findMany({
         where: {
           createdAt: {
             gte: new Date(Date.now() - days * 24 * 60 * 60 * 1000)

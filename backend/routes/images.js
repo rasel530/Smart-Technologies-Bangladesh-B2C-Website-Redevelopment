@@ -259,7 +259,7 @@ router.delete('/:id', [
     let updatedImage;
     try {
       console.log(`[Images] Executing Prisma update for image: ${imageId}`);
-      updatedImage = await prisma.productImage.update({
+      updatedImage = await prisma.product_images.update({
         where: { id: imageId },
         data: { 
           processingStatus: 'deleted',

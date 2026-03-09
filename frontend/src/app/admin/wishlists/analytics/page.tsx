@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Admin Wishlist Analytics Dashboard
@@ -31,6 +31,7 @@ import {
   type WishlistAnalytics
 } from '@/lib/api/adminWishlist';
 import { cn } from '@/lib/utils';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 // PRIORITY 6: Dynamic import for Recharts to reduce initial bundle size
 const WishlistAnalyticsChart = React.lazy(() => import('@/components/admin/wishlist/WishlistAnalyticsChart'));
@@ -112,13 +113,14 @@ function AdminWishlistAnalyticsPage() {
     a.download = `wishlist-analytics-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
+    if (document.body && a.parentNode === document.body) { document.body.removeChild(a); }
     URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <AdminLayout title="Wishlist Analytics">
+      <div className="space-y-6">
+        {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
@@ -351,6 +353,7 @@ function AdminWishlistAnalyticsPage() {
         </div>
       )}
     </div>
+    </AdminLayout>
   );
 }
 

@@ -11,6 +11,7 @@ import { usePathname } from 'next/navigation'
 import { TokenSyncProvider } from '@/contexts/TokenSyncContext'
 import { CategoryTree } from '@/types/category'
 import { WishlistProvider } from '@/contexts/WishlistContext'
+import { PaymentProvider } from '@/contexts/PaymentContext'
 
 interface LayoutContentProps {
   children: React.ReactNode
@@ -26,24 +27,26 @@ export function LayoutContent({ children, categoryTree = [] }: LayoutContentProp
       <TokenSyncProvider>
         <AuthProvider>
           <WishlistProvider>
-            {/* PRIORITY 1: Skip CartProvider for admin pages to reduce LCP by 5-8 seconds */}
-            {isAdminPage ? (
-              <ToastProvider>
-                <CompareProvider>
-                  {children}
-                </CompareProvider>
-              </ToastProvider>
-            ) : (
-              <CartProvider>
+            <PaymentProvider>
+              {/* PRIORITY 1: Skip CartProvider for admin pages to reduce LCP by 5-8 seconds */}
+              {isAdminPage ? (
                 <ToastProvider>
                   <CompareProvider>
-                    <Header categoryTree={categoryTree} categoriesLoading={false} />
                     {children}
-                    <CompareBar />
                   </CompareProvider>
                 </ToastProvider>
-              </CartProvider>
-            )}
+              ) : (
+                <CartProvider>
+                  <ToastProvider>
+                    <CompareProvider>
+                      <Header categoryTree={categoryTree} categoriesLoading={false} />
+                      {children}
+                      <CompareBar />
+                    </CompareProvider>
+                  </ToastProvider>
+                </CartProvider>
+              )}
+            </PaymentProvider>
           </WishlistProvider>
         </AuthProvider>
       </TokenSyncProvider>

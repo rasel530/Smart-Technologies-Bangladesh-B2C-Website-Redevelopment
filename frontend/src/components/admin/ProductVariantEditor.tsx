@@ -185,7 +185,7 @@ const ProductVariantEditor: React.FC<ProductVariantEditorProps> = ({
       </form>
 
       {/* Variants List */}
-      {variants.length === 0 ? (
+      {!variants || variants.length === 0 ? (
         <p className="text-gray-500 text-center py-4">No variants added yet</p>
       ) : (
         <div className="space-y-3">

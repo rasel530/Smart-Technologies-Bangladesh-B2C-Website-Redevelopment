@@ -643,7 +643,7 @@ class AdminCartWishlistController {
       const prisma = new PrismaClient();
 
       // Search users by email, first name, or last name
-      const users = await prisma.user.findMany({
+      const users = await prisma.users.findMany({
         where: {
           OR: [
             { email: { contains: q, mode: 'insensitive' } },

@@ -260,14 +260,14 @@ async (req, res, next) => {
   const startTime = Date.now();
   const startTimeIso = new Date(startTime).toISOString();
   const { id } = req.params;
-  const updateData = req.body;
+  const updatedAta = req.body;
   
   // Log request start with comprehensive context
   console.log('='.repeat(80));
   console.log('[LOCAL PAYMENT] PUT /admin/local-payment/methods/:id - REQUEST START');
   console.log('[LOCAL PAYMENT] Start time:', startTimeIso);
   console.log('[LOCAL PAYMENT] Method ID:', id);
-  console.log('[LOCAL PAYMENT] Request body:', JSON.stringify(updateData, null, 2));
+  console.log('[LOCAL PAYMENT] Request body:', JSON.stringify(updatedAta, null, 2));
   console.log('[LOCAL PAYMENT] Request headers:', {
     'content-type': req.get('Content-Type'),
     'authorization': req.get('Authorization') ? 'present' : 'missing',
@@ -282,7 +282,7 @@ async (req, res, next) => {
     method: 'PUT',
     url: req.originalUrl,
     methodId: id,
-    body: updateData,
+    body: updatedAta,
     userId: req.user?.id,
     ip: req.ip,
     startTime: startTimeIso
@@ -291,7 +291,7 @@ async (req, res, next) => {
   try {
     console.log('[LOCAL PAYMENT] Calling localPaymentService.updatePaymentMethod...');
     
-    const method = await localPaymentService.updatePaymentMethod(id, updateData);
+    const method = await localPaymentService.updatePaymentMethod(id, updatedAta);
     
     const duration = Date.now() - startTime;
     const completionTime = new Date().toISOString();
@@ -351,7 +351,7 @@ async (req, res, next) => {
       duration: duration,
       startTime: startTimeIso,
       completionTime: completionTime,
-      body: updateData
+      body: updatedAta
     });
     
     // Handle timeout errors specifically
@@ -1126,14 +1126,14 @@ async (req, res, next) => {
   const startTime = Date.now();
   const startTimeIso = new Date(startTime).toISOString();
   const { id } = req.params;
-  const updateData = req.body;
+  const updatedAta = req.body;
   
   // Log request start with comprehensive context
   console.log('='.repeat(80));
   console.log('[LOCAL PAYMENT] PUT /admin/local-payment/sms-subscriptions/:id - REQUEST START');
   console.log('[LOCAL PAYMENT] Start time:', startTimeIso);
   console.log('[LOCAL PAYMENT] Subscription ID:', id);
-  console.log('[LOCAL PAYMENT] Request body:', JSON.stringify(updateData, null, 2));
+  console.log('[LOCAL PAYMENT] Request body:', JSON.stringify(updatedAta, null, 2));
   console.log('[LOCAL PAYMENT] Request headers:', {
     'content-type': req.get('Content-Type'),
     'authorization': req.get('Authorization') ? 'present' : 'missing',
@@ -1148,7 +1148,7 @@ async (req, res, next) => {
     method: 'PUT',
     url: req.originalUrl,
     subscriptionId: id,
-    body: updateData,
+    body: updatedAta,
     userId: req.user?.id,
     ip: req.ip,
     startTime: startTimeIso
@@ -1157,7 +1157,7 @@ async (req, res, next) => {
   try {
     console.log('[LOCAL PAYMENT] Calling localPaymentService.updateSmsSubscription...');
     
-    const subscription = await localPaymentService.updateSmsSubscription(id, updateData);
+    const subscription = await localPaymentService.updateSmsSubscription(id, updatedAta);
     
     const duration = Date.now() - startTime;
     const completionTime = new Date().toISOString();
@@ -1217,7 +1217,7 @@ async (req, res, next) => {
       duration: duration,
       startTime: startTimeIso,
       completionTime: completionTime,
-      body: updateData
+      body: updatedAta
     });
     
     // Handle timeout errors specifically

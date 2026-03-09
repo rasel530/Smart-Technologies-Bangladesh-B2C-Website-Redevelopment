@@ -71,7 +71,7 @@ router.delete('/account', [
     // Step 1: Validate user is authenticated (already done by authMiddleware)
 
     // Step 2: Get user details
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId },
       include: {
         orders: {
@@ -128,7 +128,7 @@ router.delete('/account', [
     }
 
     // Step 5: Perform soft delete (set deleted_at timestamp)
-    const deletedUser = await prisma.user.update({
+    const deletedUser = await prisma.users.update({
       where: { id: userId },
       data: {
         deletedAt: new Date(),
@@ -138,57 +138,57 @@ router.delete('/account', [
 
     // Step 6: Clean up related data
     // Delete user sessions
-    await prisma.userSession.deleteMany({
+    await prisma.user_sessions.deleteMany({
       where: { userId }
     });
 
     // Delete notification preferences
-    await prisma.userNotificationPreferences.deleteMany({
+    await prisma.user_notification_preferences.deleteMany({
       where: { userId }
     });
 
     // Delete communication preferences
-    await prisma.userCommunicationPreferences.deleteMany({
+    await prisma.user_communication_preferences.deleteMany({
       where: { userId }
     });
 
     // Delete privacy settings
-    await prisma.userPrivacySettings.deleteMany({
+    await prisma.user_privacy_settings.deleteMany({
       where: { userId }
     });
 
     // Delete addresses
-    await prisma.address.deleteMany({
+    await prisma.addresses.deleteMany({
       where: { userId }
     });
 
     // Delete cart
-    await prisma.cart.deleteMany({
+    await prisma.carts.deleteMany({
       where: { userId }
     });
 
     // Delete wishlist
-    await prisma.wishlist.deleteMany({
+    await prisma.wishlists.deleteMany({
       where: { userId }
     });
 
     // Delete email verification tokens
-    await prisma.emailVerificationToken.deleteMany({
+    await prisma.email_verification_tokens.deleteMany({
       where: { userId }
     });
 
     // Delete phone OTPs
-    await prisma.phoneOTP.deleteMany({
+    await prisma.phone_otps.deleteMany({
       where: { userId }
     });
 
     // Delete password history
-    await prisma.passwordHistory.deleteMany({
+    await prisma.password_histories.deleteMany({
       where: { userId }
     });
 
     // Delete social accounts
-    await prisma.userSocialAccount.deleteMany({
+    await prisma.user_social_accounts.deleteMany({
       where: { userId }
     });
 
@@ -238,7 +238,7 @@ router.get('/account/deletion-status', authMiddleware.authenticate(), async (req
   try {
     const userId = req.user.id;
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId },
       select: {
         id: true,

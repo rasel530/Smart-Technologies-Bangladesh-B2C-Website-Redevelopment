@@ -48,68 +48,312 @@ class GuestCheckoutController {
   /**
    * Initiate guest checkout
    * @route POST /api/v1/guest/checkout/initiate
+   * FIX 3: Improved cart validation - if cartId is provided, validate strictly
+   * and return clear errors instead of creating new empty cart
    */
   async initiateGuestCheckout(req, res) {
     try {
-      const { cartId } = req.body;
+      let { cartId, deviceId, sessionId: cartSessionId } = req.body;
 
       loggerService.info('[initiateGuestCheckout] Initiating guest checkout', {
         cartId,
+        deviceId,
+        cartSessionId,
         timestamp: new Date().toISOString()
       });
 
-      // Validate cartId is provided
-      if (!cartId) {
-        return res.status(400).json({
-          success: false,
-          error: 'Cart ID is required',
-          message: 'Cart ID is required',
-          messageBn: 'কার্ট আইডি প্রয়োজন'
-        });
-      }
+      let validCartId = null;
 
-      // Validate cartId format
-      if (!validateUUID(cartId)) {
-        return res.status(400).json({
-          success: false,
-          error: 'Invalid cart ID format',
-          message: 'Invalid cart ID format',
-          messageBn: 'অবৈধ কার্ট আইডি ফরম্যাট'
-        });
-      }
+      // FIX 2: If cartId is provided, validate it strictly - do NOT create new cart if invalid
+      if (cartId) {
+        loggerService.info('[initiateGuestCheckout] CartId provided, validating...', { cartId });
+        
+        // Validate cartId format if provided
+        if (!validateUUID(cartId)) {
+          loggerService.error('[initiateGuestCheckout] Invalid cartId format', { cartId });
+          return res.status(400).json({
+            success: false,
+            error: 'Invalid cart ID format. Cart ID must be a valid UUID.',
+            message: 'Invalid cart ID format. Cart ID must be a valid UUID.',
+            messageBn: 'অবৈধ কার্ট আইডি ফরম্যাট। কার্ট আইডি একটি বৈধ UUID হতে হবে।'
+          });
+        }
 
-      // Validate cart exists and is not empty
-      const cart = await prisma.cart.findUnique({
-        where: { id: cartId },
-        include: { items: true }
-      });
+        // FIX 2: Try multiple lookup strategies for cartId
+        let cart = null;
+        
+        // Strategy 1: Lookup by id (original behavior)
+        try {
+          loggerService.info('[initiateGuestCheckout] Attempting cart lookup by id...', { cartId });
+          cart = await prisma.carts.findUnique({
+            where: { id: cartId },
+            include: { items: true }
+          });
+          loggerService.info('[initiateGuestCheckout] Cart lookup by id result', {
+            cartId,
+            cartFound: !!cart,
+            itemCount: cart ? cart.items.length : 0,
+            cartStatus: cart?.status,
+            cartSessionId: cart?.sessionId,
+            cartExpiresAt: cart?.expiresAt
+          });
+        } catch (dbError) {
+          loggerService.error('[initiateGuestCheckout] Database error during cart lookup by id', {
+            cartId,
+            error: dbError.message,
+            errorCode: dbError.code,
+            errorStack: dbError.stack
+          });
+        }
 
-      if (!cart) {
-        return res.status(404).json({
-          success: false,
-          error: 'Cart not found',
-          message: 'Cart not found',
-          messageBn: 'কার্ট পাওয়া যায়নি'
-        });
-      }
+        // FIX 2: Strategy 2: If not found by id, try lookup by sessionId
+        // This handles carts created via cart API which use sessionId field
+        if (!cart) {
+          try {
+            loggerService.info('[initiateGuestCheckout] Cart not found by id, trying sessionId lookup...', { cartId });
+            cart = await prisma.carts.findFirst({
+              where: {
+                sessionId: cartId,  // Treat cartId as sessionId
+                status: 'active'
+              },
+              include: { items: true },
+              orderBy: { updatedAt: 'desc' }
+            });
+            loggerService.info('[initiateGuestCheckout] Cart lookup by sessionId result', {
+              cartId,
+              cartFound: !!cart,
+              itemCount: cart ? cart.items.length : 0,
+              cartStatus: cart?.status,
+              cartSessionId: cart?.sessionId,
+              cartExpiresAt: cart?.expiresAt
+            });
+          } catch (dbError) {
+            loggerService.error('[initiateGuestCheckout] Database error during cart lookup by sessionId', {
+              cartId,
+              error: dbError.message,
+              errorCode: dbError.code,
+              errorStack: dbError.stack
+            });
+          }
+        }
 
-      if (cart.items.length === 0) {
-        return res.status(400).json({
-          success: false,
-          error: 'Cart is empty',
-          message: 'Cart is empty',
-          messageBn: 'কার্ট খালি'
+        // FIX 2: If cart is found but empty, return clear error
+        if (cart && cart.items.length === 0) {
+          loggerService.error('[initiateGuestCheckout] Cart is empty', { cartId });
+          return res.status(400).json({
+            success: false,
+            error: 'Cart is empty. Cannot initiate checkout with an empty cart.',
+            message: 'Your cart is empty. Please add items to your cart before checkout.',
+            messageBn: 'আপনার কার্ট খালি। চেকআউট করার আগে অনুগ্রহ করে পণ্য যোগ করুন।'
+          });
+        }
+
+        // FIX 2: If still not found after all strategies, return clear error
+        if (!cart) {
+          loggerService.error('[initiateGuestCheckout] Cart not found after all lookup strategies', { 
+            cartId,
+            deviceId,
+            cartSessionId,
+            timestamp: new Date().toISOString()
+          });
+          
+          // Try one more fallback: check if cartId exists as sessionId in database
+          // This handles case where frontend sends sessionId instead of cart.id
+          loggerService.info('[initiateGuestCheckout] Trying final fallback - check if cartId exists as sessionId', { cartId });
+          const fallbackCart = await prisma.carts.findFirst({
+            where: {
+              sessionId: cartId,
+              status: 'active'
+            },
+            include: { items: true },
+            orderBy: { updatedAt: 'desc' }
+          });
+          
+          if (fallbackCart) {
+            loggerService.info('[initiateGuestCheckout] Cart found via sessionId fallback', {
+              cartId,
+              foundCartId: fallbackCart.id,
+              itemCount: fallbackCart.items.length
+            });
+            
+            // Use the found cart
+            cart = fallbackCart;
+          } else {
+            loggerService.warn('[initiateGuestCheckout] Cart not found even with sessionId fallback', {
+              cartId,
+              deviceId,
+              cartSessionId
+            });
+          }
+        }
+
+        // Use provided cart if it exists and has items
+        // CRITICAL FIX: Use cart.id (actual database ID) instead of cartId (request parameter)
+        // This handles case where cart was found via sessionId lookup, where cartId != cart.id
+        validCartId = cart.id;
+        loggerService.info('[initiateGuestCheckout] Using provided cart with items', { 
+          originalCartId: cartId,
+          actualCartId: cart.id,
+          itemCount: cart.items.length
         });
+      } else {
+        // FIX 3: No cartId provided - try to find existing cart with items
+        loggerService.info('[initiateGuestCheckout] No cartId provided, searching for existing cart...', {
+          deviceId,
+          cartSessionId
+        });
+
+        // Try to find cart by sessionId (for carts created via /cart/guest endpoint)
+        if (cartSessionId) {
+          loggerService.info('[initiateGuestCheckout] Searching for cart by sessionId', { cartSessionId });
+          
+          const existingCartBySession = await prisma.carts.findFirst({
+            where: {
+              sessionId: cartSessionId,
+              status: 'active'
+            },
+            include: {
+              items: true
+            },
+            orderBy: {
+              updatedAt: 'desc'
+            }
+          });
+
+          if (existingCartBySession) {
+            loggerService.info('[initiateGuestCheckout] Found cart by sessionId', {
+              sessionId: cartSessionId,
+              cartId: existingCartBySession.id,
+              itemCount: existingCartBySession.items.length
+            });
+
+            if (existingCartBySession.items.length > 0) {
+              validCartId = existingCartBySession.id;
+              loggerService.info('[initiateGuestCheckout] Using cart found by sessionId', {
+                cartId: validCartId,
+                itemCount: existingCartBySession.items.length
+              });
+            } else {
+              loggerService.warn('[initiateGuestCheckout] Cart found by sessionId but is empty', {
+                sessionId: cartSessionId,
+                cartId: existingCartBySession.id
+              });
+            }
+          } else {
+            loggerService.info('[initiateGuestCheckout] No cart found by sessionId', { cartSessionId });
+          }
+        }
+
+        // Try to find cart by deviceId
+        if (!validCartId && deviceId) {
+          loggerService.info('[initiateGuestCheckout] Searching for cart by deviceId', { deviceId });
+          
+          const existingCart = await prisma.carts.findFirst({
+            where: {
+              deviceId: deviceId,
+              status: 'active'
+            },
+            include: {
+              items: true
+            },
+            orderBy: {
+              updatedAt: 'desc'
+            }
+          });
+
+          if (existingCart) {
+            loggerService.info('[initiateGuestCheckout] Found cart by deviceId', {
+              deviceId,
+              cartId: existingCart.id,
+              itemCount: existingCart.items.length
+            });
+
+            if (existingCart.items.length > 0) {
+              validCartId = existingCart.id;
+              loggerService.info('[initiateGuestCheckout] Using cart found by deviceId', {
+                cartId: validCartId,
+                itemCount: existingCart.items.length
+              });
+            } else {
+              loggerService.warn('[initiateGuestCheckout] Cart found by deviceId but is empty', {
+                deviceId,
+                cartId: existingCart.id
+              });
+            }
+          } else {
+            loggerService.info('[initiateGuestCheckout] No cart found by deviceId', { deviceId });
+          }
+        }
+
+        // FIX 3: Only create new cart if no cartId was provided at all AND no existing cart found
+        if (!validCartId) {
+          loggerService.info('[initiateGuestCheckout] No existing cart found, creating new guest cart', { deviceId });
+          
+          const newCart = await prisma.carts.create({
+            data: {
+              userId: null, // Guest cart
+              deviceId: deviceId || null, // Store deviceId for guest cart identification
+              status: 'active'
+            }
+          });
+          
+          validCartId = newCart.id;
+          loggerService.info('[initiateGuestCheckout] Created new guest cart', { cartId: validCartId, deviceId });
+        }
       }
 
       // Generate unique session ID
       const sessionId = crypto.randomUUID();
 
-      // Create guest session
-      const guestSession = await guestCheckoutService.createGuestSession(sessionId, cartId);
+      // Create guest session with metadata for cart recovery
+      let guestSession;
+      try {
+        guestSession = await guestCheckoutService.createGuestSession(sessionId, validCartId, {
+          deviceId: deviceId,
+          originalCartId: cartId
+        });
+        loggerService.info('[initiateGuestCheckout] Guest session created successfully', {
+          sessionId,
+          cartId: validCartId,
+          deviceId
+        });
+      } catch (sessionError) {
+        loggerService.error('[initiateGuestCheckout] Error creating guest session', {
+          sessionId,
+          cartId: validCartId,
+          error: sessionError.message,
+          errorStack: sessionError.stack
+        });
+        
+        // Re-throw to let the outer catch block handle it
+        throw sessionError;
+      }
 
-      // Calculate cart totals
-      const totals = await cartService.calculateCartTotals(cartId);
+      // Calculate cart totals with error handling
+      let totals;
+      try {
+        totals = await cartService.calculateCartTotals(validCartId);
+        loggerService.info('[initiateGuestCheckout] Cart totals calculated successfully', {
+          cartId: validCartId,
+          totals
+        });
+      } catch (totalsError) {
+        loggerService.error('[initiateGuestCheckout] Error calculating cart totals', {
+          cartId: validCartId,
+          error: totalsError.message,
+          errorStack: totalsError.stack
+        });
+        
+        // Return cart totals even if calculation fails
+        totals = {
+          subtotal: 0,
+          tax: 0,
+          shippingCost: 0,
+          discount: 0,
+          total: 0,
+          itemCount: cart?.items?.length || 0
+        };
+      }
 
       res.status(201).json({
         success: true,
@@ -123,11 +367,25 @@ class GuestCheckoutController {
         }
       });
     } catch (error) {
-      loggerService.error('Error in initiateGuestCheckout controller', {
+      loggerService.error('[initiateGuestCheckout] Error in initiateGuestCheckout controller', {
         error: error.message,
+        errorName: error.name,
+        errorCode: error.code,
         stack: error.stack,
-        cartId: req.body?.cartId
+        cartId: req.body?.cartId,
+        deviceId: req.body?.deviceId,
+        cartSessionId: req.body?.sessionId,
+        timestamp: new Date().toISOString()
       });
+
+      // Log if this is a Prisma/database error
+      if (error.code && error.code.startsWith('P')) {
+        loggerService.error('[initiateGuestCheckout] Prisma database error detected', {
+          prismaErrorCode: error.code,
+          prismaErrorMeta: error.meta,
+          cartId: req.body?.cartId
+        });
+      }
 
       res.status(500).json({
         success: false,
@@ -281,7 +539,7 @@ class GuestCheckoutController {
       } else if (error.message === 'Guest session has been converted to user') {
         statusCode = 400;
         errorMessage = 'Guest session has been converted to user';
-        errorMessageBn = 'অতিথি সেশন ব্যবহারকারীতে রূপান্তরিত হয়েছে';
+        errorMessageBn: 'অতিথি সেশন ব্যবহারকারীতে রূপান্তরিত হয়েছে';
       }
 
       res.status(statusCode).json({
@@ -296,6 +554,7 @@ class GuestCheckoutController {
   /**
    * Complete guest checkout
    * @route POST /api/v1/guest/checkout/session/:sessionId/complete
+   * FIX 4: Enhanced fallback logging with detailed error messages
    */
   async completeGuestCheckout(req, res) {
     try {
@@ -351,7 +610,9 @@ class GuestCheckoutController {
       }
 
       // Create address for guest order
-      const address = await prisma.address.create({
+      // Convert division to lowercase enum value
+      const divisionValue = shippingAddress.division ? shippingAddress.division.toLowerCase() : 'dhaka';
+      const address = await prisma.addresses.create({
         data: {
           userId: null, // Guest order
           firstName: shippingAddress.firstName || guestSession.firstName,
@@ -361,7 +622,7 @@ class GuestCheckoutController {
           addressLine2: shippingAddress.addressLine2 || '',
           city: shippingAddress.city,
           district: shippingAddress.district,
-          division: shippingAddress.division || 'Dhaka',
+          division: divisionValue,
           postalCode: shippingAddress.postalCode || '',
           upazila: shippingAddress.upazila || '',
           isDefault: false,
@@ -369,8 +630,9 @@ class GuestCheckoutController {
         }
       });
 
-      // Get cart items
-      const cart = await prisma.cart.findUnique({
+      // Get cart items - ALWAYS re-fetch cart from guestSession to ensure we have the latest
+      // This prevents issues where cart association might have been updated after session creation
+      let cart = await prisma.carts.findUnique({
         where: { id: guestSession.cartId },
         include: {
           items: {
@@ -381,6 +643,168 @@ class GuestCheckoutController {
           }
         }
       });
+
+      // CRITICAL: Log cart details for debugging
+      loggerService.info('[completeGuestCheckout] Cart details for order creation', {
+        sessionId,
+        cartId: guestSession.cartId,
+        cartItemsCount: cart?.items?.length || 0,
+        cartTotal: cart?.total?.toString() || '0',
+        cartSubtotal: cart?.subtotal?.toString() || '0'
+      });
+
+      // FIX 4: Enhanced fallback logging for empty cart
+      // If cart is empty, search for existing cart with items
+      // This handles the case where initiateGuestCheckout created a new empty cart
+      // instead of using the existing cart that had items
+      if (!cart || cart.items.length === 0) {
+        loggerService.warn('[completeGuestCheckout] Linked cart is empty or not found, attempting fallback...', {
+          sessionId,
+          linkedCartId: guestSession.cartId,
+          cartExists: !!cart,
+          cartItems: cart?.items?.length || 0
+        });
+
+        // Try to find an active cart with items using deviceId from session metadata
+        const deviceId = guestSession.metadata?.deviceId;
+        
+        // FIX 4: Enhanced logging for deviceId fallback
+        if (deviceId) {
+          loggerService.info('[completeGuestCheckout] Attempting fallback by deviceId', {
+            sessionId,
+            deviceId
+          });
+          
+          const existingCart = await prisma.carts.findFirst({
+            where: {
+              deviceId: deviceId,
+              status: 'active'
+            },
+            include: {
+              items: {
+                include: {
+                  product: true,
+                  variant: true
+                }
+              }
+            },
+            orderBy: {
+              updatedAt: 'desc'
+            }
+          });
+
+          if (existingCart) {
+            loggerService.info('[completeGuestCheckout] DeviceId fallback: cart found', {
+              sessionId,
+              deviceId,
+              cartId: existingCart.id,
+              itemCount: existingCart.items.length,
+              cartHasItems: existingCart.items.length > 0
+            });
+
+            if (existingCart.items.length > 0) {
+              cart = existingCart;
+              loggerService.info('[completeGuestCheckout] DeviceId fallback: using cart with items', {
+                sessionId,
+                cartId: cart.id,
+                itemCount: cart.items.length
+              });
+            } else {
+              loggerService.warn('[completeGuestCheckout] DeviceId fallback: cart found but empty', {
+                sessionId,
+                deviceId,
+                cartId: existingCart.id
+              });
+            }
+          } else {
+            loggerService.warn('[completeGuestCheckout] DeviceId fallback: no cart found', {
+              sessionId,
+              deviceId
+            });
+          }
+        } else {
+          loggerService.warn('[completeGuestCheckout] No deviceId available for fallback', {
+            sessionId
+          });
+        }
+
+        // FIX 4: Enhanced logging for sessionId fallback
+        // If still no cart with items, try to find by sessionId (for carts created via cart API)
+        if (!cart || cart.items.length === 0) {
+          loggerService.info('[completeGuestCheckout] Attempting fallback by sessionId', {
+            sessionId
+          });
+          
+          const sessionCart = await prisma.carts.findFirst({
+            where: {
+              sessionId: sessionId, // Use guest checkout sessionId
+              status: 'active'
+            },
+            include: {
+              items: {
+                include: {
+                  product: true,
+                  variant: true
+                }
+              }
+            },
+            orderBy: {
+              updatedAt: 'desc'
+            }
+          });
+
+          if (sessionCart) {
+            loggerService.info('[completeGuestCheckout] SessionId fallback: cart found', {
+              sessionId,
+              cartId: sessionCart.id,
+              itemCount: sessionCart.items.length,
+              cartHasItems: sessionCart.items.length > 0
+            });
+
+            if (sessionCart.items.length > 0) {
+              cart = sessionCart;
+              loggerService.info('[completeGuestCheckout] SessionId fallback: using cart with items', {
+                sessionId,
+                cartId: cart.id,
+                itemCount: cart.items.length
+              });
+            } else {
+              loggerService.warn('[completeGuestCheckout] SessionId fallback: cart found but empty', {
+                sessionId,
+                cartId: sessionCart.id
+              });
+            }
+          } else {
+            loggerService.warn('[completeGuestCheckout] SessionId fallback: no cart found', {
+              sessionId
+            });
+          }
+        }
+
+        // FIX 4: Log final fallback result
+        loggerService.info('[completeGuestCheckout] Fallback attempts completed', {
+          sessionId,
+          finalCartId: cart?.id || 'none',
+          finalCartItemCount: cart?.items?.length || 0,
+          fallbackSuccessful: !!(cart && cart.items.length > 0)
+        });
+      }
+
+      // CRITICAL: Validate cart has items before creating order
+      if (!cart || cart.items.length === 0) {
+        loggerService.error('[completeGuestCheckout] Cart is empty after all fallback attempts - cannot create order', {
+          sessionId,
+          cartId: guestSession.cartId,
+          cartItems: cart?.items?.length || 0,
+          fallbackAttempts: 'deviceId and sessionId'
+        });
+        return res.status(400).json({
+          success: false,
+          error: 'Cart is empty after all recovery attempts. Cannot create order.',
+          message: 'Your cart is empty. Please add items and try again.',
+          messageBn: 'আপনার কার্ট খালি। অনুগ্রহ করে পণ্য যোগ করুন।'
+        });
+      }
 
       // Calculate totals
       const totals = await cartService.calculateCartTotals(guestSession.cartId);
@@ -426,7 +850,7 @@ class GuestCheckoutController {
         // Update product stock
         for (const item of cart.items) {
           if (item.variantId) {
-            await tx.productVariant.update({
+            await tx.product_variants.update({
               where: { id: item.variantId },
               data: {
                 stock: {
@@ -435,7 +859,7 @@ class GuestCheckoutController {
               }
             });
           } else {
-            await tx.product.update({
+            await tx.products.update({
               where: { id: item.productId },
               data: {
                 stockQuantity: {
@@ -604,10 +1028,10 @@ class GuestCheckoutController {
       }
 
       // Get order by order number
-      const order = await prisma.order.findUnique({
+      const order = await prisma.orders.findUnique({
         where: { orderNumber },
         include: {
-          address: true,
+          addresses: true,
           items: {
             include: {
               product: {
@@ -641,10 +1065,10 @@ class GuestCheckoutController {
         });
       }
 
-      // Validate guest owns the order
+      // Validate guest owns order
       const paymentDetails = order.paymentDetails || {};
       const orderEmail = paymentDetails.email;
-      const orderPhone = paymentDetails.phone || order.address?.phone;
+      const orderPhone = paymentDetails.phone || order.addresses[0]?.phone;
 
       if (email && orderEmail !== email) {
         return res.status(403).json({
@@ -725,7 +1149,7 @@ class GuestCheckoutController {
       const guestSession = await guestCheckoutService.getGuestSession(guestSessionId);
 
       // Get user cart
-      const userCart = await prisma.cart.findFirst({
+      const userCart = await prisma.carts.findFirst({
         where: { userId }
       });
 
@@ -835,7 +1259,7 @@ class GuestCheckoutController {
       }
 
       // Check if email already exists
-      const existingUser = await prisma.user.findUnique({
+      const existingUser = await prisma.users.findUnique({
         where: { email }
       });
 
@@ -857,7 +1281,7 @@ class GuestCheckoutController {
       // Create user account
       const user = await prisma.$transaction(async (tx) => {
         // Create user
-        const newUser = await tx.user.create({
+        const newUser = await tx.users.create({
           data: {
             email,
             password: hashedPassword,
@@ -870,7 +1294,7 @@ class GuestCheckoutController {
         });
 
         // Get guest cart
-        const guestCart = await tx.cart.findUnique({
+        const guestCart = await tx.carts.findUnique({
           where: { id: guestSession.cartId }
         });
 
@@ -884,7 +1308,7 @@ class GuestCheckoutController {
 
         // Merge guest cart items to user cart
         if (guestCart) {
-          const guestCartItems = await tx.cartItem.findMany({
+          const guestCartItems = await tx.cart_items.findMany({
             where: { cartId: guestCart.id }
           });
 

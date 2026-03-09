@@ -215,6 +215,7 @@ export default async function CategoryPage({
               src={getImageUrl(category.category.imageUrl) || ''}
               alt={category.category.name}
               fill
+              unoptimized={true}
               className="object-cover opacity-50"
               priority
               sizes="(max-width: 768px) 100vw, 1200px"
@@ -257,6 +258,7 @@ export default async function CategoryPage({
                           alt={subcategory.name}
                           width={64}
                           height={64}
+                          unoptimized={true}
                           className="object-contain"
                         />
                       </div>

@@ -1,8 +1,9 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/api/client';
 import { withAuth } from '@/components/auth/withAuth';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 import { 
   ShoppingBag, 
   FileText, 
@@ -29,7 +30,7 @@ interface OrderItem {
   quantity: number;
   unitPrice: number;
   totalPrice: number;
-  product: {
+  product?: {
     id: string;
     name: string;
     sku: string;
@@ -38,14 +39,17 @@ interface OrderItem {
 
 interface OrderAddress {
   id: string;
-  fullName: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
   phone: string;
-  addressLine1: string;
+  address: string;
   addressLine2?: string;
   city: string;
-  state: string;
-  postalCode: string;
-  country: string;
+  district: string;
+  postalCode?: string;
+  division?: string;
+  upazila?: string;
 }
 
 interface OrderUser {
@@ -59,9 +63,9 @@ interface OrderUser {
 interface Order {
   id: string;
   orderNumber: string;
-  userId: string;
-  user: OrderUser;
-  address: OrderAddress;
+  userId: string | null;
+  user: OrderUser | null;
+  address?: OrderAddress;
   status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
   subtotal: number;
   tax: number;
@@ -74,11 +78,19 @@ interface Order {
   confirmedAt?: string;
   shippedAt?: string;
   deliveredAt?: string;
-  items: OrderItem[];
-}
+  orderItems: OrderItem[];
+  // Guest checkout fields
+  paymentDetails?: {
+    email?: string;
+    phone?: string;
+    firstName?: string;
+    lastName?: string;
+  };
+};
 
 interface OrdersResponse {
-  orders: Order[];
+  data?: Order[];
+  orders?: Order[];
   pagination: {
     page: number;
     limit: number;
@@ -126,6 +138,76 @@ const getStatusColor = (status: string): string => {
     default:
       return 'bg-gray-100 text-gray-800 border-gray-200';
   }
+};
+
+/**
+ * Get customer name from order - handles both authenticated users and guest orders
+ */
+const getCustomerName = (order: Order): string => {
+  // If user exists, use user name
+  if (order.user) {
+    return `${order.user.firstName} ${order.user.lastName}`;
+  }
+  // For guest orders, try paymentDetails first, then fall back to address
+  if (order.paymentDetails?.firstName || order.paymentDetails?.lastName) {
+    return `${order.paymentDetails.firstName || ''} ${order.paymentDetails.lastName || ''}`.trim();
+  }
+  // Fall back to address name - try firstName/lastName first, then fullName
+  if (order.address) {
+    if (order.address.firstName || order.address.lastName) {
+      return `${order.address.firstName || ''} ${order.address.lastName || ''}`.trim();
+    }
+    if (order.address.fullName) {
+      return order.address.fullName;
+    }
+  }
+  return 'Guest';
+};
+
+/**
+ * Get full name from address for shipping address display
+ */
+const getAddressFullName = (address: OrderAddress | undefined | null): string => {
+  if (!address) {
+    return '';
+  }
+  if (address.firstName || address.lastName) {
+    return `${address.firstName || ''} ${address.lastName || ''}`.trim();
+  }
+  return address.fullName || '';
+};
+
+/**
+ * Get customer email from order - handles both authenticated users and guest orders
+ */
+const getCustomerEmail = (order: Order): string => {
+  // If user exists, use user email
+  if (order.user?.email) {
+    return order.user.email;
+  }
+  // For guest orders, try paymentDetails first, then fall back to address
+  if (order.paymentDetails?.email) {
+    return order.paymentDetails.email;
+  }
+  return 'N/A';
+};
+
+/**
+ * Get customer phone from order - handles both authenticated users and guest orders
+ */
+const getCustomerPhone = (order: Order): string | undefined => {
+  // If user exists, use user phone
+  if (order.user?.phone) {
+    return order.user.phone;
+  }
+  // For guest orders, try paymentDetails first, then fall back to address
+  if (order.paymentDetails?.phone) {
+    return order.paymentDetails.phone;
+  }
+  if (order.address?.phone) {
+    return order.address.phone;
+  }
+  return undefined;
 };
 
 const statusOptions = [
@@ -195,8 +277,8 @@ function AdminOrdersPage() {
       if (sortBy.includes('asc')) params.append('order', 'asc');
       else params.append('order', 'desc');
 
-      const response: OrdersResponse = await apiClient.get(`/orders?${params.toString()}`);
-      setOrders(response.orders);
+      const response: OrdersResponse = await apiClient.get(`/orders?${params.toString()}`, { unwrapResponse: false });
+      setOrders(response.data || response.orders);
       setTotalPages(response.pagination.pages);
       setTotalOrders(response.pagination.total);
     } catch (err: any) {
@@ -248,7 +330,7 @@ function AdminOrdersPage() {
       await apiClient.put(`/orders/${orderId}/status`, { status: newStatus });
       
       // Update local state
-      setOrders(orders.map(order => 
+      setOrders((orders || []).map(order => 
         order.id === orderId 
           ? { ...order, status: newStatus as any }
           : order
@@ -269,7 +351,7 @@ function AdminOrdersPage() {
   };
 
   const handleExportCSV = () => {
-    if (orders.length === 0) {
+    if (!orders || orders.length === 0) {
       alert('No orders to export');
       return;
     }
@@ -285,13 +367,13 @@ function AdminOrdersPage() {
       'Created At'
     ];
 
-    const csvContent = [
+      const csvContent = [
       headers.join(','),
-      ...orders.map(order => [
+      ...(orders || []).map(order => [
         order.id,
         order.orderNumber,
-        `${order.user.firstName} ${order.user.lastName}`,
-        order.user.email,
+        getCustomerName(order),
+        getCustomerEmail(order),
         order.status,
         order.total.toFixed(2),
         order.paymentMethod,
@@ -307,28 +389,29 @@ function AdminOrdersPage() {
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    if (document.body && a.parentNode === document.body) { document.body.removeChild(a); }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Order Management</h1>
-          <p className="text-gray-600 mt-1">
-            {totalOrders} {totalOrders === 1 ? 'order' : 'orders'}
-          </p>
+    <AdminLayout title="All Orders">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Order Management</h1>
+            <p className="text-gray-600 mt-1">
+              {totalOrders} {totalOrders === 1 ? 'order' : 'orders'}
+            </p>
+          </div>
+          <button
+            onClick={handleExportCSV}
+            disabled={!orders || orders.length === 0}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
         </div>
-        <button
-          onClick={handleExportCSV}
-          disabled={orders.length === 0}
-          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-        >
-          <Download className="w-4 h-4" />
-          Export CSV
-        </button>
-      </div>
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-6">
@@ -461,7 +544,7 @@ function AdminOrdersPage() {
             <Loader2 className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-4" />
             <p className="text-gray-600">Loading orders...</p>
           </div>
-        ) : orders.length === 0 ? (
+        ) : !orders || orders.length === 0 ? (
           <div className="p-8 text-center">
             <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No Orders Found</h3>
@@ -473,7 +556,7 @@ function AdminOrdersPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-[1200px] divide-y divide-gray-200">
+            <table className="w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -514,15 +597,15 @@ function AdminOrdersPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">
-                          {order.user.firstName} {order.user.lastName}
+                          {getCustomerName(order)}
                         </div>
-                        <div className="text-sm text-gray-500">{order.user.email}</div>
+                        <div className="text-sm text-gray-500">{getCustomerEmail(order)}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <Package className="w-4 h-4 text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-900">{order.items.length} items</span>
+                        <span className="text-sm text-gray-900">{order.orderItems.length} items</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -640,24 +723,22 @@ function AdminOrdersPage() {
                     <User className="w-4 h-4 text-gray-400" />
                     <div>
                       <p className="text-sm text-gray-500">Name</p>
-                      <p className="text-sm text-gray-900">
-                        {selectedOrder.user.firstName} {selectedOrder.user.lastName}
-                      </p>
+                      <p className="text-sm text-gray-900">{getCustomerName(selectedOrder)}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Mail className="w-4 h-4 text-gray-400" />
                     <div>
                       <p className="text-sm text-gray-500">Email</p>
-                      <p className="text-sm text-gray-900">{selectedOrder.user.email}</p>
+                      <p className="text-sm text-gray-900">{getCustomerEmail(selectedOrder)}</p>
                     </div>
                   </div>
-                  {selectedOrder.user.phone && (
+                  {getCustomerPhone(selectedOrder) && (
                     <div className="flex items-center gap-2">
                       <Phone className="w-4 h-4 text-gray-400" />
                       <div>
                         <p className="text-sm text-gray-500">Phone</p>
-                        <p className="text-sm text-gray-900">{selectedOrder.user.phone}</p>
+                        <p className="text-sm text-gray-900">{getCustomerPhone(selectedOrder)}</p>
                       </div>
                     </div>
                   )}
@@ -665,35 +746,39 @@ function AdminOrdersPage() {
               </div>
 
               {/* Shipping Address */}
-              <div className="border-t border-gray-200 pt-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                  <MapPin className="w-5 h-5" />
-                  Shipping Address
-                </h3>
-                <div className="text-sm text-gray-900">
-                  <p className="font-medium">{selectedOrder.address.fullName}</p>
-                  <p>{selectedOrder.address.addressLine1}</p>
-                  {selectedOrder.address.addressLine2 && <p>{selectedOrder.address.addressLine2}</p>}
-                  <p>
-                    {selectedOrder.address.city}, {selectedOrder.address.state} {selectedOrder.address.postalCode}
-                  </p>
-                  <p>{selectedOrder.address.country}</p>
-                  <p className="mt-1">{selectedOrder.address.phone}</p>
+              {selectedOrder.address && (
+                <div className="border-t border-gray-200 pt-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <MapPin className="w-5 h-5" />
+                    Shipping Address
+                  </h3>
+                  <div className="text-sm text-gray-900">
+                    <p className="font-medium">{getAddressFullName(selectedOrder.address)}</p>
+                    <p>{selectedOrder.address.address}</p>
+                    {selectedOrder.address.addressLine2 && <p>{selectedOrder.address.addressLine2}</p>}
+                    <p>
+                      {selectedOrder.address.city}, {selectedOrder.address.district} {selectedOrder.address.postalCode}
+                    </p>
+                    <p>{selectedOrder.address.division}</p>
+                    <p className="mt-1">{selectedOrder.address.phone}</p>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Order Items */}
               <div className="border-t border-gray-200 pt-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
                   <Package className="w-5 h-5" />
-                  Order Items ({selectedOrder.items.length})
+                  Order Items ({selectedOrder.orderItems.length})
                 </h3>
                 <div className="space-y-3">
-                  {selectedOrder.items.map((item) => (
+                  {selectedOrder.orderItems.map((item) => (
                     <div key={item.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{item.product.name}</p>
-                        <p className="text-xs text-gray-500">SKU: {item.product.sku}</p>
+                        <p className="text-sm font-medium text-gray-900">
+                          {item.product?.name || 'Product not available'}
+                        </p>
+                        <p className="text-xs text-gray-500">SKU: {item.product?.sku || 'N/A'}</p>
                         <p className="text-xs text-gray-500">Qty: {item.quantity} × {formatCurrency(item.unitPrice)}</p>
                       </div>
                       <p className="text-sm font-medium text-gray-900">{formatCurrency(item.totalPrice)}</p>
@@ -764,9 +849,10 @@ function AdminOrdersPage() {
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+         </div>
+       )}
+      </div>
+    </AdminLayout>
   );
 }
 
@@ -774,5 +860,5 @@ function AdminOrdersPage() {
 export default withAuth(AdminOrdersPage, {
   requiredRole: ['admin', 'super_admin'],
   redirectTo: '/login',
-  unauthorizedRedirectTo: '/403'
+  unauthorizedRedirectTo: '/unauthorized'
 });

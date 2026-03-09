@@ -348,7 +348,9 @@ const EmiDisplay: React.FC<EmiDisplayProps> = ({
                 {language === 'bn' ? 'বাতিল' : 'Cancel'}
               </button>
               <button
-                onClick={() => {/* TODO: Proceed to checkout with selected EMI */}
+                onClick={() => {
+                  // TODO: Proceed to checkout with selected EMI
+                }}
                 className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
               >
                 {language === 'bn' ? 'এগির সাথে চাল' : 'Proceed with EMI'}

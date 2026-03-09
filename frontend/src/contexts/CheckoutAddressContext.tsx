@@ -212,9 +212,10 @@ export const CheckoutAddressProvider: React.FC<CheckoutAddressProviderProps> = (
     try {
       const addresses = await AddressAPI.getAddresses(userId);
 
-      // Separate addresses by type
-      const shippingAddresses = addresses.filter(addr => addr.type === 'SHIPPING');
-      const billingAddresses = addresses.filter(addr => addr.type === 'BILLING');
+      // Separate addresses by type with case-insensitive matching
+      // 🔧 FIX 2: Add Defensive Type Matching to handle lowercase backend types
+      const shippingAddresses = addresses.filter(addr => addr.type?.toUpperCase() === 'SHIPPING');
+      const billingAddresses = addresses.filter(addr => addr.type?.toUpperCase() === 'BILLING');
 
       dispatch({
         type: 'FETCH_ADDRESSES_SUCCESS',

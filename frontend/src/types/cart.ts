@@ -19,8 +19,9 @@ export type CartItemStatus = 'active' | 'removed' | 'out_of_stock';
 
 /**
  * Shipping Method Type
+ * Updated to match backend: STANDARD, EXPRESS, INSIDE_DHAKA, OUTSIDE_DHAKA
  */
-export type ShippingMethod = 'standard' | 'express' | 'overnight' | 'pickup';
+export type ShippingMethod = 'STANDARD' | 'EXPRESS' | 'INSIDE_DHAKA' | 'OUTSIDE_DHAKA';
 
 /**
  * Cart Item Interface
@@ -66,6 +67,7 @@ export interface CartSummary {
  */
 export interface Cart {
   id: string;
+  cartId?: string;  // Real database cart ID (for guest carts)
   userId?: string;
   sessionId?: string;
   items: CartItem[];
@@ -168,6 +170,7 @@ export interface CartContextState {
   isGuest: boolean;
   sessionId: string | null;
   isInitializing: boolean;  // Track if cart is initializing
+  cartId: string | null;  // Cart ID for checkout initialization
 }
 
 /**
@@ -330,6 +333,7 @@ export interface GuestCartItemWithProduct extends GuestCartItem {
  * Complete guest cart data structure for localStorage
  */
 export interface GuestCartStorageData {
+  cartId?: string;  // Real database cart ID (returned by backend)
   sessionId: string;
   items: GuestCartItem[];
   shippingMethod: ShippingMethod;

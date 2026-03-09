@@ -1,0 +1,133 @@
+{
+  "timestamp": "2026-02-22T18:56:18.703Z",
+  "scenarios": [
+    {
+      "scenario": "Main checkout flow with valid data",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T18:56:18.828Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "error": "Validation failed",
+        "details": [
+          {
+            "type": "field",
+            "msg": "Password confirmation is required",
+            "path": "confirmPassword",
+            "location": "body"
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "Different billing and shipping addresses",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T18:56:18.842Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "error": "Validation failed",
+        "details": [
+          {
+            "type": "field",
+            "msg": "Password confirmation is required",
+            "path": "confirmPassword",
+            "location": "body"
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "\"Same as shipping address\" option",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T18:56:18.855Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "error": "Validation failed",
+        "details": [
+          {
+            "type": "field",
+            "msg": "Password confirmation is required",
+            "path": "confirmPassword",
+            "location": "body"
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "Invalid data - Missing shipping address",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T18:56:18.868Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "error": "Validation failed",
+        "details": [
+          {
+            "type": "field",
+            "msg": "Password confirmation is required",
+            "path": "confirmPassword",
+            "location": "body"
+          }
+        ]
+      },
+      "message": "Error handling not working as expected"
+    },
+    {
+      "scenario": "Invalid data - Invalid phone number",
+      "status": "PASS",
+      "timestamp": "2026-02-22T18:56:18.880Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "error": "Validation failed",
+        "details": [
+          {
+            "type": "field",
+            "msg": "Password confirmation is required",
+            "path": "confirmPassword",
+            "location": "body"
+          }
+        ]
+      },
+      "message": "Correctly validated phone number"
+    },
+    {
+      "scenario": "Address data from request body is used",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T18:56:18.893Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "error": "Validation failed",
+        "details": [
+          {
+            "type": "field",
+            "msg": "Password confirmation is required",
+            "path": "confirmPassword",
+            "location": "body"
+          }
+        ]
+      },
+      "message": "Failed to use address data from request body"
+    },
+    {
+      "scenario": "Priority of address sources",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T18:56:18.904Z",
+      "error": "Request failed with status code 400",
+      "details": {
+        "error": "Validation failed",
+        "details": [
+          {
+            "type": "field",
+            "msg": "Password confirmation is required",
+            "path": "confirmPassword",
+            "location": "body"
+          }
+        ]
+      },
+      "message": "Failed to prioritize address sources correctly"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "passed": 1,
+    "failed": 6
+  }
+}

@@ -24,13 +24,13 @@ class AccountPreferencesService {
   async getUserPreferences(userId) {
     try {
       // Get all preference types
-      const notificationPrefs = await this.prisma.userNotificationPreferences.findUnique({
+      const notificationPrefs = await this.prisma.user_notification_preferences.findUnique({
         where: { userId }
       });
-      const communicationPrefs = await this.prisma.userCommunicationPreferences.findUnique({
+      const communicationPrefs = await this.prisma.user_communication_preferences.findUnique({
         where: { userId }
       });
-      const privacyPrefs = await this.prisma.userPrivacySettings.findUnique({
+      const privacyPrefs = await this.prisma.user_privacy_settings.findUnique({
         where: { userId }
       });
 
@@ -59,7 +59,7 @@ class AccountPreferencesService {
    */
   async initializeDefaultNotificationPreferences(userId) {
     try {
-      const preferences = await this.prisma.userNotificationPreferences.create({
+      const preferences = await this.prisma.user_notification_preferences.create({
         data: {
           userId,
           emailNotifications: true,
@@ -85,7 +85,7 @@ class AccountPreferencesService {
    */
   async initializeDefaultCommunicationPreferences(userId) {
     try {
-      const preferences = await this.prisma.userCommunicationPreferences.create({
+      const preferences = await this.prisma.user_communication_preferences.create({
         data: {
           userId,
           preferredLanguage: 'en',
@@ -111,7 +111,7 @@ class AccountPreferencesService {
    */
   async initializeDefaultPrivacySettings(userId) {
     try {
-      const preferences = await this.prisma.userPrivacySettings.create({
+      const preferences = await this.prisma.user_privacy_settings.create({
         data: {
           userId,
           profileVisibility: 'PRIVATE',
@@ -144,7 +144,7 @@ class AccountPreferencesService {
   async updateNotificationPreferences(userId, preferences) {
     try {
       // Check if preferences exist
-      let existingPrefs = await this.prisma.userNotificationPreferences.findUnique({
+      let existingPrefs = await this.prisma.user_notification_preferences.findUnique({
         where: { userId }
       });
 
@@ -172,13 +172,13 @@ class AccountPreferencesService {
       let result;
       if (existingPrefs) {
         // Update existing preferences
-        result = await this.prisma.userNotificationPreferences.update({
+        result = await this.prisma.user_notification_preferences.update({
           where: { userId },
           data: updateData
         });
       } else {
         // Create new preferences with provided values and defaults for missing ones
-        result = await this.prisma.userNotificationPreferences.create({
+        result = await this.prisma.user_notification_preferences.create({
           data: {
             userId,
             emailNotifications: preferences.emailNotifications ?? preferences.email ?? true,
@@ -213,7 +213,7 @@ class AccountPreferencesService {
   async updatePrivacySettings(userId, updates) {
     try {
       // Check if preferences exist
-      let preferences = await this.prisma.userPrivacySettings.findUnique({
+      let preferences = await this.prisma.user_privacy_settings.findUnique({
         where: { userId }
       });
 
@@ -248,13 +248,13 @@ class AccountPreferencesService {
       let result;
       if (preferences) {
         // Update existing preferences
-        result = await this.prisma.userPrivacySettings.update({
+        result = await this.prisma.user_privacy_settings.update({
           where: { userId },
           data: updateData
         });
       } else {
         // Create new preferences with provided values and defaults for missing ones
-        result = await this.prisma.userPrivacySettings.create({
+        result = await this.prisma.user_privacy_settings.create({
           data: {
             userId,
             profileVisibility: updates.profileVisibility !== undefined ? updates.profileVisibility : 'PRIVATE',
@@ -366,7 +366,7 @@ class AccountPreferencesService {
   async changePassword(userId, currentPassword, newPassword) {
     try {
       // Get user with current password
-      const user = await this.prisma.user.findUnique({
+      const user = await this.prisma.users.findUnique({
         where: { id: userId },
         select: {
           id: true,
@@ -417,7 +417,7 @@ class AccountPreferencesService {
       const hashedNewPassword = await this.passwordService.hashPassword(newPassword);
 
       // Update user password
-      await this.prisma.user.update({
+      await this.prisma.users.update({
         where: { id: userId },
         data: { password: hashedNewPassword }
       });
@@ -458,7 +458,7 @@ class AccountPreferencesService {
       }
 
       // Get user privacy settings
-      let privacyPrefs = await this.prisma.userPrivacySettings.findUnique({
+      let privacyPrefs = await this.prisma.user_privacy_settings.findUnique({
         where: { userId }
       });
 
@@ -473,7 +473,7 @@ class AccountPreferencesService {
       }
 
       // Update privacy settings
-      const updatedPreferences = await this.prisma.userPrivacySettings.update({
+      const updatedPreferences = await this.prisma.user_privacy_settings.update({
         where: { userId },
         data: {
           twoFactorEnabled: true,
@@ -508,7 +508,7 @@ class AccountPreferencesService {
    */
   async disableTwoFactor(userId) {
     try {
-      await this.prisma.userPrivacySettings.update({
+      await this.prisma.user_privacy_settings.update({
         where: { userId },
         data: {
           twoFactorEnabled: false,
@@ -538,7 +538,7 @@ class AccountPreferencesService {
    */
   async verifyTwoFactorToken(userId, token) {
     try {
-      const privacyPrefs = await this.prisma.userPrivacySettings.findUnique({
+      const privacyPrefs = await this.prisma.user_privacy_settings.findUnique({
         where: { userId }
       });
 

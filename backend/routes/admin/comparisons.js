@@ -84,7 +84,7 @@ router.get('/', [
     }
 
     const [comparisons, total] = await Promise.all([
-      prisma.productComparison.findMany({
+      prisma.product_comparisons.findMany({
         where,
         skip: parseInt(skip),
         take: parseInt(limit),
@@ -120,7 +120,7 @@ router.get('/', [
         },
         orderBy: { [sortBy]: sortOrder }
       }),
-      prisma.productComparison.count({ where })
+      prisma.product_comparisons.count({ where })
     ]);
 
     res.json({
@@ -173,7 +173,7 @@ router.get('/stats', [
     const where = startDate ? { createdAt: { gte: startDate } } : {};
 
     // BUG-HIGH-006: Use aggregation instead of multiple separate queries
-    const stats = await prisma.productComparison.aggregate({
+    const stats = await prisma.product_comparisons.aggregate({
       where,
       _count: {
         id: true
@@ -183,7 +183,7 @@ router.get('/stats', [
     const totalComparisons = stats._count.id || 0;
 
     // Get item count using aggregation
-    const itemCounts = await prisma.productComparisonItem.groupBy({
+    const itemCounts = await prisma.product_comparison_items.groupBy({
       by: ['comparisonId'],
       where: {
         comparison: {
@@ -199,7 +199,7 @@ router.get('/stats', [
     const avgItemsPerComparison = totalComparisons > 0 ? totalItems / totalComparisons : 0;
 
     // Get counts by status using aggregation
-    const statusCounts = await prisma.productComparison.groupBy({
+    const statusCounts = await prisma.product_comparisons.groupBy({
       by: ['userId', 'sessionId', 'expiresAt'],
       where,
       _count: {
@@ -220,7 +220,7 @@ router.get('/stats', [
     ).reduce((sum, s) => sum + s._count.id, 0);
 
     // Get top compared products
-    const topComparedProducts = await prisma.productComparisonItem.groupBy({
+    const topComparedProducts = await prisma.product_comparison_items.groupBy({
       by: ['productId'],
       where: {
         comparison: {
@@ -240,7 +240,7 @@ router.get('/stats', [
 
     // Get product details for top compared products
     const productIds = topComparedProducts.map(p => p.productId);
-    const productDetails = await prisma.product.findMany({
+    const productDetails = await prisma.products.findMany({
       where: { id: { in: productIds } },
       select: {
         id: true,
@@ -320,7 +320,7 @@ router.get('/analytics', [
     // Get comparisons grouped by date with pagination
     const skip = (page - 1) * limit;
     const [comparisonsByDate, totalComparisons] = await Promise.all([
-      prisma.productComparison.findMany({
+      prisma.product_comparisons.findMany({
         where,
         select: {
           createdAt: true,
@@ -332,7 +332,7 @@ router.get('/analytics', [
         skip: parseInt(skip),
         take: parseInt(limit)
       }),
-      prisma.productComparison.count({ where })
+      prisma.product_comparisons.count({ where })
     ]);
 
     // Group by period
@@ -374,7 +374,7 @@ router.get('/analytics', [
     let userActivity;
     try {
       // First, try without the where clause to see if that's the issue
-      userActivity = await prisma.comparisonHistory.groupBy({
+      userActivity = await prisma.comparison_histories.groupBy({
         by: ['userId'],
         _count: {
           userId: true
@@ -394,7 +394,7 @@ router.get('/analytics', [
 
     // Get user details
     const userIds = userActivity.map(u => u.userId);
-    const userDetails = await prisma.user.findMany({
+    const userDetails = await prisma.users.findMany({
       where: { id: { in: userIds } },
       select: {
         id: true,
@@ -414,7 +414,7 @@ router.get('/analytics', [
     console.log('[DEBUG] Analytics endpoint - About to execute actionDistribution query...');
     let actionDistribution;
     try {
-      actionDistribution = await prisma.comparisonHistory.groupBy({
+      actionDistribution = await prisma.comparison_histories.groupBy({
         by: ['action'],
         where,
         _count: {
@@ -466,7 +466,7 @@ router.get('/:id', [
   try {
     const { id } = req.params;
 
-    const comparison = await prisma.productComparison.findUnique({
+    const comparison = await prisma.product_comparisons.findUnique({
       where: { id },
       include: {
         items: {
@@ -539,7 +539,7 @@ router.delete('/:id', [
     const { id } = req.params;
 
     // Check if comparison exists
-    const comparison = await prisma.productComparison.findUnique({
+    const comparison = await prisma.product_comparisons.findUnique({
       where: { id }
     });
 
@@ -549,7 +549,7 @@ router.delete('/:id', [
       });
     }
 
-    await prisma.productComparison.delete({
+    await prisma.product_comparisons.delete({
       where: { id }
     });
 

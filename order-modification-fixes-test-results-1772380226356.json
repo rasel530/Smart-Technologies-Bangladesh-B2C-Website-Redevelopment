@@ -1,0 +1,672 @@
+{
+  "summary": {
+    "total": 24,
+    "passed": 2,
+    "failed": 22,
+    "skipped": 0,
+    "passRate": "8.33%"
+  },
+  "results": {
+    "passed": [
+      {
+        "testName": "2.10 - Modification Request Validation",
+        "passed": true,
+        "message": "Modification request validation working correctly",
+        "details": {
+          "test1": {
+            "valid": true,
+            "error": "Item removal requires itemIds array in changes"
+          },
+          "test2": {
+            "valid": true,
+            "error": "Item addition requires items array in changes"
+          }
+        },
+        "timestamp": "2026-03-01T15:50:26.227Z"
+      },
+      {
+        "testName": "4.1 - Create Order and Submit Modification Request",
+        "passed": true,
+        "message": "Modification request created successfully: 25d1486a-f34b-4cd1-b0cb-1ed607699764",
+        "details": {
+          "orderId": "b35c588c-d484-40eb-b15d-833c36b4ded8",
+          "modificationId": "25d1486a-f34b-4cd1-b0cb-1ed607699764",
+          "status": "pending"
+        },
+        "timestamp": "2026-03-01T15:50:26.342Z"
+      }
+    ],
+    "failed": [
+      {
+        "testName": "1.1 - GET /admin/modifications Endpoint Exists",
+        "passed": false,
+        "message": "Expected 200, got 500",
+        "details": {
+          "statusCode": 500,
+          "body": {
+            "success": false,
+            "error": "Failed to fetch modifications",
+            "message": "\nInvalid `prisma.orderModification.findMany()` invocation in\n/app/routes/orderManagement.js:648:32\n\n  645 \n  646 // Get modifications with order details\n  647 const [modifications, totalCount] = await Promise.all([\n→ 648   prisma.orderModification.findMany({\n          where: {},\n          include: {\n            order: {\n            ~~~~~\n              select: {\n                id: true,\n                orderNumber: true,\n                status: true,\n                total: true,\n                userId: true,\n                createdAt: true,\n                user: {\n                  select: {\n                    id: true,\n                    firstName: true,\n                    lastName: true,\n                    email: true\n                  }\n                }\n              }\n            },\n            requestedByUser: {\n              select: {\n                id: true,\n                firstName: true,\n                lastName: true,\n                email: true\n              }\n            },\n            approvedByUser: {\n              select: {\n                id: true,\n                firstName: true,\n                lastName: true,\n                email: true\n              }\n            }\n          },\n          orderBy: {\n            createdAt: \"desc\"\n          },\n          skip: 0,\n          take: 20\n        })\n\nUnknown field `order` for include statement on model `OrderModification`. Available options are marked with ?."
+          }
+        },
+        "timestamp": "2026-03-01T15:50:26.009Z"
+      },
+      {
+        "testName": "1.2 - Filter Modifications by Status",
+        "passed": false,
+        "message": "Some status filters failed",
+        "details": {
+          "filterResults": {
+            "pending": {
+              "statusCode": 500,
+              "success": false,
+              "count": 0
+            },
+            "approved": {
+              "statusCode": 500,
+              "success": false,
+              "count": 0
+            },
+            "rejected": {
+              "statusCode": 500,
+              "success": false,
+              "count": 0
+            }
+          }
+        },
+        "timestamp": "2026-03-01T15:50:26.060Z"
+      },
+      {
+        "testName": "1.3 - Filter Modifications by Type",
+        "passed": false,
+        "message": "Some type filters failed",
+        "details": {
+          "filterResults": {
+            "item_add": {
+              "statusCode": 404,
+              "success": false,
+              "count": 0
+            },
+            "item_remove": {
+              "statusCode": 404,
+              "success": false,
+              "count": 0
+            },
+            "quantity_change": {
+              "statusCode": 404,
+              "success": false,
+              "count": 0
+            }
+          }
+        },
+        "timestamp": "2026-03-01T15:50:26.068Z"
+      },
+      {
+        "testName": "1.4 - Pagination Works",
+        "passed": false,
+        "message": "Expected 200, got 404",
+        "details": {
+          "statusCode": 404,
+          "body": {
+            "error": "Route not found",
+            "message": "The requested route GET /api/v1/admin/modifications?page=1&limit=10 was not found",
+            "messageBn": "অনুরোধকৃত রুট GET /api/v1/admin/modifications?page=1&limit=10 পাওয়া যায়নি",
+            "path": "/api/v1/admin/modifications?page=1&limit=10",
+            "method": "GET",
+            "timestamp": "2026-03-01T15:50:26.068Z",
+            "availableEndpoints": {
+              "auth": "/api/v1/auth",
+              "users": "/api/v1/users",
+              "profile": "/api/v1/profile",
+              "oauth": "/api/v1/oauth",
+              "products": "/api/v1/products",
+              "categories": "/api/v1/categories",
+              "brands": "/api/v1/brands",
+              "orders": "/api/v1/orders",
+              "cart": "/api/v1/cart",
+              "wishlist": "/api/v1/wishlist",
+              "reviews": "/api/v1/reviews",
+              "coupons": "/api/v1/coupons",
+              "user": "/api/v1/user",
+              "sessions": "/api/v1/sessions",
+              "rbac": {
+                "roles": "/api/v1/rbac/roles",
+                "permissions": "/api/v1/rbac/permissions",
+                "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+                "userRoles": "/api/v1/rbac/users/:userId/roles",
+                "escalation": "/api/v1/rbac/role-escalation-requests",
+                "auth": "/api/v1/rbac/auth"
+              },
+              "search": {
+                "products": "/api/search/products",
+                "autocomplete": "/api/search/autocomplete",
+                "suggestions": "/api/search/suggestions",
+                "popular": "/api/search/popular"
+              },
+              "adminSearch": {
+                "analytics": "/api/admin/search/analytics",
+                "popular": "/api/admin/search/popular",
+                "performance": "/api/admin/search/performance"
+              },
+              "corporate": "/api/v1/corporate",
+              "productImages": {
+                "upload": "/api/v1/products/:id/images",
+                "list": "/api/v1/products/:id/images",
+                "update": "/api/v1/images/:id",
+                "reorder": "/api/v1/products/:id/images/reorder",
+                "delete": "/api/v1/images/:id",
+                "setPrimary": "/api/v1/images/:id/primary",
+                "versions": "/api/v1/images/:id/versions"
+              },
+              "adminProductImages": {
+                "statistics": "/api/v1/admin/products/:productId/images/statistics",
+                "quota": "/api/v1/admin/products/:productId/images/quota",
+                "bulkUpdate": "/api/v1/admin/images/bulk-update",
+                "bulkDelete": "/api/v1/admin/images/bulk-delete",
+                "queue": "/api/v1/admin/products/:productId/images/queue",
+                "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+                "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+                "overallStatistics": "/api/v1/admin/products/images/statistics",
+                "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+                "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+                "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+              },
+              "health": "/api/v1/health",
+              "docs": "/api-docs",
+              "mobile": {
+                "syncOffline": "/api/v1/mobile/cart/sync-offline",
+                "syncStatus": "/api/v1/mobile/cart/sync-status/:userId",
+                "cartSummary": "/api/v1/mobile/cart/summary/:userId",
+                "cartItems": "/api/v1/mobile/cart/items/:userId",
+                "subscribeSms": "/api/v1/mobile/cart/subscribe-sms",
+                "unsubscribeSms": "/api/v1/mobile/cart/unsubscribe-sms",
+                "smsStatus": "/api/v1/mobile/cart/sms-status/:userId"
+              }
+            }
+          }
+        },
+        "timestamp": "2026-03-01T15:50:26.071Z"
+      },
+      {
+        "testName": "1.5 - Admin Authentication Required",
+        "passed": false,
+        "message": "Expected 401 or 403, got 404",
+        "details": {
+          "statusCode": 404,
+          "body": {
+            "error": "Route not found",
+            "message": "The requested route GET /api/v1/admin/modifications was not found",
+            "messageBn": "অনুরোধকৃত রুট GET /api/v1/admin/modifications পাওয়া যায়নি",
+            "path": "/api/v1/admin/modifications",
+            "method": "GET",
+            "timestamp": "2026-03-01T15:50:26.072Z",
+            "availableEndpoints": {
+              "auth": "/api/v1/auth",
+              "users": "/api/v1/users",
+              "profile": "/api/v1/profile",
+              "oauth": "/api/v1/oauth",
+              "products": "/api/v1/products",
+              "categories": "/api/v1/categories",
+              "brands": "/api/v1/brands",
+              "orders": "/api/v1/orders",
+              "cart": "/api/v1/cart",
+              "wishlist": "/api/v1/wishlist",
+              "reviews": "/api/v1/reviews",
+              "coupons": "/api/v1/coupons",
+              "user": "/api/v1/user",
+              "sessions": "/api/v1/sessions",
+              "rbac": {
+                "roles": "/api/v1/rbac/roles",
+                "permissions": "/api/v1/rbac/permissions",
+                "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+                "userRoles": "/api/v1/rbac/users/:userId/roles",
+                "escalation": "/api/v1/rbac/role-escalation-requests",
+                "auth": "/api/v1/rbac/auth"
+              },
+              "search": {
+                "products": "/api/search/products",
+                "autocomplete": "/api/search/autocomplete",
+                "suggestions": "/api/search/suggestions",
+                "popular": "/api/search/popular"
+              },
+              "adminSearch": {
+                "analytics": "/api/admin/search/analytics",
+                "popular": "/api/admin/search/popular",
+                "performance": "/api/admin/search/performance"
+              },
+              "corporate": "/api/v1/corporate",
+              "productImages": {
+                "upload": "/api/v1/products/:id/images",
+                "list": "/api/v1/products/:id/images",
+                "update": "/api/v1/images/:id",
+                "reorder": "/api/v1/products/:id/images/reorder",
+                "delete": "/api/v1/images/:id",
+                "setPrimary": "/api/v1/images/:id/primary",
+                "versions": "/api/v1/images/:id/versions"
+              },
+              "adminProductImages": {
+                "statistics": "/api/v1/admin/products/:productId/images/statistics",
+                "quota": "/api/v1/admin/products/:productId/images/quota",
+                "bulkUpdate": "/api/v1/admin/images/bulk-update",
+                "bulkDelete": "/api/v1/admin/images/bulk-delete",
+                "queue": "/api/v1/admin/products/:productId/images/queue",
+                "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+                "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+                "overallStatistics": "/api/v1/admin/products/images/statistics",
+                "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+                "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+                "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+              },
+              "health": "/api/v1/health",
+              "docs": "/api-docs",
+              "mobile": {
+                "syncOffline": "/api/v1/mobile/cart/sync-offline",
+                "syncStatus": "/api/v1/mobile/cart/sync-status/:userId",
+                "cartSummary": "/api/v1/mobile/cart/summary/:userId",
+                "cartItems": "/api/v1/mobile/cart/items/:userId",
+                "subscribeSms": "/api/v1/mobile/cart/subscribe-sms",
+                "unsubscribeSms": "/api/v1/mobile/cart/unsubscribe-sms",
+                "smsStatus": "/api/v1/mobile/cart/sms-status/:userId"
+              }
+            }
+          }
+        },
+        "timestamp": "2026-03-01T15:50:26.075Z"
+      },
+      {
+        "testName": "2.1 - Approve Item Add Modification",
+        "passed": false,
+        "message": "No pending item_add modifications available",
+        "details": {
+          "reason": "No pending item_add modifications"
+        },
+        "timestamp": "2026-03-01T15:50:26.079Z"
+      },
+      {
+        "testName": "2.2 - Approve Item Remove Modification",
+        "passed": false,
+        "message": "No pending item_remove modifications available",
+        "details": {
+          "reason": "No pending item_remove modifications"
+        },
+        "timestamp": "2026-03-01T15:50:26.082Z"
+      },
+      {
+        "testName": "2.3 - Approve Quantity Change Modification",
+        "passed": false,
+        "message": "No pending quantity_change modifications available",
+        "details": {
+          "reason": "No pending quantity_change modifications"
+        },
+        "timestamp": "2026-03-01T15:50:26.085Z"
+      },
+      {
+        "testName": "2.4 - Approve Price Change Modification",
+        "passed": false,
+        "message": "No pending price_change modifications available",
+        "details": {
+          "reason": "No pending price_change modifications"
+        },
+        "timestamp": "2026-03-01T15:50:26.089Z"
+      },
+      {
+        "testName": "2.5 - Approve Address Change Modification",
+        "passed": false,
+        "message": "No pending address_change modifications available",
+        "details": {
+          "reason": "No pending address_change modifications"
+        },
+        "timestamp": "2026-03-01T15:50:26.092Z"
+      },
+      {
+        "testName": "2.6 - Approve Shipping Method Change Modification",
+        "passed": false,
+        "message": "No pending shipping_method_change modifications available",
+        "details": {
+          "reason": "No pending shipping_method_change modifications"
+        },
+        "timestamp": "2026-03-01T15:50:26.096Z"
+      },
+      {
+        "testName": "2.7 - Approve Payment Method Change Modification",
+        "passed": false,
+        "message": "No pending payment_method_change modifications available",
+        "details": {
+          "reason": "No pending payment_method_change modifications"
+        },
+        "timestamp": "2026-03-01T15:50:26.099Z"
+      },
+      {
+        "testName": "2.8 - Reject Modification for Shipped/Delivered Orders",
+        "passed": false,
+        "message": "No shipped orders available to test",
+        "details": {
+          "reason": "No shipped orders in database"
+        },
+        "timestamp": "2026-03-01T15:50:26.124Z"
+      },
+      {
+        "testName": "2.9 - Inventory Validation for Item Add",
+        "passed": false,
+        "message": "Inventory validation may not be working correctly",
+        "details": {
+          "statusCode": 201,
+          "body": {
+            "success": true,
+            "modificationId": "9d56c643-22c1-471f-95ba-8decce0b2253",
+            "status": "pending",
+            "message": "Modification request submitted successfully"
+          }
+        },
+        "timestamp": "2026-03-01T15:50:26.170Z"
+      },
+      {
+        "testName": "3.1 - Admin Page Loads Modifications from API",
+        "passed": false,
+        "message": "Expected 200, got 404",
+        "details": {
+          "statusCode": 404,
+          "body": {
+            "error": "Route not found",
+            "message": "The requested route GET /api/v1/admin/modifications was not found",
+            "messageBn": "অনুরোধকৃত রুট GET /api/v1/admin/modifications পাওয়া যায়নি",
+            "path": "/api/v1/admin/modifications",
+            "method": "GET",
+            "timestamp": "2026-03-01T15:50:26.229Z",
+            "availableEndpoints": {
+              "auth": "/api/v1/auth",
+              "users": "/api/v1/users",
+              "profile": "/api/v1/profile",
+              "oauth": "/api/v1/oauth",
+              "products": "/api/v1/products",
+              "categories": "/api/v1/categories",
+              "brands": "/api/v1/brands",
+              "orders": "/api/v1/orders",
+              "cart": "/api/v1/cart",
+              "wishlist": "/api/v1/wishlist",
+              "reviews": "/api/v1/reviews",
+              "coupons": "/api/v1/coupons",
+              "user": "/api/v1/user",
+              "sessions": "/api/v1/sessions",
+              "rbac": {
+                "roles": "/api/v1/rbac/roles",
+                "permissions": "/api/v1/rbac/permissions",
+                "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+                "userRoles": "/api/v1/rbac/users/:userId/roles",
+                "escalation": "/api/v1/rbac/role-escalation-requests",
+                "auth": "/api/v1/rbac/auth"
+              },
+              "search": {
+                "products": "/api/search/products",
+                "autocomplete": "/api/search/autocomplete",
+                "suggestions": "/api/search/suggestions",
+                "popular": "/api/search/popular"
+              },
+              "adminSearch": {
+                "analytics": "/api/admin/search/analytics",
+                "popular": "/api/admin/search/popular",
+                "performance": "/api/admin/search/performance"
+              },
+              "corporate": "/api/v1/corporate",
+              "productImages": {
+                "upload": "/api/v1/products/:id/images",
+                "list": "/api/v1/products/:id/images",
+                "update": "/api/v1/images/:id",
+                "reorder": "/api/v1/products/:id/images/reorder",
+                "delete": "/api/v1/images/:id",
+                "setPrimary": "/api/v1/images/:id/primary",
+                "versions": "/api/v1/images/:id/versions"
+              },
+              "adminProductImages": {
+                "statistics": "/api/v1/admin/products/:productId/images/statistics",
+                "quota": "/api/v1/admin/products/:productId/images/quota",
+                "bulkUpdate": "/api/v1/admin/images/bulk-update",
+                "bulkDelete": "/api/v1/admin/images/bulk-delete",
+                "queue": "/api/v1/admin/products/:productId/images/queue",
+                "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+                "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+                "overallStatistics": "/api/v1/admin/products/images/statistics",
+                "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+                "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+                "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+              },
+              "health": "/api/v1/health",
+              "docs": "/api-docs",
+              "mobile": {
+                "syncOffline": "/api/v1/mobile/cart/sync-offline",
+                "syncStatus": "/api/v1/mobile/cart/sync-status/:userId",
+                "cartSummary": "/api/v1/mobile/cart/summary/:userId",
+                "cartItems": "/api/v1/mobile/cart/items/:userId",
+                "subscribeSms": "/api/v1/mobile/cart/subscribe-sms",
+                "unsubscribeSms": "/api/v1/mobile/cart/unsubscribe-sms",
+                "smsStatus": "/api/v1/mobile/cart/sms-status/:userId"
+              }
+            }
+          }
+        },
+        "timestamp": "2026-03-01T15:50:26.233Z"
+      },
+      {
+        "testName": "3.2 - Admin Page Filtering Works",
+        "passed": false,
+        "message": "Some filters failed",
+        "details": {
+          "statusFilter": false,
+          "typeFilter": false,
+          "combinedFilter": false
+        },
+        "timestamp": "2026-03-01T15:50:26.251Z"
+      },
+      {
+        "testName": "3.3 - Approve Button Calls Correct API",
+        "passed": false,
+        "message": "No pending modifications available to test",
+        "details": {
+          "reason": "No pending modifications"
+        },
+        "timestamp": "2026-03-01T15:50:26.257Z"
+      },
+      {
+        "testName": "3.4 - Reject Button Calls Correct API",
+        "passed": false,
+        "message": "No pending modifications available to test",
+        "details": {
+          "reason": "No pending modifications"
+        },
+        "timestamp": "2026-03-01T15:50:26.269Z"
+      },
+      {
+        "testName": "3.5 - Page Refreshes After Approve/Reject",
+        "passed": false,
+        "message": "No pending modifications available to test",
+        "details": {
+          "reason": "No pending modifications"
+        },
+        "timestamp": "2026-03-01T15:50:26.274Z"
+      },
+      {
+        "testName": "4.2 - Modification Appears in Admin Page",
+        "passed": false,
+        "message": "Expected 200, got 404",
+        "details": {
+          "statusCode": 404,
+          "body": {
+            "error": "Route not found",
+            "message": "The requested route GET /api/v1/admin/modifications was not found",
+            "messageBn": "অনুরোধকৃত রুট GET /api/v1/admin/modifications পাওয়া যায়নি",
+            "path": "/api/v1/admin/modifications",
+            "method": "GET",
+            "timestamp": "2026-03-01T15:50:26.343Z",
+            "availableEndpoints": {
+              "auth": "/api/v1/auth",
+              "users": "/api/v1/users",
+              "profile": "/api/v1/profile",
+              "oauth": "/api/v1/oauth",
+              "products": "/api/v1/products",
+              "categories": "/api/v1/categories",
+              "brands": "/api/v1/brands",
+              "orders": "/api/v1/orders",
+              "cart": "/api/v1/cart",
+              "wishlist": "/api/v1/wishlist",
+              "reviews": "/api/v1/reviews",
+              "coupons": "/api/v1/coupons",
+              "user": "/api/v1/user",
+              "sessions": "/api/v1/sessions",
+              "rbac": {
+                "roles": "/api/v1/rbac/roles",
+                "permissions": "/api/v1/rbac/permissions",
+                "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+                "userRoles": "/api/v1/rbac/users/:userId/roles",
+                "escalation": "/api/v1/rbac/role-escalation-requests",
+                "auth": "/api/v1/rbac/auth"
+              },
+              "search": {
+                "products": "/api/search/products",
+                "autocomplete": "/api/search/autocomplete",
+                "suggestions": "/api/search/suggestions",
+                "popular": "/api/search/popular"
+              },
+              "adminSearch": {
+                "analytics": "/api/admin/search/analytics",
+                "popular": "/api/admin/search/popular",
+                "performance": "/api/admin/search/performance"
+              },
+              "corporate": "/api/v1/corporate",
+              "productImages": {
+                "upload": "/api/v1/products/:id/images",
+                "list": "/api/v1/products/:id/images",
+                "update": "/api/v1/images/:id",
+                "reorder": "/api/v1/products/:id/images/reorder",
+                "delete": "/api/v1/images/:id",
+                "setPrimary": "/api/v1/images/:id/primary",
+                "versions": "/api/v1/images/:id/versions"
+              },
+              "adminProductImages": {
+                "statistics": "/api/v1/admin/products/:productId/images/statistics",
+                "quota": "/api/v1/admin/products/:productId/images/quota",
+                "bulkUpdate": "/api/v1/admin/images/bulk-update",
+                "bulkDelete": "/api/v1/admin/images/bulk-delete",
+                "queue": "/api/v1/admin/products/:productId/images/queue",
+                "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+                "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+                "overallStatistics": "/api/v1/admin/products/images/statistics",
+                "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+                "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+                "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+              },
+              "health": "/api/v1/health",
+              "docs": "/api-docs",
+              "mobile": {
+                "syncOffline": "/api/v1/mobile/cart/sync-offline",
+                "syncStatus": "/api/v1/mobile/cart/sync-status/:userId",
+                "cartSummary": "/api/v1/mobile/cart/summary/:userId",
+                "cartItems": "/api/v1/mobile/cart/items/:userId",
+                "subscribeSms": "/api/v1/mobile/cart/subscribe-sms",
+                "unsubscribeSms": "/api/v1/mobile/cart/unsubscribe-sms",
+                "smsStatus": "/api/v1/mobile/cart/sms-status/:userId"
+              }
+            }
+          }
+        },
+        "timestamp": "2026-03-01T15:50:26.346Z"
+      },
+      {
+        "testName": "4.3 - Approve Modification and Verify Order Modified",
+        "passed": false,
+        "message": "No pending custom modifications available",
+        "details": {
+          "reason": "No pending custom modifications"
+        },
+        "timestamp": "2026-03-01T15:50:26.350Z"
+      },
+      {
+        "testName": "4.4 - Verify Modification Status Updated",
+        "passed": false,
+        "message": "Expected 200, got 404",
+        "details": {
+          "statusCode": 404,
+          "body": {
+            "error": "Route not found",
+            "message": "The requested route GET /api/v1/admin/modifications?status=approved was not found",
+            "messageBn": "অনুরোধকৃত রুট GET /api/v1/admin/modifications?status=approved পাওয়া যায়নি",
+            "path": "/api/v1/admin/modifications?status=approved",
+            "method": "GET",
+            "timestamp": "2026-03-01T15:50:26.351Z",
+            "availableEndpoints": {
+              "auth": "/api/v1/auth",
+              "users": "/api/v1/users",
+              "profile": "/api/v1/profile",
+              "oauth": "/api/v1/oauth",
+              "products": "/api/v1/products",
+              "categories": "/api/v1/categories",
+              "brands": "/api/v1/brands",
+              "orders": "/api/v1/orders",
+              "cart": "/api/v1/cart",
+              "wishlist": "/api/v1/wishlist",
+              "reviews": "/api/v1/reviews",
+              "coupons": "/api/v1/coupons",
+              "user": "/api/v1/user",
+              "sessions": "/api/v1/sessions",
+              "rbac": {
+                "roles": "/api/v1/rbac/roles",
+                "permissions": "/api/v1/rbac/permissions",
+                "rolePermissions": "/api/v1/rbac/roles/:roleId/permissions",
+                "userRoles": "/api/v1/rbac/users/:userId/roles",
+                "escalation": "/api/v1/rbac/role-escalation-requests",
+                "auth": "/api/v1/rbac/auth"
+              },
+              "search": {
+                "products": "/api/search/products",
+                "autocomplete": "/api/search/autocomplete",
+                "suggestions": "/api/search/suggestions",
+                "popular": "/api/search/popular"
+              },
+              "adminSearch": {
+                "analytics": "/api/admin/search/analytics",
+                "popular": "/api/admin/search/popular",
+                "performance": "/api/admin/search/performance"
+              },
+              "corporate": "/api/v1/corporate",
+              "productImages": {
+                "upload": "/api/v1/products/:id/images",
+                "list": "/api/v1/products/:id/images",
+                "update": "/api/v1/images/:id",
+                "reorder": "/api/v1/products/:id/images/reorder",
+                "delete": "/api/v1/images/:id",
+                "setPrimary": "/api/v1/images/:id/primary",
+                "versions": "/api/v1/images/:id/versions"
+              },
+              "adminProductImages": {
+                "statistics": "/api/v1/admin/products/:productId/images/statistics",
+                "quota": "/api/v1/admin/products/:productId/images/quota",
+                "bulkUpdate": "/api/v1/admin/images/bulk-update",
+                "bulkDelete": "/api/v1/admin/images/bulk-delete",
+                "queue": "/api/v1/admin/products/:productId/images/queue",
+                "queueCancel": "/api/v1/admin/products/:productId/images/queue/cancel",
+                "queueRetry": "/api/v1/admin/products/:productId/images/queue/retry",
+                "overallStatistics": "/api/v1/admin/products/images/statistics",
+                "cdnStatus": "/api/v1/admin/products/:productId/images/cdn-status",
+                "cdnSync": "/api/v1/admin/products/:productId/images/cdn-sync",
+                "optimizationSuggestions": "/api/v1/admin/products/:productId/images/optimization-suggestions"
+              },
+              "health": "/api/v1/health",
+              "docs": "/api-docs",
+              "mobile": {
+                "syncOffline": "/api/v1/mobile/cart/sync-offline",
+                "syncStatus": "/api/v1/mobile/cart/sync-status/:userId",
+                "cartSummary": "/api/v1/mobile/cart/summary/:userId",
+                "cartItems": "/api/v1/mobile/cart/items/:userId",
+                "subscribeSms": "/api/v1/mobile/cart/subscribe-sms",
+                "unsubscribeSms": "/api/v1/mobile/cart/unsubscribe-sms",
+                "smsStatus": "/api/v1/mobile/cart/sms-status/:userId"
+              }
+            }
+          }
+        },
+        "timestamp": "2026-03-01T15:50:26.355Z"
+      }
+    ],
+    "skipped": []
+  },
+  "timestamp": "2026-03-01T15:50:26.356Z"
+}

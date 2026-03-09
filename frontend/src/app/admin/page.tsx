@@ -5,6 +5,7 @@ import { ChevronRight } from 'lucide-react';
 import { withAuth } from '@/components/auth/withAuth';
 import { StatsGrid } from '@/components/design-system';
 import { Badge } from '@/components/design-system';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 function AdminDashboard() {
   const adminFeatures = [
@@ -83,13 +84,7 @@ function AdminDashboard() {
   ];
 
   return (
-    <>
-      {/* Page Title */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-        <p className="text-gray-600 mt-2">Welcome to the administration panel. Manage your system from here.</p>
-      </div>
-
+    <AdminLayout title="Dashboard Overview" description="Welcome to the administration panel. Manage your system from here.">
       {/* Quick Stats */}
       <StatsGrid stats={stats.map(stat => ({
         title: stat.title,
@@ -170,7 +165,7 @@ function AdminDashboard() {
           </button>
         </div>
       </div>
-    </>
+    </AdminLayout>
   );
 }
 

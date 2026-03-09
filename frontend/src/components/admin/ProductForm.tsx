@@ -113,12 +113,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
         description: product.description || '',
         categories: product.categories?.map(pc => pc.categoryId) || [],
         brandId: product.brandId,
-        regularPrice: product.regularPrice,
-        salePrice: product.salePrice || 0,
-        costPrice: product.costPrice,
-        stockQuantity: product.stockQuantity,
+        regularPrice: typeof product.regularPrice === 'number' ? product.regularPrice : Number(product.regularPrice || 0),
+        salePrice: product.salePrice ? (typeof product.salePrice === 'number' ? product.salePrice : Number(product.salePrice)) : 0,
+        costPrice: typeof product.costPrice === 'number' ? product.costPrice : Number(product.costPrice || 0),
+        stockQuantity: typeof product.stockQuantity === 'number' ? product.stockQuantity : Number(product.stockQuantity || 0),
         lowStockThreshold: product.lowStockThreshold,
-        taxRate: product.taxRate,
+        taxRate: product.taxRate !== null && product.taxRate !== undefined 
+          ? (typeof product.taxRate === 'number' ? product.taxRate : Number(product.taxRate))
+          : 0,
         status: product.status,
         visibility: product.visibility,
         metaTitle: product.metaTitle || '',
@@ -163,11 +165,16 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validate()) return;
+    if (!validate()) return; 
 
     setSubmitting(true);
     try {
-      await onSubmit(formData);
+      // Remove undefined/null values from optional fields before submitting
+      const submitData = {
+        ...formData,
+        taxRate: formData.taxRate ?? 0,
+      };
+      await onSubmit(submitData);
       const successMessage = product 
         ? 'Product updated successfully!' 
         : 'Product created successfully!';

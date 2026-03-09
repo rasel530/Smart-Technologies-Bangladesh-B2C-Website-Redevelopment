@@ -1,0 +1,66 @@
+{
+  "timestamp": "2026-02-23T08:23:30.600Z",
+  "summary": {
+    "total": 6,
+    "passed": 5,
+    "failed": 1
+  },
+  "tests": {
+    "test1": {
+      "name": "Test 1: Verify validateCheckoutStep accepts checkoutData parameter",
+      "description": "Verify function signature includes optional checkoutData parameter",
+      "steps": [
+        "Test 1: Check function signature"
+      ],
+      "passed": true,
+      "errors": []
+    },
+    "test2": {
+      "name": "Test 2: Verify review step validation checks both session and request data",
+      "description": "Verify validation logic checks multiple data sources",
+      "steps": [
+        "Test 2: Check validation logic"
+      ],
+      "passed": true,
+      "errors": []
+    },
+    "test3": {
+      "name": "Test 3: Verify validation passes when data is in request body",
+      "description": "Verify checkout validation succeeds with data in request body only",
+      "steps": [
+        "Test 3: Validate with request body data"
+      ],
+      "passed": true,
+      "errors": []
+    },
+    "test4": {
+      "name": "Test 4: Verify validation passes when data is in session",
+      "description": "Verify existing behavior still works (data in session)",
+      "steps": [
+        "Test 4: Validate with session data"
+      ],
+      "passed": true,
+      "errors": []
+    },
+    "test5": {
+      "name": "Test 5: Verify diagnostic logging shows data flow",
+      "description": "Verify logs show which data sources are being validated",
+      "steps": [
+        "Test 5: Check diagnostic logs"
+      ],
+      "passed": true,
+      "errors": []
+    },
+    "test6": {
+      "name": "Test 6: Verify order can be completed with request body data",
+      "description": "Verify completeCheckoutSession works with request body data",
+      "steps": [
+        "Test 6: Complete checkout with request body data"
+      ],
+      "passed": false,
+      "errors": [
+        "\nInvalid `tx.order.create()` invocation in\ne:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\backend\\services\\checkoutService.js:829:41\n\n  826 }\n  827 \n  828 // Create order\n→ 829 const newOrder = await tx.order.create({\n        data: {\n          orderNumber: \"ORD1771835010464900\",\n          userId: \"d7a0d5e2-3566-4046-bf95-7ba7017cc069\",\n          checkoutSessionId: \"a0f1491f-f983-4120-92d9-cb0c3a85294d\",\n          subtotal: 1000,\n          tax: 0,\n          shippingCost: 0,\n          discount: undefined,\n          total: 1000,\n          paymentMethod: \"cash_on_delivery\",\n          paymentDetails: null,\n          notes: null,\n          status: \"pending\",\n          address: {\n            connect: {\n              id: \"04841b7d-cd5b-455f-9a93-e6b7c7c97345\"\n            }\n          },\n          items: {\n            create: [\n              {\n                productId: \"eff371b9-8757-4e49-b49b-58310adc4118\",\n                quantity: 1,\n                unitPrice: 1000,\n                totalPrice: 1000\n              }\n            ]\n          },\n      +   user: {\n      +     create: UserCreateWithoutOrdersInput | UserUncheckedCreateWithoutOrdersInput,\n      +     connectOrCreate: UserCreateOrConnectWithoutOrdersInput,\n      +     connect: UserWhereUniqueInput\n      +   }\n        }\n      })\n\nArgument `user` is missing."
+      ]
+    }
+  }
+}

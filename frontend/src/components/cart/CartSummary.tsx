@@ -69,32 +69,32 @@ const CartSummary: React.FC<CartSummaryProps> = ({
 
   const shippingMethods: Array<{ value: ShippingMethod; label: string; labelBn: string; cost: string; costBn: string }> = [
     {
-      value: 'standard',
+      value: 'STANDARD',
       label: 'Standard Delivery',
       labelBn: 'স্ট্যান্ডার্ড ডেলিভারি',
       cost: '৳100.00',
       costBn: '৳100.00',
     },
     {
-      value: 'express',
+      value: 'EXPRESS',
       label: 'Express Delivery',
       labelBn: 'এক্সপ্রেস ডেলিভারি',
-      cost: '৳150.00',
-      costBn: '৳150.00',
+      cost: '৳200.00',
+      costBn: '৳200.00',
     },
     {
-      value: 'overnight',
-      label: 'Overnight Delivery',
-      labelBn: 'রাতের ডেলিভারি',
-      cost: '৳250.00',
-      costBn: '৳250.00',
+      value: 'INSIDE_DHAKA',
+      label: 'Inside Dhaka',
+      labelBn: 'ঢাকার ভিতরে',
+      cost: '৳60.00',
+      costBn: '৳60.00',
     },
     {
-      value: 'pickup',
-      label: 'Store Pickup',
-      labelBn: 'স্টোর থেকে সংগ্রহ',
-      cost: 'Free',
-      costBn: 'বিনামূল্যে',
+      value: 'OUTSIDE_DHAKA',
+      label: 'Outside Dhaka',
+      labelBn: 'ঢাকার বাইরে',
+      cost: '৳120.00',
+      costBn: '৳120.00',
     },
   ];
 
@@ -181,48 +181,53 @@ const CartSummary: React.FC<CartSummaryProps> = ({
         </div>
       )}
 
-      {/* Shipping Method Selection */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          {language === 'bn' ? 'শিপিং পদ্ধতি' : 'Shipping Method'}
-        </label>
-        {/* Fix 4: Changed from grid to flex layout with wrapping */}
-        <div className="flex flex-wrap gap-2">
-          {shippingMethods.map((method) => (
-            <button
-              key={method.value}
-              type="button"
-              onClick={() => handleShippingMethodChange(method.value)}
-              disabled={isLoading}
-              className={cn(
-                "w-full flex items-center justify-between p-3 border rounded-md transition-colors",
-                shippingMethod === method.value
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 hover:border-gray-300",
-                "disabled:opacity-50 disabled:cursor-not-allowed",
-                "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1",
-                // MED-002: Handle text overflow for Bengali text
-                "truncate"
-              )}
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <Truck className="w-5 h-5 text-gray-600 flex-shrink-0" />
-                <div className="text-left min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {language === 'bn' ? method.labelBn : method.label}
-                  </p>
-                  <p className="text-xs text-gray-500 truncate">
-                    {language === 'bn' ? '3-5 কার্যদিবস' : '3-5 business days'}
-                  </p>
+      {/*
+        HIDDEN: Shipping method selection moved to checkout page (2026-02-23)
+        Reason: Shipping method should only be selected at checkout to ensure proper cost calculation
+        with address-based shipping zones.
+        To restore: Remove the `{false && (` wrapper and the closing `)}` below
+      */}
+      {false && (
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {language === 'bn' ? 'শিপিং পদ্ধতি' : 'Shipping Method'}
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {shippingMethods.map((method) => (
+              <button
+                key={method.value}
+                type="button"
+                onClick={() => handleShippingMethodChange(method.value)}
+                disabled={isLoading}
+                className={cn(
+                  "w-full flex items-center justify-between p-3 border rounded-md transition-colors",
+                  shippingMethod === method.value
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-200 hover:border-gray-300",
+                  "disabled:opacity-50 disabled:cursor-not-allowed",
+                  "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1",
+                  "truncate"
+                )}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <Truck className="w-5 h-5 text-gray-600 flex-shrink-0" />
+                  <div className="text-left min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {language === 'bn' ? method.labelBn : method.label}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {language === 'bn' ? '3-5 কার্যদিবস' : '3-5 business days'}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <span className="text-sm font-semibold text-gray-900 flex-shrink-0 ml-2">
-                {language === 'bn' ? method.costBn : method.cost}
-              </span>
-            </button>
-          ))}
+                <span className="text-sm font-semibold text-gray-900 flex-shrink-0 ml-2">
+                  {language === 'bn' ? method.costBn : method.cost}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Price Breakdown */}
       <div className="space-y-3 pb-4 border-b border-gray-200">
@@ -231,6 +236,13 @@ const CartSummary: React.FC<CartSummaryProps> = ({
           <span className="font-medium">{language === 'bn' ? '৳' : '৳'}{safeToFixed(subtotal)}</span>
         </div>
 
+      {/*
+        HIDDEN: Shipping cost will be calculated on checkout page (2026-02-23)
+        Reason: Shipping cost calculation is now done on the checkout page after address selection.
+        The cart page should only show the subtotal, and shipping will be added at checkout.
+        To restore: Remove the `{false && (` wrapper and the closing `)}` below
+      */}
+      {false && (
         <div className="flex items-center justify-between text-sm text-gray-600">
           <span>{language === 'bn' ? 'শিপিং' : 'Shipping'}</span>
           <span className="font-medium">
@@ -240,6 +252,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({
             }
           </span>
         </div>
+      )}
 
         <div className="flex items-center justify-between text-sm text-gray-600">
           <span>{language === 'bn' ? 'কর' : 'Tax'}</span>
@@ -262,7 +275,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({
           {language === 'bn' ? 'মোট' : 'Total'}
         </span>
         <span className="text-xl font-bold text-gray-900">
-          {language === 'bn' ? '৳' : '৳'}{safeToFixed(total)}
+          {language === 'bn' ? '৳' : '৳'}{safeToFixed(subtotal + tax - discount)}
         </span>
       </div>
 

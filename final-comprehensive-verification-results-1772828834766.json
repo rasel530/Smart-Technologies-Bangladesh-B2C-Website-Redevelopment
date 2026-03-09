@@ -1,0 +1,310 @@
+{
+  "startTime": "2026-03-06T20:27:06.007Z",
+  "tests": [
+    {
+      "name": "Wishlist endpoint returns proper 401 Unauthorized",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:06.163Z",
+      "details": "Status: 401, Response: {\"error\":\"Authentication required\",\"message\":\"No token provided\"}",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "No \"Cannot read properties of undefined\" error",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:06.164Z",
+      "details": "Response body does not contain undefined error",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "Wishlist endpoint returns proper error message",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:06.164Z",
+      "details": "Response contains authentication error message",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "Admin panel has no infinite redirect loop",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:11.495Z",
+      "details": "Redirects: 0, Time: 5329ms",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "Admin panel loads or redirects to login once",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:11.496Z",
+      "details": "Redirects: 0",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "Admin panel loads without timeout",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:11.496Z",
+      "details": "Load time: 5329ms",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "Admin Dashboard route exists",
+      "status": "FAIL",
+      "timestamp": "2026-03-06T20:27:11.705Z",
+      "details": "Status: 500 Internal Server Error",
+      "error": "Dashboard route returns 500",
+      "stack": "Error: Dashboard route returns 500\n    at test3_NewAdminRoutesWork (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:377:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:983:5)"
+    },
+    {
+      "name": "Admin Products route exists",
+      "status": "FAIL",
+      "timestamp": "2026-03-06T20:27:11.880Z",
+      "details": "Status: 500 Internal Server Error",
+      "error": "Products route returns 500",
+      "stack": "Error: Products route returns 500\n    at test3_NewAdminRoutesWork (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:377:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:983:5)"
+    },
+    {
+      "name": "Admin Users route exists",
+      "status": "FAIL",
+      "timestamp": "2026-03-06T20:27:12.102Z",
+      "details": "Status: 500 Internal Server Error",
+      "error": "Users route returns 500",
+      "stack": "Error: Users route returns 500\n    at test3_NewAdminRoutesWork (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:377:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:983:5)"
+    },
+    {
+      "name": "Health check endpoint accessible",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:12.243Z",
+      "details": "Status: 200",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "Health check includes database status",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:12.244Z",
+      "details": "Database status present in health check",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "Database service responds to queries",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:12.524Z",
+      "details": "Products endpoint returns data",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "Database returns valid JSON data",
+      "status": "FAIL",
+      "timestamp": "2026-03-06T20:27:12.525Z",
+      "details": "Response is not an array",
+      "error": "Expected array of products",
+      "stack": "Error: Expected array of products\n    at test4_DatabaseConnection (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:527:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:984:5)"
+    },
+    {
+      "name": "Admin Dashboard page loads",
+      "status": "FAIL",
+      "timestamp": "2026-03-06T20:27:13.032Z",
+      "details": "Status: 307",
+      "error": "Unexpected status code for Dashboard",
+      "stack": "Error: Unexpected status code for Dashboard\n    at test5_AdminPanelFeaturesLoad (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:612:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:985:5)"
+    },
+    {
+      "name": "Admin Dashboard loads within acceptable time",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:13.034Z",
+      "details": "Load time: 505ms",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "Admin Products page loads",
+      "status": "FAIL",
+      "timestamp": "2026-03-06T20:27:13.939Z",
+      "details": "Status: 307",
+      "error": "Unexpected status code for Products",
+      "stack": "Error: Unexpected status code for Products\n    at test5_AdminPanelFeaturesLoad (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:612:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:985:5)"
+    },
+    {
+      "name": "Admin Products loads within acceptable time",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:13.940Z",
+      "details": "Load time: 905ms",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "Admin Users page loads",
+      "status": "FAIL",
+      "timestamp": "2026-03-06T20:27:14.265Z",
+      "details": "Status: 307",
+      "error": "Unexpected status code for Users",
+      "stack": "Error: Unexpected status code for Users\n    at test5_AdminPanelFeaturesLoad (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:612:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:985:5)"
+    },
+    {
+      "name": "Admin Users loads within acceptable time",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:14.265Z",
+      "details": "Load time: 325ms",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "Products endpoint returns 200",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:14.433Z",
+      "details": "Load time: 166ms",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "Products returns valid JSON",
+      "status": "FAIL",
+      "timestamp": "2026-03-06T20:27:14.434Z",
+      "details": "Response is not an array",
+      "error": "Expected array of items",
+      "stack": "Error: Expected array of items\n    at test6_NoRegressionInExistingFeatures (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:734:17)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:986:5)"
+    },
+    {
+      "name": "Products responds within acceptable time",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:14.435Z",
+      "details": "Response time: 166ms",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "Categories endpoint returns 200",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:14.570Z",
+      "details": "Load time: 135ms",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "Categories returns valid JSON",
+      "status": "FAIL",
+      "timestamp": "2026-03-06T20:27:14.570Z",
+      "details": "Response is not an array",
+      "error": "Expected array of items",
+      "stack": "Error: Expected array of items\n    at test6_NoRegressionInExistingFeatures (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:734:17)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:986:5)"
+    },
+    {
+      "name": "Categories responds within acceptable time",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:14.570Z",
+      "details": "Response time: 135ms",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "Brands endpoint returns 200",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:14.690Z",
+      "details": "Load time: 120ms",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "Brands returns valid JSON",
+      "status": "FAIL",
+      "timestamp": "2026-03-06T20:27:14.690Z",
+      "details": "Response is not an array",
+      "error": "Expected array of items",
+      "stack": "Error: Expected array of items\n    at test6_NoRegressionInExistingFeatures (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:734:17)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:986:5)"
+    },
+    {
+      "name": "Brands responds within acceptable time",
+      "status": "PASS",
+      "timestamp": "2026-03-06T20:27:14.691Z",
+      "details": "Response time: 120ms",
+      "error": null,
+      "stack": null
+    },
+    {
+      "name": "Search endpoint returns 200",
+      "status": "FAIL",
+      "timestamp": "2026-03-06T20:27:14.762Z",
+      "details": "Status: 404, Expected: 200",
+      "error": "Unexpected status code",
+      "stack": "Error: Unexpected status code\n    at test6_NoRegressionInExistingFeatures (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:784:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-comprehensive-verification-test.test.js:986:5)"
+    }
+  ],
+  "summary": {
+    "total": 29,
+    "passed": 18,
+    "failed": 11,
+    "skipped": 0
+  },
+  "issues": [
+    {
+      "test": "Test 3 - Admin Routes",
+      "severity": "CRITICAL",
+      "issue": "Dashboard route returns 500",
+      "path": "/api/v1/admin/dashboard",
+      "response": "{\"error\":\"Failed to fetch dashboard data\",\"message\":\"\\nInvalid `prisma.products.count()` invocation in\\n/app/routes/admin/dashboard.js:19:49\\n\\n  16 });\\n  17 \\n  18 // Get total products count\\n→ 19 const totalProducts = await prisma.products.count({\\n       select: {\\n         _count: {\\n           select: {\\n             _all: true\\n           }\\n         }\\n       },\\n       where: {\\n         deletedAt: null,\\n         ~~~~~~~~~\\n     ?   AND?: productsWhereInput | productsWhereInput[],\\n  "
+    },
+    {
+      "test": "Test 3 - Admin Routes",
+      "severity": "CRITICAL",
+      "issue": "Products route returns 500",
+      "path": "/api/v1/admin/products",
+      "response": "{\"error\":\"Failed to fetch products\",\"message\":\"\\nInvalid `prisma.products.count()` invocation in\\n/app/routes/admin/products.js:18:41\\n\\n  15 const skip = (page - 1) * limit;\\n  16 \\n  17 // Get total count\\n→ 18 const total = await prisma.products.count({\\n       select: {\\n         _count: {\\n           select: {\\n             _all: true\\n           }\\n         }\\n       },\\n       where: {\\n         deletedAt: null,\\n         ~~~~~~~~~\\n     ?   AND?: productsWhereInput | productsWhereInput[]"
+    },
+    {
+      "test": "Test 3 - Admin Routes",
+      "severity": "CRITICAL",
+      "issue": "Users route returns 500",
+      "path": "/api/v1/admin/users",
+      "response": "{\"error\":\"Failed to fetch users\",\"message\":\"\\nInvalid `prisma.users.findMany()` invocation in\\n/app/routes/admin/users.js:23:38\\n\\n  20 });\\n  21 \\n  22 // Get users with pagination\\n→ 23 const users = await prisma.users.findMany({\\n       where: {\\n         deletedAt: null\\n       },\\n       skip: 0,\\n       take: 20,\\n       select: {\\n         id: true,\\n         firstName: true,\\n         lastName: true,\\n         email: true,\\n         phone: true,\\n         role: true,\\n         isActive: "
+    },
+    {
+      "test": "Test 5 - Admin Panel Features",
+      "severity": "HIGH",
+      "issue": "Dashboard page failed to load",
+      "path": "/admin",
+      "status": 307
+    },
+    {
+      "test": "Test 5 - Admin Panel Features",
+      "severity": "HIGH",
+      "issue": "Products page failed to load",
+      "path": "/admin/products",
+      "status": 307
+    },
+    {
+      "test": "Test 5 - Admin Panel Features",
+      "severity": "HIGH",
+      "issue": "Users page failed to load",
+      "path": "/admin/users",
+      "status": 307
+    },
+    {
+      "test": "Test 6 - No Regression",
+      "severity": "MEDIUM",
+      "issue": "Search endpoint returned 404",
+      "path": "/api/v1/search?q=test",
+      "status": 404
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "CRITICAL",
+      "action": "Address all critical issues before production deployment"
+    },
+    {
+      "priority": "HIGH",
+      "action": "Review and fix high severity issues"
+    },
+    {
+      "priority": "MEDIUM",
+      "action": "Consider addressing medium severity issues"
+    }
+  ],
+  "endTime": "2026-03-06T20:27:14.763Z",
+  "duration": 8756
+}

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Search Analytics Dashboard Page
  *
  * Comprehensive analytics dashboard showing:
@@ -160,7 +160,7 @@ export default function SearchAnalyticsDashboard() {
     link.download = `search-analytics-${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    if (document.body && link.parentNode === document.body) { document.body.removeChild(link); }
     URL.revokeObjectURL(url);
   };
 

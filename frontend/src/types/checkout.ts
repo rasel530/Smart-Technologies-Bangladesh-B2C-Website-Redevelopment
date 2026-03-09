@@ -31,6 +31,7 @@ export interface CheckoutSession {
   expiresAt?: string; // ISO 8601 timestamp
   completedAt?: string; // ISO 8601 timestamp
   isGuest: boolean;
+  stepData?: CheckoutSessionData; // Backend stores data here
   data: CheckoutSessionData;
 }
 
@@ -53,6 +54,7 @@ export interface CheckoutAddressData {
   shippingAddressId?: string | null;
   billingAddressId?: string | null;
   useSameAddress: boolean;
+  // Direct address properties (standard structure)
   shippingAddress?: {
     fullName: string;
     phone: string;
@@ -70,6 +72,28 @@ export interface CheckoutAddressData {
     city: string;
     district: string;
     postalCode: string;
+  };
+  // Nested address property (for compatibility with session data structure)
+  address?: {
+    shippingAddress?: {
+      fullName: string;
+      phone: string;
+      addressLine1: string;
+      addressLine2?: string;
+      city: string;
+      district: string;
+      postalCode: string;
+    };
+    billingAddress?: {
+      fullName: string;
+      phone: string;
+      addressLine1: string;
+      addressLine2?: string;
+      city: string;
+      district: string;
+      postalCode: string;
+    };
+    useSameAddress?: boolean;
   };
   completed: boolean;
   completedAt?: string;
@@ -409,6 +433,27 @@ export interface ValidateCheckoutStepRequest {
 export interface CompleteCheckoutRequest {
   sessionId: string;
   data: CheckoutSessionData;
+  address?: {
+    shippingAddress?: {
+      fullName: string;
+      phone: string;
+      addressLine1: string;
+      addressLine2?: string;
+      city: string;
+      district: string;
+      postalCode: string;
+    };
+    billingAddress?: {
+      fullName: string;
+      phone: string;
+      addressLine1: string;
+      addressLine2?: string;
+      city: string;
+      district: string;
+      postalCode: string;
+    };
+    useSameAddress?: boolean;
+  };
 }
 
 export interface AbandonCheckoutRequest {

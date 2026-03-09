@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useState } from 'react';
 import {
@@ -67,7 +67,7 @@ const CartWishlistSyncDashboard: React.FC<CartWishlistSyncDashboardProps> = ({ l
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    if (document.body && a.parentNode === document.body) { document.body.removeChild(a); }
   };
 
   const getStatusColor = (status: string) => {
@@ -335,7 +335,7 @@ const CartWishlistSyncDashboard: React.FC<CartWishlistSyncDashboardProps> = ({ l
           <h2 className="text-lg font-semibold text-gray-900">{t.recentSyncs}</h2>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-[800px] divide-y divide-gray-200">
+          <table className="w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">

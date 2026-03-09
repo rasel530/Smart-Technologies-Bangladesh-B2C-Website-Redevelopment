@@ -4,6 +4,7 @@ import React from 'react';
 import { withAuth } from '@/components/auth/withAuth';
 import CheckoutSessionTable from '@/components/admin/checkout/CheckoutSessionTable';
 import { ShoppingCart } from 'lucide-react';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 /**
  * Admin Checkout Sessions Page
@@ -24,7 +25,8 @@ import { ShoppingCart } from 'lucide-react';
  */
 function AdminCheckoutSessionsPage() {
   return (
-    <div className="space-y-6">
+    <AdminLayout title="Checkout Sessions">
+      <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-center gap-3">
         <div className="p-3 bg-blue-100 rounded-lg">
@@ -41,6 +43,7 @@ function AdminCheckoutSessionsPage() {
       {/* Sessions Table */}
       <CheckoutSessionTable />
     </div>
+    </AdminLayout>
   );
 }
 

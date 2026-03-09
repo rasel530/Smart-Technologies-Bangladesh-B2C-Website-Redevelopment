@@ -94,7 +94,7 @@ router.get('/:productId/images/statistics', [
     console.log(`[AdminProductImages] Fetching statistics for product: ${productId}`);
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id: productId }
     });
 
@@ -243,7 +243,7 @@ router.get('/:productId/images/quota', [
     console.log(`[AdminProductImages] Fetching storage quota for product: ${productId}`);
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id: productId }
     });
 
@@ -590,7 +590,7 @@ router.get('/:productId/images/queue', [
     console.log(`[AdminProductImages] Fetching processing queue for product: ${productId}`);
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id: productId }
     });
 
@@ -685,7 +685,7 @@ router.post('/:productId/images/queue/cancel', [
     console.log(`[AdminProductImages] Cancelling pending jobs for product: ${productId}`);
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id: productId }
     });
 
@@ -769,7 +769,7 @@ router.post('/:productId/images/queue/retry', [
     console.log(`[AdminProductImages] Retrying failed jobs for product: ${productId}`);
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id: productId }
     });
 
@@ -993,7 +993,7 @@ router.get('/:productId/images/cdn-status', [
     console.log(`[AdminProductImages] Fetching CDN sync status for product: ${productId}`);
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id: productId }
     });
 
@@ -1095,7 +1095,7 @@ router.post('/:productId/images/cdn-sync', [
     console.log(`[AdminProductImages] Triggering CDN sync for product: ${productId}`);
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id: productId }
     });
 
@@ -1170,7 +1170,7 @@ router.get('/:productId/images/optimization-suggestions', [
     console.log(`[AdminProductImages] Fetching optimization suggestions for product: ${productId}`);
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id: productId }
     });
 

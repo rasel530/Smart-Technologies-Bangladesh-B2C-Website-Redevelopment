@@ -1,0 +1,53 @@
+{
+  "timestamp": "2026-02-23T17:18:36.458Z",
+  "summary": {
+    "total": 4,
+    "passed": 4,
+    "failed": 0
+  },
+  "tests": {
+    "test1": {
+      "name": "Verify cartId is properly passed to checkout initialization API",
+      "status": "PASS",
+      "details": [
+        "✓ initializeSession accepts cartId parameter (cartId?: string)",
+        "✓ cartId is properly included in request body with fallback to empty string",
+        "✓ cartId is extracted from useCart hook",
+        "✓ cartId is passed to initializeSession call",
+        "✓ API endpoint is /guest/checkout/initialize"
+      ]
+    },
+    "test2": {
+      "name": "Verify cart persists across page refresh",
+      "status": "PASS",
+      "details": [
+        "✓ 500ms delay is found in setTimeout",
+        "✓ Comment explains the purpose of the delay",
+        "✓ Redirect condition checks items.length after delay",
+        "✓ useEffect has proper dependencies: items.length, isLoading, isInitializing, router"
+      ]
+    },
+    "test3": {
+      "name": "Verify empty cart redirect still works",
+      "status": "PASS",
+      "details": [
+        "✓ Redirect to /cart is present",
+        "✓ Toast error message \"Your cart is empty\" is present",
+        "✓ Empty cart condition checks: !isInitializing, items.length === 0, !isLoading",
+        "✓ Delay is exactly 500ms"
+      ]
+    },
+    "test4": {
+      "name": "Verify checkout initialization succeeds",
+      "status": "PASS",
+      "details": [
+        "✓ initializeSession is called only when items.length > 0",
+        "✓ cartId is passed with proper fallback (cartId || undefined)",
+        "✓ initializeSession has try-catch error handling",
+        "✓ Error state is set on failure",
+        "✓ cartId in request uses parameter with fallback to empty string (acceptable)",
+        "✓ Session ID is stored in localStorage"
+      ]
+    }
+  }
+}

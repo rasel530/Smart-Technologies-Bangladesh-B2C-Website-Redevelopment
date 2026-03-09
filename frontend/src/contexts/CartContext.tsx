@@ -95,6 +95,7 @@ interface CartStore extends CartContextState {
   setIsGuest: (isGuest: boolean) => void;
   setIsMerging: (isMerging: boolean) => void;
   setIsInitializing: (isInitializing: boolean) => void;
+  setCartId: (cartId: string | null) => void;
     
   // Cart actions (user is passed from the provider)
   addItem: (product: Product, quantity?: number, variantId?: string | null, user?: any, options?: { onSuccess?: (cart: Cart) => void; navigateToCart?: boolean }) => Promise<void>;
@@ -123,11 +124,12 @@ const initialState: CartContextState = {
   total: 0,
   isLoading: false,
   error: null,
-  shippingMethod: 'standard',
+  shippingMethod: 'STANDARD',
   discountCode: null,
   isGuest: true,
   sessionId: null,
   isInitializing: true,  // Start as initializing
+  cartId: null,  // Cart ID for checkout initialization
 };
 
 // Create Zustand store
@@ -141,6 +143,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
     // Ensure all numeric values are converted to numbers to prevent toFixed() errors
     set({
       cart: cart,  // CRITICAL: Set the cart property itself
+      cartId: cart?.id || null,  // Set cartId from cart object
       items: cart?.items || [],
       itemCount: (cart?.items || []).reduce((sum, item) => sum + item.quantity, 0) || 0,
       subtotal: Number(cart?.subtotal) || 0,
@@ -175,6 +178,8 @@ export const useCartStore = create<CartStore>((set, get) => ({
   setIsMerging: (isMerging) => set({ isMerging }),
   
   setIsInitializing: (isInitializing) => set({ isInitializing }),
+  
+  setCartId: (cartId) => set({ cartId }),
     
   // Add item to cart
   // CRIT-001: Added authentication check and CRIT-003: Fixed null cart handling
@@ -243,6 +248,16 @@ export const useCartStore = create<CartStore>((set, get) => ({
           window.dispatchEvent(new Event('cart-updated'));
         }
       } else {
+        // FIX 1: Auto-grant cart consent on first product add
+        if (!hasCartConsent()) {
+          grantCartConsent();
+          // After granting consent, ensure the session is initialized
+          const guestSessionId = initializeGuestSession();
+          if (guestSessionId) {
+            set({ sessionId: guestSessionId });
+          }
+        }
+
         // For guest users, update local storage using utility functions
         // CRIT-004: Validate stock with backend before adding
         const stockValid = await validateGuestCartStock(product.id, quantity, variantId || undefined);
@@ -265,7 +280,11 @@ export const useCartStore = create<CartStore>((set, get) => ({
           
           // CRIT-002: CRIT-004: Sync guest cart to backend with await
           try {
-            await createOrUpdateGuestCartBackend(guestCartUpdated.items, guestCartUpdated.sessionId);
+            const backendCart = await createOrUpdateGuestCartBackend(guestCartUpdated.items, guestCartUpdated.sessionId);
+            // Store the real database cartId
+            if (backendCart && backendCart.id) {
+              guestCartUpdated.cartId = backendCart.id;
+            }
           } catch (error) {
             console.error('[CartContext] Failed to sync guest cart to backend:', error);
             // Continue with localStorage cart even if backend fails
@@ -299,7 +318,12 @@ export const useCartStore = create<CartStore>((set, get) => ({
           // Save and sync to backend
           saveGuestCartToStorageUtil(guestCartWithItem);
           try {
-            await createOrUpdateGuestCartBackend(guestCartWithItem.items, guestCartWithItem.sessionId);
+            const backendCart = await createOrUpdateGuestCartBackend(guestCartWithItem.items, guestCartWithItem.sessionId);
+            // Store the real database cartId
+            if (backendCart && backendCart.id) {
+              guestCartWithItem.cartId = backendCart.id;
+              saveGuestCartToStorageUtil(guestCartWithItem);  // Save again with cartId
+            }
           } catch (error) {
             console.error('[CartContext] Failed to sync new guest cart to backend:', error);
           }
@@ -396,6 +420,13 @@ export const useCartStore = create<CartStore>((set, get) => ({
             
             // CRIT-002: Sync to backend with await (non-blocking for UI)
             createOrUpdateGuestCartBackend(storageData.items, storageData.sessionId)
+              .then((backendCart) => {
+                // Store the real database cartId
+                if (backendCart && backendCart.id) {
+                  storageData.cartId = backendCart.id;
+                  saveGuestCartToStorageUtil(storageData);  // Save again with cartId
+                }
+              })
               .catch((error) => {
                 console.error('[CartContext] Failed to sync guest cart after remove:', error);
               });
@@ -514,6 +545,13 @@ export const useCartStore = create<CartStore>((set, get) => ({
             
             // CRIT-002: Sync to backend (non-blocking for UI)
             createOrUpdateGuestCartBackend(storageData.items, storageData.sessionId)
+              .then((backendCart) => {
+                // Store the real database cartId
+                if (backendCart && backendCart.id) {
+                  storageData.cartId = backendCart.id;
+                  saveGuestCartToStorageUtil(storageData);  // Save again with cartId
+                }
+              })
               .catch((error) => {
                 console.error('[CartContext] Failed to sync guest cart after quantity update:', error);
               });
@@ -948,6 +986,7 @@ const getEmptyCart = (sessionId: string): Cart => {
   const now = new Date().toISOString();
   return {
     id: sessionId,
+    cartId: undefined,  // Will be set when backend returns real cartId
     sessionId,
     items: [],
     subtotal: 0,
@@ -1067,7 +1106,8 @@ const getCartFromStorageData = async (storageData: GuestCartStorageData): Promis
   const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
   
   return {
-    id: storageData.sessionId,
+    id: storageData.cartId || storageData.sessionId,  // Use real cartId if available
+    cartId: storageData.cartId,  // Store cartId separately
     sessionId: storageData.sessionId,
     items,
     subtotal,
@@ -1157,14 +1197,40 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         if (user) {
           await initializeCart(user);
         } else {
-          // MED-004: Only initialize guest session if user has consented
-          const guestSessionId = initializeGuestSession();
-          if (guestSessionId) {
-            await initializeCart(null);
+          // FIX 3: Ensure cart loads on page refresh - check for existing cart data
+          const existingCart = loadGuestCartFromStorageUtil();
+          
+          if (existingCart && existingCart.items.length > 0) {
+            // If there's existing cart data with items, grant consent automatically and load it
+            if (!hasCartConsent()) {
+              grantCartConsent();
+            }
+            // Generate session ID if needed
+            let guestSessionId = existingCart.sessionId;
+            if (!guestSessionId || !isValidUUID(guestSessionId)) {
+              guestSessionId = generateGuestSessionIdUtil();
+              setGuestSessionIdUtil(guestSessionId);
+              existingCart.sessionId = guestSessionId;
+              saveGuestCartToStorageUtil(existingCart);
+            }
+            // Set session ID and guest flag using store methods
+            const setSessionId = useCartStore.getState().setSessionId;
+            const setIsGuest = useCartStore.getState().setIsGuest;
+            setSessionId(guestSessionId);
+            setIsGuest(true);
+            // Load the existing cart with items
+            const guestCart = await getCartFromStorageData(existingCart);
+            setCart(guestCart);
           } else {
-            // User hasn't consented yet - create empty cart without session
-            const emptyCart = getEmptyCart('guest');
-            setCart(emptyCart);
+            // MED-004: Only initialize guest session if user has consented
+            const guestSessionId = initializeGuestSession();
+            if (guestSessionId) {
+              await initializeCart(null);
+            } else {
+              // User hasn't consented yet - create empty cart without session
+              const emptyCart = getEmptyCart('guest');
+              setCart(emptyCart);
+            }
           }
         }
       } catch (error) {
@@ -1262,6 +1328,7 @@ export const useCart = (): CartContextType => {
     isGuest: store.isGuest,
     sessionId: store.sessionId,
     isInitializing: store.isInitializing,
+    cartId: store.cart?.id || null,  // Expose cartId from store
     addItem: (product, quantity, variantId, options) => store.addItem(product, quantity, variantId, user, options),
     removeItem: (itemId, options) => store.removeItem(itemId, user, options),
     updateQuantity: (itemId, quantity, options) => store.updateQuantity(itemId, quantity, user, options),

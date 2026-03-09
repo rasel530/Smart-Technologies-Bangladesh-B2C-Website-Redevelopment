@@ -61,7 +61,7 @@ const verifyCartItemOwnership = async (req, res, next) => {
 
   try {
     // Get the cart item with its associated cart
-    const cartItem = await cartService.prisma.cartItem.findUnique({
+    const cartItem = await cartService.prisma.cart_items.findUnique({
       where: { id },
       include: {
         cart: true
@@ -133,7 +133,7 @@ const verifyCartOwnership = async (req, res, next) => {
   const sessionId = req.headers['x-session-id'] || null;
 
   try {
-    const cart = await cartService.prisma.cart.findUnique({
+    const cart = await cartService.prisma.carts.findUnique({
       where: { id: cartId }
     });
 
@@ -406,7 +406,7 @@ class CartController {
       });
 
       // Verify cart ownership
-      const cart = await cartService.prisma.cart.findUnique({
+      const cart = await cartService.prisma.carts.findUnique({
         where: { id: cartId }
       });
 
@@ -492,7 +492,7 @@ class CartController {
       }
 
       // Verify cart exists and belongs to user/session
-      const cart = await cartService.prisma.cart.findUnique({
+      const cart = await cartService.prisma.carts.findUnique({
         where: { id: actualCartId }
       });
 
@@ -1090,7 +1090,7 @@ class CartController {
       const { expiresInDays } = req.body;
 
       // Validate cart exists
-      const cart = await cartService.prisma.cart.findUnique({
+      const cart = await cartService.prisma.carts.findUnique({
         where: { id }
       });
 
@@ -1141,18 +1141,17 @@ class CartController {
         });
       }
 
-      const products = await cartService.prisma.product.findMany({
+      const products = await cartService.prisma.products.findMany({
         where: {
           id: { in: productIds },
           status: 'active'
         },
         include: {
-          images: {
-            where: { displayOrder: 0 },
+          product_images: {
+            where: { display_order: 0 },
             take: 1,
-            select: { id: true, originalUrl: true, optimizedUrl: true, thumbnailUrl: true, altTextEn: true, altTextBn: true }
-          },
-          variants: true
+            select: { id: true, original_url: true, optimized_url: true, thumbnail_url: true, alt_text_en: true, alt_text_bn: true }
+          }
         }
       });
 
@@ -1197,9 +1196,8 @@ class CartController {
       let isValid = true;
 
       for (const item of items) {
-        const product = await cartService.prisma.product.findUnique({
-          where: { id: item.productId },
-          include: { variants: true }
+        const product = await cartService.prisma.products.findUnique({
+          where: { id: item.productId }
         });
 
         if (!product) {
@@ -1324,7 +1322,7 @@ class CartController {
           const { productId, quantity, variantId, price } = item;
 
           // Check if item already exists
-          const existingItem = await cartService.prisma.cartItem.findFirst({
+          const existingItem = await cartService.prisma.cart_items.findFirst({
             where: {
               cartId: cart.id,
               productId,
@@ -1335,7 +1333,7 @@ class CartController {
           let cartItem;
           if (existingItem) {
             // Update existing item
-            cartItem = await cartService.prisma.cartItem.update({
+            cartItem = await cartService.prisma.cart_items.update({
               where: { id: existingItem.id },
               data: {
                 quantity,
@@ -1404,6 +1402,8 @@ class CartController {
         messageBn: results.length > 0 
           ? 'গেস্ট কার্ট সফলভাবে সিঙ্ক হয়েছে' 
           : 'সিঙ্ক করার জন্য কোনো আইটেম নেই',
+        // Return cartId at top level for frontend compatibility
+        id: updatedCart?.id,
         data: {
           cartId: updatedCart?.id,
           itemsProcessed: results.length,

@@ -1,7 +1,12 @@
 'use client';
 
 import MoveHistoryViewer from '@/components/admin/cartWishlist/MoveHistoryViewer';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 export default function MoveHistoryPage() {
-  return <MoveHistoryViewer />;
+  return (
+    <AdminLayout title="Cart & Wishlist Move History">
+      <MoveHistoryViewer />
+    </AdminLayout>
+  );
 }

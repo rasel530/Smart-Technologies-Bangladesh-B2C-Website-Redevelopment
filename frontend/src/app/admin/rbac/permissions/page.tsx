@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { 
-  Shield, 
-  Plus, 
-  Edit, 
-  Trash2, 
+import {
+  Shield,
+  Plus,
+  Edit,
+  Trash2,
   ArrowLeft,
   Search,
   Filter,
@@ -15,6 +15,7 @@ import {
 import { Permission, PermissionWithRoles } from '@/types/rbac';
 import { rbacApi } from '@/lib/api/rbac';
 import { formatPermissionName } from '@/lib/rbac/utils';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 /**
  * Permission Management Page
@@ -198,7 +199,8 @@ export default function PermissionManagementPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <AdminLayout title="RBAC Permissions">
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -530,5 +532,6 @@ export default function PermissionManagementPage() {
         </div>
       )}
     </div>
+    </AdminLayout>
   );
 }

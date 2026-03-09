@@ -22,26 +22,42 @@ class GuestCheckoutService {
    * Create new guest session
    * @param {string} sessionId - Unique session ID
    * @param {string} cartId - Cart ID associated with the session
+   * @param {Object} additionalMetadata - Optional additional metadata to store
    * @returns {Promise<Object>} Created guest session
    */
-  async createGuestSession(sessionId, cartId) {
+  async createGuestSession(sessionId, cartId, additionalMetadata = {}) {
     try {
-      this.logger.info('[createGuestSession] Creating guest session', { sessionId, cartId });
+      this.logger.info('[createGuestSession] Creating guest session', { 
+        sessionId, 
+        cartId, 
+        additionalMetadata,
+        timestamp: new Date().toISOString()
+      });
 
       // Validate cart exists
-      const cart = await this.prisma.cart.findUnique({
+      this.logger.info('[createGuestSession] Validating cart exists', { cartId });
+      const cart = await this.prisma.carts.findUnique({
         where: { id: cartId }
       });
 
+      this.logger.info('[createGuestSession] Cart validation result', {
+        cartId,
+        cartFound: !!cart,
+        cartIdFromDb: cart?.id,
+        cartStatus: cart?.status,
+        cartItemCount: cart?.items?.length || 0
+      });
+
       if (!cart) {
+        this.logger.error('[createGuestSession] Cart not found during validation', { cartId });
         throw new Error('Cart not found');
       }
 
       // Generate unique guest session ID
       const guestSessionId = crypto.randomUUID();
 
-      // Create guest session
-      const guestSession = await this.prisma.guestSession.create({
+      // Create guest session with merged metadata
+      const guestSession = await this.prisma.guest_sessions.create({
         data: {
           id: guestSessionId,
           sessionId,
@@ -51,7 +67,8 @@ class GuestCheckoutService {
           metadata: {
             createdAt: new Date().toISOString(),
             ipAddress: null,
-            userAgent: null
+            userAgent: null,
+            ...additionalMetadata
           }
         }
       });
@@ -83,7 +100,7 @@ class GuestCheckoutService {
     try {
       this.logger.info('[getGuestSession] Retrieving guest session', { sessionId });
 
-      const guestSession = await this.prisma.guestSession.findUnique({
+      const guestSession = await this.prisma.guest_sessions.findUnique({
         where: { sessionId },
         include: {
           cart: {
@@ -168,7 +185,7 @@ class GuestCheckoutService {
       this.logger.info('[updateGuestSession] Updating guest session', { sessionId, data });
 
       // Get current session
-      const guestSession = await this.prisma.guestSession.findUnique({
+      const guestSession = await this.prisma.guest_sessions.findUnique({
         where: { sessionId }
       });
 
@@ -195,7 +212,7 @@ class GuestCheckoutService {
       };
 
       // Update guest session
-      const updatedSession = await this.prisma.guestSession.update({
+      const updatedSession = await this.prisma.guest_sessions.update({
         where: { sessionId },
         data: updateData
       });
@@ -226,7 +243,7 @@ class GuestCheckoutService {
     try {
       this.logger.info('[trackGuestActivity] Tracking guest activity', { sessionId });
 
-      const guestSession = await this.prisma.guestSession.findUnique({
+      const guestSession = await this.prisma.guest_sessions.findUnique({
         where: { sessionId }
       });
 
@@ -235,7 +252,7 @@ class GuestCheckoutService {
       }
 
       // Update last activity timestamp
-      const updatedSession = await this.prisma.guestSession.update({
+      const updatedSession = await this.prisma.guest_sessions.update({
         where: { sessionId },
         data: {
           lastActivityAt: new Date(),
@@ -270,7 +287,7 @@ class GuestCheckoutService {
       this.logger.info('[convertGuestToUser] Converting guest to user', { sessionId, userId });
 
       // Validate user exists
-      const user = await this.prisma.user.findUnique({
+      const user = await this.prisma.users.findUnique({
         where: { id: userId }
       });
 
@@ -279,7 +296,7 @@ class GuestCheckoutService {
       }
 
       // Get guest session
-      const guestSession = await this.prisma.guestSession.findUnique({
+      const guestSession = await this.prisma.guest_sessions.findUnique({
         where: { sessionId },
         include: {
           cart: true
@@ -307,7 +324,7 @@ class GuestCheckoutService {
       }
 
       // Update guest session
-      const updatedSession = await this.prisma.guestSession.update({
+      const updatedSession = await this.prisma.guest_sessions.update({
         where: { sessionId },
         data: {
           convertedToUserId: userId,
@@ -348,7 +365,7 @@ class GuestCheckoutService {
     try {
       this.logger.info('[expireGuestSession] Expiring guest session', { sessionId });
 
-      const guestSession = await this.prisma.guestSession.findUnique({
+      const guestSession = await this.prisma.guest_sessions.findUnique({
         where: { sessionId }
       });
 
@@ -357,7 +374,7 @@ class GuestCheckoutService {
       }
 
       // Mark session as expired by setting expiresAt to past
-      const expiredSession = await this.prisma.guestSession.update({
+      const expiredSession = await this.prisma.guest_sessions.update({
         where: { sessionId },
         data: {
           expiresAt: new Date(Date.now() - 1000),
@@ -392,7 +409,7 @@ class GuestCheckoutService {
       });
 
       // Get guest cart
-      const guestCart = await this.prisma.cart.findUnique({
+      const guestCart = await this.prisma.carts.findUnique({
         where: { id: guestCartId },
         include: {
           items: true
@@ -404,7 +421,7 @@ class GuestCheckoutService {
       }
 
       // Get user cart
-      const userCart = await this.prisma.cart.findUnique({
+      const userCart = await this.prisma.carts.findUnique({
         where: { id: userCartId },
         include: {
           items: true
@@ -425,7 +442,7 @@ class GuestCheckoutService {
 
         if (existingItem) {
           // Update quantity of existing item
-          await this.prisma.cartItem.update({
+          await this.prisma.cart_items.update({
             where: { id: existingItem.id },
             data: {
               quantity: existingItem.quantity + guestItem.quantity,
@@ -434,7 +451,7 @@ class GuestCheckoutService {
           });
         } else {
           // Add new item to user cart
-          await this.prisma.cartItem.create({
+          await this.prisma.cart_items.create({
             data: {
               cartId: userCartId,
               productId: guestItem.productId,
@@ -451,7 +468,7 @@ class GuestCheckoutService {
       const totals = await cartService.calculateCartTotals(userCartId);
 
       // Update user cart totals
-      await this.prisma.cart.update({
+      await this.prisma.carts.update({
         where: { id: userCartId },
         data: {
           subtotal: totals.subtotal,
@@ -464,7 +481,7 @@ class GuestCheckoutService {
       });
 
       // Mark guest cart as converted
-      await this.prisma.cart.update({
+      await this.prisma.carts.update({
         where: { id: guestCartId },
         data: {
           status: 'converted',
@@ -510,16 +527,16 @@ class GuestCheckoutService {
       }
 
       // Find orders by guest email or phone
-      const orders = await this.prisma.order.findMany({
+      const orders = await this.prisma.orders.findMany({
         where: {
           OR: [
-            { address: { phone: phone || undefined } },
+            { addresses: { some: { phone: phone || undefined } } },
             // Note: Email is not stored in address, so we need to check orders directly
             // This is a limitation - we might need to store guest email in order metadata
           ]
         },
         include: {
-          address: true,
+          addresses: true,
           items: {
             include: {
               product: {
@@ -583,7 +600,7 @@ class GuestCheckoutService {
     try {
       this.logger.info('[validateGuestSession] Validating guest session', { sessionId });
 
-      const guestSession = await this.prisma.guestSession.findUnique({
+      const guestSession = await this.prisma.guest_sessions.findUnique({
         where: { sessionId }
       });
 
@@ -642,7 +659,7 @@ class GuestCheckoutService {
       const now = new Date();
 
       // Find all expired sessions
-      const expiredSessions = await this.prisma.guestSession.findMany({
+      const expiredSessions = await this.prisma.guest_sessions.findMany({
         where: {
           expiresAt: { lt: now },
           convertedToUserId: null
@@ -654,7 +671,7 @@ class GuestCheckoutService {
       // Delete expired sessions
       for (const session of expiredSessions) {
         try {
-          await this.prisma.guestSession.delete({
+          await this.prisma.guest_sessions.delete({
             where: { id: session.id }
           });
           cleanedCount++;

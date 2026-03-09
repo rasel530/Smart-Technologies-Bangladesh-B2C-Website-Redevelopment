@@ -1,0 +1,476 @@
+{
+  "passed": 13,
+  "failed": 22,
+  "skipped": 0,
+  "tests": [
+    {
+      "name": "Test Data: Count Modifications",
+      "status": "PASSED",
+      "message": "Found 26 modifications in database",
+      "details": {
+        "count": 26
+      },
+      "timestamp": "2026-03-01T16:54:10.034Z"
+    },
+    {
+      "name": "Test Data: Status Distribution",
+      "status": "PASSED",
+      "message": "Found statuses: approved, cancelled, completed, pending, rejected",
+      "details": {
+        "statuses": [
+          "approved",
+          "cancelled",
+          "completed",
+          "pending",
+          "rejected"
+        ],
+        "expected": [
+          "pending",
+          "approved",
+          "rejected",
+          "cancelled",
+          "completed"
+        ]
+      },
+      "timestamp": "2026-03-01T16:54:10.041Z"
+    },
+    {
+      "name": "Test Data: Type Distribution",
+      "status": "PASSED",
+      "message": "Found types: address_change, custom, item_add, item_remove, payment_method_change, quantity_change, shipping_method_change",
+      "details": {
+        "types": [
+          "address_change",
+          "custom",
+          "item_add",
+          "item_remove",
+          "payment_method_change",
+          "quantity_change",
+          "shipping_method_change"
+        ],
+        "expected": [
+          "item_add",
+          "item_remove",
+          "quantity_change",
+          "address_change",
+          "price_change",
+          "shipping_method_change",
+          "payment_method_change",
+          "custom"
+        ]
+      },
+      "timestamp": "2026-03-01T16:54:10.047Z"
+    },
+    {
+      "name": "Test Data: Sample Modification",
+      "status": "PASSED",
+      "message": "Sample modification ID: 7d11b04b-d6ba-4d57-968f-c46d2121c74c",
+      "details": {
+        "sample": {
+          "id": "7d11b04b-d6ba-4d57-968f-c46d2121c74c",
+          "orderId": "b35c588c-d484-40eb-b15d-833c36b4ded8",
+          "modificationType": "item_remove",
+          "description": "test data.",
+          "changes": {
+            "itemIds": [
+              "0213420b-1a72-45f6-b9bf-058c45558947"
+            ]
+          },
+          "requestedBy": "2bdca14e-ac33-43ca-b98a-5117c8ecdeb9",
+          "approvedBy": null,
+          "status": "pending",
+          "createdAt": "2026-03-01T16:17:05.226Z",
+          "processedAt": null
+        }
+      },
+      "timestamp": "2026-03-01T16:54:10.060Z"
+    },
+    {
+      "name": "API: GET /orders/admin/modifications (Default)",
+      "status": "FAILED",
+      "message": "Failed with status 401",
+      "details": {
+        "status": 401,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      },
+      "timestamp": "2026-03-01T16:54:10.150Z"
+    },
+    {
+      "name": "API: GET /orders/admin/modifications?status=pending",
+      "status": "FAILED",
+      "message": "Failed with status 401",
+      "details": {
+        "status": 401,
+        "count": 0
+      },
+      "timestamp": "2026-03-01T16:54:10.166Z"
+    },
+    {
+      "name": "API: GET /orders/admin/modifications?status=approved",
+      "status": "FAILED",
+      "message": "Failed with status 401",
+      "details": {
+        "status": 401,
+        "count": 0
+      },
+      "timestamp": "2026-03-01T16:54:10.177Z"
+    },
+    {
+      "name": "API: GET /orders/admin/modifications?status=rejected",
+      "status": "FAILED",
+      "message": "Failed with status 401",
+      "details": {
+        "status": 401,
+        "count": 0
+      },
+      "timestamp": "2026-03-01T16:54:10.188Z"
+    },
+    {
+      "name": "API: GET /orders/admin/modifications?status=cancelled",
+      "status": "FAILED",
+      "message": "Failed with status 400",
+      "details": {
+        "status": 400,
+        "count": 0
+      },
+      "timestamp": "2026-03-01T16:54:10.198Z"
+    },
+    {
+      "name": "API: GET /orders/admin/modifications?status=completed",
+      "status": "FAILED",
+      "message": "Failed with status 400",
+      "details": {
+        "status": 400,
+        "count": 0
+      },
+      "timestamp": "2026-03-01T16:54:10.208Z"
+    },
+    {
+      "name": "API: GET /orders/admin/modifications?type=item_add",
+      "status": "FAILED",
+      "message": "Failed with status 401",
+      "details": {
+        "status": 401,
+        "count": 0
+      },
+      "timestamp": "2026-03-01T16:54:10.218Z"
+    },
+    {
+      "name": "API: GET /orders/admin/modifications?type=item_remove",
+      "status": "FAILED",
+      "message": "Failed with status 401",
+      "details": {
+        "status": 401,
+        "count": 0
+      },
+      "timestamp": "2026-03-01T16:54:10.226Z"
+    },
+    {
+      "name": "API: GET /orders/admin/modifications?type=quantity_change",
+      "status": "FAILED",
+      "message": "Failed with status 401",
+      "details": {
+        "status": 401,
+        "count": 0
+      },
+      "timestamp": "2026-03-01T16:54:10.234Z"
+    },
+    {
+      "name": "API: GET /orders/admin/modifications?type=address_change",
+      "status": "FAILED",
+      "message": "Failed with status 401",
+      "details": {
+        "status": 401,
+        "count": 0
+      },
+      "timestamp": "2026-03-01T16:54:10.243Z"
+    },
+    {
+      "name": "API: GET /orders/admin/modifications?page=1&limit=10",
+      "status": "FAILED",
+      "message": "Failed with status 401",
+      "details": {
+        "status": 401,
+        "count": 0
+      },
+      "timestamp": "2026-03-01T16:54:10.252Z"
+    },
+    {
+      "name": "API: GET /orders/admin/modifications?page=2&limit=10",
+      "status": "FAILED",
+      "message": "Failed with status 401",
+      "details": {
+        "status": 401,
+        "count": 0
+      },
+      "timestamp": "2026-03-01T16:54:10.262Z"
+    },
+    {
+      "name": "API: GET /orders/admin/modifications?page=1&limit=5",
+      "status": "FAILED",
+      "message": "Failed with status 401",
+      "details": {
+        "status": 401,
+        "count": 0
+      },
+      "timestamp": "2026-03-01T16:54:10.270Z"
+    },
+    {
+      "name": "API: GET /orders/admin/modifications?page=1&limit=50",
+      "status": "FAILED",
+      "message": "Failed with status 401",
+      "details": {
+        "status": 401,
+        "count": 0
+      },
+      "timestamp": "2026-03-01T16:54:10.283Z"
+    },
+    {
+      "name": "API: GET /orders/admin/modifications (Combined Filters)",
+      "status": "FAILED",
+      "message": "Failed with status 401",
+      "details": {
+        "status": 401,
+        "count": 0,
+        "filters": {
+          "status": "pending",
+          "type": "item_add",
+          "page": 1,
+          "limit": 5
+        }
+      },
+      "timestamp": "2026-03-01T16:54:10.299Z"
+    },
+    {
+      "name": "API: GET /orders/:id/modifications",
+      "status": "FAILED",
+      "message": "Failed with status 401",
+      "details": {
+        "status": 401,
+        "orderId": "b35c588c-d484-40eb-b15d-833c36b4ded8",
+        "count": 0
+      },
+      "timestamp": "2026-03-01T16:54:10.330Z"
+    },
+    {
+      "name": "API: GET /orders/:id/modifications (Invalid ID)",
+      "status": "FAILED",
+      "message": "Correctly returned 404 for invalid order ID",
+      "details": {
+        "status": 401
+      },
+      "timestamp": "2026-03-01T16:54:10.351Z"
+    },
+    {
+      "name": "CRUD: POST /orders/:id/modifications",
+      "status": "FAILED",
+      "message": "Failed with status 401",
+      "details": {
+        "status": 401,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      },
+      "timestamp": "2026-03-01T16:54:10.412Z"
+    },
+    {
+      "name": "CRUD: PUT /orders/:id/modifications/:id/approve",
+      "status": "FAILED",
+      "message": "Failed with status 401",
+      "details": {
+        "status": 401,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      },
+      "timestamp": "2026-03-01T16:54:10.424Z"
+    },
+    {
+      "name": "CRUD: PUT /orders/:id/modifications/:id/reject",
+      "status": "FAILED",
+      "message": "Failed with status 401",
+      "details": {
+        "status": 401,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      },
+      "timestamp": "2026-03-01T16:54:10.447Z"
+    },
+    {
+      "name": "CRUD: POST /orders/:id/modifications (Invalid Type)",
+      "status": "PASSED",
+      "message": "Correctly rejected invalid modification type",
+      "details": {
+        "status": 400,
+        "data": {
+          "success": false,
+          "error": "Validation failed",
+          "details": [
+            {
+              "type": "field",
+              "value": "invalid_type",
+              "msg": "Invalid value",
+              "path": "type",
+              "location": "body"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-03-01T16:54:10.461Z"
+    },
+    {
+      "name": "Edge Case: Approve Already Approved",
+      "status": "FAILED",
+      "message": "Correctly rejected already approved modification",
+      "details": {
+        "status": 401,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      },
+      "timestamp": "2026-03-01T16:54:10.481Z"
+    },
+    {
+      "name": "Edge Case: Reject Already Rejected",
+      "status": "FAILED",
+      "message": "Correctly rejected already rejected modification",
+      "details": {
+        "status": 401,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      },
+      "timestamp": "2026-03-01T16:54:10.502Z"
+    },
+    {
+      "name": "Edge Case: GET with Invalid Status",
+      "status": "PASSED",
+      "message": "Correctly rejected invalid status parameter",
+      "details": {
+        "status": 400,
+        "data": {
+          "success": false,
+          "error": "Validation failed",
+          "details": [
+            {
+              "type": "field",
+              "value": "invalid_status",
+              "msg": "Invalid value",
+              "path": "status",
+              "location": "query"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-03-01T16:54:10.511Z"
+    },
+    {
+      "name": "Edge Case: GET with Invalid Type",
+      "status": "PASSED",
+      "message": "Correctly rejected invalid type parameter",
+      "details": {
+        "status": 400,
+        "data": {
+          "success": false,
+          "error": "Validation failed",
+          "details": [
+            {
+              "type": "field",
+              "value": "invalid_type",
+              "msg": "Invalid value",
+              "path": "type",
+              "location": "query"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-03-01T16:54:10.524Z"
+    },
+    {
+      "name": "Edge Case: GET with Invalid Page",
+      "status": "PASSED",
+      "message": "Correctly rejected invalid page parameter",
+      "details": {
+        "status": 400,
+        "data": {
+          "success": false,
+          "error": "Validation failed",
+          "details": [
+            {
+              "type": "field",
+              "value": "-1",
+              "msg": "Invalid value",
+              "path": "page",
+              "location": "query"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-03-01T16:54:10.535Z"
+    },
+    {
+      "name": "Performance: Default Query",
+      "status": "PASSED",
+      "message": "Response time: 13ms",
+      "details": {
+        "responseTime": 13,
+        "status": 401,
+        "threshold": "< 1000ms"
+      },
+      "timestamp": "2026-03-01T16:54:10.549Z"
+    },
+    {
+      "name": "Performance: Status Filter",
+      "status": "PASSED",
+      "message": "Response time: 14ms",
+      "details": {
+        "responseTime": 14,
+        "status": 401,
+        "threshold": "< 1000ms"
+      },
+      "timestamp": "2026-03-01T16:54:10.563Z"
+    },
+    {
+      "name": "Performance: Type Filter",
+      "status": "PASSED",
+      "message": "Response time: 11ms",
+      "details": {
+        "responseTime": 11,
+        "status": 401,
+        "threshold": "< 1000ms"
+      },
+      "timestamp": "2026-03-01T16:54:10.574Z"
+    },
+    {
+      "name": "Performance: Combined Filters",
+      "status": "PASSED",
+      "message": "Response time: 15ms",
+      "details": {
+        "responseTime": 15,
+        "status": 401,
+        "threshold": "< 1000ms"
+      },
+      "timestamp": "2026-03-01T16:54:10.589Z"
+    },
+    {
+      "name": "Performance: Pagination",
+      "status": "PASSED",
+      "message": "Response time: 10ms",
+      "details": {
+        "responseTime": 10,
+        "status": 401,
+        "threshold": "< 1000ms"
+      },
+      "timestamp": "2026-03-01T16:54:10.599Z"
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { BrandWithRelations, BrandStatus } from '@/types/brand';
 import brandsApi from '@/lib/api/brands';
+import { getImageUrl } from '@/lib/utils/image';
 
 interface BrandListProps {
   initialBrands?: BrandWithRelations[];
@@ -194,7 +195,7 @@ export default function BrandList({ initialBrands = [] }: BrandListProps) {
           <div className="p-8 text-center text-gray-500">No brands found</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-[800px] divide-y divide-gray-200">
+            <table className="w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -227,7 +228,7 @@ export default function BrandList({ initialBrands = [] }: BrandListProps) {
                     <div className="flex items-center">
                       {brand.logoUrl && (
                         <img
-                          src={brand.logoUrl}
+                          src={getImageUrl(brand.logoUrl) || ''}
                           alt={brand.name}
                           className="h-10 w-10 rounded object-cover mr-3"
                         />

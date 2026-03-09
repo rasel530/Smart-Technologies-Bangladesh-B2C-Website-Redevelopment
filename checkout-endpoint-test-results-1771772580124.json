@@ -1,0 +1,350 @@
+{
+  "timestamp": "2026-02-22T15:03:00.124Z",
+  "baseUrl": "http://localhost:3001",
+  "summary": {
+    "total": 15,
+    "passed": 3,
+    "failed": 12,
+    "successRate": "20.00%"
+  },
+  "tests": [
+    {
+      "name": "POST /api/v1/checkout/initialize - Route Accessibility",
+      "passed": false,
+      "details": {
+        "statusCode": 400,
+        "body": {
+          "success": false,
+          "error": "Authentication required",
+          "message": "Either user authentication or session ID is required",
+          "messageBn": "ব্যবহারকারী প্রমাণীকরণ বা সেশন আইডি প্রয়োজন"
+        },
+        "isAccessible": true,
+        "isExpectedStatus": false
+      }
+    },
+    {
+      "name": "POST /api/v1/guest/checkout/initialize - Route Accessibility",
+      "passed": false,
+      "details": {
+        "statusCode": 404,
+        "body": {
+          "success": false,
+          "error": "Cart not found",
+          "message": "Cart not found",
+          "messageBn": "কার্ট পাওয়া যায়নি"
+        },
+        "isAccessible": false,
+        "isExpectedStatus": false
+      }
+    },
+    {
+      "name": "GET /api/v1/checkout/session/:sessionId - Route Accessibility",
+      "passed": false,
+      "details": {
+        "statusCode": 400,
+        "body": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "00000000-0000-0000-0000-000000000001",
+              "msg": "Invalid checkout session ID",
+              "path": "sessionId",
+              "location": "params"
+            }
+          ]
+        },
+        "isAccessible": true,
+        "isExpectedStatus": false
+      }
+    },
+    {
+      "name": "PUT /api/v1/checkout/session/:sessionId/step - Route Accessibility",
+      "passed": false,
+      "details": {
+        "statusCode": 400,
+        "body": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "00000000-0000-0000-0000-000000000001",
+              "msg": "Invalid checkout session ID",
+              "path": "sessionId",
+              "location": "params"
+            }
+          ]
+        },
+        "isAccessible": true,
+        "isExpectedStatus": false
+      }
+    },
+    {
+      "name": "POST /api/v1/checkout/session/:sessionId/address - Route Accessibility",
+      "passed": false,
+      "details": {
+        "statusCode": 400,
+        "body": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "00000000-0000-0000-0000-000000000001",
+              "msg": "Invalid checkout session ID",
+              "path": "sessionId",
+              "location": "params"
+            }
+          ]
+        },
+        "isAccessible": true,
+        "isExpectedStatus": false
+      }
+    },
+    {
+      "name": "POST /api/v1/checkout/session/:sessionId/shipping - Route Accessibility",
+      "passed": false,
+      "details": {
+        "statusCode": 400,
+        "body": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "00000000-0000-0000-0000-000000000001",
+              "msg": "Invalid checkout session ID",
+              "path": "sessionId",
+              "location": "params"
+            }
+          ]
+        },
+        "isAccessible": true,
+        "isExpectedStatus": false
+      }
+    },
+    {
+      "name": "POST /api/v1/checkout/session/:sessionId/payment - Route Accessibility",
+      "passed": false,
+      "details": {
+        "statusCode": 400,
+        "body": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "00000000-0000-0000-0000-000000000001",
+              "msg": "Invalid checkout session ID",
+              "path": "sessionId",
+              "location": "params"
+            }
+          ]
+        },
+        "isAccessible": true,
+        "isExpectedStatus": false
+      }
+    },
+    {
+      "name": "POST /api/v1/checkout/session/:sessionId/complete - Route Accessibility",
+      "passed": false,
+      "details": {
+        "statusCode": 400,
+        "body": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "00000000-0000-0000-0000-000000000001",
+              "msg": "Invalid checkout session ID",
+              "path": "sessionId",
+              "location": "params"
+            }
+          ]
+        },
+        "isAccessible": true,
+        "isExpectedStatus": false
+      }
+    },
+    {
+      "name": "DELETE /api/v1/checkout/session/:sessionId - Route Accessibility",
+      "passed": false,
+      "details": {
+        "statusCode": 400,
+        "body": null,
+        "isAccessible": true,
+        "isExpectedStatus": false
+      }
+    },
+    {
+      "name": "GET /api/v1/checkout/shipping-methods - Route Accessibility",
+      "passed": true,
+      "details": {
+        "statusCode": 200,
+        "body": {
+          "success": true,
+          "message": "Shipping methods retrieved successfully",
+          "messageBn": "শিপিং পদ্ধতি সফলভাবে পুনরুদ্ধার করা হয়েছে",
+          "data": {
+            "STANDARD": {
+              "name": "Standard Delivery",
+              "cost": 100,
+              "estimatedDays": "3-5"
+            },
+            "EXPRESS": {
+              "name": "Express Delivery",
+              "cost": 200,
+              "estimatedDays": "1-2"
+            },
+            "INSIDE_DHAKA": {
+              "name": "Inside Dhaka",
+              "cost": 60,
+              "estimatedDays": "1-2"
+            },
+            "OUTSIDE_DHAKA": {
+              "name": "Outside Dhaka",
+              "cost": 120,
+              "estimatedDays": "3-5"
+            }
+          }
+        },
+        "isAccessible": true,
+        "isExpectedStatus": true
+      }
+    },
+    {
+      "name": "GET /api/v1/checkout/payment-methods - Route Accessibility",
+      "passed": true,
+      "details": {
+        "statusCode": 200,
+        "body": {
+          "success": true,
+          "message": "Payment methods retrieved successfully",
+          "messageBn": "পেমেন্ট পদ্ধতি সফলভাবে পুনরুদ্ধার করা হয়েছে",
+          "data": [
+            "CASH_ON_DELIVERY",
+            "EMI",
+            "BKASH",
+            "NAGAD",
+            "ROCKET",
+            "MCASH",
+            "BANK_TRANSFER",
+            "CREDIT_CARD"
+          ]
+        },
+        "isAccessible": true,
+        "isExpectedStatus": true
+      }
+    },
+    {
+      "name": "POST /api/v1/checkout/validate-address - Route Accessibility",
+      "passed": true,
+      "details": {
+        "statusCode": 200,
+        "body": {
+          "success": false,
+          "message": "Address validation failed",
+          "messageBn": "ঠিকানা যাচাইকরণ ব্যর্থ হয়েছে",
+          "data": {
+            "isValid": false,
+            "errors": [
+              "Address is required",
+              "District is required",
+              "Division is required"
+            ]
+          }
+        },
+        "isAccessible": true,
+        "isExpectedStatus": true
+      }
+    },
+    {
+      "name": "GET /api/v1/guest/checkout/session/:sessionId - Route Accessibility",
+      "passed": false,
+      "details": {
+        "statusCode": 400,
+        "body": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "00000000-0000-0000-0000-000000000001",
+              "msg": "Invalid session ID",
+              "path": "sessionId",
+              "location": "params"
+            }
+          ]
+        },
+        "isAccessible": true,
+        "isExpectedStatus": false
+      }
+    },
+    {
+      "name": "POST /api/v1/guest/checkout/session/:sessionId/info - Route Accessibility",
+      "passed": false,
+      "details": {
+        "statusCode": 400,
+        "body": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "00000000-0000-0000-0000-000000000001",
+              "msg": "Invalid session ID",
+              "path": "sessionId",
+              "location": "params"
+            }
+          ]
+        },
+        "isAccessible": true,
+        "isExpectedStatus": false
+      }
+    },
+    {
+      "name": "POST /api/v1/guest/checkout/session/:sessionId/complete - Route Accessibility",
+      "passed": false,
+      "details": {
+        "statusCode": 400,
+        "body": {
+          "success": false,
+          "error": "Validation failed",
+          "message": "Validation failed",
+          "messageBn": "যাচাইকরণ ব্যর্থ হয়েছে",
+          "details": [
+            {
+              "type": "field",
+              "value": "00000000-0000-0000-0000-000000000001",
+              "msg": "Invalid session ID",
+              "path": "sessionId",
+              "location": "params"
+            }
+          ]
+        },
+        "isAccessible": true,
+        "isExpectedStatus": false
+      }
+    }
+  ]
+}

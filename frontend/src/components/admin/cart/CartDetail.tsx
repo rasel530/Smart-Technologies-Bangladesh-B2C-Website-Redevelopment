@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -216,7 +216,7 @@ const CartDetail: React.FC<CartDetailProps> = ({ cartId, language = 'en' }) => {
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      if (document.body && a.parentNode === document.body) { document.body.removeChild(a); }
     } catch (error) {
       console.error('Error exporting cart:', error);
       alert('Failed to export cart');

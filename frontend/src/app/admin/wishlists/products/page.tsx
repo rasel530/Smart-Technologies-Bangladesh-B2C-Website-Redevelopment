@@ -28,6 +28,8 @@ import {
   type ProductWishlistAnalytics
 } from '@/lib/api/adminWishlist';
 import { cn } from '@/lib/utils';
+import { AdminLayout } from '@/components/admin/AdminLayout';
+import { getImageUrl } from '@/lib/utils/image';
 
 function AdminWishlistProductsPage() {
   const [products, setProducts] = useState<ProductWishlistAnalytics[]>([]);
@@ -91,13 +93,14 @@ function AdminWishlistProductsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Product Wishlist Analytics
-          </h1>
+    <AdminLayout title="Product Wishlist Analytics">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              Product Wishlist Analytics
+            </h1>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
             View products ranked by wishlist popularity
           </p>
@@ -194,7 +197,7 @@ function AdminWishlistProductsPage() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-900">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -235,9 +238,9 @@ function AdminWishlistProductsPage() {
                     <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
-                          {product.images && product.images.length > 0 && (
+                          {product.images?.length > 0 && (
                             <img
-                              src={product.images[0].thumbnailUrl || product.images[0].originalUrl}
+                              src={getImageUrl(product.images[0]?.thumbnailUrl || product.images[0]?.originalUrl) || ''}
                               alt={product.name}
                               className="w-16 h-16 object-cover rounded-md"
                             />
@@ -320,6 +323,7 @@ function AdminWishlistProductsPage() {
         )}
       </div>
     </div>
+    </AdminLayout>
   );
 }
 

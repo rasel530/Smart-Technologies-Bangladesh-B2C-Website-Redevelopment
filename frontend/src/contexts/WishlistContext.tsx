@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Wishlist React Context
  *
  * Context provider for wishlist state management
@@ -363,7 +363,10 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
           a.download = `wishlist-${currentWishlistId}.${format}`;
           document.body.appendChild(a);
           a.click();
-          document.body.removeChild(a);
+          // Safe removal with null check to prevent error during logout
+          if (document.body && a.parentNode === document.body) {
+            document.body.removeChild(a);
+          }
           URL.revokeObjectURL(url);
           
           toast.success(wishlistMessages.en.success.exported);

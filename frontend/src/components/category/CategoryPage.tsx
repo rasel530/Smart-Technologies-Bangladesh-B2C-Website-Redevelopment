@@ -252,7 +252,7 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({ slug }) => {
                 <div className="relative aspect-square">
                   {product.images?.[0]?.originalUrl && !imageErrors.has(product.id) ? (
                     <img
-                      src={product.images[0].originalUrl}
+                      src={getImageUrl(product.images[0]?.originalUrl) || ''}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       onError={() => {

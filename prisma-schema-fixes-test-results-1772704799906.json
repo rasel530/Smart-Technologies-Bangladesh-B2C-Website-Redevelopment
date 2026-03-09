@@ -1,0 +1,160 @@
+{
+  "startTime": "2026-03-05T09:59:58.769Z",
+  "endTime": "2026-03-05T09:59:59.905Z",
+  "totalTests": 13,
+  "passed": 7,
+  "failed": 6,
+  "tests": [
+    {
+      "name": "Products API - Basic endpoint access",
+      "status": "failed",
+      "startTime": "2026-03-05T09:59:59.090Z",
+      "endTime": "2026-03-05T09:59:59.135Z",
+      "error": "Expected status code 200",
+      "details": {
+        "url": "http://localhost:3001/api/v1/products?page=1&limit=20&status=active&visibility=public",
+        "statusCode": 500,
+        "hasData": true
+      }
+    },
+    {
+      "name": "Products API - Response structure",
+      "status": "failed",
+      "startTime": "2026-03-05T09:59:59.135Z",
+      "endTime": "2026-03-05T09:59:59.179Z",
+      "error": "Response should have products array",
+      "details": {
+        "hasProducts": false,
+        "hasPagination": false,
+        "hasMetadata": false
+      }
+    },
+    {
+      "name": "Products API - Product categories relationship",
+      "status": "passed",
+      "startTime": "2026-03-05T09:59:59.179Z",
+      "endTime": "2026-03-05T09:59:59.215Z",
+      "error": null,
+      "details": {
+        "message": "No products found in response",
+        "productsCount": 0
+      }
+    },
+    {
+      "name": "Products API - Category data structure",
+      "status": "passed",
+      "startTime": "2026-03-05T09:59:59.215Z",
+      "endTime": "2026-03-05T09:59:59.282Z",
+      "error": null,
+      "details": {
+        "message": "No products found in response"
+      }
+    },
+    {
+      "name": "Products API - No Prisma schema error",
+      "status": "failed",
+      "startTime": "2026-03-05T09:59:59.282Z",
+      "endTime": "2026-03-05T09:59:59.507Z",
+      "error": "Response should not contain Prisma schema errors",
+      "details": {
+        "hasError": true,
+        "hasPrismaError": true,
+        "errorMessage": "\nInvalid `prisma.products.findMany()` invocation in\n/app/routes/products.js:163:23\n\n  160 const actualSortField = sortFieldMapping[sortBy] || sortBy;\n  161 \n  162 let [products, total] = await Promise.all([\n→ 163   prisma.products.findMany({\n          where: {\n            status: \"active\",\n            visibility: \"public\"\n          },\n          skip: 0,\n          take: 20,\n          include: {\n            product_categories: {\n              include: {\n                categories: {\n                  select: {\n                    id: true,\n                    name: true,\n                    slug: true\n                  }\n                }\n              }\n            },\n            brand: {\n            ~~~~~\n              select: {\n                id: true,\n                name: true,\n                slug: true\n              }\n            },\n            images: {\n              where: {\n                processingStatus: {\n                  not: \"deleted\"\n                }\n              },\n              orderBy: {\n                displayOrder: \"asc\"\n              }\n            },\n            _count: {\n              select: {\n                reviews: true\n              }\n            },\n        ?   cart_items?: true,\n        ?   cart_wishlist_move_history?: true,\n        ?   corporate_pricing?: true,\n        ?   cross_sell_products_cross_sell_products_productIdToproducts?: true,\n        ?   cross_sell_products_cross_sell_products_relatedProductIdToproducts?: true,\n        ?   order_items?: true,\n        ?   product_comparison_items?: true,\n        ?   product_images?: true,\n        ?   product_specifications?: true,\n        ?   product_variants?: true,\n        ?   brands?: true,\n        ?   related_products_related_products_productIdToproducts?: true,\n        ?   related_products_related_products_relatedProductIdToproducts?: true,\n        ?   reviews?: true,\n        ?   search_click_tracking?: true,\n        ?   search_recommendations?: true,\n        ?   up_sell_products_up_sell_products_productIdToproducts?: true,\n        ?   up_sell_products_up_sell_products_relatedProductIdToproducts?: true,\n        ?   variant_types?: true,\n        ?   wishlist_items?: true\n          },\n          orderBy: {\n            createdAt: \"desc\"\n          }\n        })\n\nUnknown field `brand` for include statement on model `products`. Available options are marked with ?."
+      }
+    },
+    {
+      "name": "Products API - Featured products endpoint",
+      "status": "failed",
+      "startTime": "2026-03-05T09:59:59.507Z",
+      "endTime": "2026-03-05T09:59:59.616Z",
+      "error": "Expected status code 200",
+      "details": {
+        "statusCode": 500,
+        "hasProducts": false,
+        "productsCount": 0
+      }
+    },
+    {
+      "name": "Categories API - Basic endpoint access",
+      "status": "passed",
+      "startTime": "2026-03-05T09:59:59.616Z",
+      "endTime": "2026-03-05T09:59:59.668Z",
+      "error": null,
+      "details": {
+        "url": "http://localhost:3001/api/v1/categories?status=active",
+        "statusCode": 200,
+        "hasData": true
+      }
+    },
+    {
+      "name": "Categories API - Response structure",
+      "status": "passed",
+      "startTime": "2026-03-05T09:59:59.668Z",
+      "endTime": "2026-03-05T09:59:59.697Z",
+      "error": null,
+      "details": {
+        "hasCategories": true,
+        "hasPagination": true,
+        "categoriesCount": 21
+      }
+    },
+    {
+      "name": "Categories API - Parent categories relationship",
+      "status": "failed",
+      "startTime": "2026-03-05T09:59:59.697Z",
+      "endTime": "2026-03-05T09:59:59.744Z",
+      "error": "Cannot read properties of null (reading 'length')",
+      "details": null
+    },
+    {
+      "name": "Categories API - Child categories relationship",
+      "status": "passed",
+      "startTime": "2026-03-05T09:59:59.744Z",
+      "endTime": "2026-03-05T09:59:59.778Z",
+      "error": null,
+      "details": {
+        "categoryId": "9cba48e0-2d35-4aad-b2cc-d5d8acfc560c",
+        "categoryName": "New Category",
+        "hasChildCategories": true,
+        "childCategoriesCount": 0
+      }
+    },
+    {
+      "name": "Categories API - Category data structure",
+      "status": "passed",
+      "startTime": "2026-03-05T09:59:59.778Z",
+      "endTime": "2026-03-05T09:59:59.808Z",
+      "error": null,
+      "details": {
+        "categoryId": "9cba48e0-2d35-4aad-b2cc-d5d8acfc560c",
+        "categoryName": "New Category",
+        "categorySlug": "new-category-1770229055128-qq8bdkv88",
+        "hasRequiredFields": "new-category-1770229055128-qq8bdkv88"
+      }
+    },
+    {
+      "name": "Categories API - No Prisma schema error",
+      "status": "passed",
+      "startTime": "2026-03-05T09:59:59.808Z",
+      "endTime": "2026-03-05T09:59:59.845Z",
+      "error": null,
+      "details": {
+        "hasError": false,
+        "hasPrismaError": false,
+        "errorMessage": null
+      }
+    },
+    {
+      "name": "Categories API - Tree endpoint",
+      "status": "failed",
+      "startTime": "2026-03-05T09:59:59.845Z",
+      "endTime": "2026-03-05T09:59:59.905Z",
+      "error": "Expected status code 200",
+      "details": {
+        "statusCode": 500,
+        "hasTree": false,
+        "treeCount": 0
+      }
+    }
+  ]
+}

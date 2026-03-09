@@ -1,0 +1,253 @@
+{
+  "testRunDate": "2026-02-26T06:06:19.776Z",
+  "backendUrl": "http://localhost:3001/api/v1",
+  "summary": {
+    "total": 6,
+    "passed": 2,
+    "failed": 4,
+    "successRate": "33.33%"
+  },
+  "expectedResults": {
+    "guestCanAddItems": true,
+    "cartIdValidated": true,
+    "checkoutInitiationSucceeds": false,
+    "checkoutCompletionSucceeds": false,
+    "clearErrorMessages": false,
+    "noEmptyCartsCreated": false,
+    "fallbackMechanismsWork": false
+  },
+  "fixVerification": {
+    "fix1": true,
+    "fix2": true,
+    "fix3": false,
+    "fix4": false,
+    "fix5": false
+  },
+  "tests": {
+    "test1": {
+      "name": "Add Item to Cart as Guest",
+      "passed": true,
+      "details": [
+        {
+          "detail": "Created fresh session with deviceId and sessionId",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:15.129Z"
+        },
+        {
+          "detail": "Found product: Test Product 1771834992787 (ID: 6a53d2bf-4fe6-4d7e-bd33-300846443f8c)",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:15.257Z"
+        },
+        {
+          "detail": "Item added to cart. CartId: 14c2ea5b-00b4-45d0-aa3a-10c6c566146b",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:15.476Z"
+        },
+        {
+          "detail": "Cart found in database with status: active",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:15.488Z"
+        },
+        {
+          "detail": "cartId is a valid UUID",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:15.489Z"
+        },
+        {
+          "detail": "Cart has 1 item(s) in database",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:15.489Z"
+        },
+        {
+          "detail": "Cart item - ProductId: 6a53d2bf-4fe6-4d7e-bd33-300846443f8c, Quantity: 1",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:15.489Z"
+        },
+        {
+          "detail": "deviceId mismatch. Expected: test-device-1772085975128, Got: null",
+          "passed": false,
+          "timestamp": "2026-02-26T06:06:15.489Z"
+        },
+        {
+          "detail": "sessionId correctly stored: test-session-1772085975128",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:15.489Z"
+        }
+      ]
+    },
+    "test2": {
+      "name": "Initiate Guest Checkout",
+      "passed": false,
+      "details": [
+        {
+          "detail": "Calling initiate checkout with cartId: 14c2ea5b-00b4-45d0-aa3a-10c6c566146b",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:16.491Z"
+        },
+        {
+          "detail": "Error response: {\"success\":false,\"error\":\"Validation failed\",\"message\":\"Validation failed\",\"messageBn\":\"যাচাইকরণ ব্যর্থ হয়েছে\",\"details\":[{\"type\":\"field\",\"value\":\"test-session-1772085975128\",\"msg\":\"Invalid session ID\",\"path\":\"sessionId\",\"location\":\"body\"}]}",
+          "passed": false,
+          "timestamp": "2026-02-26T06:06:16.508Z"
+        },
+        {
+          "detail": "Error: Request failed with status code 400",
+          "passed": false,
+          "timestamp": "2026-02-26T06:06:16.508Z"
+        }
+      ]
+    },
+    "test3": {
+      "name": "Complete Guest Checkout",
+      "passed": false,
+      "details": []
+    },
+    "test4": {
+      "name": "Error Handling - Empty Cart",
+      "passed": false,
+      "details": [
+        {
+          "detail": "Creating empty cart with deviceId: test-device-empty-1772085977513",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:17.513Z"
+        },
+        {
+          "detail": "Error: Request failed with status code 400",
+          "passed": false,
+          "timestamp": "2026-02-26T06:06:17.530Z"
+        }
+      ]
+    },
+    "test5": {
+      "name": "Error Handling - Invalid CartId",
+      "passed": true,
+      "details": [
+        {
+          "detail": "Testing with invalid cartId: \"not-a-uuid\"",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:18.543Z"
+        },
+        {
+          "detail": "API correctly returned 400 error for: \"not-a-uuid\"",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:18.550Z"
+        },
+        {
+          "detail": "Error message: \"Validation failed\" may not clearly indicate invalid format",
+          "passed": false,
+          "timestamp": "2026-02-26T06:06:18.550Z"
+        },
+        {
+          "detail": "Testing with invalid cartId: \"123456\"",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:18.550Z"
+        },
+        {
+          "detail": "API correctly returned 400 error for: \"123456\"",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:18.557Z"
+        },
+        {
+          "detail": "Error message: \"Validation failed\" may not clearly indicate invalid format",
+          "passed": false,
+          "timestamp": "2026-02-26T06:06:18.557Z"
+        },
+        {
+          "detail": "Testing with invalid cartId: \"invalid-format-123\"",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:18.557Z"
+        },
+        {
+          "detail": "API correctly returned 400 error for: \"invalid-format-123\"",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:18.563Z"
+        },
+        {
+          "detail": "Error message: \"Validation failed\" may not clearly indicate invalid format",
+          "passed": false,
+          "timestamp": "2026-02-26T06:06:18.563Z"
+        },
+        {
+          "detail": "Testing with invalid cartId: \"\"",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:18.563Z"
+        },
+        {
+          "detail": "API correctly returned 400 error for: \"\"",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:18.567Z"
+        },
+        {
+          "detail": "Error message: \"Validation failed\" may not clearly indicate invalid format",
+          "passed": false,
+          "timestamp": "2026-02-26T06:06:18.568Z"
+        },
+        {
+          "detail": "Testing with non-existent cartId: 00000000-0000-4000-8000-000000000000",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:18.568Z"
+        },
+        {
+          "detail": "API correctly returned 404 error for non-existent cartId",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:18.577Z"
+        },
+        {
+          "detail": "Error message: \"Your cart session has expired. Please add items to your cart and try again.\" correctly indicates cart not found",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:18.577Z"
+        },
+        {
+          "detail": "Verifying no empty carts were created during invalid cartId tests",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:18.577Z"
+        }
+      ]
+    },
+    "test6": {
+      "name": "Fallback Mechanism",
+      "passed": false,
+      "details": [
+        {
+          "detail": "Testing fallback with deviceId only: test-device-fallback-1772085979583",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:19.583Z"
+        },
+        {
+          "detail": "Cart created with deviceId. CartId: e1afb5df-724c-4f1a-bede-66864a5cf19a",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:19.663Z"
+        },
+        {
+          "detail": "Fallback successful. Found cartId: 63ef581b-4bdd-4013-b713-f5bf5a6117e4",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:19.699Z"
+        },
+        {
+          "detail": "Fallback found different cart. Expected: e1afb5df-724c-4f1a-bede-66864a5cf19a, Got: 63ef581b-4bdd-4013-b713-f5bf5a6117e4",
+          "passed": false,
+          "timestamp": "2026-02-26T06:06:19.699Z"
+        },
+        {
+          "detail": "Testing fallback with sessionId only: test-session-fallback-1772085979699",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:19.699Z"
+        },
+        {
+          "detail": "Cart created with sessionId. CartId: 5144355b-1e9d-4c2c-a638-b48bdd12421a",
+          "passed": true,
+          "timestamp": "2026-02-26T06:06:19.771Z"
+        },
+        {
+          "detail": "Error response: {\"success\":false,\"error\":\"Validation failed\",\"message\":\"Validation failed\",\"messageBn\":\"যাচাইকরণ ব্যর্থ হয়েছে\",\"details\":[{\"type\":\"field\",\"value\":\"test-session-fallback-1772085979699\",\"msg\":\"Invalid session ID\",\"path\":\"sessionId\",\"location\":\"body\"}]}",
+          "passed": false,
+          "timestamp": "2026-02-26T06:06:19.775Z"
+        },
+        {
+          "detail": "Error: Request failed with status code 400",
+          "passed": false,
+          "timestamp": "2026-02-26T06:06:19.775Z"
+        }
+      ]
+    }
+  }
+}

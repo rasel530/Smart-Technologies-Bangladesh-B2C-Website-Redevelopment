@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { RefreshCw, Database, Activity, AlertTriangle, CheckCircle, XCircle, Clock, Server } from 'lucide-react';
 import { withAuth } from '@/components/auth/withAuth';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 interface ClusterHealth {
   status: string;
@@ -135,7 +136,8 @@ function ElasticsearchOverview() {
   }
 
   return (
-    <>
+    <AdminLayout title="Elasticsearch Overview">
+      <>
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -356,7 +358,8 @@ function ElasticsearchOverview() {
           </Link>
         </div>
       </div>
-    </>
+      </>
+    </AdminLayout>
   );
 }
 

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -114,7 +114,7 @@ const CorporateInvoicesPage = () => {
       link.download = `Invoice_${invoiceNumber}.pdf`;
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      if (document.body && link.parentNode === document.body) { document.body.removeChild(link); }
       window.URL.revokeObjectURL(url);
 
       setDownloadSuccess(language === 'en' ? 'Invoice downloaded successfully' : 'চালান সফলভাবে ডাউনলোড হয়েছে');

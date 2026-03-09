@@ -5,6 +5,7 @@ import { withAuth } from '@/components/auth/withAuth';
 import CheckoutAnalyticsCharts from '@/components/admin/checkout/CheckoutAnalyticsCharts';
 import { apiClient } from '@/lib/api/client';
 import { BarChart3, Loader2, X, Calendar } from 'lucide-react';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 // Types
 interface CheckoutAnalytics {
@@ -117,19 +118,20 @@ function AdminCheckoutAnalyticsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center gap-3">
-        <div className="p-3 bg-indigo-100 rounded-lg">
-          <BarChart3 className="w-6 h-6 text-indigo-600" />
+    <AdminLayout title="Checkout Analytics">
+      <div className="space-y-6">
+        {/* Page Header */}
+        <div className="flex items-center gap-3">
+          <div className="p-3 bg-indigo-100 rounded-lg">
+            <BarChart3 className="w-6 h-6 text-indigo-600" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Checkout Analytics</h1>
+            <p className="text-gray-600 mt-1">
+              Comprehensive checkout performance metrics and insights
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Checkout Analytics</h1>
-          <p className="text-gray-600 mt-1">
-            Comprehensive checkout performance metrics and insights
-          </p>
-        </div>
-      </div>
 
       {/* Date Range Filters */}
       <div className="bg-white rounded-lg shadow p-6">
@@ -213,6 +215,7 @@ function AdminCheckoutAnalyticsPage() {
         </div>
       )}
     </div>
+    </AdminLayout>
   );
 }
 

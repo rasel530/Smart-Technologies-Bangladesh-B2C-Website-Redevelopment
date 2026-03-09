@@ -1,0 +1,154 @@
+{
+  "timestamp": "2026-02-23T05:02:36.632Z",
+  "summary": {
+    "totalTests": 7,
+    "passed": 0,
+    "failed": 7
+  },
+  "tests": {
+    "test1": {
+      "name": "Test 1: Full checkout flow with address data in request body (Priority 1)",
+      "description": "Verify checkout completes when address is provided in request body",
+      "steps": [
+        {
+          "step": "Make POST request to /api/v1/checkout/session/:sessionId/complete",
+          "passed": true,
+          "message": "Status: 403"
+        },
+        {
+          "step": "Verify response status is 201 (Created)",
+          "passed": false,
+          "message": "Status 403"
+        }
+      ],
+      "passed": false,
+      "errors": [
+        "Expected status 201, got 403"
+      ]
+    },
+    "test2": {
+      "name": "Test 2: Full checkout flow with saved address ID (Priority 2)",
+      "description": "Verify checkout completes when saved address ID is used",
+      "steps": [
+        {
+          "step": "Make POST request with saved address ID",
+          "passed": true,
+          "message": "Status: 403"
+        },
+        {
+          "step": "Verify response status is 201 (Created)",
+          "passed": false,
+          "message": "Status 403"
+        }
+      ],
+      "passed": false,
+      "errors": [
+        "Expected status 201, got 403",
+        "response.data.error.includes is not a function"
+      ]
+    },
+    "test3": {
+      "name": "Test 3: Full checkout flow with address ID in stepData (Priority 3)",
+      "description": "Verify checkout completes when address ID is in stepData",
+      "steps": [
+        {
+          "step": "Make POST request with address ID in stepData",
+          "passed": true,
+          "message": "Status: 403"
+        },
+        {
+          "step": "Verify response status is 201 (Created)",
+          "passed": false,
+          "message": "Status 403"
+        }
+      ],
+      "passed": false,
+      "errors": [
+        "Expected status 201, got 403",
+        "response.data.error.includes is not a function"
+      ]
+    },
+    "test4": {
+      "name": "Test 4: Full checkout flow with address object in stepData (Priority 4)",
+      "description": "Verify checkout completes when address object is in stepData",
+      "steps": [
+        {
+          "step": "Make POST request with address object in stepData",
+          "passed": true,
+          "message": "Status: 403"
+        },
+        {
+          "step": "Verify response status is 201 (Created)",
+          "passed": false,
+          "message": "Status 403"
+        }
+      ],
+      "passed": false,
+      "errors": [
+        "Expected status 201, got 403",
+        "response.data.error.includes is not a function"
+      ]
+    },
+    "test5": {
+      "name": "Test 5: Verify \"Shipping address is required\" error is NOT thrown",
+      "description": "Verify no error when address is properly provided",
+      "steps": [
+        {
+          "step": "Make POST request with address data",
+          "passed": true,
+          "message": "Status: 403"
+        }
+      ],
+      "passed": false,
+      "errors": [
+        "response.data.error.includes is not a function"
+      ]
+    },
+    "test6": {
+      "name": "Test 6: Verify backend validates address from all sources",
+      "description": "Verify backend checks all possible address locations",
+      "steps": [
+        {
+          "step": "Test Priority 1: Address in request body",
+          "passed": false,
+          "message": "Failed"
+        },
+        {
+          "step": "Test Priority 2: Saved address ID",
+          "passed": false,
+          "message": "Failed"
+        },
+        {
+          "step": "Test Priority 3: Address ID in stepData",
+          "passed": false,
+          "message": "Failed"
+        },
+        {
+          "step": "Test Priority 4: Address object in stepData",
+          "passed": false,
+          "message": "Failed"
+        },
+        {
+          "step": "Verify all priority sources are validated",
+          "passed": false,
+          "message": "Some sources failed"
+        }
+      ],
+      "passed": false,
+      "errors": [
+        "Not all address priority sources are working correctly",
+        "Validation results: [{\"priority\":\"1 (request body)\",\"valid\":false},{\"priority\":\"2 (saved address ID)\",\"valid\":false},{\"priority\":\"3 (address ID in stepData)\",\"valid\":false},{\"priority\":\"4 (address object in stepData)\",\"valid\":false}]"
+      ]
+    },
+    "test7": {
+      "name": "Test 7: Verify order is created with address data",
+      "description": "Verify order record includes proper address information",
+      "steps": [],
+      "passed": false,
+      "errors": [
+        "No order ID available from previous test"
+      ]
+    }
+  },
+  "fixVerified": false
+}

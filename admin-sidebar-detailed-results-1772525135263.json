@@ -1,0 +1,722 @@
+{
+  "timestamp": "2026-03-03T08:05:35.262Z",
+  "component": "frontend/src/components/admin/AdminSidebar.tsx",
+  "menuStructure": {
+    "totalCategories": 11,
+    "expectedCategories": 11,
+    "categoriesMatching": 11,
+    "totalItems": 82,
+    "expectedItems": 82,
+    "meetsRequirement": false,
+    "categories": [
+      {
+        "id": "dashboard",
+        "title": "Dashboard",
+        "icon": "LayoutDashboard",
+        "itemCount": 1
+      },
+      {
+        "id": "orders",
+        "title": "Orders",
+        "icon": "ShoppingCart",
+        "itemCount": 5
+      },
+      {
+        "id": "tracking",
+        "title": "Tracking & Delivery",
+        "icon": "BarChart3",
+        "itemCount": 5
+      },
+      {
+        "id": "couriers",
+        "title": "Courier Services",
+        "icon": "Truck",
+        "itemCount": 1
+      },
+      {
+        "id": "notifications",
+        "title": "Notifications",
+        "icon": "Bell",
+        "itemCount": 2
+      },
+      {
+        "id": "invoices",
+        "title": "Invoices",
+        "icon": "FileText",
+        "itemCount": 1
+      },
+      {
+        "id": "products",
+        "title": "Products & Catalog",
+        "icon": "Package",
+        "itemCount": 11
+      },
+      {
+        "id": "cart",
+        "title": "Cart & Wishlist",
+        "icon": "ShoppingCart",
+        "itemCount": 18
+      },
+      {
+        "id": "checkout",
+        "title": "Checkout & Payments",
+        "icon": "CreditCard",
+        "itemCount": 15
+      },
+      {
+        "id": "search",
+        "title": "Search & Discovery",
+        "icon": "Search",
+        "itemCount": 11
+      },
+      {
+        "id": "system",
+        "title": "System & Infrastructure",
+        "icon": "Settings",
+        "itemCount": 12
+      }
+    ]
+  },
+  "criticalIssues": {
+    "dynamicRoutes": [
+      {
+        "label": "Edit Product",
+        "href": "/admin/products/[id]/edit",
+        "issue": "Dynamic route not supported in Next.js App Router"
+      },
+      {
+        "label": "Product Images",
+        "href": "/admin/products/[id]/images",
+        "issue": "Dynamic route not supported in Next.js App Router"
+      },
+      {
+        "label": "Edit Brand",
+        "href": "/admin/brands/[id]/edit",
+        "issue": "Dynamic route not supported in Next.js App Router"
+      },
+      {
+        "label": "Edit Category",
+        "href": "/admin/categories/[id]/edit",
+        "issue": "Dynamic route not supported in Next.js App Router"
+      },
+      {
+        "label": "Cart Details",
+        "href": "/admin/cart/[id]",
+        "issue": "Dynamic route not supported in Next.js App Router"
+      },
+      {
+        "label": "User Behavior Details",
+        "href": "/admin/cart-wishlist/user-behavior/[userId]",
+        "issue": "Dynamic route not supported in Next.js App Router"
+      },
+      {
+        "label": "Query Details",
+        "href": "/admin/search/queries/[id]",
+        "issue": "Dynamic route not supported in Next.js App Router"
+      },
+      {
+        "label": "User Search History",
+        "href": "/admin/search/users/[id]",
+        "issue": "Dynamic route not supported in Next.js App Router"
+      }
+    ],
+    "count": 8,
+    "severity": "CRITICAL"
+  },
+  "featureVerification": {
+    "logoutButton": {
+      "passed": 8,
+      "total": 8
+    },
+    "navigation": {
+      "passed": 7,
+      "total": 7
+    },
+    "responsiveDesign": {
+      "passed": 6,
+      "total": 6
+    },
+    "iconImports": 67
+  },
+  "allMenuItems": [
+    {
+      "id": "dashboard-overview",
+      "label": "Dashboard Overview",
+      "href": "/admin",
+      "icon": "LayoutDashboard",
+      "disabled": false
+    },
+    {
+      "id": "all-orders",
+      "label": "All Orders",
+      "href": "/admin/orders",
+      "icon": "ShoppingCart",
+      "disabled": false
+    },
+    {
+      "id": "order-modifications",
+      "label": "Order Modifications",
+      "href": "/admin/orders/modifications",
+      "icon": "FileEdit",
+      "disabled": false
+    },
+    {
+      "id": "order-cancellations",
+      "label": "Order Cancellations",
+      "href": "/admin/orders/cancellations",
+      "icon": "XCircle",
+      "disabled": false
+    },
+    {
+      "id": "order-fulfillments",
+      "label": "Order Fulfillments",
+      "href": "/admin/orders/fulfillments",
+      "icon": "Package",
+      "disabled": false
+    },
+    {
+      "id": "order-sharing",
+      "label": "Order Sharing",
+      "href": "/admin/orders/sharing",
+      "icon": "Share2",
+      "disabled": false
+    },
+    {
+      "id": "tracking-analytics",
+      "label": "Tracking Analytics",
+      "href": "/admin/tracking/analytics",
+      "icon": "BarChart3",
+      "disabled": false
+    },
+    {
+      "id": "tracking-issues",
+      "label": "Tracking Issues",
+      "href": "/admin/tracking/issues",
+      "icon": "AlertTriangle",
+      "disabled": false
+    },
+    {
+      "id": "tracking-sync",
+      "label": "Tracking Sync",
+      "href": "/admin/tracking/sync",
+      "icon": "RefreshCw",
+      "disabled": false
+    },
+    {
+      "id": "delivery-performance",
+      "label": "Delivery Performance",
+      "href": "/admin/delivery/performance",
+      "icon": "TrendingUp",
+      "disabled": false
+    },
+    {
+      "id": "delivery-confirmations",
+      "label": "Delivery Confirmations",
+      "href": "/admin/delivery/confirmations",
+      "icon": "CheckCircle",
+      "disabled": false
+    },
+    {
+      "id": "courier-services",
+      "label": "Manage Couriers",
+      "href": "/admin/courier-services",
+      "icon": "Truck",
+      "disabled": false
+    },
+    {
+      "id": "notifications",
+      "label": "All Notifications",
+      "href": "/admin/notifications",
+      "icon": "Bell",
+      "disabled": false
+    },
+    {
+      "id": "notification-stats",
+      "label": "Notification Statistics",
+      "href": "/admin/notifications/stats",
+      "icon": "PieChart",
+      "disabled": false
+    },
+    {
+      "id": "invoices",
+      "label": "Invoice Management",
+      "href": "/admin/invoices",
+      "icon": "FileText",
+      "disabled": false
+    },
+    {
+      "id": "products",
+      "label": "Product Management",
+      "href": "/admin/products",
+      "icon": "Package",
+      "disabled": false
+    },
+    {
+      "id": "products-new",
+      "label": "New Product",
+      "href": "/admin/products/new",
+      "icon": "Plus",
+      "disabled": false
+    },
+    {
+      "id": "products-edit",
+      "label": "Edit Product",
+      "href": "/admin/products/[id]/edit",
+      "icon": "Edit3",
+      "disabled": false
+    },
+    {
+      "id": "products-images",
+      "label": "Product Images",
+      "href": "/admin/products/[id]/images",
+      "icon": "ImageIcon",
+      "disabled": false
+    },
+    {
+      "id": "brands",
+      "label": "Brand Management",
+      "href": "/admin/brands",
+      "icon": "Tag",
+      "disabled": false
+    },
+    {
+      "id": "brands-new",
+      "label": "New Brand",
+      "href": "/admin/brands/new",
+      "icon": "Plus",
+      "disabled": false
+    },
+    {
+      "id": "brands-edit",
+      "label": "Edit Brand",
+      "href": "/admin/brands/[id]/edit",
+      "icon": "Edit3",
+      "disabled": false
+    },
+    {
+      "id": "categories",
+      "label": "Category Management",
+      "href": "/admin/categories",
+      "icon": "Layers",
+      "disabled": false
+    },
+    {
+      "id": "categories-new",
+      "label": "New Category",
+      "href": "/admin/categories/new",
+      "icon": "Plus",
+      "disabled": false
+    },
+    {
+      "id": "categories-edit",
+      "label": "Edit Category",
+      "href": "/admin/categories/[id]/edit",
+      "icon": "Edit3",
+      "disabled": false
+    },
+    {
+      "id": "categories-tree",
+      "label": "Category Tree",
+      "href": "/admin/categories/tree",
+      "icon": "FolderTree",
+      "disabled": false
+    },
+    {
+      "id": "cart",
+      "label": "Cart Overview",
+      "href": "/admin/cart",
+      "icon": "ShoppingCart",
+      "disabled": false
+    },
+    {
+      "id": "cart-details",
+      "label": "Cart Details",
+      "href": "/admin/cart/[id]",
+      "icon": "FileSearch",
+      "disabled": false
+    },
+    {
+      "id": "cart-analytics",
+      "label": "Cart Analytics",
+      "href": "/admin/cart/analytics",
+      "icon": "BarChart2",
+      "disabled": false
+    },
+    {
+      "id": "cart-recovery",
+      "label": "Cart Recovery",
+      "href": "/admin/cart/recovery",
+      "icon": "RotateCcw",
+      "disabled": false
+    },
+    {
+      "id": "cart-recovery-settings",
+      "label": "Recovery Settings",
+      "href": "/admin/cart/recovery/settings",
+      "icon": "Sliders",
+      "disabled": false
+    },
+    {
+      "id": "cart-recovery-stats",
+      "label": "Recovery Statistics",
+      "href": "/admin/cart/recovery/stats",
+      "icon": "BarChart2",
+      "disabled": false
+    },
+    {
+      "id": "cart-wishlist-analytics",
+      "label": "Cart-Wishlist Analytics",
+      "href": "/admin/cart-wishlist/analytics",
+      "icon": "BarChart2",
+      "disabled": false
+    },
+    {
+      "id": "cart-wishlist-conflicts",
+      "label": "Cart-Wishlist Conflicts",
+      "href": "/admin/cart-wishlist/conflicts",
+      "icon": "AlertTriangle",
+      "disabled": false
+    },
+    {
+      "id": "cart-wishlist-move-history",
+      "label": "Move History",
+      "href": "/admin/cart-wishlist/move-history",
+      "icon": "History",
+      "disabled": false
+    },
+    {
+      "id": "cart-wishlist-sync",
+      "label": "Sync Dashboard",
+      "href": "/admin/cart-wishlist/sync-dashboard",
+      "icon": "RefreshCw",
+      "disabled": false
+    },
+    {
+      "id": "cart-wishlist-behavior",
+      "label": "User Behavior Overview",
+      "href": "/admin/cart-wishlist/user-behavior",
+      "icon": "Activity",
+      "disabled": false
+    },
+    {
+      "id": "cart-wishlist-behavior-details",
+      "label": "User Behavior Details",
+      "href": "/admin/cart-wishlist/user-behavior/[userId]",
+      "icon": "Eye",
+      "disabled": false
+    },
+    {
+      "id": "wishlists",
+      "label": "Wishlist Management",
+      "href": "/admin/wishlists",
+      "icon": "Heart",
+      "disabled": false
+    },
+    {
+      "id": "wishlists-analytics",
+      "label": "Wishlist Analytics",
+      "href": "/admin/wishlists/analytics",
+      "icon": "BarChart2",
+      "disabled": false
+    },
+    {
+      "id": "wishlists-moderation",
+      "label": "Wishlist Moderation",
+      "href": "/admin/wishlists/moderation",
+      "icon": "Ban",
+      "disabled": false
+    },
+    {
+      "id": "wishlists-products",
+      "label": "Wishlist Products",
+      "href": "/admin/wishlists/products",
+      "icon": "Package",
+      "disabled": false
+    },
+    {
+      "id": "wishlists-settings",
+      "label": "Wishlist Settings",
+      "href": "/admin/wishlists/settings",
+      "icon": "Sliders",
+      "disabled": false
+    },
+    {
+      "id": "wishlists-users",
+      "label": "Wishlist Users",
+      "href": "/admin/wishlists/users",
+      "icon": "Users",
+      "disabled": false
+    },
+    {
+      "id": "checkout",
+      "label": "Checkout Overview",
+      "href": "/admin/checkout",
+      "icon": "CreditCard",
+      "disabled": false
+    },
+    {
+      "id": "checkout-abandonment",
+      "label": "Checkout Abandonment",
+      "href": "/admin/checkout/abandonment",
+      "icon": "XCircle",
+      "disabled": false
+    },
+    {
+      "id": "checkout-analytics",
+      "label": "Checkout Analytics",
+      "href": "/admin/checkout/analytics",
+      "icon": "BarChart2",
+      "disabled": false
+    },
+    {
+      "id": "checkout-guest",
+      "label": "Guest Checkout",
+      "href": "/admin/checkout/guest",
+      "icon": "UserPlus",
+      "disabled": false
+    },
+    {
+      "id": "checkout-sessions",
+      "label": "Checkout Sessions",
+      "href": "/admin/checkout/sessions",
+      "icon": "Clock",
+      "disabled": false
+    },
+    {
+      "id": "checkout-settings",
+      "label": "Checkout Settings",
+      "href": "/admin/checkout/settings",
+      "icon": "Sliders",
+      "disabled": false
+    },
+    {
+      "id": "payments",
+      "label": "Payments Overview",
+      "href": "/admin/payments",
+      "icon": "Wallet",
+      "disabled": false
+    },
+    {
+      "id": "payments-analytics",
+      "label": "Payments Analytics",
+      "href": "/admin/payments/analytics",
+      "icon": "BarChart2",
+      "disabled": false
+    },
+    {
+      "id": "payments-gateways",
+      "label": "Payment Gateways",
+      "href": "/admin/payments/gateways",
+      "icon": "CreditCard",
+      "disabled": false
+    },
+    {
+      "id": "cod",
+      "label": "COD Settings",
+      "href": "/admin/cod",
+      "icon": "DollarSign",
+      "disabled": false
+    },
+    {
+      "id": "emi",
+      "label": "EMI Overview",
+      "href": "/admin/emi",
+      "icon": "Calendar",
+      "disabled": false
+    },
+    {
+      "id": "emi-plans",
+      "label": "EMI Plans",
+      "href": "/admin/emi/plans",
+      "icon": "Layers",
+      "disabled": false
+    },
+    {
+      "id": "emi-providers",
+      "label": "EMI Providers",
+      "href": "/admin/emi/providers",
+      "icon": "Building2",
+      "disabled": false
+    },
+    {
+      "id": "local-payment",
+      "label": "Local Payment Settings",
+      "href": "/admin/local-payment",
+      "icon": "Globe",
+      "disabled": false
+    },
+    {
+      "id": "local-payment-subscriptions",
+      "label": "Local Payment Subscriptions",
+      "href": "/admin/local-payment/subscriptions",
+      "icon": "Archive",
+      "disabled": false
+    },
+    {
+      "id": "search",
+      "label": "Search Overview",
+      "href": "/admin/search",
+      "icon": "Search",
+      "disabled": false
+    },
+    {
+      "id": "search-analytics",
+      "label": "Search Analytics",
+      "href": "/admin/search/analytics",
+      "icon": "BarChart2",
+      "disabled": false
+    },
+    {
+      "id": "search-optimization",
+      "label": "Search Optimization",
+      "href": "/admin/search/optimization",
+      "icon": "Sparkles",
+      "disabled": false
+    },
+    {
+      "id": "search-performance",
+      "label": "Search Performance",
+      "href": "/admin/search/performance",
+      "icon": "Zap",
+      "disabled": false
+    },
+    {
+      "id": "search-personalization",
+      "label": "Search Personalization",
+      "href": "/admin/search/personalization",
+      "icon": "Target",
+      "disabled": false
+    },
+    {
+      "id": "search-queries",
+      "label": "Search Queries",
+      "href": "/admin/search/queries",
+      "icon": "FileSearch",
+      "disabled": false
+    },
+    {
+      "id": "search-query-details",
+      "label": "Query Details",
+      "href": "/admin/search/queries/[id]",
+      "icon": "Eye",
+      "disabled": false
+    },
+    {
+      "id": "search-trending",
+      "label": "Trending Searches",
+      "href": "/admin/search/trending",
+      "icon": "Flame",
+      "disabled": false
+    },
+    {
+      "id": "search-user-history",
+      "label": "User Search History",
+      "href": "/admin/search/users/[id]",
+      "icon": "Search",
+      "disabled": false
+    },
+    {
+      "id": "comparisons",
+      "label": "Comparisons Management",
+      "href": "/admin/comparisons",
+      "icon": "Scale",
+      "disabled": false
+    },
+    {
+      "id": "comparisons-analytics",
+      "label": "Comparisons Analytics",
+      "href": "/admin/comparisons/analytics",
+      "icon": "BarChart2",
+      "disabled": false
+    },
+    {
+      "id": "rbac",
+      "label": "RBAC Overview",
+      "href": "/admin/rbac",
+      "icon": "Shield",
+      "disabled": false
+    },
+    {
+      "id": "rbac-escalations",
+      "label": "RBAC Escalations",
+      "href": "/admin/rbac/escalations",
+      "icon": "AlertTriangle",
+      "disabled": false
+    },
+    {
+      "id": "rbac-permissions",
+      "label": "RBAC Permissions",
+      "href": "/admin/rbac/permissions",
+      "icon": "KeyRound",
+      "disabled": false
+    },
+    {
+      "id": "rbac-roles",
+      "label": "RBAC Roles",
+      "href": "/admin/rbac/roles",
+      "icon": "Lock",
+      "disabled": false
+    },
+    {
+      "id": "rbac-users",
+      "label": "RBAC Users",
+      "href": "/admin/rbac/users",
+      "icon": "UserCheck",
+      "disabled": false
+    },
+    {
+      "id": "roles",
+      "label": "Roles Management",
+      "href": "/admin/roles",
+      "icon": "UserCog",
+      "disabled": false
+    },
+    {
+      "id": "elasticsearch",
+      "label": "Elasticsearch Overview",
+      "href": "/admin/elasticsearch",
+      "icon": "Database",
+      "disabled": false
+    },
+    {
+      "id": "elasticsearch-backups",
+      "label": "Elasticsearch Backups",
+      "href": "/admin/elasticsearch/backups",
+      "icon": "Archive",
+      "disabled": false
+    },
+    {
+      "id": "elasticsearch-indices",
+      "label": "Elasticsearch Indices",
+      "href": "/admin/elasticsearch/indices",
+      "icon": "Layers",
+      "disabled": false
+    },
+    {
+      "id": "elasticsearch-performance",
+      "label": "Elasticsearch Performance",
+      "href": "/admin/elasticsearch/performance",
+      "icon": "Zap",
+      "disabled": false
+    },
+    {
+      "id": "elasticsearch-synonyms",
+      "label": "Elasticsearch Synonyms",
+      "href": "/admin/elasticsearch/synonyms",
+      "icon": "GitBranch",
+      "disabled": false
+    },
+    {
+      "id": "mobile",
+      "label": "Mobile Management",
+      "href": "/admin/mobile",
+      "icon": "Smartphone",
+      "disabled": false
+    }
+  ],
+  "overallStatus": {
+    "menuStructure": "FAIL",
+    "criticalIssues": "FAIL",
+    "features": "PASS"
+  }
+}

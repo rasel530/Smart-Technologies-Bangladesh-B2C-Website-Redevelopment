@@ -56,10 +56,15 @@ class RBACUtils {
    */
   async userHasPermission(userId, permissionName) {
     try {
-      // Use the database function for efficient permission checking
-      const result = await this.db.getClient().$queryRaw`
-        SELECT user_has_permission(${userId}, ${permissionName}) as has_permission
-      `;
+      // Use the database function for efficient permission checking with timeout
+      const result = await Promise.race([
+        this.db.getClient().$queryRaw`
+          SELECT user_has_permission(${userId}, ${permissionName}) as has_permission
+        `,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('RBAC permission check timeout after 5000ms')), 5000)
+        )
+      ]);
       return result[0].has_permission;
     } catch (error) {
       this.logger.error('Error checking user permission', error);

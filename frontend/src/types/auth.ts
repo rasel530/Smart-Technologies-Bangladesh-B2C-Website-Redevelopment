@@ -255,4 +255,5 @@ export interface AuthContextType {
   extendSession: () => Promise<void>;
   updateUser: (user: User) => void;
   sessionTimeout: number | null;
+  isRedirecting: boolean;
 }

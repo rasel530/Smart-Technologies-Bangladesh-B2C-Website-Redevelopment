@@ -33,6 +33,7 @@ import {
   ArrowDown
 } from 'lucide-react';
 import { withAuth } from '@/components/auth/withAuth';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 import {
   getAdminTrendingOverview,
   getAdminTrendingSearches,
@@ -45,6 +46,7 @@ import {
   type TrendingFilters
 } from '@/lib/api/adminSearchAnalytics';
 import type { TrendingSearch, TrendingProduct } from '@/types/searchAnalytics';
+import { getImageUrl } from '@/lib/utils/image';
 
 function SearchTrendingAdminPage(): JSX.Element {
   const [overview, setOverview] = useState<TrendingOverview | null>(null);
@@ -179,7 +181,7 @@ function SearchTrendingAdminPage(): JSX.Element {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AdminLayout title="Trending Searches">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -415,7 +417,7 @@ function SearchTrendingAdminPage(): JSX.Element {
                             <div className="flex items-start gap-4 flex-1">
                               {product.imageUrl && (
                                 <img
-                                  src={product.imageUrl}
+                                  src={getImageUrl(product.imageUrl) || ''}
                                   alt={product.productName}
                                   className="w-16 h-16 object-cover rounded-md"
                                 />
@@ -532,7 +534,7 @@ function SearchTrendingAdminPage(): JSX.Element {
           </div>
         </div>
       )}
-    </div>
+    </AdminLayout>
   );
 }
 

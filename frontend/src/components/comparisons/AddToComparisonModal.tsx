@@ -12,6 +12,7 @@ import { X, Plus, Check, Search } from 'lucide-react';
 import { ProductWithRelations } from '@/types/product';
 import { Comparison } from '@/types/comparison';
 import { getComparisons, createComparison, addProductToComparison } from '@/lib/api/comparisons';
+import { getImageUrl } from '@/lib/utils/image';
 
 interface AddToComparisonModalProps {
   product: ProductWithRelations;
@@ -140,7 +141,7 @@ export function AddToComparisonModal({
             <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
               {product.images && product.images.length > 0 ? (
                 <img
-                  src={product.images[0].optimizedUrl || product.images[0].originalUrl}
+                  src={getImageUrl(product.images[0].optimizedUrl || product.images[0].originalUrl) || ''}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />

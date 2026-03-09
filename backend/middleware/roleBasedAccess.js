@@ -283,7 +283,7 @@ class RoleBasedAccessMiddleware {
           case 'order':
             const { PrismaClient } = require('@prisma/client');
             const prisma = new PrismaClient();
-            const order = await prisma.order.findUnique({
+            const order = await prisma.orders.findUnique({
               where: { id: resourceId },
               select: { userId: true }
             });

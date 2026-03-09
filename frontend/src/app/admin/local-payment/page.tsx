@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Search, Check, X, Smartphone, CreditCard, XCircle, MessageSquare } from 'lucide-react';
 import { withAuth } from '@/components/auth/withAuth';
-import { PageWrapper, Badge, ButtonPrimary, ButtonDanger } from '@/components/design-system';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 import { apiClient } from '@/lib/api/client';
 import Link from 'next/link';
 
@@ -303,10 +303,9 @@ function LocalPaymentMethodsPage() {
   };
 
   return (
-    <PageWrapper
-      title="Local Payment Methods"
-      description="Manage Bangladesh-specific local payment methods (bKash, Nagad, Rocket, SureCash)"
-      actions={
+    <AdminLayout title="Local Payment Methods">
+      <div className="mb-4 flex items-center justify-between">
+        <p className="text-sm text-gray-600">Manage Bangladesh-specific local payment methods (bKash, Nagad, Rocket, SureCash)</p>
         <div className="flex gap-3">
           <Link
             href="/admin/local-payment/subscriptions"
@@ -315,15 +314,15 @@ function LocalPaymentMethodsPage() {
             <MessageSquare className="w-5 h-5 mr-2" />
             SMS Subscriptions
           </Link>
-          <ButtonPrimary
-            leftIcon={<Plus className="w-5 h-5" />}
+          <button
             onClick={handleOpenCreateModal}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
+            <Plus className="w-5 h-5" />
             Add Payment Method
-          </ButtonPrimary>
+          </button>
         </div>
-      }
-    >
+      </div>
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
           <div className="flex items-start gap-3">
@@ -421,9 +420,11 @@ function LocalPaymentMethodsPage() {
                       <p className="text-sm text-gray-500">{method.name}</p>
                     </div>
                   </div>
-                  <Badge color={method.isActive ? 'success' : 'neutral'}>
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    method.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                  }`}>
                     {method.isActive ? 'Active' : 'Inactive'}
-                  </Badge>
+                  </span>
                 </div>
               </div>
 
@@ -750,12 +751,13 @@ function LocalPaymentMethodsPage() {
                 >
                   Cancel
                 </button>
-                <ButtonPrimary
+                <button
                   type="submit"
                   disabled={isSubmitting}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? 'Saving...' : editingMethod ? 'Update Method' : 'Create Method'}
-                </ButtonPrimary>
+                </button>
               </div>
             </form>
           </div>
@@ -782,14 +784,14 @@ function LocalPaymentMethodsPage() {
               >
                 Cancel
               </button>
-              <ButtonDanger onClick={handleDelete}>
+              <button onClick={handleDelete} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                 Delete
-              </ButtonDanger>
+              </button>
             </div>
           </div>
         </div>
       )}
-    </PageWrapper>
+    </AdminLayout>
   );
 }
 

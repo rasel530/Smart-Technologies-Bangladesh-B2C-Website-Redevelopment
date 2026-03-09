@@ -2,6 +2,12 @@ const express = require('express');
 const { body, param, query, validationResult } = require('express-validator');
 const { PrismaClient } = require('@prisma/client');
 const { authMiddleware } = require('../middleware/auth');
+const { 
+  transformOrder, 
+  transformOrderItem,
+  transformPaginatedResponse,
+  transformErrorResponse 
+} = require('../utils/dataTransformers');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -23,46 +29,202 @@ router.get('/', [
   query('page').optional().isInt({ min: 1 }),
   query('limit').optional().isInt({ min: 1, max: 100 }),
   query('userId').optional().isUUID(),
-  query('status').optional().isIn(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'processing', 'refunded'])
+  query('status').optional().isIn(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'processing', 'refunded']),
+  query('search').optional().isString(),
+  query('dateFrom').optional().isISO8601(),
+  query('dateTo').optional().isISO8601(),
+  query('sortBy').optional().isIn(['createdAt', 'updatedAt', 'total', 'status', 'orderNumber']),
+  query('sortOrder').optional().isIn(['asc', 'desc'])
 ], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
   // If user is not admin, only allow access to their own orders
   if (req.user.role?.toUpperCase() !== 'ADMIN') {
     req.query.userId = req.user.id;
   }
   try {
-    const { page = 1, limit = 20, userId, status } = req.query;
+    const { 
+      page = 1, 
+      limit = 20, 
+      userId, 
+      status, 
+      search, 
+      dateFrom, 
+      dateTo, 
+      sortBy = 'createdAt', 
+      sortOrder = 'desc' 
+    } = req.query;
     const skip = (page - 1) * limit;
 
     const where = {};
     if (userId) where.userId = userId;
     if (status) where.status = status;
 
-    const [orders, total] = await Promise.all([
-      prisma.order.findMany({
-        where,
-        skip: parseInt(skip),
-        take: parseInt(limit),
-        include: {
-          user: {
-            select: { id: true, firstName: true, lastName: true, email: true }
-          },
-          address: true,
-          items: {
+    // Search functionality (case-insensitive)
+    if (search) {
+      where.OR = [
+        { orderNumber: { contains: search, mode: 'insensitive' } },
+        { users: { email: { contains: search, mode: 'insensitive' } } },
+        { users: { firstName: { contains: search, mode: 'insensitive' } } },
+        { users: { lastName: { contains: search, mode: 'insensitive' } } }
+      ];
+    }
+
+    // Date range filtering
+    if (dateFrom || dateTo) {
+      where.createdAt = {};
+      if (dateFrom) where.createdAt.gte = new Date(dateFrom);
+      if (dateTo) where.createdAt.lte = new Date(dateTo);
+    }
+
+    // Dynamic sorting
+    const orderBy = { [sortBy]: sortOrder };
+
+      const [orders, total] = await Promise.all([
+        prisma.orders.findMany({
+          where,
+          skip: parseInt(skip),
+          take: parseInt(limit),
+          include: {
+            users: {
+              select: { id: true, firstName: true, lastName: true, email: true }
+            },
+            addresses: true,
+          order_items: {
             include: {
-              product: {
+              products: {
                 select: { id: true, name: true, sku: true }
               }
             }
           },
           transactions: true
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy
       }),
-      prisma.order.count({ where })
+      prisma.orders.count({ where })
     ]);
 
+    // Transform orders properly to convert Decimal to numbers and fix field names
+    const transformedOrders = orders.map(order => ({
+      ...order,
+      // Convert Decimal fields to numbers
+      subtotal: parseFloat(order.subtotal?.toString() || '0'),
+      tax: parseFloat(order.tax?.toString() || '0'),
+      shippingCost: parseFloat(order.shippingCost?.toString() || '0'),
+      discount: parseFloat(order.discount?.toString() || '0'),
+      total: parseFloat(order.total?.toString() || '0'),
+      // Transform order_items to orderItems
+      orderItems: order.order_items?.map(item => ({
+        ...item,
+        // Convert Decimal fields to numbers
+        unitPrice: parseFloat(item.unitPrice?.toString() || '0'),
+        totalPrice: parseFloat(item.totalPrice?.toString() || '0'),
+        // Include product details
+        product: item.products
+      })) || [],
+      // Include paymentDetails in response for admin panel
+      paymentDetails: order.paymentDetails,
+      // Transform users to user
+      user: order.users,
+      // Transform addresses to address
+      address: order.addresses
+    }));
+
+    const response = {
+      success: true,
+      data: transformedOrders,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    };
+    res.json(response);
+
+  } catch (error) {
+    console.error('Get orders error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch orders',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// GET /api/v1/orders/history - Get order history for a user
+// This route MUST be defined before /:id to avoid routing conflicts
+router.get('/history', [
+  query('page').optional().isInt({ min: 1 }),
+  query('limit').optional().isInt({ min: 1, max: 100 }),
+  query('status').optional().isIn(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'processing', 'refunded']),
+  query('startDate').optional().isISO8601(),
+  query('endDate').optional().isISO8601(),
+  query('sortBy').optional().isIn(['createdAt', 'updatedAt', 'total', 'status']),
+  query('sortOrder').optional().isIn(['asc', 'desc'])
+], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const isAdmin = req.user.role?.toUpperCase() === 'ADMIN';
+    const { page = 1, limit = 20, status, startDate, endDate, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+
+    const where = isAdmin ? {} : { userId };
+    if (status) where.status = status;
+    if (startDate || endDate) {
+      where.createdAt = {};
+      if (startDate) where.createdAt.gte = new Date(startDate);
+      if (endDate) where.createdAt.lte = new Date(endDate);
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [orders, total] = await Promise.all([
+      prisma.orders.findMany({
+        where,
+        skip: parseInt(skip),
+        take: parseInt(limit),
+        include: {
+          users: {
+            select: { id: true, firstName: true, lastName: true, email: true }
+          },
+          addresses: true,
+          order_items: {
+            include: {
+              products: {
+                select: { id: true, name: true, sku: true }
+              }
+            }
+          }
+        },
+        orderBy: { [sortBy]: sortOrder }
+      }),
+      prisma.orders.count({ where })
+    ]);
+
+    // Transform orders to convert Decimal fields to numbers
+    const transformedOrders = orders.map(order => ({
+      ...order,
+      // Convert Decimal fields to numbers
+      subtotal: parseFloat(order.subtotal?.toString() || '0'),
+      tax: parseFloat(order.tax?.toString() || '0'),
+      shippingCost: parseFloat(order.shippingCost?.toString() || '0'),
+      discount: parseFloat(order.discount?.toString() || '0'),
+      total: parseFloat(order.total?.toString() || '0'),
+      // Transform order_items to orderItems
+      orderItems: order.order_items?.map(item => ({
+        ...item,
+        // Convert Decimal fields to numbers
+        unitPrice: parseFloat(item.unitPrice?.toString() || '0'),
+        totalPrice: parseFloat(item.totalPrice?.toString() || '0'),
+        // Include product details
+        product: item.products
+      })) || [],
+      // Transform users to user
+      user: order.users,
+      // Transform addresses to address
+      address: order.addresses
+    }));
+
     res.json({
-      orders,
+      success: true,
+      data: transformedOrders,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
@@ -72,9 +234,10 @@ router.get('/', [
     });
 
   } catch (error) {
-    console.error('Get orders error:', error);
+    console.error('Get order history error:', error);
     res.status(500).json({
-      error: 'Failed to fetch orders',
+      success: false,
+      error: 'Failed to fetch order history',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
@@ -86,7 +249,7 @@ router.get('/:id', [
 ], handleValidationErrors, authMiddleware.authenticate(), async (req, res) => {
   try {
     // Get order first to check ownership
-    const order = await prisma.order.findUnique({
+    const order = await prisma.orders.findUnique({
       where: { id: req.params.id },
       select: { userId: true }
     });
@@ -108,16 +271,16 @@ router.get('/:id', [
 
     const { id } = req.params;
 
-    const orderDetails = await prisma.order.findUnique({
+    const orderDetails = await prisma.orders.findUnique({
       where: { id },
       include: {
-        user: {
+        users: {
           select: { id: true, firstName: true, lastName: true, email: true, phone: true }
         },
-        address: true,
-        items: {
+        addresses: true,
+        order_items: {
           include: {
-            product: {
+            products: {
               include: {
                 images: {
                   where: { displayOrder: 0 },
@@ -130,7 +293,7 @@ router.get('/:id', [
                 }
               }
             },
-            variant: true  // FIXED: Moved to correct level (OrderItem has variant relation)
+            product_variants: true  // FIXED: Moved to correct level (OrderItem has product_variants relation)
           }
         },
         transactions: true
@@ -143,7 +306,35 @@ router.get('/:id', [
       });
     }
 
-    res.json({ order: orderDetails });
+    // Transform to convert Decimal fields to numbers and include paymentDetails
+    const orderWithPaymentDetails = {
+      ...orderDetails,
+      subtotal: parseFloat(orderDetails.subtotal?.toString() || '0'),
+      tax: parseFloat(orderDetails.tax?.toString() || '0'),
+      shippingCost: parseFloat(orderDetails.shippingCost?.toString() || '0'),
+      discount: parseFloat(orderDetails.discount?.toString() || '0'),
+      total: parseFloat(orderDetails.total?.toString() || '0'),
+      paymentStatus: orderDetails.paymentStatus || 'pending',
+      orderItems: orderDetails.order_items?.map(item => ({
+        ...item,
+        // Convert Decimal fields to numbers
+        unitPrice: parseFloat(item.unitPrice?.toString() || '0'),
+        totalPrice: parseFloat(item.totalPrice?.toString() || '0'),
+        // Include product details
+        product: item.products,
+        // Include variant details
+        variant: item.product_variants
+      })) || [],
+      paymentDetails: orderDetails.paymentDetails,
+      user: orderDetails.users,
+      address: orderDetails.addresses
+    };
+
+const response = {
+  success: true,
+  data: orderWithPaymentDetails
+};
+res.json(response);
 
   } catch (error) {
     console.error('Get order error:', error);
@@ -172,7 +363,7 @@ router.post('/', [
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return uuidRegex.test(value);
   }).withMessage('Variant ID must be a valid UUID or null'),
-  body('paymentMethod').isIn(['CREDIT_CARD', 'BANK_TRANSFER', 'CASH_ON_DELIVERY', 'EMI', 'MCASH', 'BKASH', 'NAGAD', 'ROCKET']),
+  body('paymentMethod').isIn(['credit_card', 'bank_transfer', 'cash_on_delivery', 'emi', 'mcash', 'bkash', 'nagad', 'rocket']),
   body('paymentDetails').optional().isObject(),
   body('notes').optional().isString()
 ], handleValidationErrors, authMiddleware.optional(), async (req, res) => {
@@ -184,7 +375,7 @@ router.post('/', [
     // Validate user if provided (authenticated users)
     let user = null;
     if (userId) {
-      user = await prisma.user.findUnique({ where: { id: userId } });
+      user = await prisma.users.findUnique({ where: { id: userId } });
       if (!user) {
         return res.status(404).json({
           error: 'User not found'
@@ -211,7 +402,7 @@ router.post('/', [
         lastName = addressToUse.lastName || '';
       }
 
-      const newAddress = await prisma.address.create({
+      const newAddress = await prisma.addresses.create({
         data: {
           userId: userId || null, // null for guest orders
           firstName,
@@ -231,7 +422,7 @@ router.post('/', [
       finalAddressId = newAddress.id;
     } else if (addressId) {
       // Validate that the saved address exists
-      const address = await prisma.address.findUnique({ where: { id: addressId } });
+      const address = await prisma.addresses.findUnique({ where: { id: addressId } });
       if (!address) {
         return res.status(404).json({
           error: 'Address not found'
@@ -252,12 +443,12 @@ router.post('/', [
       let cart = null;
       if (userId) {
         // Authenticated user - get their cart
-        cart = await prisma.cart.findFirst({
+        cart = await prisma.carts.findFirst({
           where: { userId },
           include: {
             items: {
               include: {
-                product: true,
+                products: true,
                 variant: true
               }
             }
@@ -265,12 +456,12 @@ router.post('/', [
         });
       } else if (sessionId) {
         // Guest user - get their cart by session ID
-        cart = await prisma.cart.findFirst({
+        cart = await prisma.carts.findFirst({
           where: { sessionId },
           include: {
             items: {
               include: {
-                product: true,
+                products: true,
                 variant: true
               }
             }
@@ -297,8 +488,20 @@ router.post('/', [
     let subtotal = 0;
     const orderItems = [];
 
+    // CRITICAL: Ensure cartItems is valid array
+    if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
+      console.error('Create order error: Cart items are empty or invalid', {
+        userId,
+        cartItems: cartItems
+      });
+      return res.status(400).json({
+        error: 'Cart is empty or items are invalid',
+        message: 'Cannot create order with empty cart'
+      });
+    }
+
     for (const item of cartItems) {
-      const product = await prisma.product.findUnique({
+      const product = await prisma.products.findUnique({
         where: { id: item.productId }
       });
 
@@ -311,7 +514,7 @@ router.post('/', [
       // Check if item has a variant and use variant price if available
       let unitPrice;
       if (item.variantId) {
-        const variant = await prisma.productVariant.findUnique({
+        const variant = await prisma.product_variants.findUnique({
           where: { id: item.variantId }
         });
         if (!variant) {
@@ -351,7 +554,7 @@ router.post('/', [
     // Calculate tax based on product-specific tax rates
     let tax = 0;
     for (const item of cartItems) {
-      const product = await prisma.product.findUnique({
+      const product = await prisma.products.findUnique({
         where: { id: item.productId }
       });
       const productTaxRate = parseFloat(product.taxRate || 0);
@@ -370,7 +573,7 @@ router.post('/', [
     const paymentMethodLower = paymentMethod.toLowerCase();
 
     // Create order
-    const order = await prisma.order.create({
+    const order = await prisma.orders.create({
       data: {
         orderNumber,
         userId,
@@ -384,14 +587,14 @@ router.post('/', [
         paymentDetails: paymentDetails || null,
         notes,
         status: 'pending',
-        items: {
+        order_items: {
           create: orderItems
         }
       },
       include: {
-        items: {
+        order_items: {
           include: {
-            product: true
+            products: true
           }
         }
       }
@@ -399,7 +602,7 @@ router.post('/', [
 
     // Update product stock
     for (const item of cartItems) {
-      await prisma.product.update({
+      await prisma.products.update({
         where: { id: item.productId },
         data: {
           stockQuantity: {
@@ -434,7 +637,7 @@ router.put('/:id/status', [
     const { status, notes } = req.body;
 
     // Check if order exists
-    const order = await prisma.order.findUnique({
+    const order = await prisma.orders.findUnique({
       where: { id }
     });
 
@@ -453,7 +656,7 @@ router.put('/:id/status', [
     
     if (notes) updateData.notes = notes;
 
-    const updatedOrder = await prisma.order.update({
+    const updatedOrder = await prisma.orders.update({
       where: { id },
       data: updateData
     });
@@ -480,16 +683,16 @@ router.get('/checkout/:sessionId', [
     const { sessionId } = req.params;
     
     // Find order by checkout session ID
-    const order = await prisma.order.findFirst({
+    const order = await prisma.orders.findFirst({
       where: { checkoutSessionId: sessionId },
       include: {
-        user: {
+        users: {
           select: { id: true, firstName: true, lastName: true, email: true, phone: true }
         },
-        address: true,
-        items: {
+        addresses: true,
+        order_items: {
           include: {
-            product: {
+            products: {
               include: {
                 images: {
                   where: { displayOrder: 0 },
@@ -524,9 +727,7 @@ router.get('/checkout/:sessionId', [
       });
     }
 
-    res.json({
-      order
-    });
+    res.json(order);
   } catch (error) {
     console.error('Get order by checkout session error:', error);
     res.status(500).json({
@@ -563,16 +764,16 @@ router.get('/guest/:orderNumber', [
     }
 
     // Get order by order number
-    const order = await prisma.order.findUnique({
+    const order = await prisma.orders.findUnique({
       where: { orderNumber },
       include: {
-        user: {
+        users: {
           select: { id: true, firstName: true, lastName: true, email: true, phone: true }
         },
-        address: true,
-        items: {
+        addresses: true,
+        order_items: {
           include: {
-            product: {
+            products: {
               include: {
                 images: {
                   where: { displayOrder: 0 },
@@ -667,11 +868,11 @@ router.put('/guest/:orderNumber/track', [
     }
 
     // Get order by order number
-    const order = await prisma.order.findUnique({
+    const order = await prisma.orders.findUnique({
       where: { orderNumber },
       include: {
-        address: true,
-        items: true,
+        addresses: true,
+        order_items: true,
         transactions: true
       }
     });
@@ -715,16 +916,16 @@ router.put('/guest/:orderNumber/track', [
       trackingUpdatedAt: new Date().toISOString()
     };
 
-    const updatedOrder = await prisma.order.update({
+    const updatedOrder = await prisma.orders.update({
       where: { id: order.id },
       data: {
         paymentDetails: updatedPaymentDetails
       },
       include: {
-        address: true,
-        items: {
+        addresses: true,
+        order_items: {
           include: {
-            product: {
+            products: {
               include: {
                 images: {
                   where: { displayOrder: 0 },
@@ -759,6 +960,223 @@ router.put('/guest/:orderNumber/track', [
       error: 'Failed to update guest order tracking',
       message: 'Failed to update guest order tracking',
       messageBn: 'অতিথি অর্ডার ট্র্যাকিং আপডেট করতে ব্যর্থ হয়েছে'
+    });
+  }
+});
+
+// ============================================================================
+// Admin Endpoints for Order Modifications and Cancellations
+// ============================================================================
+
+// GET /api/v1/orders/admin/modifications - Get all order modifications with filters and pagination
+router.get('/admin/modifications', [
+  query('page').optional().isInt({ min: 1 }),
+  query('limit').optional().isInt({ min: 1, max: 100 }),
+  query('orderId').optional().isUUID(),
+  query('userId').optional().isUUID(),
+  query('modificationType').optional().isIn(['status_change', 'address_change', 'item_change', 'cancellation']),
+  query('startDate').optional().isISO8601(),
+  query('endDate').optional().isISO8601(),
+  query('sortBy').optional().isIn(['createdAt', 'updatedAt']),
+  query('sortOrder').optional().isIn(['asc', 'desc'])
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
+  try {
+    const { 
+      page = 1, 
+      limit = 20, 
+      orderId, 
+      userId, 
+      modificationType, 
+      startDate, 
+      endDate, 
+      sortBy = 'created_at', 
+      sortOrder = 'desc' 
+    } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Build WHERE clause dynamically using raw SQL
+    let whereClause = '';
+    const params = [];
+    
+    if (orderId) {
+      whereClause += whereClause ? ' AND' : ' WHERE';
+      whereClause += ` order_id = ${params.length + 1}`;
+      params.push(orderId);
+    }
+    if (userId) {
+      whereClause += whereClause ? ' AND' : ' WHERE';
+      whereClause += ` requested_by = ${params.length + 1}`;
+      params.push(userId);
+    }
+    if (modificationType) {
+      whereClause += whereClause ? ' AND' : ' WHERE';
+      whereClause += ` modification_type = ${params.length + 1}`;
+      params.push(modificationType);
+    }
+    if (startDate) {
+      whereClause += whereClause ? ' AND' : ' WHERE';
+      whereClause += ` created_at >= ${params.length + 1}`;
+      params.push(new Date(startDate));
+    }
+    if (endDate) {
+      whereClause += whereClause ? ' AND' : ' WHERE';
+      whereClause += ` created_at <= ${params.length + 1}`;
+      params.push(new Date(endDate));
+    }
+
+    const orderDirection = sortOrder === 'asc' ? 'ASC' : 'DESC';
+
+    // Get order modifications using raw SQL to bypass Prisma model issues
+    const [modifications, totalResult] = await Promise.all([
+      prisma.$queryRawUnsafe(
+        `SELECT * FROM order_modifications${whereClause} ORDER BY ${sortBy} ${orderDirection} LIMIT ${params.length + 1} OFFSET ${params.length + 2}`,
+        ...params,
+        parseInt(limit),
+        skip
+      ),
+      prisma.$queryRawUnsafe(
+        `SELECT COUNT(*) as count FROM order_modifications${whereClause}`,
+        ...params
+      )
+    ]);
+
+    const total = parseInt(totalResult[0].count);
+    const totalPages = Math.ceil(total / parseInt(limit));
+
+    // Transform raw results to match expected format
+    const formattedModifications = modifications.map(mod => ({
+      ...mod,
+      orderId: mod.order_id,
+      userId: mod.requested_by,
+      modificationType: mod.modification_type,
+      requestedBy: mod.requested_by,
+      approvedBy: mod.approved_by,
+      processedAt: mod.processed_at,
+      createdAt: mod.created_at,
+      updatedAt: mod.updated_at
+    }));
+
+    const response = transformPaginatedResponse(
+      formattedModifications,
+      { page, limit, total },
+      (mod) => mod
+    );
+    res.json(response);
+
+  } catch (error) {
+    console.error('[Admin Orders] Get modifications error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch order modifications',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// GET /api/v1/orders/admin/cancellations - Get all order cancellations with filters and pagination
+router.get('/admin/cancellations', [
+  query('page').optional().isInt({ min: 1 }),
+  query('limit').optional().isInt({ min: 1, max: 100 }),
+  query('orderId').optional().isUUID(),
+  query('userId').optional().isUUID(),
+  query('cancellationReason').optional().isString(),
+  query('startDate').optional().isISO8601(),
+  query('endDate').optional().isISO8601(),
+  query('sortBy').optional().isIn(['created_at', 'updated_at']),
+  query('sortOrder').optional().isIn(['asc', 'desc'])
+], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
+  try {
+    const { 
+      page = 1, 
+      limit = 20, 
+      orderId, 
+      userId, 
+      cancellationReason, 
+      startDate, 
+      endDate, 
+      sortBy = 'created_at', 
+      sortOrder = 'desc' 
+    } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Build WHERE clause dynamically using raw SQL
+    let whereClause = '';
+    const params = [];
+    
+    if (orderId) {
+      whereClause += whereClause ? ' AND' : ' WHERE';
+      whereClause += ` order_id = ${params.length + 1}`;
+      params.push(orderId);
+    }
+    if (userId) {
+      whereClause += whereClause ? ' AND' : ' WHERE';
+      whereClause += ` requested_by = ${params.length + 1}`;
+      params.push(userId);
+    }
+    if (cancellationReason) {
+      whereClause += whereClause ? ' AND' : ' WHERE';
+      whereClause += ` LOWER(reason) LIKE ${params.length + 1}`;
+      params.push(`%${cancellationReason.toLowerCase()}%`);
+    }
+    if (startDate) {
+      whereClause += whereClause ? ' AND' : ' WHERE';
+      whereClause += ` created_at >= ${params.length + 1}`;
+      params.push(new Date(startDate));
+    }
+    if (endDate) {
+      whereClause += whereClause ? ' AND' : ' WHERE';
+      whereClause += ` created_at <= ${params.length + 1}`;
+      params.push(new Date(endDate));
+    }
+
+    const orderDirection = sortOrder === 'asc' ? 'ASC' : 'DESC';
+
+    // Get cancellations using raw SQL to query order_cancellations table
+    const [cancellations, totalResult] = await Promise.all([
+      prisma.$queryRawUnsafe(
+        `SELECT * FROM order_cancellations${whereClause} ORDER BY ${sortBy} ${orderDirection} LIMIT ${params.length + 1} OFFSET ${params.length + 2}`,
+        ...params,
+        parseInt(limit),
+        skip
+      ),
+      prisma.$queryRawUnsafe(
+        `SELECT COUNT(*) as count FROM order_cancellations${whereClause}`,
+        ...params
+      )
+    ]);
+
+    const total = parseInt(totalResult[0].count);
+
+    // Transform raw results to match expected format
+    const formattedCancellations = cancellations.map(cancel => ({
+      id: cancel.id,
+      orderId: cancel.order_id,
+      cancellationType: cancel.cancellation_type,
+      reason: cancel.reason,
+      status: cancel.status,
+      requested_by: cancel.requested_by,
+      approved_by: cancel.approved_by,
+      refundAmount: cancel.refund_amount ? parseFloat(cancel.refund_amount.toString()) : undefined,
+      refundMethod: cancel.refund_method,
+      adminNotes: cancel.admin_notes,
+      processed_at: cancel.processed_at,
+      createdAt: cancel.created_at,
+      updatedAt: cancel.updated_at
+    }));
+
+    const response = transformPaginatedResponse(
+      formattedCancellations,
+      { page, limit, total },
+      (cancel) => cancel
+    );
+    res.json(response);
+
+  } catch (error) {
+    console.error('[Admin Orders] Get cancellations error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch order cancellations',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 });

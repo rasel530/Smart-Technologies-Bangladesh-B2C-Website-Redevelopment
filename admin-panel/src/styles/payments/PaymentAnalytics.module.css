@@ -1,0 +1,347 @@
+/**
+ * Payment Analytics Styles
+ *
+ * CSS module styles for the Payment Analytics page and related components.
+ */
+
+.container {
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navigationButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.description {
+  margin-bottom: 24px;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.divider {
+  margin-bottom: 24px;
+}
+
+/* Date Range Filter */
+.filterSection {
+  marginBottom: 24px;
+}
+
+.filterTitle {
+  fontSize: 18px;
+  fontWeight: 600;
+  marginBottom: 16px;
+}
+
+.filterGrid {
+  display: flex;
+  gap: 16px;
+  alignItems: center;
+}
+
+.filterButtons {
+  display: flex;
+  gap: 8px;
+}
+
+/* Key Metrics */
+.metricsGrid {
+  marginBottom: 24px;
+}
+
+.metricCard {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.metricCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.metricHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  marginBottom: 8px;
+}
+
+.metricLabel {
+  fontSize: 14px;
+  color: #666;
+}
+
+.metricValue {
+  fontSize: 32px;
+  fontWeight: bold;
+  color: #333;
+}
+
+/* Secondary Metrics */
+.secondaryMetrics {
+  marginBottom: 24px;
+}
+
+.secondaryMetricValue {
+  fontSize: 24px;
+  fontWeight: bold;
+}
+
+.secondaryMetricValueError {
+  color: #c62828;
+}
+
+.secondaryMetricValueWarning {
+  color: #ef6c00;
+}
+
+/* Charts */
+.chartsRow {
+  marginBottom: 24px;
+}
+
+.chartContainer {
+  height: 100%;
+  minHeight: 350px;
+}
+
+.chartTitle {
+  fontSize: 18px;
+  fontWeight: 600;
+  marginBottom: 16px;
+}
+
+.chartPaper {
+  padding: 24px;
+  height: 100%;
+}
+
+/* Tables */
+.tableContainer {
+  marginBottom: 24px;
+}
+
+.tableTitle {
+  fontSize: 18px;
+  fontWeight: 600;
+  marginBottom: 16px;
+}
+
+.tablePaper {
+  padding: 24px;
+}
+
+.tableRow {
+  transition: background-color 0.2s ease-in-out;
+}
+
+.tableRow:hover {
+  background-color: #f5f5f5;
+}
+
+/* Fraud Statistics */
+.fraudStats {
+  marginBottom: 24px;
+}
+
+.fraudStatsTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  fontSize: 18px;
+  fontWeight: 600;
+  marginBottom: 16px;
+}
+
+.fraudStatsGrid {
+  display: grid;
+  gridTemplateColumns: repeat(3, 1fr);
+  gap: 16px;
+  marginTop: 16px;
+}
+
+.fraudStatItem {
+  display: flex;
+  flexDirection: column;
+  gap: 4px;
+}
+
+.fraudStatLabel {
+  fontSize: 14px;
+  color: #666;
+}
+
+.fraudStatValue {
+  fontSize: 24px;
+  fontWeight: bold;
+}
+
+.fraudStatValueSuccess {
+  color: #2e7d32;
+}
+
+.fraudStatValueError {
+  color: #c62828;
+}
+
+.fraudStatValueWarning {
+  color: #ef6c00;
+}
+
+/* Responsive Design */
+@media (max-width: 960px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .navigationButtons {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .navigationButtons button {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .filterGrid {
+    flexDirection: column;
+    alignItems: stretch;
+  }
+
+  .filterButtons {
+    flexDirection: column;
+  }
+
+  .fraudStatsGrid {
+    gridTemplateColumns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 16px;
+  }
+
+  .headerTitle {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .metricsGrid {
+    gridTemplateColumns: 1fr;
+  }
+
+  .secondaryMetrics {
+    gridTemplateColumns: 1fr;
+  }
+
+  .chartsRow {
+    gridTemplateColumns: 1fr;
+  }
+
+  .fraudStatsGrid {
+    gridTemplateColumns: 1fr;
+  }
+}
+
+/* Accessibility */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Loading States */
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 64px 0;
+}
+
+/* Error States */
+.errorContainer {
+  padding: 16px;
+  background-color: #ffebee;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.errorMessage {
+  color: #c62828;
+  font-size: 14px;
+}
+
+/* Empty States */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  text-align: center;
+}
+
+.emptyStateIcon {
+  fontSize: 64px;
+  color: #bdbdbd;
+  marginBottom: 16px;
+}
+
+.emptyStateText {
+  fontSize: 16px;
+  color: #757575;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.pulse {
+  animation: pulse 2s ease-in-out infinite;
+}

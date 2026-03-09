@@ -1,0 +1,205 @@
+{
+  "timestamp": "2026-02-22T17:25:49.249Z",
+  "summary": {
+    "totalTests": 8,
+    "passed": 6,
+    "failed": 2
+  },
+  "tests": {
+    "test1": {
+      "name": "Test 1: Valid request with sessionId, step, and data",
+      "steps": [
+        {
+          "step": "Make POST request to /api/v1/checkout/save",
+          "passed": true,
+          "message": "Status: 200"
+        },
+        {
+          "step": "Verify response status is 200",
+          "passed": true,
+          "message": "Status 200 OK"
+        },
+        {
+          "step": "Verify success field is true",
+          "passed": true,
+          "message": "success: true"
+        },
+        {
+          "step": "Verify data is returned in response",
+          "passed": true,
+          "message": "Data present"
+        },
+        {
+          "step": "Verify currentStep was updated to shipping",
+          "passed": true,
+          "message": "currentStep: shipping"
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    "test2": {
+      "name": "Test 2: Valid request with only sessionId (step and data optional)",
+      "steps": [
+        {
+          "step": "Make POST request with only sessionId",
+          "passed": true,
+          "message": "Status: 500"
+        },
+        {
+          "step": "Verify response status is 200",
+          "passed": false,
+          "message": "Status 500"
+        }
+      ],
+      "passed": false,
+      "errors": [
+        "Expected status 200, got 500"
+      ]
+    },
+    "test3": {
+      "name": "Test 3: Invalid sessionId format (validation error)",
+      "steps": [
+        {
+          "step": "Make POST request with invalid sessionId format",
+          "passed": true,
+          "message": "Status: 400"
+        },
+        {
+          "step": "Verify response status is 400 (validation error)",
+          "passed": true,
+          "message": "Status 400 Bad Request"
+        },
+        {
+          "step": "Verify success field is false",
+          "passed": true,
+          "message": "success: false"
+        },
+        {
+          "step": "Verify validation error message is present",
+          "passed": true,
+          "message": "Validation error found"
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    "test4": {
+      "name": "Test 4: Non-existent sessionId (404 error)",
+      "steps": [
+        {
+          "step": "Make POST request with non-existent sessionId",
+          "passed": true,
+          "message": "Status: 404"
+        },
+        {
+          "step": "Verify response status is 404",
+          "passed": true,
+          "message": "Status 404 Not Found"
+        },
+        {
+          "step": "Verify success field is false",
+          "passed": true,
+          "message": "success: false"
+        },
+        {
+          "step": "Verify error message mentions session not found",
+          "passed": true,
+          "message": "Error message present"
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    "test5": {
+      "name": "Test 5: Expired sessionId (410 error)",
+      "steps": [
+        {
+          "step": "Make POST request with expired sessionId",
+          "passed": true,
+          "message": "Status: 500"
+        },
+        {
+          "step": "Verify response status is 410 (Gone)",
+          "passed": false,
+          "message": "Status 500"
+        }
+      ],
+      "passed": false,
+      "errors": [
+        "Expected status 410, got 500"
+      ]
+    },
+    "test6": {
+      "name": "Test 6: Request without authentication (optional auth)",
+      "steps": [
+        {
+          "step": "Make POST request without authentication",
+          "passed": true,
+          "message": "Status: 200"
+        },
+        {
+          "step": "Verify endpoint accepts unauthenticated request",
+          "passed": true,
+          "message": "Status 200"
+        },
+        {
+          "step": "Verify success field is true (when status is 200)",
+          "passed": true,
+          "message": "success: true"
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    "test7": {
+      "name": "Test 7: Response includes proper bilingual messages",
+      "steps": [
+        {
+          "step": "Make POST request to /api/v1/checkout/save",
+          "passed": true,
+          "message": "Status: 200"
+        },
+        {
+          "step": "Verify English message is present",
+          "passed": true,
+          "message": "message: Checkout progress saved successfully"
+        },
+        {
+          "step": "Verify Bengali message is present",
+          "passed": true,
+          "message": "messageBn: চেকআউট অগ্রগতি সফলভাবে সংরক্ষিত হয়েছে"
+        },
+        {
+          "step": "Verify both messages are not empty",
+          "passed": true,
+          "message": "Messages populated"
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    "test8": {
+      "name": "Test 8: Verify 404 error is fixed (endpoint exists)",
+      "steps": [
+        {
+          "step": "Make POST request to /api/v1/checkout/save",
+          "passed": true,
+          "message": "Status: 500"
+        },
+        {
+          "step": "Verify endpoint exists (not 404)",
+          "passed": true,
+          "message": "Status 500 - endpoint exists"
+        },
+        {
+          "step": "Verify response has expected structure",
+          "passed": true,
+          "message": "Valid response structure"
+        }
+      ],
+      "passed": true,
+      "errors": []
+    }
+  }
+}

@@ -21,6 +21,7 @@ function LoginPageContent() {
   const { login, error, clearError } = useAuth();
   const { data: session, status } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
@@ -96,8 +97,13 @@ function LoginPageContent() {
     console.log('[LoginPage] Session user:', session?.user);
     console.log('[LoginPage] Session user role:', session?.user?.role);
 
-    // Only redirect if authenticated, session is loaded, and no cart merge prompt is shown
-    if (status === 'authenticated' && session?.user?.role && !showCartMergePrompt) {
+    // Check if user just logged out
+    const justLoggedOut = sessionStorage.getItem('just_logged_out');
+    console.log('[LoginPage] just_logged_out flag:', justLoggedOut);
+
+    // Only redirect if authenticated, session is loaded, no cart merge prompt is shown,
+    // AND user did NOT just log out
+    if (status === 'authenticated' && session?.user?.role && !showCartMergePrompt && !justLoggedOut && !isRedirecting) {
       const role = session.user.role;
       console.log('[LoginPage] User role:', role);
 
@@ -112,25 +118,53 @@ function LoginPageContent() {
         redirectTarget !== '/login' &&
         safeRedirects.some(safe => redirectTarget === safe || redirectTarget.startsWith(safe + '/'));
 
-      // Prevent redirect loop: if redirect is '/' (root path) or unsafe, ignore it and redirect based on role
-      if (isSafeRedirect) {
-        console.log('[LoginPage] Redirecting to safe target:', redirectTarget);
-        router.replace(redirectTarget);
-      } else {
-        // Redirect based on user role
-        console.log('[LoginPage] Will redirect to:', role === 'admin' || role === 'super_admin' ? '/admin' : '/account');
-        if (role === 'admin' || role === 'super_admin') {
-          console.log('[LoginPage] Redirecting admin user to /admin');
-          router.replace('/admin');
-        } else {
-          console.log('[LoginPage] Redirecting regular user to /account');
-          router.replace('/account');
-        }
-      }
+      // Set redirecting state to prevent duplicate redirects
+      setIsRedirecting(true);
+      
+      // Show loading overlay to prevent flash of old content
+      const loadingOverlay = document.createElement('div');
+      loadingOverlay.id = 'login-redirect-overlay';
+      loadingOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+      `;
+      loadingOverlay.innerHTML = `
+        <div class="flex flex-col items-center space-y-4">
+          <div class="relative">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-t-2 border-blue-600"></div>
+            <div class="animate-spin rounded-full h-12 w-12 border-r-2 border-blue-400 absolute top-0 left-0" style="animation-delay: 0.15s"></div>
+          </div>
+          <p class="text-gray-600 text-sm font-medium">Redirecting...</p>
+        </div>
+      `;
+      document.body.appendChild(loadingOverlay);
+      console.log('[LoginPage] Loading overlay added for redirect');
+
+      // Clear page content to prevent flash during redirect
+      document.body.innerHTML = '';
+      document.head.innerHTML = '';
+
+      // Use window.location.href for clean page load instead of router.replace()
+      // This ensures a fresh page load without showing cached content
+      const targetUrl = isSafeRedirect ? redirectTarget : (role === 'admin' || role === 'super_admin' ? '/admin' : '/account');
+      console.log('[LoginPage] Redirecting to:', targetUrl);
+      window.location.href = targetUrl;
     } else if (status === 'authenticated') {
       console.log('[LoginPage] Authenticated but role not available yet');
+    } else if (justLoggedOut) {
+      console.log('[LoginPage] User just logged out, preventing auto-redirect');
+      // Clear the just_logged_out flag after checking
+      sessionStorage.removeItem('just_logged_out');
     }
-  }, [status, session, router, searchParams, showCartMergePrompt]);
+  }, [status, session, router, searchParams, showCartMergePrompt, isRedirecting]);
 
   const handleLanguageChange = (newLanguage: 'en' | 'bn') => {
     setLanguage(newLanguage);

@@ -1,200 +1,1000 @@
-  'origin-allowed': 'no-origin-header',
-  credentials: 'no-cookies',
-  'user-agent': 'curl/8.13.0'
-}
-[SERVER] Request received: {
-  method: 'POST',
-  path: '/api/v1/categories/2829f167-4aa0-4ac9-9fc9-a88812e98ef2/image',
-  url: '/api/v1/categories/2829f167-4aa0-4ac9-9fc9-a88812e98ef2/image',
-  timestamp: '2026-02-07T09:28:54.188Z'
-}
-[RATE LIMIT SERVICE] Middleware called for: /api/v1/categories/2829f167-4aa0-4ac9-9fc9-a88812e98ef2/image
-[RATE LIMIT SERVICE] Request method: POST
-[RATE LIMIT SERVICE] req.body before processing: undefined
-[RATE LIMIT SERVICE] req.body type: undefined
-[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1770455634188
-[RATE LIMIT SERVICE] req.body after key generation: undefined
-{"environment":"production","errorId":"err_1770456534196_mrrubc29n","instanceId":"default","ip":"172.18.0.1","level":"error","message":"Application Error Only image files are allowed!","method":"POST","requestId":"req_1770456534188_i7tf8nqr3","service":"smart-ecommerce-api","stack":"MulterError: Only image files are allowed!\n    at fileFilter (/app/routes/categories.js:88:21)\n    at wrappedFileFilter (/app/node_modules/multer/index.js:44:7)\n    at Multipart.<anonymous> (/app/node_modules/multer/lib/make-middleware.js:109:7)\n    at Multipart.emit (node:events:524:28)\n    at HeaderParser.cb (/app/node_modules/busboy/lib/types/multipart.js:358:14)\n    at HeaderParser.push (/app/node_modules/busboy/lib/types/multipart.js:162:20)\n    at SBMH.ssCb [as _cb] (/app/node_modules/busboy/lib/types/multipart.js:394:37)\n    at feed (/app/node_modules/streamsearch/lib/sbmh.js:219:14)\n    at SBMH.push (/app/node_modules/streamsearch/lib/sbmh.js:104:16)\n    at Multipart._write (/app/node_modules/busboy/lib/types/multipart.js:567:19)","timestamp":"2026-02-07T09:28:54.197Z","url":"/api/v1/categories/2829f167-4aa0-4ac9-9fc9-a88812e98ef2/image","userAgent":"curl/8.13.0","version":"1.0.0"}
-[GLOBAL ERROR HANDLER] Error caught: {
-  name: 'MulterError',
-  message: 'Only image files are allowed!',
-  code: 'INVALID_FILE_TYPE',
-  stack: 'MulterError: Only image files are allowed!\n' +
-    '    at fileFilter (/app/routes/categories.js:88:21)\n' +
-    '    at wrappedFileFilter (/app/node_modules/multer/index.js:44:7)\n' +
-    '    at Multipart.<anonymous> (/app/node_modules/multer/lib/make-middleware.js:109:7)\n' +
-    '    at Multipart.emit (node:events:524:28)\n' +
-    '    at HeaderParser.cb (/app/node_modules/busboy/lib/types/multipart.js:358:14)\n' +
-    '    at HeaderParser.push (/app/node_modules/busboy/lib/types/multipart.js:162:20)\n' +
-    '    at SBMH.ssCb [as _cb] (/app/node_modules/busboy/lib/types/multipart.js:394:37)\n' +
-    '    at feed (/app/node_modules/streamsearch/lib/sbmh.js:219:14)\n' +
-    '    at SBMH.push (/app/node_modules/streamsearch/lib/sbmh.js:104:16)\n' +
-    '    at Multipart._write (/app/node_modules/busboy/lib/types/multipart.js:567:19)',
-  url: '/api/v1/categories/2829f167-4aa0-4ac9-9fc9-a88812e98ef2/image',
-  method: 'POST',
-  path: '/api/v1/categories/2829f167-4aa0-4ac9-9fc9-a88812e98ef2/image',
-  ip: '172.18.0.1',
-  userAgent: 'curl/8.13.0',
-  contentType: 'multipart/form-data; boundary=------------------------1v4MOf7onfUhLTlq1WUO10',
-  hasBody: true,
-  hasFiles: false
-}
-{"environment":"production","error":"Only image files are allowed!","instanceId":"default","ip":"172.18.0.1","level":"error","message":"Unhandled error","method":"POST","service":"smart-ecommerce-api","stack":"MulterError: Only image files are allowed!\n    at fileFilter (/app/routes/categories.js:88:21)\n    at wrappedFileFilter (/app/node_modules/multer/index.js:44:7)\n    at Multipart.<anonymous> (/app/node_modules/multer/lib/make-middleware.js:109:7)\n    at Multipart.emit (node:events:524:28)\n    at HeaderParser.cb (/app/node_modules/busboy/lib/types/multipart.js:358:14)\n    at HeaderParser.push (/app/node_modules/busboy/lib/types/multipart.js:162:20)\n    at SBMH.ssCb [as _cb] (/app/node_modules/busboy/lib/types/multipart.js:394:37)\n    at feed (/app/node_modules/streamsearch/lib/sbmh.js:219:14)\n    at SBMH.push (/app/node_modules/streamsearch/lib/sbmh.js:104:16)\n    at Multipart._write (/app/node_modules/busboy/lib/types/multipart.js:567:19)","timestamp":"2026-02-07T09:28:54.199Z","url":"/api/v1/categories/2829f167-4aa0-4ac9-9fc9-a88812e98ef2/image","userAgent":"curl/8.13.0","version":"1.0.0"}
-[CORS DIAGNOSTIC] {
-  timestamp: '2026-02-07T09:28:55.253Z',
-  method: 'POST',
-  path: '/api/v1/categories/2829f167-4aa0-4ac9-9fc9-a88812e98ef2/image',
-  origin: undefined,
-  referer: undefined,
-  'allowed-origins': [
-    'https://smarttechnologies-bd.com',
-    'https://www.smarttechnologies-bd.com',
-    'https://admin.smarttechnologies-bd.com',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001',
-    'http://host.docker.internal:3000',
-    'http://host.docker.internal:3001'
-  ],
-  'origin-allowed': 'no-origin-header',
-  credentials: 'no-cookies',
-  'user-agent': 'curl/8.13.0'
-}
-[SERVER] Request received: {
-  method: 'POST',
-  path: '/api/v1/categories/2829f167-4aa0-4ac9-9fc9-a88812e98ef2/image',
-  url: '/api/v1/categories/2829f167-4aa0-4ac9-9fc9-a88812e98ef2/image',
-  timestamp: '2026-02-07T09:28:55.253Z'
-}
-[RATE LIMIT SERVICE] Middleware called for: /api/v1/categories/2829f167-4aa0-4ac9-9fc9-a88812e98ef2/image
-[RATE LIMIT SERVICE] Request method: POST
-[RATE LIMIT SERVICE] req.body before processing: undefined
-[RATE LIMIT SERVICE] req.body type: undefined
-[RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1770455635253
-[RATE LIMIT SERVICE] req.body after key generation: undefined
-[CATEGORY IMAGE UPLOAD] Path construction: {
-  __dirname: '/app/routes',
-  uploadPathEnv: '"uploads"',
-  normalizedUploadPath: '"uploads"',
-  constructedPath: '/app/"uploads"/categories',
-  pathExists: true,
-  cwd: '/app'
-}
-[CATEGORY IMAGE UPLOAD] Directory already exists: /app/"uploads"/categories
-[GLOBAL ERROR HANDLER] Error caught: {
-  name: 'MulterError',
-  message: 'File too large',
-  code: 'LIMIT_FILE_SIZE',
-  stack: 'MulterError: File too large\n' +
-    '    at abortWithCode (/app/node_modules/multer/lib/make-middleware.js:73:22)\n' +
-    '    at FileStream.<anonymous> (/app/node_modules/multer/lib/make-middleware.js:136:11)\n' +
-    '    at FileStream.emit (node:events:524:28)\n' +
-    '    at SBMH.ssCb [as _cb] (/app/node_modules/busboy/lib/types/multipart.js:479:32)\n' +
-    '    at feed (/app/node_modules/streamsearch/lib/sbmh.js:248:10)\n' +
-    '    at SBMH.push (/app/node_modules/streamsearch/lib/sbmh.js:104:16)\n' +
-    '    at Multipart._write (/app/node_modules/busboy/lib/types/multipart.js:567:19)\n' +
-    '    at writeOrBuffer (node:internal/streams/writable:572:12)\n' +
-    '    at _write (node:internal/streams/writable:501:10)\n' +
-    '    at Writable.write (node:internal/streams/writable:510:10)',
-  url: '/api/v1/categories/2829f167-4aa0-4ac9-9fc9-a88812e98ef2/image',
-  method: 'POST',
-  path: '/api/v1/categories/2829f167-4aa0-4ac9-9fc9-a88812e98ef2/image',
-  ip: '172.18.0.1',
-  userAgent: 'curl/8.13.0',
-  contentType: 'multipart/form-data; boundary=------------------------nH2BnsokvSS5tDRHMnaXrv',
-  hasBody: true,
-  hasFiles: false
-}
-{"environment":"production","errorId":"err_1770456535307_2uericy29","instanceId":"default","ip":"172.18.0.1","level":"error","message":"Application Error File too large","method":"POST","requestId":"req_1770456535253_swjn9z8rj","service":"smart-ecommerce-api","stack":"MulterError: File too large\n    at abortWithCode (/app/node_modules/multer/lib/make-middleware.js:73:22)\n    at FileStream.<anonymous> (/app/node_modules/multer/lib/make-middleware.js:136:11)\n    at FileStream.emit (node:events:524:28)\n    at SBMH.ssCb [as _cb] (/app/node_modules/busboy/lib/types/multipart.js:479:32)\n    at feed (/app/node_modules/streamsearch/lib/sbmh.js:248:10)\n    at SBMH.push (/app/node_modules/streamsearch/lib/sbmh.js:104:16)\n    at Multipart._write (/app/node_modules/busboy/lib/types/multipart.js:567:19)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)","timestamp":"2026-02-07T09:28:55.308Z","url":"/api/v1/categories/2829f167-4aa0-4ac9-9fc9-a88812e98ef2/image","userAgent":"curl/8.13.0","version":"1.0.0"}
-{"environment":"production","error":"File too large","instanceId":"default","ip":"172.18.0.1","level":"error","message":"Unhandled error","method":"POST","service":"smart-ecommerce-api","stack":"MulterError: File too large\n    at abortWithCode (/app/node_modules/multer/lib/make-middleware.js:73:22)\n    at FileStream.<anonymous> (/app/node_modules/multer/lib/make-middleware.js:136:11)\n    at FileStream.emit (node:events:524:28)\n    at SBMH.ssCb [as _cb] (/app/node_modules/busboy/lib/types/multipart.js:479:32)\n    at feed (/app/node_modules/streamsearch/lib/sbmh.js:248:10)\n    at SBMH.push (/app/node_modules/streamsearch/lib/sbmh.js:104:16)\n    at Multipart._write (/app/node_modules/busboy/lib/types/multipart.js:567:19)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)","timestamp":"2026-02-07T09:28:55.308Z","url":"/api/v1/categories/2829f167-4aa0-4ac9-9fc9-a88812e98ef2/image","userAgent":"curl/8.13.0","version":"1.0.0"}
-[CORS DIAGNOSTIC] {
-  timestamp: '2026-02-07T09:29:03.904Z',
-  method: 'GET',
-  path: '/api/v1/health',
-  origin: undefined,
-  referer: undefined,
-  'allowed-origins': [
-    'https://smarttechnologies-bd.com',
-    'https://www.smarttechnologies-bd.com',
-    'https://admin.smarttechnologies-bd.com',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001',
-    'http://host.docker.internal:3000',
-    'http://host.docker.internal:3001'
-  ],
-  'origin-allowed': 'no-origin-header',
-  credentials: 'no-cookies',
-  'user-agent': 'curl/8.17.0'
-}
-[SERVER] Request received: {
-  method: 'GET',
-  path: '/api/v1/health',
-  url: '/api/v1/health',
-  timestamp: '2026-02-07T09:29:03.904Z'
-}
-[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
-[RATE LIMIT SERVICE] Request method: GET
-[RATE LIMIT SERVICE] req.body before processing: undefined
-[RATE LIMIT SERVICE] req.body type: undefined
-[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1770455643904
-[RATE LIMIT SERVICE] req.body after key generation: undefined
-🔍 Query: {
-  query: 'SELECT 1',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-02-07T09:29:03.908Z
-}
-🔍 Query: {
-  query: 'SELECT 1 as status, NOW() as server_time',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-02-07T09:29:03.908Z
-}
-[CORS DIAGNOSTIC] {
-  timestamp: '2026-02-07T09:29:33.970Z',
-  method: 'GET',
-  path: '/api/v1/health',
-  origin: undefined,
-  referer: undefined,
-  'allowed-origins': [
-    'https://smarttechnologies-bd.com',
-    'https://www.smarttechnologies-bd.com',
-    'https://admin.smarttechnologies-bd.com',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001',
-    'http://host.docker.internal:3000',
-    'http://host.docker.internal:3001'
-  ],
-  'origin-allowed': 'no-origin-header',
-  credentials: 'no-cookies',
-  'user-agent': 'curl/8.17.0'
-}
-[SERVER] Request received: {
-  method: 'GET',
-  path: '/api/v1/health',
-  url: '/api/v1/health',
-  timestamp: '2026-02-07T09:29:33.970Z'
-}
-[RATE LIMIT SERVICE] Middleware called for: /api/v1/health
-[RATE LIMIT SERVICE] Request method: GET
-[RATE LIMIT SERVICE] req.body before processing: undefined
-[RATE LIMIT SERVICE] req.body type: undefined
-[RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1770455673970
-[RATE LIMIT SERVICE] req.body after key generation: undefined
-🔍 Query: {
-  query: 'SELECT 1',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-02-07T09:29:33.973Z
-}
-🔍 Query: {
-  query: 'SELECT 1 as status, NOW() as server_time',
-  params: '[]',
-  duration: '0ms',
-  timestamp: 2026-02-07T09:29:33.973Z
-}
+smarttech_backend  |     at next (/app/node_modules/router/lib/route.js:157:13)
+smarttech_backend  |     at handleValidationErrors (/app/routes/categories.js:106:3)
+smarttech_backend  |     at Layer.handleRequest (/app/node_modules/router/lib/layer.js:152:17)
+smarttech_backend  |     at next (/app/node_modules/router/lib/route.js:157:13)
+smarttech_backend  |     at middleware (/app/node_modules/express-validator/lib/middlewares/check.js:16:13)
+smarttech_backend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_backend  | Get products error: TypeError: Cannot read properties of undefined (reading 'findMany')
+smarttech_backend  |     at /app/routes/products.js:163:22
+smarttech_backend  |     at Layer.handleRequest (/app/node_modules/router/lib/layer.js:152:17)
+smarttech_backend  |     at next (/app/node_modules/router/lib/route.js:157:13)
+smarttech_backend  |     at handleValidationErrors (/app/routes/products.js:69:3)
+smarttech_backend  |     at Layer.handleRequest (/app/node_modules/router/lib/layer.js:152:17)
+smarttech_backend  |     at next (/app/node_modules/router/lib/route.js:157:13)
+smarttech_backend  |     at middleware (/app/node_modules/express-validator/lib/middlewares/check.js:16:13)
+smarttech_backend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_backend  | Get products error: TypeError: Cannot read properties of undefined (reading 'findMany')
+smarttech_backend  |     at /app/routes/products.js:163:22
+smarttech_backend  |     at Layer.handleRequest (/app/node_modules/router/lib/layer.js:152:17)
+smarttech_backend  |     at next (/app/node_modules/router/lib/route.js:157:13)
+smarttech_backend  |     at handleValidationErrors (/app/routes/products.js:69:3)
+smarttech_backend  |     at Layer.handleRequest (/app/node_modules/router/lib/layer.js:152:17)
+smarttech_backend  |     at next (/app/node_modules/router/lib/route.js:157:13)
+smarttech_backend  |     at middleware (/app/node_modules/express-validator/lib/middlewares/check.js:16:13)
+smarttech_backend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_backend  | [32minfo[39m: 172.18.0.1 - - [05/Mar/2026:04:52:14 +0000] "GET /api/v1/categories?status=active HTTP/1.1" 500 107 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0" {"timestamp":"2026-03-05T04:52:14.856Z"}
+smarttech_backend  | [32minfo[39m: 172.18.0.1 - - [05/Mar/2026:04:52:14 +0000] "GET /api/v1/products?page=1&limit=20&status=active&visibility=public HTTP/1.1" 500 105 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0" {"timestamp":"2026-03-05T04:52:14.857Z"}
+smarttech_backend  | [32minfo[39m: 172.18.0.1 - - [05/Mar/2026:04:52:14 +0000] "GET /api/v1/products?page=1&limit=20&status=active&visibility=public HTTP/1.1" 500 105 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0" {"timestamp":"2026-03-05T04:52:14.858Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:52:14.860Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/categories',
+smarttech_backend  |   origin: 'http://localhost:3000',
+smarttech_backend  |   referer: 'http://localhost:3000/',
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': true,
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/categories',
+smarttech_backend  |   url: '/api/v1/categories?status=active',
+smarttech_backend  |   timestamp: '2026-03-05T04:52:14.861Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: application/json
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/categories?status=active
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/categories?status=active
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1772685434862
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:52:14.864Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/brands',
+smarttech_backend  |   origin: 'http://localhost:3000',
+smarttech_backend  |   referer: 'http://localhost:3000/',
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': true,
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/brands',
+smarttech_backend  |   url: '/api/v1/brands?status=active',
+smarttech_backend  |   timestamp: '2026-03-05T04:52:14.864Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: application/json
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/brands?status=active
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/brands?status=active
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1772685434866
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | Get categories error: TypeError: Cannot read properties of undefined (reading 'findMany')
+smarttech_backend  |     at /app/routes/categories.js:308:23
+smarttech_backend  |     at Layer.handleRequest (/app/node_modules/router/lib/layer.js:152:17)
+smarttech_backend  |     at next (/app/node_modules/router/lib/route.js:157:13)
+smarttech_backend  |     at handleValidationErrors (/app/routes/categories.js:106:3)
+smarttech_backend  |     at Layer.handleRequest (/app/node_modules/router/lib/layer.js:152:17)
+smarttech_backend  |     at next (/app/node_modules/router/lib/route.js:157:13)
+smarttech_backend  |     at middleware (/app/node_modules/express-validator/lib/middlewares/check.js:16:13)
+smarttech_backend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_backend  | Get brands error: TypeError: Cannot read properties of undefined (reading 'findMany')
+smarttech_backend  |     at /app/routes/brands.js:109:20
+smarttech_backend  |     at Layer.handleRequest (/app/node_modules/router/lib/layer.js:152:17)
+smarttech_backend  |     at next (/app/node_modules/router/lib/route.js:157:13)
+smarttech_backend  |     at handleValidationErrors (/app/routes/brands.js:69:3)
+smarttech_backend  |     at Layer.handleRequest (/app/node_modules/router/lib/layer.js:152:17)
+smarttech_backend  |     at next (/app/node_modules/router/lib/route.js:157:13)
+smarttech_backend  |     at middleware (/app/node_modules/express-validator/lib/middlewares/check.js:16:13)
+smarttech_backend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_backend  | Get brands error: TypeError: Cannot read properties of undefined (reading 'findMany')
+smarttech_backend  |     at /app/routes/brands.js:109:20
+smarttech_backend  |     at Layer.handleRequest (/app/node_modules/router/lib/layer.js:152:17)
+smarttech_backend  |     at next (/app/node_modules/router/lib/route.js:157:13)
+smarttech_backend  |     at handleValidationErrors (/app/routes/brands.js:69:3)
+smarttech_backend  |     at Layer.handleRequest (/app/node_modules/router/lib/layer.js:152:17)
+smarttech_backend  |     at next (/app/node_modules/router/lib/route.js:157:13)
+smarttech_backend  |     at middleware (/app/node_modules/express-validator/lib/middlewares/check.js:16:13)
+smarttech_backend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_backend  | [32minfo[39m: 172.18.0.1 - - [05/Mar/2026:04:52:14 +0000] "GET /api/v1/categories?status=active HTTP/1.1" 500 107 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0" {"timestamp":"2026-03-05T04:52:14.878Z"}
+smarttech_backend  | [32minfo[39m: 172.18.0.1 - - [05/Mar/2026:04:52:14 +0000] "GET /api/v1/brands?status=active HTTP/1.1" 500 103 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0" {"timestamp":"2026-03-05T04:52:14.879Z"}
+smarttech_backend  | [32minfo[39m: 172.18.0.1 - - [05/Mar/2026:04:52:14 +0000] "GET /api/v1/brands?status=active HTTP/1.1" 500 103 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0" {"timestamp":"2026-03-05T04:52:14.880Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:52:16.993Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/categories/tree',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'node'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/categories/tree',
+smarttech_backend  |   url: '/api/v1/categories/tree?status=active',
+smarttech_backend  |   timestamp: '2026-03-05T04:52:16.993Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: application/json
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/categories/tree?status=active
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/categories/tree?status=active
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:172.18.0.7 Window start: 1772685436995
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | [/categories/tree] Request received: { status: 'active' }
+smarttech_backend  | [/categories/tree] Error: {
+smarttech_backend  |   message: "Cannot read properties of undefined (reading 'findMany')",
+smarttech_backend  |   stack: "TypeError: Cannot read properties of undefined (reading 'findMany')\n" +
+smarttech_backend  |     '    at /app/routes/categories.js:169:46\n' +
+smarttech_backend  |     '    at Layer.handleRequest (/app/node_modules/router/lib/layer.js:152:17)\n' +
+smarttech_backend  |     '    at next (/app/node_modules/router/lib/route.js:157:13)\n' +
+smarttech_backend  |     '    at Route.dispatch (/app/node_modules/router/lib/route.js:117:3)\n' +
+smarttech_backend  |     '    at handle (/app/node_modules/router/index.js:435:11)\n' +
+smarttech_backend  |     '    at Layer.handleRequest (/app/node_modules/router/lib/layer.js:152:17)\n' +
+smarttech_backend  |     '    at /app/node_modules/router/index.js:295:15\n' +
+smarttech_backend  |     '    at processParams (/app/node_modules/router/index.js:582:12)\n' +
+smarttech_backend  |     '    at next (/app/node_modules/router/index.js:291:5)\n' +
+smarttech_backend  |     '    at Function.handle (/app/node_modules/router/index.js:186:3)',
+smarttech_backend  |   code: undefined,
+smarttech_backend  |   meta: undefined
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 172.18.0.7 - - [05/Mar/2026:04:52:17 +0000] "GET /api/v1/categories/tree?status=active HTTP/1.1" 500 110 "-" "node" {"timestamp":"2026-03-05T04:52:17.001Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:52:36.251Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.17.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   url: '/api/v1/health',
+smarttech_backend  |   timestamp: '2026-03-05T04:52:36.251Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1772685456252
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:52:36.254Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:52:36.254Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 127.0.0.1 - - [05/Mar/2026:04:52:36 +0000] "GET /api/v1/health HTTP/1.1" 200 1011 "-" "curl/8.17.0" {"timestamp":"2026-03-05T04:52:36.255Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:53:06.339Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.17.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   url: '/api/v1/health',
+smarttech_backend  |   timestamp: '2026-03-05T04:53:06.339Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1772685486341
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:53:06.346Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:53:06.346Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 127.0.0.1 - - [05/Mar/2026:04:53:06 +0000] "GET /api/v1/health HTTP/1.1" 200 1011 "-" "curl/8.17.0" {"timestamp":"2026-03-05T04:53:06.349Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:53:36.415Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.17.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   url: '/api/v1/health',
+smarttech_backend  |   timestamp: '2026-03-05T04:53:36.415Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1772685516417
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:53:36.420Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:53:36.420Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 127.0.0.1 - - [05/Mar/2026:04:53:36 +0000] "GET /api/v1/health HTTP/1.1" 200 1011 "-" "curl/8.17.0" {"timestamp":"2026-03-05T04:53:36.423Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:54:06.483Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.17.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   url: '/api/v1/health',
+smarttech_backend  |   timestamp: '2026-03-05T04:54:06.483Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1772685546483
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:54:06.486Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:54:06.486Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 127.0.0.1 - - [05/Mar/2026:04:54:06 +0000] "GET /api/v1/health HTTP/1.1" 200 1010 "-" "curl/8.17.0" {"timestamp":"2026-03-05T04:54:06.488Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:54:36.562Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.17.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   url: '/api/v1/health',
+smarttech_backend  |   timestamp: '2026-03-05T04:54:36.562Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1772685576562
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:54:36.566Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:54:36.567Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 127.0.0.1 - - [05/Mar/2026:04:54:36 +0000] "GET /api/v1/health HTTP/1.1" 200 1011 "-" "curl/8.17.0" {"timestamp":"2026-03-05T04:54:36.569Z"}
+smarttech_backend  | [31merror[39m: Initial session cleanup failed {"timestamp":"2026-03-05T04:54:57.745Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:55:06.656Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.17.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   url: '/api/v1/health',
+smarttech_backend  |   timestamp: '2026-03-05T04:55:06.657Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1772685606657
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '1ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:55:06.673Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 127.0.0.1 - - [05/Mar/2026:04:55:06 +0000] "GET /api/v1/health HTTP/1.1" 200 1011 "-" "curl/8.17.0" {"timestamp":"2026-03-05T04:55:06.674Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:55:36.747Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.17.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   url: '/api/v1/health',
+smarttech_backend  |   timestamp: '2026-03-05T04:55:36.747Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1772685636748
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:55:36.752Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:55:36.752Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 127.0.0.1 - - [05/Mar/2026:04:55:36 +0000] "GET /api/v1/health HTTP/1.1" 200 1011 "-" "curl/8.17.0" {"timestamp":"2026-03-05T04:55:36.753Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:56:06.824Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.17.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   url: '/api/v1/health',
+smarttech_backend  |   timestamp: '2026-03-05T04:56:06.824Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1772685666825
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:56:06.840Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:56:06.840Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 127.0.0.1 - - [05/Mar/2026:04:56:06 +0000] "GET /api/v1/health HTTP/1.1" 200 1011 "-" "curl/8.17.0" {"timestamp":"2026-03-05T04:56:06.842Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:56:36.917Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.17.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   url: '/api/v1/health',
+smarttech_backend  |   timestamp: '2026-03-05T04:56:36.917Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1772685696917
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:56:36.920Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:56:36.920Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 127.0.0.1 - - [05/Mar/2026:04:56:36 +0000] "GET /api/v1/health HTTP/1.1" 200 1011 "-" "curl/8.17.0" {"timestamp":"2026-03-05T04:56:36.921Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:57:06.987Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.17.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   url: '/api/v1/health',
+smarttech_backend  |   timestamp: '2026-03-05T04:57:06.987Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1772685726989
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:57:07.003Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:57:07.003Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 127.0.0.1 - - [05/Mar/2026:04:57:07 +0000] "GET /api/v1/health HTTP/1.1" 200 1011 "-" "curl/8.17.0" {"timestamp":"2026-03-05T04:57:07.005Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:57:26.819Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/products',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.13.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/products',
+smarttech_backend  |   url: '/api/v1/products?page=1',
+smarttech_backend  |   timestamp: '2026-03-05T04:57:26.819Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/products?page=1
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/products?page=1
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:172.18.0.1 Window start: 1772685746819
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | Get products error: TypeError: Cannot read properties of undefined (reading 'findMany')
+smarttech_backend  |     at /app/routes/products.js:163:22
+smarttech_backend  |     at Layer.handleRequest (/app/node_modules/router/lib/layer.js:152:17)
+smarttech_backend  |     at next (/app/node_modules/router/lib/route.js:157:13)
+smarttech_backend  |     at handleValidationErrors (/app/routes/products.js:69:3)
+smarttech_backend  |     at Layer.handleRequest (/app/node_modules/router/lib/layer.js:152:17)
+smarttech_backend  |     at next (/app/node_modules/router/lib/route.js:157:13)
+smarttech_backend  |     at middleware (/app/node_modules/express-validator/lib/middlewares/check.js:16:13)
+smarttech_backend  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+smarttech_backend  | [32minfo[39m: 172.18.0.1 - - [05/Mar/2026:04:57:26 +0000] "GET /api/v1/products?page=1 HTTP/1.1" 500 105 "-" "curl/8.13.0" {"timestamp":"2026-03-05T04:57:26.826Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:57:37.094Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.17.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   url: '/api/v1/health',
+smarttech_backend  |   timestamp: '2026-03-05T04:57:37.094Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1772685757096
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:57:37.102Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:57:37.103Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 127.0.0.1 - - [05/Mar/2026:04:57:37 +0000] "GET /api/v1/health HTTP/1.1" 200 1011 "-" "curl/8.17.0" {"timestamp":"2026-03-05T04:57:37.105Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:58:07.181Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.17.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   url: '/api/v1/health',
+smarttech_backend  |   timestamp: '2026-03-05T04:58:07.181Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1772685787182
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:58:07.186Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:58:07.187Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 127.0.0.1 - - [05/Mar/2026:04:58:07 +0000] "GET /api/v1/health HTTP/1.1" 200 1011 "-" "curl/8.17.0" {"timestamp":"2026-03-05T04:58:07.189Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:58:37.260Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.17.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   url: '/api/v1/health',
+smarttech_backend  |   timestamp: '2026-03-05T04:58:37.260Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1772685817260
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:58:37.271Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:58:37.271Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 127.0.0.1 - - [05/Mar/2026:04:58:37 +0000] "GET /api/v1/health HTTP/1.1" 200 1011 "-" "curl/8.17.0" {"timestamp":"2026-03-05T04:58:37.272Z"}
+smarttech_backend  | [CORS DIAGNOSTIC] {
+smarttech_backend  |   timestamp: '2026-03-05T04:59:07.335Z',
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   origin: undefined,
+smarttech_backend  |   referer: undefined,
+smarttech_backend  |   'allowed-origins': [
+smarttech_backend  |     'http://localhost:3000',
+smarttech_backend  |     'http://localhost:3001',
+smarttech_backend  |     'http://127.0.0.1:3000',
+smarttech_backend  |     'http://127.0.0.1:3001',
+smarttech_backend  |     'http://host.docker.internal:3000',
+smarttech_backend  |     'http://host.docker.internal:3001'
+smarttech_backend  |   ],
+smarttech_backend  |   'origin-allowed': 'no-origin-header',
+smarttech_backend  |   credentials: 'no-cookies',
+smarttech_backend  |   'user-agent': 'curl/8.17.0'
+smarttech_backend  | }
+smarttech_backend  | [SERVER] Request received: {
+smarttech_backend  |   method: 'GET',
+smarttech_backend  |   path: '/api/v1/health',
+smarttech_backend  |   url: '/api/v1/health',
+smarttech_backend  |   timestamp: '2026-03-05T04:59:07.336Z'
+smarttech_backend  | }
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === BEFORE PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Content-Length: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body before parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request method: GET
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request URL: /api/v1/health
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === AFTER PARSING ===
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body after parsing: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body type: undefined
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] Request body keys: N/A
+smarttech_backend  | [JSON PARSER DIAGNOSTIC] === END ===
+smarttech_backend  | [RATE LIMIT SERVICE] Middleware called for: /api/v1/health
+smarttech_backend  | [RATE LIMIT SERVICE] Request method: GET
+smarttech_backend  | [RATE LIMIT SERVICE] req.body before processing: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] req.body type: undefined
+smarttech_backend  | [RATE LIMIT SERVICE] Key: rate_limit:127.0.0.1 Window start: 1772685847336
+smarttech_backend  | [RATE LIMIT SERVICE] req.body after key generation: undefined
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:59:07.346Z
+smarttech_backend  | }
+smarttech_backend  | 🔍 Query: {
+smarttech_backend  |   query: 'SELECT 1 as status, NOW() as server_time',
+smarttech_backend  |   params: '[]',
+smarttech_backend  |   duration: '0ms',
+smarttech_backend  |   timestamp: 2026-03-05T04:59:07.346Z
+smarttech_backend  | }
+smarttech_backend  | [32minfo[39m: 127.0.0.1 - - [05/Mar/2026:04:59:07 +0000] "GET /api/v1/health HTTP/1.1" 200 1011 "-" "curl/8.17.0" {"timestamp":"2026-03-05T04:59:07.348Z"}

@@ -207,7 +207,7 @@ router.post('/', [
     }
 
     // Create comparison
-    const comparison = await prisma.productComparison.create({
+    const comparison = await prisma.product_comparisons.create({
       data: {
         userId,
         name: name || `Comparison ${new Date().toLocaleDateString()}`,
@@ -282,7 +282,7 @@ router.get('/', [
     }
 
     const [comparisons, total] = await Promise.all([
-      prisma.productComparison.findMany({
+      prisma.product_comparisons.findMany({
         where,
         skip: parseInt(skip),
         take: parseInt(limit),
@@ -310,7 +310,7 @@ router.get('/', [
         },
         orderBy: { createdAt: 'desc' }
       }),
-      prisma.productComparison.count({ where })
+      prisma.product_comparisons.count({ where })
     ]);
 
     res.json({
@@ -340,7 +340,7 @@ router.get('/:id', [
     const { id } = req.params;
     const userId = req.user.id;
 
-    const comparison = await prisma.productComparison.findUnique({
+    const comparison = await prisma.product_comparisons.findUnique({
       where: { id },
       include: {
         items: {
@@ -415,7 +415,7 @@ router.put('/:id', [
     const userId = req.user.id;
 
     // Check if comparison exists and belongs to user
-    const comparison = await prisma.productComparison.findUnique({
+    const comparison = await prisma.product_comparisons.findUnique({
       where: { id }
     });
 
@@ -432,7 +432,7 @@ router.put('/:id', [
       });
     }
 
-    const updatedComparison = await prisma.productComparison.update({
+    const updatedComparison = await prisma.product_comparisons.update({
       where: { id },
       data: { name },
       include: {
@@ -481,7 +481,7 @@ router.delete('/:id', [
     const userId = req.user.id;
 
     // Check if comparison exists and belongs to user
-    const comparison = await prisma.productComparison.findUnique({
+    const comparison = await prisma.product_comparisons.findUnique({
       where: { id }
     });
 
@@ -498,7 +498,7 @@ router.delete('/:id', [
       });
     }
 
-    await prisma.productComparison.delete({
+    await prisma.product_comparisons.delete({
       where: { id }
     });
 
@@ -530,7 +530,7 @@ router.post('/:id/items', [
     const userId = req.user.id;
 
     // Check if comparison exists and belongs to user
-    const comparison = await prisma.productComparison.findUnique({
+    const comparison = await prisma.product_comparisons.findUnique({
       where: { id },
       include: {
         items: true
@@ -577,7 +577,7 @@ router.post('/:id/items', [
     }
 
     // Add product to comparison
-    const item = await prisma.productComparisonItem.create({
+    const item = await prisma.product_comparison_items.create({
       data: {
         comparisonId: id,
         productId,
@@ -626,7 +626,7 @@ router.delete('/:id/items/:itemId', [
     const userId = req.user.id;
 
     // Check if comparison exists and belongs to user
-    const comparison = await prisma.productComparison.findUnique({
+    const comparison = await prisma.product_comparisons.findUnique({
       where: { id }
     });
 
@@ -644,7 +644,7 @@ router.delete('/:id/items/:itemId', [
     }
 
     // Check if item exists and belongs to comparison
-    const item = await prisma.productComparisonItem.findUnique({
+    const item = await prisma.product_comparison_items.findUnique({
       where: { id: itemId }
     });
 
@@ -660,7 +660,7 @@ router.delete('/:id/items/:itemId', [
       });
     }
 
-    await prisma.productComparisonItem.delete({
+    await prisma.product_comparison_items.delete({
       where: { id: itemId }
     });
 
@@ -689,7 +689,7 @@ router.get('/:id/compare', [
     const userId = req.user.id;
 
     // Check if comparison exists and belongs to user
-    const comparison = await prisma.productComparison.findUnique({
+    const comparison = await prisma.product_comparisons.findUnique({
       where: { id }
     });
 
@@ -732,7 +732,7 @@ router.post('/:id/share', [
     const userId = req.user.id;
 
     // Check if comparison exists and belongs to user
-    const comparison = await prisma.productComparison.findUnique({
+    const comparison = await prisma.product_comparisons.findUnique({
       where: { id }
     });
 
@@ -795,7 +795,7 @@ router.post('/:id/export', [
     const userId = req.user.id;
 
     // Check if comparison exists and belongs to user
-    const comparison = await prisma.productComparison.findUnique({
+    const comparison = await prisma.product_comparisons.findUnique({
       where: { id }
     });
 
@@ -903,7 +903,7 @@ router.get('/:id/specifications', [
     const userId = req.user.id;
 
     // Check if comparison exists and belongs to user
-    const comparison = await prisma.productComparison.findUnique({
+    const comparison = await prisma.product_comparisons.findUnique({
       where: { id }
     });
 
@@ -942,7 +942,7 @@ router.get('/:id/prices', [
     const userId = req.user.id;
 
     // Check if comparison exists and belongs to user
-    const comparison = await prisma.productComparison.findUnique({
+    const comparison = await prisma.product_comparisons.findUnique({
       where: { id }
     });
 
@@ -981,7 +981,7 @@ router.get('/:id/images', [
     const userId = req.user.id;
 
     // Check if comparison exists and belongs to user
-    const comparison = await prisma.productComparison.findUnique({
+    const comparison = await prisma.product_comparisons.findUnique({
       where: { id }
     });
 
@@ -1020,7 +1020,7 @@ router.get('/:id/differences', [
     const userId = req.user.id;
 
     // Check if comparison exists and belongs to user
-    const comparison = await prisma.productComparison.findUnique({
+    const comparison = await prisma.product_comparisons.findUnique({
       where: { id }
     });
 
@@ -1107,7 +1107,7 @@ router.get('/:id/history', [
     const skip = (page - 1) * limit;
 
     // Check if comparison exists and belongs to user
-    const comparison = await prisma.productComparison.findUnique({
+    const comparison = await prisma.product_comparisons.findUnique({
       where: { id }
     });
 

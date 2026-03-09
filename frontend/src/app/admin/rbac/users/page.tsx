@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { 
-  Users, 
-  Search, 
+import {
+  Users,
+  Search,
   ArrowLeft,
   ChevronLeft,
   ChevronRight,
@@ -24,6 +24,7 @@ import { UserRole, UserWithRoles, Role, CreateUserData } from '@/types/rbac';
 import { rbacApi } from '@/lib/api/rbac';
 import { getRoleDisplayName } from '@/lib/rbac/utils';
 import { withAuth } from '@/components/auth/withAuth';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 /**
  * User Role Management Page
@@ -463,7 +464,8 @@ function UserRoleManagementPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <AdminLayout title="RBAC Users">
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -1174,6 +1176,7 @@ function UserRoleManagementPage() {
         </div>
       )}
     </div>
+    </AdminLayout>
   );
 }
 

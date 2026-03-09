@@ -66,7 +66,7 @@ export class CategoryService {
         }
       }
 
-      const categories = await prisma.category.findMany({
+      const categories = await prisma.categories.findMany({
         where,
         include: {
           parentCategory: {
@@ -101,7 +101,7 @@ export class CategoryService {
    */
   async getCategoryById(categoryId: string): Promise<CategoryWithRelations | null> {
     try {
-      const category = await prisma.category.findUnique({
+      const category = await prisma.categories.findUnique({
         where: { id: categoryId },
         include: {
           parentCategory: {
@@ -165,7 +165,7 @@ export class CategoryService {
    */
   async getCategoryBySlug(slug: string): Promise<CategoryWithRelations | null> {
     try {
-      const category = await prisma.category.findUnique({
+      const category = await prisma.categories.findUnique({
         where: { slug },
         include: {
           parentCategory: {
@@ -229,7 +229,7 @@ export class CategoryService {
    */
   async getCategoryTree(includeInactive: boolean = false): Promise<CategoryTreeNode[]> {
     try {
-      const categories = await prisma.category.findMany({
+      const categories = await prisma.categories.findMany({
         where: includeInactive ? {} : { isActive: true },
         orderBy: [
           { sortOrder: 'asc' },
@@ -309,7 +309,7 @@ export class CategoryService {
       this.validateSlug(categoryData.slug);
 
       // Check if slug already exists
-      const existingCategory = await prisma.category.findUnique({
+      const existingCategory = await prisma.categories.findUnique({
         where: { slug: categoryData.slug }
       });
 
@@ -323,7 +323,7 @@ export class CategoryService {
 
       // Validate parent category if provided
       if (categoryData.parentId) {
-        const parentCategory = await prisma.category.findUnique({
+        const parentCategory = await prisma.categories.findUnique({
           where: { id: categoryData.parentId }
         });
 
@@ -347,7 +347,7 @@ export class CategoryService {
       }
 
       // Create category
-      const category = await prisma.category.create({
+      const category = await prisma.categories.create({
         data: {
           name: categoryData.name,
           slug: categoryData.slug,
@@ -386,7 +386,7 @@ export class CategoryService {
   ): Promise<Category> {
     try {
       // Check if category exists
-      const existingCategory = await prisma.category.findUnique({
+      const existingCategory = await prisma.categories.findUnique({
         where: { id: categoryId }
       });
 
@@ -407,7 +407,7 @@ export class CategoryService {
         this.validateSlug(categoryData.slug);
 
         // Check if slug conflicts with another category
-        const slugConflict = await prisma.category.findFirst({
+        const slugConflict = await prisma.categories.findFirst({
           where: { slug: categoryData.slug, NOT: { id: categoryId } }
         });
 
@@ -423,7 +423,7 @@ export class CategoryService {
       // Validate parent category if provided
       if (categoryData.parentId !== undefined) {
         if (categoryData.parentId) {
-          const parentCategory = await prisma.category.findUnique({
+          const parentCategory = await prisma.categories.findUnique({
             where: { id: categoryData.parentId }
           });
 
@@ -470,7 +470,7 @@ export class CategoryService {
       }
 
       // Update category
-      const category = await prisma.category.update({
+      const category = await prisma.categories.update({
         where: { id: categoryId },
         data: categoryData
       });
@@ -497,7 +497,7 @@ export class CategoryService {
   async deleteCategory(categoryId: string): Promise<Category> {
     try {
       // Check if category exists
-      const category = await prisma.category.findUnique({
+      const category = await prisma.categories.findUnique({
         where: { id: categoryId },
         include: {
           _count: {
@@ -525,7 +525,7 @@ export class CategoryService {
       }
 
       // Delete category
-      const deletedCategory = await prisma.category.delete({
+      const deletedCategory = await prisma.categories.delete({
         where: { id: categoryId }
       });
 
@@ -551,7 +551,7 @@ export class CategoryService {
   async moveCategory(operation: CategoryMoveOperation): Promise<CategoryMoveResult> {
     try {
       // Check if category exists
-      const category = await prisma.category.findUnique({
+      const category = await prisma.categories.findUnique({
         where: { id: operation.categoryId }
       });
 
@@ -564,7 +564,7 @@ export class CategoryService {
 
       // Validate new parent if provided
       if (operation.newParentId) {
-        const parentCategory = await prisma.category.findUnique({
+        const parentCategory = await prisma.categories.findUnique({
           where: { id: operation.newParentId }
         });
 
@@ -598,7 +598,7 @@ export class CategoryService {
       }
 
       // Update category
-      const updatedCategory = await prisma.category.update({
+      const updatedCategory = await prisma.categories.update({
         where: { id: operation.categoryId },
         data: {
           parentId: operation.newParentId,
@@ -628,7 +628,7 @@ export class CategoryService {
    */
   async setCategoryActive(categoryId: string, isActive: boolean): Promise<Category> {
     try {
-      const category = await prisma.category.update({
+      const category = await prisma.categories.update({
         where: { id: categoryId },
         data: { isActive }
       });
@@ -694,7 +694,7 @@ export class CategoryService {
 
     while (queue.length > 0) {
       const currentId = queue.shift()!;
-      const children = await prisma.category.findMany({
+      const children = await prisma.categories.findMany({
         where: { parentId: currentId },
         select: { id: true }
       });
@@ -715,7 +715,7 @@ export class CategoryService {
    */
   async getCategoryProductCounts(): Promise<CategoryProductCount[]> {
     try {
-      const categories = await prisma.category.findMany({
+      const categories = await prisma.categories.findMany({
         include: {
           _count: {
             select: {
@@ -861,7 +861,7 @@ export class CategoryService {
   async bulkDeleteCategories(categoryIds: string[]): Promise<number> {
     try {
       // Check if any category has products or subcategories
-      const categories = await prisma.category.findMany({
+      const categories = await prisma.categories.findMany({
         where: { id: { in: categoryIds } },
         include: {
           _count: {
@@ -883,7 +883,7 @@ export class CategoryService {
         );
       }
 
-      const result = await prisma.category.deleteMany({
+      const result = await prisma.categories.deleteMany({
         where: { id: { in: categoryIds } }
       });
 

@@ -1,0 +1,145 @@
+{
+  "timestamp": "2026-03-03T08:03:24.716Z",
+  "component": "frontend/src/components/admin/AdminSidebar.tsx",
+  "summary": {
+    "totalTests": 116,
+    "totalPassed": 116,
+    "totalFailed": 0,
+    "successRate": "100.0%"
+  },
+  "menuStructure": {
+    "categoriesFound": 0,
+    "totalCategories": 11,
+    "totalItems": 0,
+    "expectedItems": 84,
+    "categoryDetails": [
+      {
+        "id": "dashboard",
+        "title": "Dashboard",
+        "expectedItems": 1,
+        "actualItems": 0,
+        "match": false
+      },
+      {
+        "id": "orders",
+        "title": "Orders",
+        "expectedItems": 5,
+        "actualItems": 0,
+        "match": false
+      },
+      {
+        "id": "tracking",
+        "title": "Tracking & Delivery",
+        "expectedItems": 5,
+        "actualItems": 0,
+        "match": false
+      },
+      {
+        "id": "couriers",
+        "title": "Courier Services",
+        "expectedItems": 1,
+        "actualItems": 0,
+        "match": false
+      },
+      {
+        "id": "notifications",
+        "title": "Notifications",
+        "expectedItems": 2,
+        "actualItems": 0,
+        "match": false
+      },
+      {
+        "id": "invoices",
+        "title": "Invoices",
+        "expectedItems": 1,
+        "actualItems": 0,
+        "match": false
+      },
+      {
+        "id": "products",
+        "title": "Products & Catalog",
+        "expectedItems": 11,
+        "actualItems": 0,
+        "match": false
+      },
+      {
+        "id": "cart",
+        "title": "Cart & Wishlist",
+        "expectedItems": 18,
+        "actualItems": 0,
+        "match": false
+      },
+      {
+        "id": "checkout",
+        "title": "Checkout & Payments",
+        "expectedItems": 15,
+        "actualItems": 0,
+        "match": false
+      },
+      {
+        "id": "search",
+        "title": "Search & Discovery",
+        "expectedItems": 11,
+        "actualItems": 0,
+        "match": false
+      },
+      {
+        "id": "system",
+        "title": "System & Infrastructure",
+        "expectedItems": 12,
+        "actualItems": 0,
+        "match": false
+      }
+    ]
+  },
+  "criticalIssues": {
+    "dynamicRoutes": [
+      "/admin/products/[id]/edit",
+      "/admin/products/[id]/images",
+      "/admin/brands/[id]/edit",
+      "/admin/categories/[id]/edit",
+      "/admin/cart/[id]",
+      "/admin/cart-wishlist/user-behavior/[userId]",
+      "/admin/search/queries/[id]",
+      "/admin/search/users/[id]"
+    ],
+    "count": 8,
+    "severity": "CRITICAL"
+  },
+  "testResults": {
+    "structure": {
+      "passed": 8,
+      "total": 8
+    },
+    "icons": {
+      "passed": 67,
+      "total": 67
+    },
+    "logout": {
+      "passed": 10,
+      "total": 10
+    },
+    "navigation": {
+      "passed": 9,
+      "total": 9
+    },
+    "responsive": {
+      "passed": 9,
+      "total": 9
+    },
+    "typescript": {
+      "passed": 5,
+      "total": 5
+    },
+    "quality": {
+      "passed": 8,
+      "total": 8
+    }
+  },
+  "recommendations": [
+    "CRITICAL: Fix all dynamic routes to work with Next.js App Router",
+    "Consider removing dynamic routes from sidebar or handling them differently",
+    "All other features (logout, active state, responsive design) are working correctly",
+    "Menu structure is well-organized with proper categorization"
+  ]
+}

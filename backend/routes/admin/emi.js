@@ -225,11 +225,11 @@ router.put('/providers/:id', [
 ], handleValidationErrors, authMiddleware.authenticate(), rbacAuthMiddleware.requirePermission('emi:write'), async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = req.body;
+    const updatedAta = req.body;
 
     const provider = await prisma.emiProvider.update({
       where: { id },
-      data: updateData
+      data: updatedAta
     });
 
     res.json({
@@ -510,11 +510,11 @@ router.put('/plans/:id', [
 ], handleValidationErrors, authMiddleware.authenticate(), rbacAuthMiddleware.requirePermission('emi:write'), async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = req.body;
+    const updatedAta = req.body;
 
     const plan = await prisma.emiPlan.update({
       where: { id },
-      data: updateData
+      data: updatedAta
     });
 
     res.json({

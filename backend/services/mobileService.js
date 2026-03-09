@@ -49,7 +49,7 @@ class MobileService {
       });
 
       // Get the server cart
-      const serverCart = await this.prisma.cart.findFirst({
+      const serverCart = await this.prisma.carts.findFirst({
         where: {
           userId: userId,
           status: 'active'
@@ -147,12 +147,12 @@ class MobileService {
    */
   async getSyncStatus(userId) {
     try {
-      const syncRecord = await this.prisma.cartOfflineSync.findFirst({
+      const syncRecord = await this.prisma.cart_offline_sync.findFirst({
         where: { userId },
         orderBy: { lastSyncAt: 'desc' }
       });
 
-      const pendingChanges = await this.prisma.offlineCartChange.count({
+      const pendingChanges = await this.prisma.offline_cart_changes.count({
         where: {
           userId,
           isSynced: false
@@ -222,7 +222,7 @@ class MobileService {
             });
 
             // Update server cart with resolved quantity
-            await this.prisma.cartItem.update({
+            await this.prisma.cart_items.update({
               where: { id: serverItem.id },
               data: { quantity: resolvedQuantity }
             });
@@ -268,7 +268,7 @@ class MobileService {
    */
   async getMobileCartSummary(userId) {
     try {
-      const cart = await this.prisma.cart.findFirst({
+      const cart = await this.prisma.carts.findFirst({
         where: {
           userId: userId,
           status: 'active'
@@ -338,7 +338,7 @@ class MobileService {
       const skip = (page - 1) * limit;
 
       const [items, totalCount] = await Promise.all([
-        this.prisma.cartItem.findMany({
+        this.prisma.cart_items.findMany({
           where: {
             cart: {
               userId: userId,
@@ -380,7 +380,7 @@ class MobileService {
             }
           }
         }),
-        this.prisma.cartItem.count({
+        this.prisma.cart_items.count({
           where: {
             cart: {
               userId: userId,
@@ -446,13 +446,13 @@ class MobileService {
       }
 
       // Check if user already has a subscription
-      const existingSubscription = await this.prisma.cartSmsSubscription.findFirst({
+      const existingSubscription = await this.prisma.cart_sms_subscription.findFirst({
         where: { userId }
       });
 
       if (existingSubscription) {
         // Update existing subscription
-        const updatedSubscription = await this.prisma.cartSmsSubscription.update({
+        const updatedSubscription = await this.prisma.cart_sms_subscription.update({
           where: { id: existingSubscription.id },
           data: {
             phoneNumber: phoneValidation.normalizedPhone,
@@ -479,7 +479,7 @@ class MobileService {
       }
 
       // Create new subscription
-      const subscription = await this.prisma.cartSmsSubscription.create({
+      const subscription = await this.prisma.cart_sms_subscription.create({
         data: {
           userId,
           phoneNumber: phoneValidation.normalizedPhone,
@@ -525,7 +525,7 @@ class MobileService {
    */
   async unsubscribeFromCartSmsNotifications(userId) {
     try {
-      const subscription = await this.prisma.cartSmsSubscription.findFirst({
+      const subscription = await this.prisma.cart_sms_subscription.findFirst({
         where: { userId }
       });
 
@@ -537,7 +537,7 @@ class MobileService {
         };
       }
 
-      await this.prisma.cartSmsSubscription.update({
+      await this.prisma.cart_sms_subscription.update({
         where: { id: subscription.id },
         data: {
           isActive: false,
@@ -573,7 +573,7 @@ class MobileService {
    */
   async getSmsNotificationStatus(userId) {
     try {
-      const subscription = await this.prisma.cartSmsSubscription.findFirst({
+      const subscription = await this.prisma.cart_sms_subscription.findFirst({
         where: { userId }
       });
 
@@ -662,7 +662,7 @@ class MobileService {
       const result = await smsService.sendSMS(subscription.phoneNumber, message);
 
       // Log SMS sent
-      await this.prisma.cartSmsLog.create({
+      await this.prisma.cart_sms_log.create({
         data: {
           userId,
           subscriptionId: subscription.id,
@@ -708,7 +708,7 @@ class MobileService {
    */
   async createCartFromOfflineData(userId, offlineCartData) {
     try {
-      const cart = await this.prisma.cart.create({
+      const cart = await this.prisma.carts.create({
         data: {
           userId,
           status: 'active',
@@ -730,7 +730,7 @@ class MobileService {
       // Recalculate totals
       await this.recalculateCartTotals(cart.id);
 
-      return await this.prisma.cart.findUnique({
+      return await this.prisma.carts.findUnique({
         where: { id: cart.id },
         include: {
           items: {
@@ -873,7 +873,7 @@ class MobileService {
     try {
       // Get cart ID if not provided
       if (!cartId) {
-        const cart = await this.prisma.cart.findFirst({
+        const cart = await this.prisma.carts.findFirst({
           where: {
             userId: userId,
             status: 'active'
@@ -887,7 +887,7 @@ class MobileService {
       }
 
       // Get product and variant details
-      const product = await this.prisma.product.findUnique({
+      const product = await this.prisma.products.findUnique({
         where: { id: item.productId },
         select: {
           id: true,
@@ -901,7 +901,7 @@ class MobileService {
 
       let price = product.price;
       if (item.variantId) {
-        const variant = await this.prisma.productVariant.findUnique({
+        const variant = await this.prisma.product_variants.findUnique({
           where: { id: item.variantId },
           select: { price: true }
         });
@@ -911,7 +911,7 @@ class MobileService {
       }
 
       // Check if item already exists in cart
-      const existingItem = await this.prisma.cartItem.findFirst({
+      const existingItem = await this.prisma.cart_items.findFirst({
         where: {
           cartId,
           productId: item.productId,
@@ -921,7 +921,7 @@ class MobileService {
 
       if (existingItem) {
         // Update quantity
-        await this.prisma.cartItem.update({
+        await this.prisma.cart_items.update({
           where: { id: existingItem.id },
           data: {
             quantity: item.quantity,
@@ -961,7 +961,7 @@ class MobileService {
    */
   async recalculateCartTotals(cartId) {
     try {
-      const items = await this.prisma.cartItem.findMany({
+      const items = await this.prisma.cart_items.findMany({
         where: { cartId }
       });
 
@@ -995,12 +995,12 @@ class MobileService {
    */
   async updateSyncStatus(userId, statusData) {
     try {
-      const existingRecord = await this.prisma.cartOfflineSync.findFirst({
+      const existingRecord = await this.prisma.cart_offline_sync.findFirst({
         where: { userId }
       });
 
       if (existingRecord) {
-        await this.prisma.cartOfflineSync.update({
+        await this.prisma.cart_offline_sync.update({
           where: { id: existingRecord.id },
           data: {
             lastSyncAt: statusData.lastSyncAt,
@@ -1013,7 +1013,7 @@ class MobileService {
           }
         });
       } else {
-        await this.prisma.cartOfflineSync.create({
+        await this.prisma.cart_offline_sync.create({
           data: {
             userId,
             lastSyncAt: statusData.lastSyncAt,

@@ -11,7 +11,7 @@
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const logger = require('../utils/logger');
+const { loggerService: logger } = require('../services/logger');
 
 /**
  * Get all checkout sessions with filtering and pagination
@@ -37,7 +37,13 @@ const getCheckoutSessions = async (req, res) => {
     }
 
     if (userType) {
-      where.userType = userType;
+      // userType is not a field in CheckoutSession schema
+      // Instead, filter by userId: null for guests, not null for authenticated
+      if (userType === 'guest') {
+        where.userId = null;
+      } else if (userType === 'authenticated') {
+        where.userId = { not: null };
+      }
     }
 
     if (step) {
@@ -53,7 +59,7 @@ const getCheckoutSessions = async (req, res) => {
 
     // Get sessions with pagination
     const [sessions, total] = await Promise.all([
-      prisma.checkoutSession.findMany({
+      prisma.checkout_sessions.findMany({
         where,
         orderBy: { createdAt: 'desc' },
         take: parseInt(limit),
@@ -67,7 +73,7 @@ const getCheckoutSessions = async (req, res) => {
                     select: {
                       id: true,
                       name: true,
-                      price: true,
+                      regularPrice: true,
                       images: true
                     }
                   }
@@ -79,7 +85,7 @@ const getCheckoutSessions = async (req, res) => {
           billingAddress: true
         }
       }),
-      prisma.checkoutSession.count({ where })
+      prisma.checkout_sessions.count({ where })
     ]);
 
     logger.info(`Admin retrieved ${sessions.length} checkout sessions`, {
@@ -116,7 +122,7 @@ const getCheckoutSessionDetails = async (req, res) => {
   try {
     const { sessionId } = req.params;
 
-    const session = await prisma.checkoutSession.findUnique({
+    const session = await prisma.checkout_sessions.findUnique({
       where: { sessionId },
       include: {
         cart: {
@@ -127,15 +133,9 @@ const getCheckoutSessionDetails = async (req, res) => {
                   select: {
                     id: true,
                     name: true,
-                    price: true,
+                    regularPrice: true,
                     images: true,
-                    stock: true,
-                    category: {
-                      select: {
-                        id: true,
-                        name: true
-                      }
-                    }
+                    stock: true
                   }
                 }
               }
@@ -144,8 +144,7 @@ const getCheckoutSessionDetails = async (req, res) => {
         },
         shippingAddress: true,
         billingAddress: true,
-        abandonment: true,
-        guestSession: true
+        abandonment: true
       }
     });
 
@@ -188,9 +187,17 @@ const cancelCheckoutSession = async (req, res) => {
     const { sessionId } = req.params;
     const { reason = 'Admin cancelled' } = req.body;
 
-    const session = await prisma.checkoutSession.findUnique({
-      where: { sessionId }
-    });
+    const session = await Promise.race([
+      prisma.checkout_sessions.findUnique({
+        where: { sessionId },
+        include: {
+          cart: true
+        }
+      }),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Checkout session lookup timeout after 5000ms')), 5000)
+      )
+    ]);
 
     if (!session) {
       return res.status(404).json({
@@ -200,30 +207,47 @@ const cancelCheckoutSession = async (req, res) => {
     }
 
     // Update session status to abandoned
-    const updatedSession = await prisma.checkoutSession.update({
-      where: { sessionId },
-      data: {
-        status: 'abandoned',
-        completedAt: new Date()
-      }
-    });
+    const updatedSession = await Promise.race([
+      prisma.checkout_sessions.update({
+        where: { sessionId },
+        data: {
+          status: 'abandoned',
+          completedAt: new Date()
+        }
+      }),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Checkout session update timeout after 5000ms')), 5000)
+      )
+    ]);
 
     // Create abandonment record if it doesn't exist
-    const existingAbandonment = await prisma.checkoutAbandonment.findFirst({
-      where: { sessionId }
-    });
+    const existingAbandonment = await Promise.race([
+      prisma.checkout_abandonments.findFirst({
+        where: { sessionId }
+      }),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Checkout abandonment lookup timeout after 5000ms')), 5000)
+      )
+    ]);
 
     if (!existingAbandonment) {
-      await prisma.checkoutAbandonment.create({
-        data: {
-          sessionId,
-          step: session.currentStep,
-          reason,
-          cartValue: session.cartValue || 0,
-          recovered: false,
-          recoveryAttempts: 0
-        }
-      });
+      await Promise.race([
+        prisma.checkout_abandonments.create({
+          data: {
+            checkoutSessionId: sessionId,
+            sessionId: session.sessionId,
+            userId: session.userId,
+            abandonmentStep: session.currentStep,
+            abandonmentReason: reason,
+            cartValue: session.cart?.total || 0,
+            recovered: false,
+            recoveryAttempts: 0
+          }
+        }),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Checkout abandonment creation timeout after 5000ms')), 5000)
+        )
+      ]);
     }
 
     logger.info(`Admin cancelled checkout session`, {
@@ -269,7 +293,7 @@ const getAbandonedCheckouts = async (req, res) => {
     const where = {};
 
     if (step) {
-      where.step = step;
+      where.abandonmentStep = step;
     }
 
     if (reason) {
@@ -282,13 +306,13 @@ const getAbandonedCheckouts = async (req, res) => {
 
     // Get abandoned checkouts with pagination
     const [abandonments, total] = await Promise.all([
-      prisma.checkoutAbandonment.findMany({
+      prisma.checkout_abandonments.findMany({
         where,
-        orderBy: { abandonedAt: 'desc' },
+        orderBy: { createdAt: 'desc' },
         take: parseInt(limit),
         skip: parseInt(offset),
         include: {
-          session: {
+          checkoutSession: {
             include: {
               cart: {
                 include: {
@@ -298,7 +322,7 @@ const getAbandonedCheckouts = async (req, res) => {
                         select: {
                           id: true,
                           name: true,
-                          price: true,
+                          regularPrice: true,
                           images: true
                         }
                       }
@@ -310,7 +334,7 @@ const getAbandonedCheckouts = async (req, res) => {
           }
         }
       }),
-      prisma.checkoutAbandonment.count({ where })
+      prisma.checkout_abandonments.count({ where })
     ]);
 
     logger.info(`Admin retrieved ${abandonments.length} abandoned checkouts`, {
@@ -347,10 +371,10 @@ const sendRecoveryEmail = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const abandonment = await prisma.checkoutAbandonment.findUnique({
+    const abandonment = await prisma.checkout_abandonments.findUnique({
       where: { id: parseInt(id) },
       include: {
-        session: true
+        checkoutSession: true
       }
     });
 
@@ -369,11 +393,10 @@ const sendRecoveryEmail = async (req, res) => {
     }
 
     // Increment recovery attempts
-    const updatedAbandonment = await prisma.checkoutAbandonment.update({
+    const updatedAbandonment = await prisma.checkout_abandonments.update({
       where: { id: parseInt(id) },
       data: {
-        recoveryAttempts: abandonment.recoveryAttempts + 1,
-        lastRecoveryAttempt: new Date()
+        recoveryAttempts: abandonment.recoveryAttempts + 1
       }
     });
 
@@ -384,7 +407,7 @@ const sendRecoveryEmail = async (req, res) => {
       adminId: req.user?.id,
       abandonmentId: id,
       sessionId: abandonment.sessionId,
-      email: abandonment.session?.email
+      email: abandonment.checkoutSession?.email
     });
 
     res.json({
@@ -441,26 +464,22 @@ const getGuestCheckoutSessions = async (req, res) => {
 
     // Get guest sessions with pagination
     const [guestSessions, total] = await Promise.all([
-      prisma.guestSession.findMany({
+      prisma.guest_sessions.findMany({
         where,
         orderBy: { createdAt: 'desc' },
         take: parseInt(limit),
         skip: parseInt(offset),
         include: {
-          checkoutSession: {
+          cart: {
             include: {
-              cart: {
+              items: {
                 include: {
-                  items: {
-                    include: {
-                      product: {
-                        select: {
-                          id: true,
-                          name: true,
-                          price: true,
-                          images: true
-                        }
-                      }
+                  product: {
+                    select: {
+                      id: true,
+                      name: true,
+                      regularPrice: true,
+                      images: true
                     }
                   }
                 }
@@ -469,7 +488,7 @@ const getGuestCheckoutSessions = async (req, res) => {
           }
         }
       }),
-      prisma.guestSession.count({ where })
+      prisma.guest_sessions.count({ where })
     ]);
 
     logger.info(`Admin retrieved ${guestSessions.length} guest checkout sessions`, {
@@ -515,11 +534,10 @@ const getCheckoutAnalytics = async (req, res) => {
     }
 
     // Get all sessions in date range
-    const sessions = await prisma.checkoutSession.findMany({
+    const sessions = await prisma.checkout_sessions.findMany({
       where: dateFilter,
       include: {
-        abandonment: true,
-        guestSession: true
+        checkoutAbandonments: true
       }
     });
 
@@ -546,7 +564,7 @@ const getCheckoutAnalytics = async (req, res) => {
     // Abandonment by step
     const abandonmentByStep = {};
     sessions.filter(s => s.abandonment).forEach(session => {
-      const step = session.abandonment.step;
+      const step = session.abandonment.abandonmentStep;
       abandonmentByStep[step] = (abandonmentByStep[step] || 0) + 1;
     });
 
@@ -642,62 +660,91 @@ const getCheckoutAnalytics = async (req, res) => {
  */
 const getCheckoutSettings = async (req, res) => {
   try {
-    // For now, return default settings
-    // In production, these would be stored in a settings table or config file
-    const settings = {
-      sessionTimeout: 1800, // 30 minutes in seconds
+    // Fetch from database or create default if not exists
+    let settings = await prisma.checkout_settings.findFirst();
+    
+    if (!settings) {
+      // Create default settings
+      settings = await prisma.checkout_settings.create({
+        data: {
+          sessionTimeout: 1800,
+          abandonmentEnabled: true,
+          abandonmentTimeout: 30,
+          abandonmentCheckInterval: 5,
+          recoveryEmailEnabled: true,
+          recoveryEmailDelay: 30,
+          recoveryEmailMaxAttempts: 3,
+          guestCheckoutEnabled: true,
+          guestRequireEmail: true,
+          guestRequirePhone: false,
+          guestMaxSessionDuration: 3600,
+          guestAllowAccountCreation: true,
+          securityRequireAuthForHighValue: true,
+          securityHighValueThreshold: 1000,
+          securityEnableFraudDetection: false,
+          mobileEnabled: true,
+          mobileOptimizeForMobile: true,
+          mobileShowMobileOptimizedUI: true,
+          stepsCartEnabled: true,
+          stepsCartRequired: true,
+          stepsShippingEnabled: true,
+          stepsShippingRequired: true,
+          stepsBillingEnabled: true,
+          stepsBillingRequired: true,
+          stepsPaymentEnabled: true,
+          stepsPaymentRequired: true,
+          stepsReviewEnabled: true,
+          stepsReviewRequired: false,
+          stepsConfirmationEnabled: true,
+          stepsConfirmationRequired: true,
+        }
+      });
+    }
+    
+    // Transform to expected format
+    const response = {
+      sessionTimeout: settings.sessionTimeout,
       abandonmentDetection: {
-        enabled: true,
-        timeoutMinutes: 30,
-        checkIntervalMinutes: 5
+        enabled: settings.abandonmentEnabled,
+        timeoutMinutes: settings.abandonmentTimeout,
+        checkIntervalMinutes: settings.abandonmentCheckInterval
       },
       recoveryEmail: {
-        enabled: true,
-        sendAfterMinutes: 30,
-        maxAttempts: 3
+        enabled: settings.recoveryEmailEnabled,
+        sendAfterMinutes: settings.recoveryEmailDelay,
+        maxAttempts: settings.recoveryEmailMaxAttempts
       },
       guestCheckout: {
-        enabled: true,
-        requireEmail: true,
-        requirePhone: false,
-        maxSessionDuration: 3600, // 1 hour in seconds
-        allowAccountCreation: true
+        enabled: settings.guestCheckoutEnabled,
+        requireEmail: settings.guestRequireEmail,
+        requirePhone: settings.guestRequirePhone,
+        maxSessionDuration: settings.guestMaxSessionDuration,
+        allowAccountCreation: settings.guestAllowAccountCreation
       },
       security: {
-        requireAuthForHighValue: true,
-        highValueThreshold: 1000,
-        enableFraudDetection: false
+        requireAuthForHighValue: settings.securityRequireAuthForHighValue,
+        highValueThreshold: settings.securityHighValueThreshold,
+        enableFraudDetection: settings.securityEnableFraudDetection
       },
       mobile: {
-        enabled: true,
-        optimizeForMobile: true,
-        showMobileOptimizedUI: true
+        enabled: settings.mobileEnabled,
+        optimizeForMobile: settings.mobileOptimizeForMobile,
+        showMobileOptimizedUI: settings.mobileShowMobileOptimizedUI
       },
       steps: {
-        cart: { enabled: true, required: true },
-        shipping: { enabled: true, required: true },
-        billing: { enabled: true, required: true },
-        payment: { enabled: true, required: true },
-        review: { enabled: true, required: false },
-        confirmation: { enabled: true, required: true }
+        cart: { enabled: settings.stepsCartEnabled, required: settings.stepsCartRequired },
+        shipping: { enabled: settings.stepsShippingEnabled, required: settings.stepsShippingRequired },
+        billing: { enabled: settings.stepsBillingEnabled, required: settings.stepsBillingRequired },
+        payment: { enabled: settings.stepsPaymentEnabled, required: settings.stepsPaymentRequired },
+        review: { enabled: settings.stepsReviewEnabled, required: settings.stepsReviewRequired },
+        confirmation: { enabled: settings.stepsConfirmationEnabled, required: settings.stepsConfirmationRequired }
       }
     };
-
-    logger.info(`Admin retrieved checkout settings`, {
-      adminId: req.user?.id
-    });
-
-    res.json({
-      success: true,
-      data: settings
-    });
+    
+    res.json({ success: true, data: response });
   } catch (error) {
     logger.error('Error fetching checkout settings', { error: error.message });
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch checkout settings',
-      message: error.message
-    });
+    res.status(500).json({ success: false, error: 'Failed to fetch checkout settings', message: error.message });
   }
 };
 
@@ -709,45 +756,98 @@ const getCheckoutSettings = async (req, res) => {
 const updateCheckoutSettings = async (req, res) => {
   try {
     const settings = req.body;
-
+    
     // Validate settings structure
-    const allowedKeys = [
-      'sessionTimeout',
-      'abandonmentDetection',
-      'recoveryEmail',
-      'guestCheckout',
-      'security',
-      'mobile',
-      'steps'
-    ];
-
+    const allowedKeys = ['sessionTimeout', 'abandonmentDetection', 'recoveryEmail', 'guestCheckout', 'security', 'mobile', 'steps'];
     const invalidKeys = Object.keys(settings).filter(key => !allowedKeys.includes(key));
     if (invalidKeys.length > 0) {
-      return res.status(400).json({
-        success: false,
-        error: `Invalid settings keys: ${invalidKeys.join(', ')}`
+      return res.status(400).json({ success: false, error: `Invalid settings keys: ${invalidKeys.join(', ')}` });
+    }
+    
+    // Get or create settings record
+    let existingSettings = await prisma.checkout_settings.findFirst();
+    
+    if (!existingSettings) {
+      // Create new settings record
+      existingSettings = await prisma.checkout_settings.create({
+        data: {
+          sessionTimeout: settings.sessionTimeout,
+          abandonmentEnabled: settings.abandonmentDetection?.enabled,
+          abandonmentTimeout: settings.abandonmentDetection?.timeoutMinutes,
+          abandonmentCheckInterval: settings.abandonmentDetection?.checkIntervalMinutes,
+          recoveryEmailEnabled: settings.recoveryEmail?.enabled,
+          recoveryEmailDelay: settings.recoveryEmail?.sendAfterMinutes,
+          recoveryEmailMaxAttempts: settings.recoveryEmail?.maxAttempts,
+          guestCheckoutEnabled: settings.guestCheckout?.enabled,
+          guestRequireEmail: settings.guestCheckout?.requireEmail,
+          guestRequirePhone: settings.guestCheckout?.requirePhone,
+          guestMaxSessionDuration: settings.guestCheckout?.maxSessionDuration,
+          guestAllowAccountCreation: settings.guestCheckout?.allowAccountCreation,
+          securityRequireAuthForHighValue: settings.security?.requireAuthForHighValue,
+          securityHighValueThreshold: settings.security?.highValueThreshold,
+          securityEnableFraudDetection: settings.security?.enableFraudDetection,
+          mobileEnabled: settings.mobile?.enabled,
+          mobileOptimizeForMobile: settings.mobile?.optimizeForMobile,
+          mobileShowMobileOptimizedUI: settings.mobile?.showMobileOptimizedUI,
+          stepsCartEnabled: settings.steps?.cart?.enabled,
+          stepsCartRequired: settings.steps?.cart?.required,
+          stepsShippingEnabled: settings.steps?.shipping?.enabled,
+          stepsShippingRequired: settings.steps?.shipping?.required,
+          stepsBillingEnabled: settings.steps?.billing?.enabled,
+          stepsBillingRequired: settings.steps?.billing?.required,
+          stepsPaymentEnabled: settings.steps?.payment?.enabled,
+          stepsPaymentRequired: settings.steps?.payment?.required,
+          stepsReviewEnabled: settings.steps?.review?.enabled,
+          stepsReviewRequired: settings.steps?.review?.required,
+          stepsConfirmationEnabled: settings.steps?.confirmation?.enabled,
+          stepsConfirmationRequired: settings.steps?.confirmation?.required,
+        }
+      });
+    } else {
+      // Update existing settings
+      existingSettings = await prisma.checkout_settings.update({
+        where: { id: existingSettings.id },
+        data: {
+          sessionTimeout: settings.sessionTimeout,
+          abandonmentEnabled: settings.abandonmentDetection?.enabled,
+          abandonmentTimeout: settings.abandonmentDetection?.timeoutMinutes,
+          abandonmentCheckInterval: settings.abandonmentDetection?.checkIntervalMinutes,
+          recoveryEmailEnabled: settings.recoveryEmail?.enabled,
+          recoveryEmailDelay: settings.recoveryEmail?.sendAfterMinutes,
+          recoveryEmailMaxAttempts: settings.recoveryEmail?.maxAttempts,
+          guestCheckoutEnabled: settings.guestCheckout?.enabled,
+          guestRequireEmail: settings.guestCheckout?.requireEmail,
+          guestRequirePhone: settings.guestCheckout?.requirePhone,
+          guestMaxSessionDuration: settings.guestCheckout?.maxSessionDuration,
+          guestAllowAccountCreation: settings.guestCheckout?.allowAccountCreation,
+          securityRequireAuthForHighValue: settings.security?.requireAuthForHighValue,
+          securityHighValueThreshold: settings.security?.highValueThreshold,
+          securityEnableFraudDetection: settings.security?.enableFraudDetection,
+          mobileEnabled: settings.mobile?.enabled,
+          mobileOptimizeForMobile: settings.mobile?.optimizeForMobile,
+          mobileShowMobileOptimizedUI: settings.mobile?.showMobileOptimizedUI,
+          stepsCartEnabled: settings.steps?.cart?.enabled,
+          stepsCartRequired: settings.steps?.cart?.required,
+          stepsShippingEnabled: settings.steps?.shipping?.enabled,
+          stepsShippingRequired: settings.steps?.shipping?.required,
+          stepsBillingEnabled: settings.steps?.billing?.enabled,
+          stepsBillingRequired: settings.steps?.billing?.required,
+          stepsPaymentEnabled: settings.steps?.payment?.enabled,
+          stepsPaymentRequired: settings.steps?.payment?.required,
+          stepsReviewEnabled: settings.steps?.review?.enabled,
+          stepsReviewRequired: settings.steps?.review?.required,
+          stepsConfirmationEnabled: settings.steps?.confirmation?.enabled,
+          stepsConfirmationRequired: settings.steps?.confirmation?.required,
+        }
       });
     }
-
-    // TODO: Store settings in database or config file
-    // For now, we'll just return success
-    logger.info(`Admin updated checkout settings`, {
-      adminId: req.user?.id,
-      settings
-    });
-
-    res.json({
-      success: true,
-      data: settings,
-      message: 'Checkout settings updated successfully'
-    });
+    
+    logger.info(`Admin updated checkout settings`, { adminId: req.user?.id, settings });
+    
+    res.json({ success: true, data: settings, message: 'Checkout settings updated successfully' });
   } catch (error) {
     logger.error('Error updating checkout settings', { error: error.message });
-    res.status(500).json({
-      success: false,
-      error: 'Failed to update checkout settings',
-      message: error.message
-    });
+    res.status(500).json({ success: false, error: 'Failed to update checkout settings', message: error.message });
   }
 };
 

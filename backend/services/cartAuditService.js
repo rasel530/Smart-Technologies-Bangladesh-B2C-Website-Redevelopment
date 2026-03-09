@@ -77,7 +77,7 @@ class CartAuditService {
         throw new Error('Missing required fields: cartId, action, entityType, and performedBy are required');
       }
 
-      const auditLog = await this.prisma.cartAuditLog.create({
+      const auditLog = await this.prisma.cart_audit_logs.create({
         data: {
           cartId,
           action,
@@ -166,7 +166,7 @@ class CartAuditService {
       }
 
       const [auditLogs, total] = await Promise.all([
-        this.prisma.cartAuditLog.findMany({
+        this.prisma.cart_audit_logs.findMany({
           where,
           orderBy: { [sortBy]: sortOrder },
           skip: (page - 1) * limit,
@@ -181,7 +181,7 @@ class CartAuditService {
             }
           }
         }),
-        this.prisma.cartAuditLog.count({ where })
+        this.prisma.cart_audit_logs.count({ where })
       ]);
 
       return {
@@ -209,7 +209,7 @@ class CartAuditService {
    */
   async getAuditLogById(auditLogId) {
     try {
-      const auditLog = await this.prisma.cartAuditLog.findUnique({
+      const auditLog = await this.prisma.cart_audit_logs.findUnique({
         where: { id: auditLogId },
         include: {
           cart: {
@@ -247,7 +247,7 @@ class CartAuditService {
   async addNote(cartId, userId, content, isPrivate = true) {
     try {
       // Validate cart exists
-      const cart = await this.prisma.cart.findUnique({
+      const cart = await this.prisma.carts.findUnique({
         where: { id: cartId }
       });
 
@@ -265,7 +265,7 @@ class CartAuditService {
       }
 
       // Create the note
-      const note = await this.prisma.cartNote.create({
+      const note = await this.prisma.cart_notes.create({
         data: {
           cartId,
           userId,
@@ -320,7 +320,7 @@ class CartAuditService {
   async updateNote(noteId, userId, content) {
     try {
       // Get existing note
-      const existingNote = await this.prisma.cartNote.findUnique({
+      const existingNote = await this.prisma.cart_notes.findUnique({
         where: { id: noteId }
       });
 
@@ -338,7 +338,7 @@ class CartAuditService {
       }
 
       // Update the note
-      const note = await this.prisma.cartNote.update({
+      const note = await this.prisma.cart_notes.update({
         where: { id: noteId },
         data: {
           content: content.trim(),
@@ -391,7 +391,7 @@ class CartAuditService {
   async deleteNote(noteId, userId) {
     try {
       // Get existing note
-      const existingNote = await this.prisma.cartNote.findUnique({
+      const existingNote = await this.prisma.cart_notes.findUnique({
         where: { id: noteId }
       });
 
@@ -400,7 +400,7 @@ class CartAuditService {
       }
 
       // Delete the note (soft delete via cascade)
-      await this.prisma.cartNote.delete({
+      await this.prisma.cart_notes.delete({
         where: { id: noteId }
       });
 
@@ -448,7 +448,7 @@ class CartAuditService {
         where.isPrivate = false;
       }
 
-      const notes = await this.prisma.cartNote.findMany({
+      const notes = await this.prisma.cart_notes.findMany({
         where,
         orderBy: { createdAt: 'desc' },
         include: {
@@ -488,7 +488,7 @@ class CartAuditService {
         throw new Error('Entries must be a non-empty array');
       }
 
-      const auditLogs = await this.prisma.cartAuditLog.createMany({
+      const auditLogs = await this.prisma.cart_audit_logs.createMany({
         data: entries.map(entry => ({
           cartId: entry.cartId,
           action: entry.action,
@@ -524,7 +524,7 @@ class CartAuditService {
    */
   async getAuditSummary(cartId) {
     try {
-      const logs = await this.prisma.cartAuditLog.findMany({
+      const logs = await this.prisma.cart_audit_logs.findMany({
         where: { cartId },
         orderBy: { createdAt: 'asc' }
       });
@@ -609,7 +609,7 @@ class CartAuditService {
             const { cartId, entityId } = auditLog;
             const previousQuantity = auditLog.previousValue.quantity;
 
-            await this.prisma.cartItem.update({
+            await this.prisma.cart_items.update({
               where: { id: entityId },
               data: { quantity: previousQuantity }
             });
@@ -625,7 +625,7 @@ class CartAuditService {
             const { cartId } = auditLog;
             
             // Reset discount fields on cart
-            await this.prisma.cart.update({
+            await this.prisma.carts.update({
               where: { id: cartId },
               data: {
                 discount: 0
@@ -633,7 +633,7 @@ class CartAuditService {
             });
 
             // Also reset on cart items
-            await this.prisma.cartItem.updateMany({
+            await this.prisma.cart_items.updateMany({
               where: { cartId },
               data: {
                 appliedDiscount: 0,
@@ -649,13 +649,13 @@ class CartAuditService {
             const { cartId } = auditLog;
             const { discount, discountType, discountReason, adminDiscountId } = auditLog.previousValue;
 
-            await this.prisma.cart.update({
+            await this.prisma.carts.update({
               where: { id: cartId },
               data: { discount }
             });
 
             if (adminDiscountId) {
-              await this.prisma.cartItem.updateMany({
+              await this.prisma.cart_items.updateMany({
                 where: { cartId },
                 data: {
                   appliedDiscount: auditLog.previousValue.itemDiscount || 0,
@@ -735,18 +735,18 @@ class CartAuditService {
       }
 
       const [logs, actionCounts, uniqueCarts, uniquePerformers] = await Promise.all([
-        this.prisma.cartAuditLog.findMany({ where }),
-        this.prisma.cartAuditLog.groupBy({
+        this.prisma.cart_audit_logs.findMany({ where }),
+        this.prisma.cart_audit_logs.groupBy({
           by: ['action'],
           where,
           _count: { action: true }
         }),
-        this.prisma.cartAuditLog.findMany({
+        this.prisma.cart_audit_logs.findMany({
           where,
           select: { cartId: true },
           distinct: ['cartId']
         }),
-        this.prisma.cartAuditLog.findMany({
+        this.prisma.cart_audit_logs.findMany({
           where,
           select: { performedBy: true },
           distinct: ['performedBy']
@@ -785,7 +785,7 @@ class CartAuditService {
    */
   async searchAuditLogs(cartId, searchTerm) {
     try {
-      const logs = await this.prisma.cartAuditLog.findMany({
+      const logs = await this.prisma.cart_audit_logs.findMany({
         where: {
           cartId,
           OR: [
@@ -857,7 +857,7 @@ class CartAuditService {
         where.action = { in: actions };
       }
 
-      const logs = await this.prisma.cartAuditLog.findMany({
+      const logs = await this.prisma.cart_audit_logs.findMany({
         where,
         orderBy: { createdAt: 'asc' },
         include: {

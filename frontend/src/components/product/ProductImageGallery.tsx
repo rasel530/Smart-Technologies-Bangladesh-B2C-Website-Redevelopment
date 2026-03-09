@@ -309,9 +309,9 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                 src={getImageUrl(currentImage, 'large')}
                 alt={getAltText(currentImage) || `${productName} - Image ${selectedIndex + 1}`}
                 fill
+                unoptimized={true}
                 className="object-contain transition-transform duration-200 group-hover:scale-110"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                unoptimized={getImageUrl(currentImage, 'large').startsWith('http://localhost:3001')}
                 onLoad={handleImageLoad}
                 onError={handleImageError}
               />

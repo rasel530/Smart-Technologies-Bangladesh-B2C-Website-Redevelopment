@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-02-22T19:03:49.442Z",
+  "scenarios": [
+    {
+      "scenario": "Address data from request body is used",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T19:03:49.702Z",
+      "error": "No products available for testing",
+      "message": "✗ FAILED: Different error occurred"
+    },
+    {
+      "scenario": "Priority of address sources",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T19:03:49.776Z",
+      "error": "No products available for testing",
+      "message": "✗ FAILED: Failed to prioritize address sources correctly"
+    },
+    {
+      "scenario": "Error handling for missing address",
+      "status": "FAIL",
+      "timestamp": "2026-02-22T19:03:49.815Z",
+      "error": "No products available for testing",
+      "message": "✗ Error handling not working as expected"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "passed": 0,
+    "failed": 3
+  }
+}

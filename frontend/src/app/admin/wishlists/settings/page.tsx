@@ -32,6 +32,7 @@ import {
   type WishlistSettings
 } from '@/lib/api/adminWishlist';
 import { cn } from '@/lib/utils';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 function AdminWishlistSettingsPage() {
   const [settings, setSettings] = useState<WishlistSettings | null>(null);
@@ -87,15 +88,18 @@ function AdminWishlistSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-t-2 border-pink-600"></div>
-      </div>
+      <AdminLayout title="Wishlist Settings">
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-t-2 border-pink-600"></div>
+        </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <AdminLayout title="Wishlist Settings">
+      <div className="space-y-6">
+        {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
@@ -322,6 +326,7 @@ function AdminWishlistSettingsPage() {
         </div>
       </div>
     </div>
+    </AdminLayout>
   );
 }
 

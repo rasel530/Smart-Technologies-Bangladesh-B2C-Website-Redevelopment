@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { apiClient } from '@/lib/api/client';
@@ -187,7 +187,7 @@ export default function GuestCheckoutTable({ onGuestClick, initialFilters = {} }
       if (convertedFilter) params.append('converted', convertedFilter);
       if (search) params.append('search', search);
 
-      const response: GuestSessionsResponse = await apiClient.get(`/admin/checkout/guest/sessions?${params.toString()}`);
+      const response: GuestSessionsResponse = await apiClient.get(`/admin/checkout/guest/sessions?${params.toString()}`, { unwrapResponse: false });
       setGuestSessions(response.data);
       setTotalPages(response.pagination.pages);
       setTotalGuests(response.pagination.total);
@@ -298,7 +298,7 @@ export default function GuestCheckoutTable({ onGuestClick, initialFilters = {} }
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    if (document.body && a.parentNode === document.body) { document.body.removeChild(a); }
   };
 
   // Calculate conversion metrics
@@ -482,7 +482,7 @@ export default function GuestCheckoutTable({ onGuestClick, initialFilters = {} }
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-[1200px] divide-y divide-gray-200">
+            <table className="w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">

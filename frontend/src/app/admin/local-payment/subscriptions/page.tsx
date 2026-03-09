@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Check, X, MessageSquare, Calendar, DollarSign, User, Phone, Plus, Edit } from 'lucide-react';
 import { withAuth } from '@/components/auth/withAuth';
-import { PageWrapper, Badge, ButtonPrimary, ButtonDanger, Select, Input } from '@/components/design-system';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 import { apiClient } from '@/lib/api/client';
 
 interface SmsSubscription {
@@ -168,15 +168,15 @@ function SmsSubscriptionsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge color="success">Active</Badge>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>;
       case 'cancelled':
-        return <Badge color="danger">Cancelled</Badge>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Cancelled</span>;
       case 'expired':
-        return <Badge color="neutral">Expired</Badge>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Expired</span>;
       case 'pending':
-        return <Badge color="warning">Pending</Badge>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>;
       default:
-        return <Badge color="neutral">{status}</Badge>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{status}</span>;
     }
   };
 
@@ -189,10 +189,8 @@ function SmsSubscriptionsPage() {
   };
 
   return (
-    <PageWrapper
-      title="SMS Subscriptions"
-      description="Manage SMS payment subscriptions for premium features"
-    >
+    <AdminLayout title="SMS Subscriptions">
+      <p className="text-sm text-gray-600 mb-6">Manage SMS payment subscriptions for premium features</p>
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
           <p className="text-red-800">{error}</p>
@@ -227,13 +225,13 @@ function SmsSubscriptionsPage() {
             </select>
           </div>
 
-          <ButtonPrimary
+          <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Create Subscription
-          </ButtonPrimary>
+          </button>
         </div>
       </div>
 
@@ -436,9 +434,9 @@ function SmsSubscriptionsPage() {
               >
                 Keep Subscription
               </button>
-              <ButtonDanger onClick={handleCancelSubscription}>
+              <button onClick={handleCancelSubscription} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                 Cancel Subscription
-              </ButtonDanger>
+              </button>
             </div>
           </div>
         </div>
@@ -534,9 +532,9 @@ function SmsSubscriptionsPage() {
               >
                 Cancel
               </button>
-              <ButtonPrimary onClick={handleCreateSubscription}>
+              <button onClick={handleCreateSubscription} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 Create Subscription
-              </ButtonPrimary>
+              </button>
             </div>
           </div>
         </div>
@@ -621,14 +619,14 @@ function SmsSubscriptionsPage() {
               >
                 Cancel
               </button>
-              <ButtonPrimary onClick={handleEditSubscription}>
+              <button onClick={handleEditSubscription} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 Update Subscription
-              </ButtonPrimary>
+              </button>
             </div>
           </div>
         </div>
       )}
-    </PageWrapper>
+    </AdminLayout>
   );
 }
 

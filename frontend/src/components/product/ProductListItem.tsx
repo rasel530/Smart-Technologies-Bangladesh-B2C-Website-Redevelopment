@@ -127,6 +127,7 @@ export const ProductListItem: React.FC<ProductListItemProps> = ({
             src={imageUrl}
             alt={imageAlt}
             fill
+            unoptimized={true}
             className="object-cover transition-transform duration-300 group-hover:scale-110"
             onError={() => setImageError(true)}
             loading="lazy"

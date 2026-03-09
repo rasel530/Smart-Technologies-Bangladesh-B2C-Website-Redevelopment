@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, RefreshCw, Download, Upload, Clock, Database, AlertTriangle, CheckCircle, Plus, Trash2 } from 'lucide-react';
 import { withAuth } from '@/components/auth/withAuth';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 interface BackupRepository {
   name: string;
@@ -165,7 +166,8 @@ function BackupManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AdminLayout title="Elasticsearch Backups">
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -374,6 +376,7 @@ function BackupManagement() {
         </div>
       )}
     </div>
+    </AdminLayout>
   );
 }
 

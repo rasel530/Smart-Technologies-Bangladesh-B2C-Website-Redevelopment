@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import UserBehaviorTracker from '@/components/admin/cartWishlist/UserBehaviorTracker';
 import { useAdminCartWishlistStore } from '@/store/adminCartWishlistStore';
 import { useEffect } from 'react';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 export default function UserBehaviorPage() {
   const params = useParams();
@@ -16,5 +17,9 @@ export default function UserBehaviorPage() {
     }
   }, [params.userId]);
 
-  return <UserBehaviorTracker />;
+  return (
+    <AdminLayout title="User Behavior">
+      <UserBehaviorTracker />
+    </AdminLayout>
+  );
 }

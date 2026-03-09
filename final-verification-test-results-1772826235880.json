@@ -1,0 +1,260 @@
+{
+  "timestamp": "2026-03-06T19:43:53.343Z",
+  "tests": [
+    {
+      "name": "1.1 Wishlist endpoint returns 401 without auth",
+      "category": "Test 1",
+      "status": "passed",
+      "duration": 34,
+      "result": {
+        "statusCode": 401,
+        "hasProperErrorMessage": true,
+        "noUndefinedError": true
+      },
+      "timestamp": "2026-03-06T19:43:53.381Z"
+    },
+    {
+      "name": "1.2 Wishlist endpoint rejects invalid token",
+      "category": "Test 1",
+      "status": "passed",
+      "duration": 14,
+      "result": {
+        "statusCode": 401,
+        "properlyRejectsInvalidToken": true
+      },
+      "timestamp": "2026-03-06T19:43:53.395Z"
+    },
+    {
+      "name": "2.1 Admin panel has no infinite redirect loop",
+      "category": "Test 2",
+      "status": "passed",
+      "duration": 1362,
+      "result": {
+        "redirectCount": 1,
+        "duration": 1361,
+        "noInfiniteLoop": true,
+        "noHanging": true
+      },
+      "timestamp": "2026-03-06T19:43:54.757Z"
+    },
+    {
+      "name": "2.2 Admin panel redirects to login once",
+      "category": "Test 2",
+      "status": "failed",
+      "duration": 106,
+      "error": "Unexpected status code: 307",
+      "stack": "Error: Unexpected status code: 307\n    at test2_AdminPanelLoginRedirect (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:275:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:83:20)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:644:5)",
+      "timestamp": "2026-03-06T19:43:54.864Z"
+    },
+    {
+      "name": "3.1 Admin dashboard route exists and is protected",
+      "category": "Test 3",
+      "status": "failed",
+      "duration": 11,
+      "error": "Unexpected status code: 500",
+      "stack": "Error: Unexpected status code: 500\n    at test3_AdminDashboardRoute (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:313:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:83:20)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:655:5)",
+      "timestamp": "2026-03-06T19:43:54.875Z"
+    },
+    {
+      "name": "3.2 Admin products route exists and is protected",
+      "category": "Test 3",
+      "status": "failed",
+      "duration": 10,
+      "error": "Unexpected status code: 500",
+      "stack": "Error: Unexpected status code: 500\n    at test3_AdminProductsRoute (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:340:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:83:20)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:661:5)",
+      "timestamp": "2026-03-06T19:43:54.885Z"
+    },
+    {
+      "name": "3.3 Admin users route exists and is protected",
+      "category": "Test 3",
+      "status": "failed",
+      "duration": 11,
+      "error": "Unexpected status code: 500",
+      "stack": "Error: Unexpected status code: 500\n    at test3_AdminUsersRoute (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:367:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:83:20)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:667:5)",
+      "timestamp": "2026-03-06T19:43:54.896Z"
+    },
+    {
+      "name": "4.1 Health check endpoint returns 200",
+      "category": "Test 4",
+      "status": "passed",
+      "duration": 18,
+      "result": {
+        "statusCode": 200,
+        "healthy": true,
+        "data": {
+          "status": "OK",
+          "timestamp": "2026-03-06T19:43:54.910Z",
+          "version": "1.0.0",
+          "environment": "development",
+          "services": {
+            "database": {
+              "status": "healthy"
+            },
+            "redis": {
+              "status": "healthy",
+              "stats": {
+                "isInitialized": true,
+                "hasClient": true,
+                "isReconnecting": false,
+                "retryAttempts": 0,
+                "maxRetryAttempts": 10,
+                "activeConnections": 10,
+                "connectionNames": [
+                  "stockValidation",
+                  "cartCacheService",
+                  "cartQueueService",
+                  "cartService",
+                  null,
+                  "rate-limit",
+                  "loginSecurityService",
+                  "sessionService",
+                  "startup-validator",
+                  "tokenBlacklist"
+                ],
+                "connectionLock": false,
+                "uptime": 88.867963066,
+                "memoryUsage": {
+                  "rss": 436035584,
+                  "heapTotal": 123269120,
+                  "heapUsed": 118680680,
+                  "external": 4567072,
+                  "arrayBuffers": 875048
+                },
+                "timestamp": "2026-03-06T19:43:54.910Z"
+              }
+            },
+            "loginSecurity": {
+              "status": "initialized",
+              "features": {
+                "rateLimiting": "active",
+                "accountLockout": "active",
+                "ipBlocking": "active",
+                "progressiveDelay": "active"
+              }
+            },
+            "configuration": {
+              "status": "valid",
+              "errors": []
+            }
+          },
+          "uptime": 88.868240585,
+          "memory": {
+            "rss": 436035584,
+            "heapTotal": 123269120,
+            "heapUsed": 118684128,
+            "external": 4567072,
+            "arrayBuffers": 875048
+          }
+        }
+      },
+      "timestamp": "2026-03-06T19:43:54.915Z"
+    },
+    {
+      "name": "4.2 Database connection is working",
+      "category": "Test 4",
+      "status": "passed",
+      "duration": 141,
+      "result": {
+        "statusCode": 200,
+        "databaseConnected": true
+      },
+      "timestamp": "2026-03-06T19:43:55.056Z"
+    },
+    {
+      "name": "5.1 Admin panel page loads",
+      "category": "Test 5",
+      "status": "passed",
+      "duration": 320,
+      "result": {
+        "statusCode": 307,
+        "pageLoads": true
+      },
+      "timestamp": "2026-03-06T19:43:55.377Z"
+    },
+    {
+      "name": "5.2 Admin panel assets are accessible",
+      "category": "Test 5",
+      "status": "passed",
+      "duration": 365,
+      "result": {
+        "results": [
+          {
+            "path": "/admin",
+            "statusCode": 307,
+            "accessible": true
+          },
+          {
+            "path": "/admin/dashboard",
+            "statusCode": 307,
+            "accessible": true
+          },
+          {
+            "path": "/admin/products",
+            "statusCode": 307,
+            "accessible": true
+          },
+          {
+            "path": "/admin/users",
+            "statusCode": 307,
+            "accessible": true
+          }
+        ],
+        "allAccessible": true
+      },
+      "timestamp": "2026-03-06T19:43:55.742Z"
+    },
+    {
+      "name": "6.1 Products endpoint works",
+      "category": "Test 6",
+      "status": "failed",
+      "duration": 60,
+      "error": "Failed to parse products response: Products endpoint did not return an array",
+      "stack": "Error: Failed to parse products response: Products endpoint did not return an array\n    at test6_ProductsEndpoint (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:531:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:83:20)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:712:5)",
+      "timestamp": "2026-03-06T19:43:55.802Z"
+    },
+    {
+      "name": "6.2 Categories endpoint works",
+      "category": "Test 6",
+      "status": "passed",
+      "duration": 24,
+      "result": {
+        "statusCode": 200,
+        "working": true
+      },
+      "timestamp": "2026-03-06T19:43:55.826Z"
+    },
+    {
+      "name": "6.3 Brands endpoint works",
+      "category": "Test 6",
+      "status": "passed",
+      "duration": 38,
+      "result": {
+        "statusCode": 200,
+        "working": true
+      },
+      "timestamp": "2026-03-06T19:43:55.864Z"
+    },
+    {
+      "name": "6.4 Search endpoint works",
+      "category": "Test 6",
+      "status": "failed",
+      "duration": 12,
+      "error": "Search endpoint returned 404, expected 200",
+      "stack": "Error: Search endpoint returned 404, expected 200\n    at test6_SearchEndpoint (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:592:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async runTest (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:83:20)\n    at async runAllTests (e:\\Drive_D_Backup\\Smart_Tech_B2C_Website_Redevelopment\\final-verification-test.test.js:730:5)",
+      "timestamp": "2026-03-06T19:43:55.876Z"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "passed": 9,
+    "failed": 6,
+    "skipped": 0
+  },
+  "performance": {
+    "totalDuration": 2526,
+    "slowestTest": {
+      "name": "2.1 Admin panel has no infinite redirect loop",
+      "duration": 1362
+    }
+  }
+}

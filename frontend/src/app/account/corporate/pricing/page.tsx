@@ -18,6 +18,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { getImageUrl } from '@/lib/utils/image';
 
 const CorporatePricingPage = () => {
   const router = useRouter();
@@ -288,7 +289,7 @@ const CorporatePricingPage = () => {
                   <div className="relative h-48 bg-gray-100 rounded-lg overflow-hidden mb-4">
                     {product.image ? (
                       <img
-                        src={product.image}
+                        src={getImageUrl(product.image) || ''}
                         alt={product.name}
                         className="w-full h-full object-cover"
                       />

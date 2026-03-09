@@ -1,6 +1,6 @@
 const express = require('express');
 const { body, param, query, validationResult } = require('express-validator');
-const { PrismaClient } = require('@prisma/client');
+const { databaseService } = require('../services/database');
 const { authMiddleware } = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
@@ -9,7 +9,8 @@ const { elasticsearchConfig } = require('../config/elasticsearch');
 const { ProductIndexingService } = require('../services/elasticsearch/productIndexingService');
 
 const router = express.Router();
-const prisma = new PrismaClient();
+// Use shared PrismaClient instance from databaseService
+const prisma = databaseService.getClient();
 const productIndexingService = new ProductIndexingService();
 
 // Helper function to convert Decimal values to numbers
@@ -159,28 +160,28 @@ router.get('/', [
     const actualSortField = sortFieldMapping[sortBy] || sortBy;
 
     let [products, total] = await Promise.all([
-      prisma.product.findMany({
+      prisma.products.findMany({
         where,
         skip: parseInt(skip),
         take: parseInt(limit),
         include: {
-          categories: {
+          product_categories: {
             include: {
-              category: {
+              categories: {
                 select: { id: true, name: true, slug: true }
               }
             }
           },
-          brand: {
+          brands: {
             select: { id: true, name: true, slug: true }
           },
-          images: {
+          product_images: {
             where: {
-              processingStatus: {
+              processing_status: {
                 not: 'deleted'
               }
             },
-            orderBy: { displayOrder: 'asc' }
+            orderBy: { display_order: 'asc' }
           },
           _count: {
             select: { reviews: true }
@@ -188,7 +189,7 @@ router.get('/', [
         },
         orderBy: { [actualSortField]: sortOrder }
       }),
-      prisma.product.count({ where })
+      prisma.products.count({ where })
     ]);
 
     // Serialize Decimal values to numbers
@@ -221,30 +222,30 @@ router.get('/', [
 // GET /api/v1/products/featured - Get featured products
 router.get('/featured', async (req, res) => {
   try {
-    let products = await prisma.product.findMany({
+    let products = await prisma.products.findMany({
       where: {
         status: 'active',
         visibility: 'public',
         isFeatured: true
       },
       include: {
-        categories: {
+        product_categories: {
           include: {
-            category: {
+            categories: {
               select: { id: true, name: true, slug: true }
             }
           }
         },
-        brand: {
+        brands: {
           select: { id: true, name: true, slug: true }
         },
-        images: {
+        product_images: {
           where: {
-            processingStatus: {
+            processing_status: {
               not: 'deleted'
             }
           },
-          orderBy: { displayOrder: 'asc' }
+          orderBy: { display_order: 'asc' }
         },
         _count: {
           select: { reviews: true }
@@ -274,30 +275,30 @@ router.get('/featured', async (req, res) => {
 // GET /api/v1/products/new-arrivals - Get new arrivals
 router.get('/new-arrivals', async (req, res) => {
   try {
-    let products = await prisma.product.findMany({
+    let products = await prisma.products.findMany({
       where: {
         status: 'active',
         visibility: 'public',
         isNewArrival: true
       },
       include: {
-        categories: {
+        product_categories: {
           include: {
-            category: {
+            categories: {
               select: { id: true, name: true, slug: true }
             }
           }
         },
-        brand: {
+        brands: {
           select: { id: true, name: true, slug: true }
         },
-        images: {
+        product_images: {
           where: {
-            processingStatus: {
+            processing_status: {
               not: 'deleted'
             }
           },
-          orderBy: { displayOrder: 'asc' }
+          orderBy: { display_order: 'asc' }
         },
         _count: {
           select: { reviews: true }
@@ -327,30 +328,30 @@ router.get('/new-arrivals', async (req, res) => {
 // GET /api/v1/products/best-sellers - Get best sellers
 router.get('/best-sellers', async (req, res) => {
   try {
-    let products = await prisma.product.findMany({
+    let products = await prisma.products.findMany({
       where: {
         status: 'active',
         visibility: 'public',
         isBestSeller: true
       },
       include: {
-        categories: {
+        product_categories: {
           include: {
-            category: {
+            categories: {
               select: { id: true, name: true, slug: true }
             }
           }
         },
-        brand: {
+        brands: {
           select: { id: true, name: true, slug: true }
         },
-        images: {
+        product_images: {
           where: {
-            processingStatus: {
+            processing_status: {
               not: 'deleted'
             }
           },
-          orderBy: { displayOrder: 'asc' }
+          orderBy: { display_order: 'asc' }
         },
         _count: {
           select: { reviews: true }
@@ -384,44 +385,44 @@ router.get('/slug/:slug', [
   try {
     const { slug } = req.params;
 
-    let product = await prisma.product.findUnique({
+    let product = await prisma.products.findUnique({
       where: { slug },
       include: {
-        categories: {
+        product_categories: {
           include: {
-            category: {
+            categories: {
               select: { id: true, name: true, slug: true }
             }
           }
         },
-        brand: {
+        brands: {
           select: { id: true, name: true, slug: true }
         },
-        images: {
+        product_images: {
           where: {
-            processingStatus: {
+            processing_status: {
               not: 'deleted'
             }
           },
-          orderBy: { displayOrder: 'asc' }
+          orderBy: { display_order: 'asc' }
         },
-        specifications: {
+        product_specifications: {
           orderBy: { sortOrder: 'asc' }
         },
-        variants: {
+        product_variants: {
           where: { isActive: true }
         },
-        variantTypes: {
+        variant_types: {
           include: {
-            values: {
+            variant_values: {
               orderBy: { value: 'asc' }
             }
           },
           orderBy: { name: 'asc' }
         },
-        crossSellProducts: {
+        cross_sell_products_cross_sell_products_productIdToproducts: {
           include: {
-            relatedProduct: {
+            products_cross_sell_products_relatedProductIdToproducts: {
               select: {
                 id: true,
                 name: true,
@@ -429,23 +430,23 @@ router.get('/slug/:slug', [
                 slug: true,
                 regularPrice: true,
                 salePrice: true,
-                images: {
+                product_images: {
                   take: 1,
                   where: {
-                    processingStatus: {
+                    processing_status: {
                       not: 'deleted'
                     }
                   },
-                  orderBy: { displayOrder: 'asc' }
+                  orderBy: { display_order: 'asc' }
                 }
               }
             }
           },
           orderBy: { displayOrder: 'asc' }
         },
-        upSellProducts: {
+        up_sell_products_up_sell_products_productIdToproducts: {
           include: {
-            relatedProduct: {
+            products_up_sell_products_relatedProductIdToproducts: {
               select: {
                 id: true,
                 name: true,
@@ -453,23 +454,23 @@ router.get('/slug/:slug', [
                 slug: true,
                 regularPrice: true,
                 salePrice: true,
-                images: {
+                product_images: {
                   take: 1,
                   where: {
-                    processingStatus: {
+                    processing_status: {
                       not: 'deleted'
                     }
                   },
-                  orderBy: { displayOrder: 'asc' }
+                  orderBy: { display_order: 'asc' }
                 }
               }
             }
           },
           orderBy: { displayOrder: 'asc' }
         },
-        relatedProducts: {
+        related_products_related_products_productIdToproducts: {
           include: {
-            relatedProduct: {
+            products_related_products_relatedProductIdToproducts: {
               select: {
                 id: true,
                 name: true,
@@ -477,14 +478,14 @@ router.get('/slug/:slug', [
                 slug: true,
                 regularPrice: true,
                 salePrice: true,
-                images: {
+                product_images: {
                   take: 1,
                   where: {
-                    processingStatus: {
+                    processing_status: {
                       not: 'deleted'
                     }
                   },
-                  orderBy: { displayOrder: 'asc' }
+                  orderBy: { display_order: 'asc' }
                 }
               }
             }
@@ -524,44 +525,44 @@ router.get('/:id', [
   try {
     const { id } = req.params;
 
-    let product = await prisma.product.findUnique({
+    let product = await prisma.products.findUnique({
       where: { id },
       include: {
-        categories: {
+        product_categories: {
           include: {
-            category: {
+            categories: {
               select: { id: true, name: true, slug: true }
             }
           }
         },
-        brand: {
+        brands: {
           select: { id: true, name: true, slug: true }
         },
-        images: {
+        product_images: {
           where: {
-            processingStatus: {
+            processing_status: {
               not: 'deleted'
             }
           },
-          orderBy: { displayOrder: 'asc' }
+          orderBy: { display_order: 'asc' }
         },
-        specifications: {
+        product_specifications: {
           orderBy: { sortOrder: 'asc' }
         },
-        variants: {
+        product_variants: {
           where: { isActive: true }
         },
-        variantTypes: {
+        variant_types: {
           include: {
-            values: {
+            variant_values: {
               orderBy: { value: 'asc' }
             }
           },
           orderBy: { name: 'asc' }
         },
-        crossSellProducts: {
+        cross_sell_products_cross_sell_products_productIdToproducts: {
           include: {
-            relatedProduct: {
+            products_cross_sell_products_relatedProductIdToproducts: {
               select: {
                 id: true,
                 name: true,
@@ -569,23 +570,23 @@ router.get('/:id', [
                 slug: true,
                 regularPrice: true,
                 salePrice: true,
-                images: {
+                product_images: {
                   take: 1,
                   where: {
-                    processingStatus: {
+                    processing_status: {
                       not: 'deleted'
                     }
                   },
-                  orderBy: { displayOrder: 'asc' }
+                  orderBy: { display_order: 'asc' }
                 }
               }
             }
           },
           orderBy: { displayOrder: 'asc' }
         },
-        upSellProducts: {
+        up_sell_products_up_sell_products_productIdToproducts: {
           include: {
-            relatedProduct: {
+            products_up_sell_products_relatedProductIdToproducts: {
               select: {
                 id: true,
                 name: true,
@@ -593,23 +594,23 @@ router.get('/:id', [
                 slug: true,
                 regularPrice: true,
                 salePrice: true,
-                images: {
+                product_images: {
                   take: 1,
                   where: {
-                    processingStatus: {
+                    processing_status: {
                       not: 'deleted'
                     }
                   },
-                  orderBy: { displayOrder: 'asc' }
+                  orderBy: { display_order: 'asc' }
                 }
               }
             }
           },
           orderBy: { displayOrder: 'asc' }
         },
-        relatedProducts: {
+        related_products_related_products_productIdToproducts: {
           include: {
-            relatedProduct: {
+            products_related_products_relatedProductIdToproducts: {
               select: {
                 id: true,
                 name: true,
@@ -617,14 +618,14 @@ router.get('/:id', [
                 slug: true,
                 regularPrice: true,
                 salePrice: true,
-                images: {
+                product_images: {
                   take: 1,
                   where: {
-                    processingStatus: {
+                    processing_status: {
                       not: 'deleted'
                     }
                   },
-                  orderBy: { displayOrder: 'asc' }
+                  orderBy: { display_order: 'asc' }
                 }
               }
             }
@@ -647,24 +648,24 @@ router.get('/:id', [
     product = serializeProduct(product);
 
     // Serialize nested related products to convert Decimal values to numbers
-    if (product.crossSellProducts && product.crossSellProducts.length > 0) {
-      product.crossSellProducts = product.crossSellProducts.map(item => ({
+    if (product.cross_sell_products_cross_sell_products_productIdToproducts && product.cross_sell_products_cross_sell_products_productIdToproducts.length > 0) {
+      product.cross_sell_products_cross_sell_products_productIdToproducts = product.cross_sell_products_cross_sell_products_productIdToproducts.map(item => ({
         ...item,
-        relatedProduct: serializeProduct(item.relatedProduct)
+        products_cross_sell_products_relatedProductIdToproducts: serializeProduct(item.products_cross_sell_products_relatedProductIdToproducts)
       }));
     }
 
-    if (product.upSellProducts && product.upSellProducts.length > 0) {
-      product.upSellProducts = product.upSellProducts.map(item => ({
+    if (product.up_sell_products_up_sell_products_productIdToproducts && product.up_sell_products_up_sell_products_productIdToproducts.length > 0) {
+      product.up_sell_products_up_sell_products_productIdToproducts = product.up_sell_products_up_sell_products_productIdToproducts.map(item => ({
         ...item,
-        relatedProduct: serializeProduct(item.relatedProduct)
+        products_up_sell_products_relatedProductIdToproducts: serializeProduct(item.products_up_sell_products_relatedProductIdToproducts)
       }));
     }
 
-    if (product.relatedProducts && product.relatedProducts.length > 0) {
-      product.relatedProducts = product.relatedProducts.map(item => ({
+    if (product.related_products_related_products_productIdToproducts && product.related_products_related_products_productIdToproducts.length > 0) {
+      product.related_products_related_products_productIdToproducts = product.related_products_related_products_productIdToproducts.map(item => ({
         ...item,
-        relatedProduct: serializeProduct(item.relatedProduct)
+        products_related_products_relatedProductIdToproducts: serializeProduct(item.products_related_products_relatedProductIdToproducts)
       }));
     }
 
@@ -692,7 +693,19 @@ router.post('/', [
   body('regularPrice').isFloat({ min: 0 }),
   body('salePrice').optional().isFloat({ min: 0 }),
   body('costPrice').isFloat({ min: 0 }),
-  body('taxRate').optional().isFloat({ min: 0 }),
+  body('taxRate').optional({ nullable: true }).custom((value) => {
+    if (value === null || value === undefined || value === '') {
+      return true; // Allow null/undefined, will default to 0
+    }
+    const num = parseFloat(value);
+    if (isNaN(num)) {
+      throw new Error('taxRate must be a valid number');
+    }
+    if (num < 0) {
+      throw new Error('taxRate must be at least 0');
+    }
+    return true;
+  }),
   body('stockQuantity').optional().isInt({ min: 0 }),
   body('lowStockThreshold').optional().isInt({ min: 0 }),
   body('status').optional().isIn(['active', 'inactive', 'draft', 'published', 'archived', 'out_of_stock', 'discontinued']),
@@ -725,7 +738,7 @@ router.post('/', [
     });
 
     // Check if SKU already exists
-    const existingSku = await prisma.product.findUnique({
+    const existingSku = await prisma.products.findUnique({
       where: { sku: productData.sku }
     });
 
@@ -737,7 +750,7 @@ router.post('/', [
     }
 
     // Check if slug already exists
-    const existingSlug = await prisma.product.findUnique({
+    const existingSlug = await prisma.products.findUnique({
       where: { slug: productData.slug }
     });
 
@@ -758,7 +771,7 @@ router.post('/', [
 
     // Check if all categories exist
     console.log('[PRODUCT CREATION] Checking categories:', productData.categories);
-    const categories = await prisma.category.findMany({
+    const categories = await prisma.categories.findMany({
       where: { id: { in: productData.categories } }
     });
 
@@ -772,8 +785,8 @@ router.post('/', [
     }
 
     // Check if brand exists
-    console.log('[PRODUCT CREATION] Checking brand:', productData.brandId);
-    const brand = await prisma.brand.findUnique({
+    console.log('[PRODUCT CREATION] Checking brands:', productData.brandId);
+    const brand = await prisma.brands.findUnique({
       where: { id: productData.brandId }
     });
 
@@ -788,8 +801,10 @@ router.post('/', [
 
     try {
       // Create product with categories
-      const product = await prisma.product.create({
+      const { randomUUID } = require('crypto');
+      const product = await prisma.products.create({
         data: {
+          id: randomUUID(),
           sku: productData.sku,
           name: productData.name,
           nameEn: productData.nameEn,
@@ -816,20 +831,26 @@ router.post('/', [
           warrantyType: productData.warrantyType || null,
           publishedAt: productData.status === 'published' ? new Date() : null,
           categories: {
-            create: productData.categories.map((categoryId, index) => ({
-              categoryId,
-              isPrimary: index === 0 // First category is primary
-            }))
+            create: productData.categories.map((categoryId, index) => {
+              const { randomUUID } = require('crypto');
+              return {
+                id: randomUUID(),
+                categoryId,
+                isPrimary: index === 0, // First category is primary
+                createdAt: new Date(),
+                updatedAt: new Date()
+              };
+            })
           }
         },
         include: {
-          categories: {
+          product_categories: {
             include: {
-              category: true
+              categories: true
             }
           },
-          brand: true,
-          images: true
+          brands: true,
+          product_images: true
         }
       });
 
@@ -899,7 +920,19 @@ router.put('/:id', [
   body('regularPrice').optional().isFloat({ min: 0 }),
   body('salePrice').optional().isFloat({ min: 0 }),
   body('costPrice').optional().isFloat({ min: 0 }),
-  body('taxRate').optional().isFloat({ min: 0 }),
+  body('taxRate').optional({ nullable: true }).custom((value) => {
+    if (value === null || value === undefined || value === '') {
+      return true; // Allow null/undefined, will default to 0
+    }
+    const num = parseFloat(value);
+    if (isNaN(num)) {
+      throw new Error('taxRate must be a valid number');
+    }
+    if (num < 0) {
+      throw new Error('taxRate must be at least 0');
+    }
+    return true;
+  }),
   body('stockQuantity').optional().isInt({ min: 0 }),
   body('lowStockThreshold').optional().isInt({ min: 0 }),
   body('status').optional().isIn(['active', 'inactive', 'draft', 'published', 'archived', 'out_of_stock', 'discontinued']),
@@ -918,10 +951,10 @@ router.put('/:id', [
     const updateData = req.body;
 
     // Check if product exists
-    const existingProduct = await prisma.product.findUnique({
+    const existingProduct = await prisma.products.findUnique({
       where: { id },
       include: {
-        categories: true
+        product_categories: true
       }
     });
 
@@ -933,7 +966,7 @@ router.put('/:id', [
 
     // Check if SKU conflicts with another product
     if (updateData.sku && updateData.sku !== existingProduct.sku) {
-      const skuConflict = await prisma.product.findFirst({
+      const skuConflict = await prisma.products.findFirst({
         where: { sku: updateData.sku, NOT: { id } }
       });
 
@@ -946,7 +979,7 @@ router.put('/:id', [
 
     // Check if slug conflicts with another product
     if (updateData.slug && updateData.slug !== existingProduct.slug) {
-      const slugConflict = await prisma.product.findFirst({
+      const slugConflict = await prisma.products.findFirst({
         where: { slug: updateData.slug, NOT: { id } }
       });
 
@@ -966,7 +999,7 @@ router.put('/:id', [
       }
 
       // Check if all categories exist
-      const categories = await prisma.category.findMany({
+      const categories = await prisma.categories.findMany({
         where: { id: { in: updateData.categories } }
       });
 
@@ -977,16 +1010,20 @@ router.put('/:id', [
       }
 
       // Delete existing category associations
-      await prisma.productCategory.deleteMany({
+      await prisma.product_categories.deleteMany({
         where: { productId: id }
       });
 
       // Create new category associations
-      await prisma.productCategory.createMany({
+      const { randomUUID } = require('crypto');
+      await prisma.product_categories.createMany({
         data: updateData.categories.map((categoryId, index) => ({
+          id: randomUUID(),
           productId: id,
           categoryId,
-          isPrimary: index === 0 // First category is primary
+          isPrimary: index === 0, // First category is primary
+          createdAt: new Date(),
+          updatedAt: new Date()
         }))
       });
 
@@ -996,7 +1033,7 @@ router.put('/:id', [
 
     // If brandId is provided, check if brand exists
     if (updateData.brandId) {
-      const brand = await prisma.brand.findUnique({
+      const brand = await prisma.brands.findUnique({
         where: { id: updateData.brandId }
       });
 
@@ -1012,18 +1049,26 @@ router.put('/:id', [
       updateData.publishedAt = new Date();
     }
 
-    const updatedProduct = await prisma.product.update({
+    // Ensure taxRate has a valid value (schema requires non-null)
+    if (updateData.taxRate === null || updateData.taxRate === undefined) {
+      updateData.taxRate = existingProduct.taxRate || 0;
+    } else if (typeof updateData.taxRate === 'string') {
+      // Convert string to number
+      updateData.taxRate = parseFloat(updateData.taxRate);
+    }
+
+    const updatedProduct = await prisma.products.update({
       where: { id },
       data: updateData,
-      include: {
-        categories: {
-          include: {
-            category: true
-          }
-        },
-        brand: true,
-        images: true
-      }
+        include: {
+          product_categories: {
+            include: {
+              categories: true
+            }
+          },
+          brands: true,
+          product_images: true
+        }
     });
 
     // Reindex product in Elasticsearch (non-blocking)
@@ -1056,7 +1101,7 @@ router.delete('/:id', [
     const { id } = req.params;
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id },
       include: {
         _count: {
@@ -1076,9 +1121,9 @@ router.delete('/:id', [
     }
 
     // Delete product images from filesystem
-    if (product.images.length > 0) {
+    if (product.product_images.length > 0) {
       for (const image of product.images) {
-        const sanitizedUrl = path.basename(image.originalUrl);
+        const sanitizedUrl = path.basename(image.original_url);
         const imagePath = path.join(__dirname, '..', sanitizedUrl);
         if (fs.existsSync(imagePath)) {
           fs.unlinkSync(imagePath);
@@ -1086,7 +1131,7 @@ router.delete('/:id', [
       }
     }
 
-    await prisma.product.delete({
+    await prisma.products.delete({
       where: { id }
     });
 
@@ -1125,7 +1170,7 @@ router.patch('/:id/status', [
     const { status } = req.body;
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id }
     });
 
@@ -1142,7 +1187,7 @@ router.patch('/:id/status', [
       updateData.publishedAt = new Date();
     }
 
-    const updatedProduct = await prisma.product.update({
+    const updatedProduct = await prisma.products.update({
       where: { id },
       data: updateData
     });
@@ -1183,7 +1228,7 @@ router.patch('/:id/featured', [
     const { isFeatured } = req.body;
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id }
     });
 
@@ -1193,7 +1238,7 @@ router.patch('/:id/featured', [
       });
     }
 
-    const updatedProduct = await prisma.product.update({
+    const updatedProduct = await prisma.products.update({
       where: { id },
       data: { isFeatured }
     });
@@ -1230,7 +1275,7 @@ router.patch('/:id/new-arrival', [
     const { isNewArrival } = req.body;
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id }
     });
 
@@ -1240,7 +1285,7 @@ router.patch('/:id/new-arrival', [
       });
     }
 
-    const updatedProduct = await prisma.product.update({
+    const updatedProduct = await prisma.products.update({
       where: { id },
       data: { isNewArrival }
     });
@@ -1277,7 +1322,7 @@ router.patch('/:id/best-seller', [
     const { isBestSeller } = req.body;
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id }
     });
 
@@ -1287,7 +1332,7 @@ router.patch('/:id/best-seller', [
       });
     }
 
-    const updatedProduct = await prisma.product.update({
+    const updatedProduct = await prisma.products.update({
       where: { id },
       data: { isBestSeller }
     });
@@ -1328,7 +1373,7 @@ router.put('/:productId/images/:imageId', [
     const { altTextEn, altTextBn, displayOrder, isPrimary } = req.body;
 
     // Check if image exists using Prisma ORM
-    const image = await prisma.productImage.findUnique({
+    const image = await prisma.product_images.findUnique({
       where: { id: imageId }
     });
 
@@ -1351,7 +1396,7 @@ router.put('/:productId/images/:imageId', [
     if (displayOrder !== undefined) updateData.displayOrder = displayOrder;
     if (isPrimary !== undefined) updateData.isPrimary = isPrimary;
 
-    const updatedImage = await prisma.productImage.update({
+    const updatedImage = await prisma.product_images.update({
       where: { id: imageId },
       data: updateData
     });
@@ -1379,7 +1424,7 @@ router.delete('/:productId/images/:imageId', [
     const { productId, imageId } = req.params;
 
     // Check if image exists
-    const image = await prisma.productImage.findUnique({
+    const image = await prisma.product_images.findUnique({
       where: { id: imageId }
     });
 
@@ -1402,7 +1447,7 @@ router.delete('/:productId/images/:imageId', [
       fs.unlinkSync(imagePath);
     }
 
-    await prisma.productImage.delete({
+    await prisma.product_images.delete({
       where: { id: imageId }
     });
 
@@ -1435,7 +1480,7 @@ router.post('/:id/specifications', [
     const { name, value, sortOrder } = req.body;
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id }
     });
 
@@ -1445,7 +1490,7 @@ router.post('/:id/specifications', [
       });
     }
 
-    const specification = await prisma.productSpecification.create({
+    const specification = await prisma.product_specifications.create({
       data: {
         productId: id,
         name,
@@ -1481,7 +1526,7 @@ router.put('/:productId/specifications/:specId', [
     const { name, value, sortOrder } = req.body;
 
     // Check if specification exists
-    const specification = await prisma.productSpecification.findUnique({
+    const specification = await prisma.product_specifications.findUnique({
       where: { id: specId }
     });
 
@@ -1503,7 +1548,7 @@ router.put('/:productId/specifications/:specId', [
     if (value !== undefined) updateData.value = value;
     if (sortOrder !== undefined) updateData.sortOrder = sortOrder;
 
-    const updatedSpecification = await prisma.productSpecification.update({
+    const updatedSpecification = await prisma.product_specifications.update({
       where: { id: specId },
       data: updateData
     });
@@ -1531,7 +1576,7 @@ router.delete('/:productId/specifications/:specId', [
     const { productId, specId } = req.params;
 
     // Check if specification exists
-    const specification = await prisma.productSpecification.findUnique({
+    const specification = await prisma.product_specifications.findUnique({
       where: { id: specId }
     });
 
@@ -1548,7 +1593,7 @@ router.delete('/:productId/specifications/:specId', [
       });
     }
 
-    await prisma.productSpecification.delete({
+    await prisma.product_specifications.delete({
       where: { id: specId }
     });
 
@@ -1580,7 +1625,7 @@ router.patch('/:id/stock', [
     const { stockQuantity, lowStockThreshold } = req.body;
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id }
     });
 
@@ -1602,7 +1647,7 @@ router.patch('/:id/stock', [
       // Keep current status but could add low stock notification
     }
 
-    const updatedProduct = await prisma.product.update({
+    const updatedProduct = await prisma.products.update({
       where: { id },
       data: updateData
     });
@@ -1645,7 +1690,7 @@ router.patch('/:id/seo', [
     const { metaTitle, metaDescription, metaKeywords } = req.body;
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id }
     });
 
@@ -1660,7 +1705,7 @@ router.patch('/:id/seo', [
     if (metaDescription !== undefined) updateData.metaDescription = metaDescription;
     if (metaKeywords !== undefined) updateData.metaKeywords = metaKeywords;
 
-    const updatedProduct = await prisma.product.update({
+    const updatedProduct = await prisma.products.update({
       where: { id },
       data: updateData
     });
@@ -1702,7 +1747,7 @@ router.post('/:id/categories', [
     const { categoryIds, primaryCategoryId } = req.body;
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id }
     });
 
@@ -1720,7 +1765,7 @@ router.post('/:id/categories', [
     }
 
     // Check if all categories exist
-    const categories = await prisma.category.findMany({
+    const categories = await prisma.categories.findMany({
       where: { id: { in: categoryIds } }
     });
 
@@ -1738,16 +1783,20 @@ router.post('/:id/categories', [
     }
 
     // Delete existing category associations
-    await prisma.productCategory.deleteMany({
+    await prisma.product_categories.deleteMany({
       where: { productId: id }
     });
 
     // Create new category associations
-    const associations = await prisma.productCategory.createMany({
+    const { randomUUID } = require('crypto');
+    const associations = await prisma.product_categories.createMany({
       data: categoryIds.map((categoryId, index) => ({
+        id: randomUUID(),
         productId: id,
         categoryId,
-        isPrimary: categoryId === primaryCategoryId || index === 0
+        isPrimary: categoryId === primaryCategoryId || index === 0,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }))
     });
 
@@ -1774,7 +1823,7 @@ router.delete('/:id/categories/:categoryId', [
     const { id, categoryId } = req.params;
 
     // Check if association exists
-    const association = await prisma.productCategory.findUnique({
+    const association = await prisma.product_categories.findUnique({
       where: {
         productId_categoryId: {
           productId: id,
@@ -1790,7 +1839,7 @@ router.delete('/:id/categories/:categoryId', [
     }
 
     // Delete the association
-    await prisma.productCategory.delete({
+    await prisma.product_categories.delete({
       where: {
         productId_categoryId: {
           productId: id,
@@ -1821,7 +1870,7 @@ router.patch('/:id/categories/:categoryId/primary', [
     const { id, categoryId } = req.params;
 
     // Check if association exists
-    const association = await prisma.productCategory.findUnique({
+    const association = await prisma.product_categories.findUnique({
       where: {
         productId_categoryId: {
           productId: id,
@@ -1837,7 +1886,7 @@ router.patch('/:id/categories/:categoryId/primary', [
     }
 
     // Set all other categories for this product as non-primary
-    await prisma.productCategory.updateMany({
+    await prisma.product_categories.updateMany({
       where: {
         productId: id,
         NOT: {
@@ -1850,7 +1899,7 @@ router.patch('/:id/categories/:categoryId/primary', [
     });
 
     // Set the specified category as primary
-    const updatedAssociation = await prisma.productCategory.update({
+    const updatedAssociation = await prisma.product_categories.update({
       where: {
         productId_categoryId: {
           productId: id,
@@ -1895,7 +1944,7 @@ router.post('/:id/variants', [
     const { name, sku, price, comparePrice, stock, isActive } = req.body;
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id }
     });
 
@@ -1906,7 +1955,7 @@ router.post('/:id/variants', [
     }
 
     // Check if SKU already exists for this product
-    const existingSku = await prisma.productVariant.findFirst({
+    const existingSku = await prisma.product_variants.findFirst({
       where: { sku, productId: id }
     });
 
@@ -1916,7 +1965,7 @@ router.post('/:id/variants', [
       });
     }
 
-    const variant = await prisma.productVariant.create({
+    const variant = await prisma.product_variants.create({
       data: {
         productId: id,
         name,
@@ -1958,7 +2007,7 @@ router.put('/:id/variants/:variantId', [
     const { name, sku, price, comparePrice, stock, isActive } = req.body;
 
     // Check if variant exists
-    const variant = await prisma.productVariant.findUnique({
+    const variant = await prisma.product_variants.findUnique({
       where: { id: variantId }
     });
 
@@ -1977,7 +2026,7 @@ router.put('/:id/variants/:variantId', [
 
     // Check if SKU conflicts with another variant
     if (sku && sku !== variant.sku) {
-      const skuConflict = await prisma.productVariant.findFirst({
+      const skuConflict = await prisma.product_variants.findFirst({
         where: { sku, productId: id, NOT: { id: variantId } }
       });
 
@@ -1996,7 +2045,7 @@ router.put('/:id/variants/:variantId', [
     if (stock !== undefined) updateData.stock = parseInt(stock);
     if (isActive !== undefined) updateData.isActive = isActive;
 
-    const updatedVariant = await prisma.productVariant.update({
+    const updatedVariant = await prisma.product_variants.update({
       where: { id: variantId },
       data: updateData
     });
@@ -2024,7 +2073,7 @@ router.delete('/:id/variants/:variantId', [
     const { id, variantId } = req.params;
 
     // Check if variant exists
-    const variant = await prisma.productVariant.findUnique({
+    const variant = await prisma.product_variants.findUnique({
       where: { id: variantId },
       include: {
         _count: {
@@ -2056,7 +2105,7 @@ router.delete('/:id/variants/:variantId', [
       });
     }
 
-    await prisma.productVariant.delete({
+    await prisma.product_variants.delete({
       where: { id: variantId }
     });
 
@@ -2084,7 +2133,7 @@ router.patch('/:id/variants/:variantId/status', [
     const { isActive } = req.body;
 
     // Check if variant exists
-    const variant = await prisma.productVariant.findUnique({
+    const variant = await prisma.product_variants.findUnique({
       where: { id: variantId }
     });
 
@@ -2101,7 +2150,7 @@ router.patch('/:id/variants/:variantId/status', [
       });
     }
 
-    const updatedVariant = await prisma.productVariant.update({
+    const updatedVariant = await prisma.product_variants.update({
       where: { id: variantId },
       data: { isActive }
     });
@@ -2134,7 +2183,7 @@ router.post('/:id/variant-types', [
     const { name } = req.body;
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id }
     });
 
@@ -2507,7 +2556,7 @@ router.post('/:id/cross-sell', [
     const { relatedProductId, displayOrder } = req.body;
 
     // Check if source product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id }
     });
 
@@ -2518,7 +2567,7 @@ router.post('/:id/cross-sell', [
     }
 
     // Check if related product exists
-    const relatedProduct = await prisma.product.findUnique({
+    const relatedProduct = await prisma.products.findUnique({
       where: { id: relatedProductId }
     });
 
@@ -2577,7 +2626,7 @@ router.post('/:id/cross-sell', [
             slug: true,
             regularPrice: true,
             salePrice: true,
-            images: {
+                    product_images: {
               take: 1,
               where: {
                 processingStatus: {
@@ -2664,7 +2713,7 @@ router.patch('/:id/cross-sell/reorder', [
     const { orders } = req.body;
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id }
     });
 
@@ -2699,7 +2748,7 @@ router.patch('/:id/cross-sell/reorder', [
             slug: true,
             regularPrice: true,
             salePrice: true,
-            images: {
+                    product_images: {
               take: 1,
               where: {
                 processingStatus: {
@@ -2743,7 +2792,7 @@ router.post('/:id/up-sell', [
     const { relatedProductId, displayOrder } = req.body;
 
     // Check if source product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id }
     });
 
@@ -2754,7 +2803,7 @@ router.post('/:id/up-sell', [
     }
 
     // Check if related product exists
-    const relatedProduct = await prisma.product.findUnique({
+    const relatedProduct = await prisma.products.findUnique({
       where: { id: relatedProductId }
     });
 
@@ -2813,7 +2862,7 @@ router.post('/:id/up-sell', [
             slug: true,
             regularPrice: true,
             salePrice: true,
-            images: {
+                    product_images: {
               take: 1,
               where: {
                 processingStatus: {
@@ -2900,7 +2949,7 @@ router.patch('/:id/up-sell/reorder', [
     const { orders } = req.body;
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id }
     });
 
@@ -2935,7 +2984,7 @@ router.patch('/:id/up-sell/reorder', [
             slug: true,
             regularPrice: true,
             salePrice: true,
-            images: {
+                    product_images: {
               take: 1,
               where: {
                 processingStatus: {
@@ -2979,6 +3028,19 @@ router.post('/bulk', [
   body('products.*.brandId').isUUID(),
   body('products.*.regularPrice').isFloat({ min: 0 }),
   body('products.*.costPrice').isFloat({ min: 0 }),
+  body('products.*.taxRate').optional({ nullable: true }).custom((value) => {
+    if (value === null || value === undefined || value === '') {
+      return true; // Allow null/undefined, will default to 0
+    }
+    const num = parseFloat(value);
+    if (isNaN(num)) {
+      throw new Error('taxRate must be a valid number');
+    }
+    if (num < 0) {
+      throw new Error('taxRate must be at least 0');
+    }
+    return true;
+  }),
   body('products.*.status').optional().isIn(['active', 'inactive', 'draft', 'published', 'archived', 'out_of_stock', 'discontinued']),
   body('products.*.visibility').optional().isIn(['public', 'private', 'restricted'])
 ], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
@@ -3012,7 +3074,7 @@ router.post('/bulk', [
     }
 
     // Check if SKUs already exist in database
-    const existingSkus = await prisma.product.findMany({
+    const existingSkus = await prisma.products.findMany({
       where: { sku: { in: skus } },
       select: { sku: true }
     });
@@ -3025,7 +3087,7 @@ router.post('/bulk', [
     }
 
     // Check if slugs already exist in database
-    const existingSlugs = await prisma.product.findMany({
+    const existingSlugs = await prisma.products.findMany({
       where: { slug: { in: slugs } },
       select: { slug: true }
     });
@@ -3069,8 +3131,10 @@ router.post('/bulk', [
     const createdProducts = await prisma.$transaction(async (tx) => {
       const results = [];
       for (const productData of products) {
-        const product = await tx.product.create({
+        const { randomUUID } = require('crypto');
+        const product = await tx.products.create({
           data: {
+            id: randomUUID(),
             sku: productData.sku,
             name: productData.name,
             nameEn: productData.nameEn,
@@ -3082,7 +3146,9 @@ router.post('/bulk', [
             regularPrice: parseFloat(productData.regularPrice),
             salePrice: productData.salePrice ? parseFloat(productData.salePrice) : null,
             costPrice: parseFloat(productData.costPrice),
-            taxRate: productData.taxRate ? parseFloat(productData.taxRate) : 0,
+            taxRate: productData.taxRate !== null && productData.taxRate !== undefined && productData.taxRate !== ''
+              ? parseFloat(productData.taxRate)
+              : 0,
             stockQuantity: productData.stockQuantity || 0,
             lowStockThreshold: productData.lowStockThreshold || 10,
             status: productData.status || 'active',
@@ -3097,19 +3163,25 @@ router.post('/bulk', [
             warrantyType: productData.warrantyType || null,
             publishedAt: productData.status === 'published' ? new Date() : null,
             categories: {
-              create: productData.categories.map((categoryId, index) => ({
-                categoryId,
-                isPrimary: index === 0
-              }))
+              create: productData.categories.map((categoryId, index) => {
+                const { randomUUID } = require('crypto');
+                return {
+                  id: randomUUID(),
+                  categoryId,
+                  isPrimary: index === 0,
+                  createdAt: new Date(),
+                  updatedAt: new Date()
+                };
+              })
             }
           },
           include: {
-            categories: {
+            product_categories: {
               include: {
-                category: true
+                categories: true
               }
             },
-            brand: true
+            brands: true
           }
         });
         results.push(product);
@@ -3158,6 +3230,19 @@ router.put('/bulk', [
   body('products.*.regularPrice').optional().isFloat({ min: 0 }),
   body('products.*.salePrice').optional().isFloat({ min: 0 }),
   body('products.*.costPrice').optional().isFloat({ min: 0 }),
+  body('products.*.taxRate').optional({ nullable: true }).custom((value) => {
+    if (value === null || value === undefined || value === '') {
+      return true; // Allow null/undefined, will default to 0
+    }
+    const num = parseFloat(value);
+    if (isNaN(num)) {
+      throw new Error('taxRate must be a valid number');
+    }
+    if (num < 0) {
+      throw new Error('taxRate must be at least 0');
+    }
+    return true;
+  }),
   body('products.*.status').optional().isIn(['active', 'inactive', 'draft', 'published', 'archived', 'out_of_stock', 'discontinued']),
   body('products.*.visibility').optional().isIn(['public', 'private', 'restricted'])
 ], handleValidationErrors, authMiddleware.authenticate(), authMiddleware.adminOnly(), async (req, res) => {
@@ -3167,7 +3252,7 @@ router.put('/bulk', [
     const productIds = products.map(p => p.id);
 
     // Check if all products exist
-    const existingProducts = await prisma.product.findMany({
+    const existingProducts = await prisma.products.findMany({
       where: { id: { in: productIds } },
       select: { id: true, sku: true, slug: true }
     });
@@ -3183,7 +3268,7 @@ router.put('/bulk', [
     // Check for SKU conflicts
     const skusToUpdate = products.filter(p => p.sku).map(p => ({ sku: p.sku, id: p.id }));
     if (skusToUpdate.length > 0) {
-      const skuConflicts = await prisma.product.findMany({
+      const skuConflicts = await prisma.products.findMany({
         where: {
           sku: { in: skusToUpdate.map(s => s.sku) },
           NOT: { id: { in: productIds } }
@@ -3202,7 +3287,7 @@ router.put('/bulk', [
     // Check for slug conflicts
     const slugsToUpdate = products.filter(p => p.slug).map(p => ({ slug: p.slug, id: p.id }));
     if (slugsToUpdate.length > 0) {
-      const slugConflicts = await prisma.product.findMany({
+      const slugConflicts = await prisma.products.findMany({
         where: {
           slug: { in: slugsToUpdate.map(s => s.slug) },
           NOT: { id: { in: productIds } }
@@ -3240,11 +3325,15 @@ router.put('/bulk', [
           });
 
           // Create new category associations
+          const { randomUUID } = require('crypto');
           await tx.productCategory.createMany({
             data: productData.categories.map((categoryId, index) => ({
+              id: randomUUID(),
               productId: productData.id,
               categoryId,
-              isPrimary: index === 0
+              isPrimary: index === 0,
+              createdAt: new Date(),
+              updatedAt: new Date()
             }))
           });
         }
@@ -3257,16 +3346,25 @@ router.put('/bulk', [
           }
         }
 
-        const product = await tx.product.update({
+        // Ensure taxRate has a valid value (schema requires non-null)
+        if (updateData.taxRate === null || updateData.taxRate === undefined) {
+          const existingProduct = existingProducts.find(p => p.id === productData.id);
+          updateData.taxRate = existingProduct?.taxRate || 0;
+        } else if (typeof updateData.taxRate === 'string') {
+          // Convert string to number
+          updateData.taxRate = parseFloat(updateData.taxRate);
+        }
+
+        const product = await tx.products.update({
           where: { id: productData.id },
           data: updateData,
           include: {
-            categories: {
+            product_categories: {
               include: {
-                category: true
+                categories: true
               }
             },
-            brand: true
+            brands: true
           }
         });
         results.push(product);
@@ -3310,10 +3408,10 @@ router.delete('/bulk', [
     const { productIds } = req.body;
 
     // Check if all products exist
-    const products = await prisma.product.findMany({
+    const products = await prisma.products.findMany({
       where: { id: { in: productIds } },
       include: {
-        images: true
+        product_images: true
       }
     });
 
@@ -3330,8 +3428,8 @@ router.delete('/bulk', [
       // Delete product images from filesystem
       for (const product of products) {
         if (product.images.length > 0) {
-          for (const image of product.images) {
-            const imagePath = path.join(__dirname, '..', image.originalUrl);
+          for (const image of product.product_images) {
+            const imagePath = path.join(__dirname, '..', image.original_url);
             if (fs.existsSync(imagePath)) {
               fs.unlinkSync(imagePath);
             }
@@ -3386,7 +3484,7 @@ router.patch('/bulk/status', [
     const { productIds, status } = req.body;
 
     // Check if all products exist
-    const existingProducts = await prisma.product.findMany({
+    const existingProducts = await prisma.products.findMany({
       where: { id: { in: productIds } },
       select: { id: true, status: true }
     });
@@ -3578,7 +3676,7 @@ router.post('/import', [
         }
 
         // Check if SKU already exists
-        const existingSku = await prisma.product.findUnique({
+        const existingSku = await prisma.products.findUnique({
           where: { sku: row.sku }
         });
 
@@ -3591,7 +3689,7 @@ router.post('/import', [
         }
 
         // Check if slug already exists
-        const existingSlug = await prisma.product.findUnique({
+        const existingSlug = await prisma.products.findUnique({
           where: { slug: row.slug }
         });
 
@@ -3604,8 +3702,10 @@ router.post('/import', [
         }
 
         // Create product
-        const product = await prisma.product.create({
+        const { randomUUID } = require('crypto');
+        const product = await prisma.products.create({
           data: {
+            id: randomUUID(),
             sku: row.sku,
             name: row.nameEn,
             nameEn: row.nameEn,
@@ -3617,7 +3717,9 @@ router.post('/import', [
             regularPrice: basePrice,
             salePrice: discountPrice,
             costPrice: basePrice * 0.7, // Default cost price as 70% of base price
-            taxRate: row.taxRate ? parseFloat(row.taxRate) : 0,
+            taxRate: row.taxRate !== null && row.taxRate !== undefined && row.taxRate !== ''
+              ? parseFloat(row.taxRate)
+              : 0,
             stockQuantity: row.stockQuantity ? parseInt(row.stockQuantity) : 0,
             lowStockThreshold: row.lowStockThreshold ? parseInt(row.lowStockThreshold) : 10,
             status,
@@ -3634,8 +3736,11 @@ router.post('/import', [
             categories: {
               create: [
                 {
+                  id: require('crypto').randomUUID(),
                   categoryId: row.categoryId,
-                  isPrimary: true
+                  isPrimary: true,
+                  createdAt: new Date(),
+                  updatedAt: new Date()
                 }
               ]
             }
@@ -3705,7 +3810,7 @@ router.get('/export', [
       };
     }
 
-    const products = await prisma.product.findMany({
+    const products = await prisma.products.findMany({
       where,
       take: parseInt(limit),
       include: {
@@ -3718,7 +3823,7 @@ router.get('/export', [
           where: { isPrimary: true },
           take: 1
         },
-        brand: {
+        brands: {
           select: { id: true, name: true }
         }
       },
@@ -3829,7 +3934,7 @@ router.post('/:id/related', [
     const { relatedProductId, displayOrder } = req.body;
 
     // Check if source product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id }
     });
 
@@ -3840,7 +3945,7 @@ router.post('/:id/related', [
     }
 
     // Check if related product exists
-    const relatedProduct = await prisma.product.findUnique({
+    const relatedProduct = await prisma.products.findUnique({
       where: { id: relatedProductId }
     });
 
@@ -3899,7 +4004,7 @@ router.post('/:id/related', [
             slug: true,
             regularPrice: true,
             salePrice: true,
-            images: {
+                    product_images: {
               take: 1,
               where: {
                 processingStatus: {
@@ -3986,7 +4091,7 @@ router.patch('/:id/reorder-related', [
     const { orders } = req.body;
 
     // Check if product exists
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id }
     });
 
@@ -4021,7 +4126,7 @@ router.patch('/:id/reorder-related', [
             slug: true,
             regularPrice: true,
             salePrice: true,
-            images: {
+                    product_images: {
               take: 1,
               where: {
                 processingStatus: {

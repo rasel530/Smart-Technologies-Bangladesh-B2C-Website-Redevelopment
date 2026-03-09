@@ -121,6 +121,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             src={imageUrl}
             alt={imageAlt}
             fill
+            unoptimized={true}
             className={`
               object-cover transition-transform duration-300
               ${isHovered ? 'scale-110' : 'scale-100'}

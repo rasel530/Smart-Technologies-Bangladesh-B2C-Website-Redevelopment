@@ -18,6 +18,7 @@ import {
 import { RoleEscalationRequest } from '@/types/rbac';
 import { rbacApi } from '@/lib/api/rbac';
 import { getRoleDisplayName } from '@/lib/rbac/utils';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 /**
  * Role Escalation Requests Page
@@ -53,7 +54,7 @@ export default function RoleEscalationRequestsPage() {
         statusFilter !== 'all' ? statusFilter : undefined
       );
 
-      setRequests(response.data || []);
+      setRequests(response || []);
     } catch (error: any) {
       console.error('[RoleEscalationRequests] Error fetching requests:', error);
       setError(error.message || 'Failed to load requests');
@@ -187,7 +188,8 @@ export default function RoleEscalationRequestsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <AdminLayout title="RBAC Escalations">
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -509,5 +511,6 @@ export default function RoleEscalationRequestsPage() {
         </div>
       </div>
     </div>
+    </AdminLayout>
   );
 }

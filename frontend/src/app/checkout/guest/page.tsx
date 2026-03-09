@@ -4,16 +4,28 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, CreditCard, Truck, MapPin, CheckCircle, Shield, AlertCircle, Loader2, ShoppingBag, UserPlus, ChevronRight, ChevronLeft } from 'lucide-react';
+import { ArrowLeft, CreditCard, Truck, MapPin, CheckCircle, Shield, AlertCircle, Loader2, ShoppingBag, UserPlus, ChevronRight, ChevronLeft, Smartphone } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useGuestCheckout } from '@/hooks/useGuestCheckout';
 import GuestInfoForm from '@/components/checkout/GuestInfoForm';
 import CheckoutSecurityBadge from '@/components/checkout/CheckoutSecurityBadge';
 import CheckoutAbandonmentWarning from '@/components/checkout/CheckoutAbandonmentWarning';
+import CheckoutProgress from '@/components/checkout/CheckoutProgress';
+import EmiSelector from '@/components/cart/EmiSelector';
+import EmiSummary from '@/components/cart/EmiSummary';
+import CodFeeDisplay from '@/components/cart/CodFeeDisplay';
+import LocalPaymentMethodSelector from '@/components/cart/LocalPaymentMethodSelector';
+import LocalPaymentFeeDisplay from '@/components/cart/LocalPaymentFeeDisplay';
+import LocalPaymentInstructions from '@/components/cart/LocalPaymentInstructions';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { districts } from '@/data/bangladesh-data';
 import type { GuestCheckoutStep } from '@/types/guestCheckout';
+import type { EmiPlan, EmiDetails } from '@/types/emi';
+import type { LocalPaymentMethod } from '@/types/localPayment';
+import { apiClient } from '@/lib/api/client';
+import { validateCodOrder, getCodFee } from '@/lib/api/cod';
+import { getAvailableEmiPlans, calculateEmi } from '@/lib/api/emi';
 
 const CDN_URL = process.env.NEXT_PUBLIC_CDN_URL || '';
 
@@ -26,6 +38,51 @@ interface PaymentMethod {
 
 const formatCurrency = (amount: number): string => {
   return `৳${amount.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
+// Helper function to get shipping method details
+const getShippingMethodDetails = (method: string, language: 'en' | 'bn') => {
+  const methods: { [key: string]: { name: string; nameBn: string; days: string; daysBn: string } } = {
+    STANDARD: {
+      name: 'Standard Delivery',
+      nameBn: 'স্ট্যান্ডার্ড ডেলিভারি',
+      days: '3-5 business days',
+      daysBn: '৩-৫ ব্যবসায়িক দিন',
+    },
+    EXPRESS: {
+      name: 'Express Delivery',
+      nameBn: 'এক্সপ্রেস ডেলিভারি',
+      days: '1-2 business days',
+      daysBn: '১-২ ব্যবসায়িক দিন',
+    },
+    INSIDE_DHAKA: {
+      name: 'Inside Dhaka',
+      nameBn: 'ঢাকার ভেতরে',
+      days: '1-2 business days',
+      daysBn: '১-২ ব্যবসায়িক দিন',
+    },
+    OUTSIDE_DHAKA: {
+      name: 'Outside Dhaka',
+      nameBn: 'ঢাকার বাইরে',
+      days: '3-5 business days',
+      daysBn: '৩-৫ ব্যবসায়িক দিন',
+    },
+  };
+  return methods[method] || methods.STANDARD;
+};
+
+// Map frontend payment method IDs to backend payment method names (lowercase for backend API)
+const mapPaymentMethodToBackend = (methodId: string): string => {
+  const paymentMethodMap: { [key: string]: string } = {
+    'cod': 'cash_on_delivery',
+    'card': 'credit_card',
+    'emi': 'emi',
+    'bkash': 'bkash',
+    'nagad': 'nagad',
+    'rocket': 'rocket',
+    'mcash': 'mcash',
+  };
+  return paymentMethodMap[methodId] || methodId;
 };
 
 const paymentMethods: PaymentMethod[] = [
@@ -65,19 +122,26 @@ const paymentMethods: PaymentMethod[] = [
     nameBn: 'রকেট',
     icon: <CreditCard className="w-5 h-5" />,
   },
+  {
+    id: 'mcash',
+    name: 'MCash',
+    nameBn: 'এমক্যাশ',
+    icon: <CreditCard className="w-5 h-5" />,
+  },
 ];
 
 const districtNames = districts.map(d => d.name);
 
 export default function GuestCheckoutPage() {
   const router = useRouter();
-  const { items, subtotal, tax, shippingCost, discount, total, isLoading, isInitializing, clearCart } = useCart();
+  const { items, subtotal, tax, shippingCost, discount, total, isLoading, isInitializing, clearCart, cartId, setShippingMethod: setCartShippingMethod, shippingMethod: cartShippingMethod } = useCart();
   
   const {
     session,
     guestInfo,
     shippingAddress,
     billingAddress,
+    shippingMethod,
     paymentMethod,
     paymentDetails,
     progress,
@@ -89,20 +153,44 @@ export default function GuestCheckoutPage() {
     validateStep,
     completeCheckout,
     clearSession,
+    saveShippingMethod,
     setShippingAddress,
     setBillingAddress,
+    setShippingMethod,
     setPaymentMethod,
     setPaymentDetails,
   } = useGuestCheckout();
 
   const [step, setStep] = useState<GuestCheckoutStep>('info');
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [selectedShippingMethod, setSelectedShippingMethod] = useState<string>('STANDARD');
   const [selectedPayment, setSelectedPayment] = useState<string>('cod');
   const [useSameAddress, setUseSameAddress] = useState(true);
   const [showAbandonmentWarning, setShowAbandonmentWarning] = useState(false);
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
   const [paymentErrors, setPaymentErrors] = useState<string>('');
+
+  // EMI state
+  const [emiAvailable, setEmiAvailable] = useState(false);
+  const [emiPlans, setEmiPlans] = useState<EmiPlan[]>([]);
+  const [selectedEmiPlanId, setSelectedEmiPlanId] = useState<string | null>(null);
+  const [selectedEmiPlan, setSelectedEmiPlan] = useState<EmiPlan | null>(null);
+  const [emiDetails, setEmiDetails] = useState<EmiDetails | null>(null);
+  const [isLoadingEmi, setIsLoadingEmi] = useState(false);
+
+  // COD state
+  const [codValidation, setCodValidation] = useState<any>(null);
+  const [codFee, setCodFee] = useState<number>(0);
+  const [isValidatingCod, setIsValidatingCod] = useState(false);
+
+  // Local payment state
+  const [localPaymentMethods, setLocalPaymentMethods] = useState<LocalPaymentMethod[]>([]);
+  const [selectedLocalPaymentMethod, setSelectedLocalPaymentMethod] = useState<LocalPaymentMethod | null>(null);
+  const [localPaymentFee, setLocalPaymentFee] = useState<any>(null);
+  const [localPaymentPhone, setLocalPaymentPhone] = useState('');
+  const [localPaymentPin, setLocalPaymentPin] = useState('');
+  const [isLoadingLocalPayment, setIsLoadingLocalPayment] = useState(false);
 
   // Helper function to get product image URL
   const getProductImage = (imageUrl?: string | null | any): string => {
@@ -136,18 +224,23 @@ export default function GuestCheckoutPage() {
 
   // Redirect if cart is empty
   useEffect(() => {
-    if (!isInitializing && items.length === 0 && !isLoading) {
-      toast.error('Your cart is empty');
-      router.push('/cart');
-    }
+    // Add a small delay to allow cart to load from localStorage
+    const timer = setTimeout(() => {
+      if (!isInitializing && items.length === 0 && !isLoading) {
+        toast.error('Your cart is empty');
+        router.push('/cart');
+      }
+    }, 500); // 500ms delay to allow cart initialization to complete
+
+    return () => clearTimeout(timer);
   }, [items.length, isLoading, isInitializing, router]);
 
   // Initialize guest checkout session on mount
   useEffect(() => {
     if (!isInitializing && items.length > 0) {
-      initializeSession();
+      initializeSession(undefined, undefined, cartId || undefined);
     }
-  }, [isInitializing, items.length, initializeSession]);
+  }, [isInitializing, items.length, initializeSession, cartId]);
 
   // Sync billing address with shipping address when useSameAddress is enabled
   useEffect(() => {
@@ -274,8 +367,46 @@ export default function GuestCheckoutPage() {
   const handleShippingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateShipping() && validateBilling()) {
+      setStep('shipping');
+      updateStep('shipping');
+    }
+  };
+
+  // Handle shipping method submission
+  const handleShippingMethodSubmit = async () => {
+    try {
+      // Get shipping method details - Note: Free shipping is applied at order completion, not at selection time
+      const shippingMethodDetails: { cost: number; estimatedDays: number } = (() => {
+        switch (selectedShippingMethod) {
+          case 'STANDARD':
+            return { cost: 100, estimatedDays: 3 };
+          case 'EXPRESS':
+            return { cost: 200, estimatedDays: 1 };
+          case 'INSIDE_DHAKA':
+            return { cost: 60, estimatedDays: 2 };
+          case 'OUTSIDE_DHAKA':
+            return { cost: 120, estimatedDays: 4 };
+          default:
+            return { cost: 100, estimatedDays: 3 };
+        }
+      })();
+
+      // Update shipping method in hook
+      setShippingMethod(selectedShippingMethod);
+
+      // Update cart shipping method and cost in CartContext
+      setCartShippingMethod(selectedShippingMethod, shippingMethodDetails.cost);
+
+      // Save shipping method to backend using the hook's function
+      // This calls the correct API endpoint: /guest/checkout/session/:sessionId/shipping
+      await saveShippingMethod(selectedShippingMethod);
+
+      // Update step to payment
       setStep('payment');
       updateStep('payment');
+    } catch (error) {
+      console.error('Error saving shipping method:', error);
+      toast.error('Failed to save shipping method');
     }
   };
 
@@ -283,6 +414,159 @@ export default function GuestCheckoutPage() {
   const handlePaymentSubmit = () => {
     setStep('review');
     updateStep('review');
+  };
+
+  // Load EMI plans when total >= 5000
+  useEffect(() => {
+    const loadEmiPlans = async () => {
+      try {
+        setIsLoadingEmi(true);
+        const response = await getAvailableEmiPlans(total);
+
+        if (response.success && response.data) {
+          setEmiPlans(response.data.plans);
+          setEmiAvailable(response.data.plans.length > 0);
+        }
+      } catch (error) {
+        console.error('Error loading EMI plans:', error);
+        setEmiAvailable(false);
+      } finally {
+        setIsLoadingEmi(false);
+      }
+    };
+
+    if (total >= 5000) {
+      loadEmiPlans();
+    } else {
+      setEmiAvailable(false);
+    }
+  }, [total]);
+
+  // Handle EMI plan selection
+  const handleGuestEmiPlanSelect = async (planId: string, plan: EmiPlan) => {
+    try {
+      setSelectedEmiPlanId(planId);
+      setSelectedEmiPlan(plan);
+
+      const response = await calculateEmi(total, planId);
+
+      if (response.success && response.data) {
+        const emiData = response.data as any;
+        setEmiDetails({
+          ...emiData,
+          planId,
+          planName: plan.name,
+          provider: {
+            id: plan.providerId,
+            name: plan.provider?.name || 'Unknown',
+            logoUrl: plan.provider?.logoUrl || null,
+            website: plan.provider?.website || null,
+          },
+        });
+        setPaymentDetails({
+          method: mapPaymentMethodToBackend('emi'),
+          emiPlanId: planId,
+          emiProviderId: plan.providerId,
+          emiAmount: emiData.emiAmount || 0,
+          emiDuration: emiData.duration || 0,
+          emiInterestRate: emiData.interestRate || 0,
+          totalPayable: emiData.totalPayable || 0,
+          processingFee: emiData.processingFee || 0,
+        });
+      }
+    } catch (error) {
+      console.error('Error selecting EMI plan:', error);
+      toast.error('Failed to select EMI plan');
+      setSelectedEmiPlanId(null);
+      setSelectedEmiPlan(null);
+      setEmiDetails(null);
+    }
+  };
+
+  // Validate COD availability
+  const validateGuestCod = async () => {
+    if (selectedPayment !== 'cod' || !shippingAddress.district) {
+      return;
+    }
+
+    setIsValidatingCod(true);
+    try {
+      const validation = await validateCodOrder(
+        null, // guest user
+        {
+          division: getDivisionFromDistrict(shippingAddress.district),
+          district: shippingAddress.district,
+          city: shippingAddress.city,
+          address: shippingAddress.addressLine1
+        },
+        total
+      );
+      setCodValidation(validation.data);
+
+      // Calculate COD fee
+      const feeResponse = await getCodFee(total);
+      setCodFee(feeResponse);
+
+      setPaymentDetails({
+        method: mapPaymentMethodToBackend('cod'),
+        codFee: feeResponse,
+      });
+    } catch (error) {
+      console.error('Error validating COD:', error);
+      setCodValidation(null);
+      setCodFee(0);
+    } finally {
+      setIsValidatingCod(false);
+    }
+  };
+
+  // Validate COD when payment method or address changes
+  useEffect(() => {
+    if (selectedPayment === 'cod' && shippingAddress.district) {
+      validateGuestCod();
+    } else {
+      setCodValidation(null);
+      setCodFee(0);
+    }
+  }, [selectedPayment, shippingAddress.district, shippingAddress.city, total]);
+
+  // Handle local payment method selection
+  const handleGuestLocalPaymentMethodSelect = async (method: LocalPaymentMethod, feeResult?: any) => {
+    setSelectedLocalPaymentMethod(method);
+    setLocalPaymentFee(feeResult || null);
+
+    setPaymentDetails({
+      method: mapPaymentMethodToBackend(method.code),
+      paymentMethodCode: method.code,
+      paymentFee: feeResult?.totalFee || 0,
+      totalAmount: feeResult?.totalAmount || total,
+    });
+  };
+
+  // Handle local payment phone change
+  const handleLocalPaymentPhoneChange = (value: string) => {
+    setLocalPaymentPhone(value);
+  };
+
+  // Handle local payment PIN change
+  const handleLocalPaymentPinChange = (value: string) => {
+    setLocalPaymentPin(value);
+  };
+
+  // Auto-select first available local payment method
+  useEffect(() => {
+    if (['bkash', 'nagad', 'rocket', 'mcash'].includes(selectedPayment) &&
+        localPaymentMethods.length > 0 &&
+        !selectedLocalPaymentMethod) {
+      const firstMethod = localPaymentMethods[0];
+      handleGuestLocalPaymentMethodSelect(firstMethod);
+    }
+  }, [selectedPayment, localPaymentMethods, selectedLocalPaymentMethod]);
+
+  // Helper function to get division from district
+  const getDivisionFromDistrict = (district: string): string => {
+    const districtData = districts.find(d => d.name === district);
+    return (districtData as any)?.divisionId || 'Dhaka';
   };
 
   // Handle order placement
@@ -353,205 +637,19 @@ export default function GuestCheckoutPage() {
       {/* Progress Steps */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">
-                {language === 'en' ? 'Checkout Progress' : 'চেকআউট অগ্রগতি'}
-              </span>
-              <span className="text-sm font-semibold text-blue-600">
-                {progress.progressPercentage}%
-              </span>
-            </div>
-            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-500 ease-out"
-                style={{ width: `${progress.progressPercentage}%` }}
-                role="progressbar"
-                aria-valuenow={progress.progressPercentage}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label={`${language === 'en' ? 'Checkout progress' : 'চেকআউট অগ্রগতি'} ${progress.progressPercentage}%`}
-              />
-            </div>
-          </div>
-
-          {/* Desktop Progress Steps */}
-          <div className="hidden md:flex items-center justify-between">
-            {['info', 'address', 'payment', 'review'].map((stepKey, index) => {
-              const isActive = step === stepKey;
-              const isCompleted = progress.completedSteps.includes(stepKey as any);
-              const stepConfig = {
-                info: { label: 'Info', labelBn: 'তথ্য', icon: <UserPlus className="w-5 h-5" /> },
-                address: { label: 'Address', labelBn: 'ঠিকানা', icon: <MapPin className="w-5 h-5" /> },
-                payment: { label: 'Payment', labelBn: 'পেমেন্ট', icon: <CreditCard className="w-5 h-5" /> },
-                review: { label: 'Review', labelBn: 'পর্যালোচনা', icon: <CheckCircle className="w-5 h-5" /> },
-              }[stepKey as keyof typeof stepConfig];
-              
-              return (
-                <React.Fragment key={stepKey}>
-                  {/* Step Circle */}
-                  <div className="flex flex-col items-center flex-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (progress.canNavigateBack || progress.canNavigateForward) {
-                          setStep(stepKey as GuestCheckoutStep);
-                          updateStep(stepKey as GuestCheckoutStep);
-                        }
-                      }}
-                      disabled={!progress.canNavigateBack && !progress.canNavigateForward}
-                      className={cn(
-                        'relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300',
-                        isCompleted && 'bg-green-500 text-white',
-                        isActive && !isCompleted && 'bg-blue-600 text-white ring-4 ring-blue-100',
-                        !isActive && !isCompleted && 'bg-gray-200 text-gray-500',
-                        (progress.canNavigateBack || progress.canNavigateForward) && 'cursor-pointer hover:scale-105',
-                        !(progress.canNavigateBack || progress.canNavigateForward) && 'cursor-default'
-                      )}
-                      aria-label={`${language === 'en' ? 'Step' : 'ধাপ'} ${index + 1}: ${language === 'en' ? stepConfig.label : stepConfig.labelBn}`}
-                      aria-current={isActive ? 'step' : undefined}
-                    >
-                      {isCompleted ? (
-                        <CheckCircle className="w-6 h-6" />
-                      ) : isActive ? (
-                        <span className="text-lg font-semibold">{index + 1}</span>
-                      ) : (
-                        <div className="w-3 h-3 rounded-full bg-gray-400" />
-                      )}
-                    </button>
-
-                    {/* Step Label */}
-                    <span
-                      className={cn(
-                        'mt-2 text-center text-sm font-medium transition-colors',
-                        isCompleted && 'text-green-600',
-                        isActive && !isCompleted && 'text-blue-600',
-                        !isActive && !isCompleted && 'text-gray-500'
-                      )}
-                    >
-                      {language === 'en' ? stepConfig.label : stepConfig.labelBn}
-                    </span>
-                  </div>
-
-                  {/* Connector Line */}
-                  {index < 3 && (
-                    <div className="flex-1 h-0.5 mx-2">
-                      <div
-                        className={cn(
-                          'h-full transition-all duration-500 ease-out',
-                          isCompleted || index < ['info', 'address', 'payment', 'review'].indexOf(step) ? 'bg-green-500' : 'bg-gray-300'
-                        )}
-                      />
-                    </div>
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </div>
-
-          {/* Mobile Progress Steps */}
-          <div className="md:hidden">
-            {/* Compact Progress Bar */}
-            <div className="flex items-center gap-2 mb-4">
-              {['info', 'address', 'payment', 'review'].map((stepKey, index) => {
-                const isActive = step === stepKey;
-                const isCompleted = progress.completedSteps.includes(stepKey as any);
-                
-                return (
-                  <React.Fragment key={stepKey}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (progress.canNavigateBack || progress.canNavigateForward) {
-                          setStep(stepKey as GuestCheckoutStep);
-                          updateStep(stepKey as GuestCheckoutStep);
-                        }
-                      }}
-                      disabled={!progress.canNavigateBack && !progress.canNavigateForward}
-                      className={cn(
-                        'flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300',
-                        isCompleted && 'bg-green-500 text-white',
-                        isActive && !isCompleted && 'bg-blue-600 text-white',
-                        !isActive && !isCompleted && 'bg-gray-200 text-gray-500',
-                        (progress.canNavigateBack || progress.canNavigateForward) && 'cursor-pointer',
-                        !(progress.canNavigateBack || progress.canNavigateForward) && 'cursor-default'
-                      )}
-                      aria-label={`${language === 'en' ? 'Step' : 'ধাপ'} ${index + 1}: ${stepKey}`}
-                    >
-                      {isCompleted ? (
-                        <CheckCircle className="w-4 h-4" />
-                      ) : (
-                        <span className="text-sm font-semibold">{index + 1}</span>
-                      )}
-                    </button>
-
-                    {index < 3 && (
-                      <div
-                        className={cn(
-                          'flex-1 h-0.5 transition-all duration-500 ease-out',
-                          isCompleted || index < ['info', 'address', 'payment', 'review'].indexOf(step) ? 'bg-green-500' : 'bg-gray-300'
-                        )}
-                      />
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </div>
-
-            {/* Current Step Label */}
-            <div className="text-center">
-              <span className="text-sm font-medium text-gray-700">
-                {language === 'en' ? 'Current Step' : 'বর্তমান ধাপ'}:
-              </span>
-              <span className="ml-2 text-sm font-semibold text-blue-600">
-                {step === 'info' && (language === 'en' ? 'Info' : 'তথ্য')}
-                {step === 'address' && (language === 'en' ? 'Address' : 'ঠিকানা')}
-                {step === 'payment' && (language === 'en' ? 'Payment' : 'পেমেন্ট')}
-                {step === 'review' && (language === 'en' ? 'Review' : 'পর্যালোচনা')}
-              </span>
-            </div>
-
-            {/* Step Navigation Buttons */}
-            {progress.canNavigateBack || progress.canNavigateForward && (
-              <div className="flex items-center justify-between mt-4">
-                {step !== 'info' && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const stepIndex = ['info', 'address', 'payment', 'review'].indexOf(step);
-                      if (stepIndex > 0) {
-                        const prevStep = ['info', 'address', 'payment', 'review'][stepIndex - 1];
-                        setStep(prevStep as GuestCheckoutStep);
-                        updateStep(prevStep as GuestCheckoutStep);
-                      }
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                    <span>{language === 'en' ? 'Previous' : 'আগে'}</span>
-                  </button>
-                )}
-
-                {step !== 'review' && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const stepIndex = ['info', 'address', 'payment', 'review'].indexOf(step);
-                      if (stepIndex < 3) {
-                        const nextStep = ['info', 'address', 'payment', 'review'][stepIndex + 1];
-                        setStep(nextStep as GuestCheckoutStep);
-                        updateStep(nextStep as GuestCheckoutStep);
-                      }
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors ml-auto"
-                  >
-                    <span>{language === 'en' ? 'Next' : 'পরবর্তী'}</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
+          <CheckoutProgress
+            currentStep={step as any}
+            completedSteps={progress.completedSteps as any}
+            onStepClick={(step) => {
+              if (progress.canNavigateBack || progress.canNavigateForward) {
+                setStep(step as GuestCheckoutStep);
+                updateStep(step as GuestCheckoutStep);
+              }
+            }}
+            language={language}
+            clickable={progress.canNavigateBack || progress.canNavigateForward}
+            isGuest={true}
+          />
         </div>
       </div>
       
@@ -747,7 +845,7 @@ export default function GuestCheckoutPage() {
                         type="submit"
                         className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                       >
-                        {language === 'bn' ? 'পেমেন্টে যান' : 'Continue to Payment'}
+                        {language === 'bn' ? 'শিপিং এ যান' : 'Continue to Shipping'}
                       </button>
                     </div>
                   </form>
@@ -879,6 +977,175 @@ export default function GuestCheckoutPage() {
               </div>
             )}
             
+            {/* Shipping Method Step */}
+            {step === 'shipping' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <Truck className="w-6 h-6 text-blue-600" />
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      {language === 'bn' ? 'শিপিং পদ্ধতি' : 'Shipping Method'}
+                    </h2>
+                  </div>
+
+                  <div className="space-y-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedShippingMethod('STANDARD');
+                        setCartShippingMethod('STANDARD', 100);
+                      }}
+                      className={cn(
+                        "w-full flex items-center justify-between p-4 border rounded-lg transition-colors",
+                        selectedShippingMethod === 'STANDARD'
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      )}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "w-5 h-5 rounded-full border-2 flex items-center justify-center",
+                          selectedShippingMethod === 'STANDARD' ? "border-blue-600" : "border-gray-300"
+                        )}>
+                          {selectedShippingMethod === 'STANDARD' && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+                          )}
+                        </div>
+                        <div className="text-left">
+                          <p className="font-medium text-gray-900">
+                            {language === 'en' ? 'Standard Delivery' : 'স্ট্যান্ডার্ড ডেলিভারি'}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {language === 'en' ? '3-5 business days' : '৩-৫ ব্যবসায়িক দিন'}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="font-semibold text-gray-900">৳100</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedShippingMethod('EXPRESS');
+                        setCartShippingMethod('EXPRESS', 200);
+                      }}
+                      className={cn(
+                        "w-full flex items-center justify-between p-4 border rounded-lg transition-colors",
+                        selectedShippingMethod === 'EXPRESS'
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      )}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "w-5 h-5 rounded-full border-2 flex items-center justify-center",
+                          selectedShippingMethod === 'EXPRESS' ? "border-blue-600" : "border-gray-300"
+                        )}>
+                          {selectedShippingMethod === 'EXPRESS' && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+                          )}
+                        </div>
+                        <div className="text-left">
+                          <p className="font-medium text-gray-900">
+                            {language === 'en' ? 'Express Delivery' : 'এক্সপ্রেস ডেলিভারি'}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {language === 'en' ? '1-2 business days' : '১-২ ব্যবসায়িক দিন'}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="font-semibold text-gray-900">৳200</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedShippingMethod('INSIDE_DHAKA');
+                        setCartShippingMethod('INSIDE_DHAKA', 60);
+                      }}
+                      className={cn(
+                        "w-full flex items-center justify-between p-4 border rounded-lg transition-colors",
+                        selectedShippingMethod === 'INSIDE_DHAKA'
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      )}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "w-5 h-5 rounded-full border-2 flex items-center justify-center",
+                          selectedShippingMethod === 'INSIDE_DHAKA' ? "border-blue-600" : "border-gray-300"
+                        )}>
+                          {selectedShippingMethod === 'INSIDE_DHAKA' && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+                          )}
+                        </div>
+                        <div className="text-left">
+                          <p className="font-medium text-gray-900">
+                            {language === 'en' ? 'Inside Dhaka' : 'ঢাকার ভেতরে'}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {language === 'en' ? '1-2 business days' : '১-২ ব্যবসায়িক দিন'}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="font-semibold text-gray-900">৳60</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedShippingMethod('OUTSIDE_DHAKA');
+                        setCartShippingMethod('OUTSIDE_DHAKA', 120);
+                      }}
+                      className={cn(
+                        "w-full flex items-center justify-between p-4 border rounded-lg transition-colors",
+                        selectedShippingMethod === 'OUTSIDE_DHAKA'
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      )}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "w-5 h-5 rounded-full border-2 flex items-center justify-center",
+                          selectedShippingMethod === 'OUTSIDE_DHAKA' ? "border-blue-600" : "border-gray-300"
+                        )}>
+                          {selectedShippingMethod === 'OUTSIDE_DHAKA' && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+                          )}
+                        </div>
+                        <div className="text-left">
+                          <p className="font-medium text-gray-900">
+                            {language === 'en' ? 'Outside Dhaka' : 'ঢাকার বাইরে'}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {language === 'en' ? '3-5 business days' : '৩-৫ ব্যবসায়িক দিন'}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="font-semibold text-gray-900">৳120</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex justify-between pt-6">
+                  <button
+                    type="button"
+                    onClick={() => setStep('address')}
+                    className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors"
+                  >
+                    {language === 'bn' ? 'ফিরে যান' : 'Back'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleShippingMethodSubmit}
+                    className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  >
+                    {language === 'bn' ? 'পেমেন্টে যান' : 'Continue to Payment'}
+                  </button>
+                </div>
+              </div>
+            )}
+            
             {/* Payment Step */}
             {step === 'payment' && (
               <div className="space-y-6">
@@ -898,7 +1165,8 @@ export default function GuestCheckoutPage() {
                         type="button"
                         onClick={() => {
                           setSelectedPayment(method.id);
-                          setPaymentMethod(method.id);
+                          // Use the mapped backend value for paymentMethod (e.g., 'cash_on_delivery')
+                          setPaymentMethod(mapPaymentMethodToBackend(method.id));
                         }}
                         className={cn(
                           "w-full flex items-center gap-4 p-4 border rounded-lg transition-colors",
@@ -923,6 +1191,224 @@ export default function GuestCheckoutPage() {
                     ))}
                   </div>
                 </div>
+
+                {/* EMI Options */}
+                {selectedPayment === 'emi' && (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <CreditCard className="w-6 h-6 text-purple-600" />
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        {language === 'bn' ? 'ইএমআই অপশনস' : 'EMI Options'}
+                      </h2>
+                    </div>
+
+                    {isLoadingEmi ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                        <span className="ml-3 text-gray-600">
+                          {language === 'bn' ? 'ইএমআই অপশনস লোড হচ্ছে...' : 'Loading EMI options...'}
+                        </span>
+                      </div>
+                    ) : emiAvailable ? (
+                      <>
+                        <EmiSelector
+                          availablePlans={emiPlans}
+                          selectedPlanId={selectedEmiPlanId || undefined}
+                          onPlanSelect={handleGuestEmiPlanSelect}
+                          language={language}
+                        />
+
+                        {emiDetails && (
+                          <div className="mt-6">
+                            <EmiSummary
+                              emiDetails={emiDetails}
+                              language={language}
+                              showBreakdown={true}
+                            />
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="bg-gray-50 border border-gray-200 rounded-md p-6">
+                        <p className="text-sm text-gray-700">
+                          {language === 'bn' 
+                            ? 'ইএমআই ৳৫,০০০ বা তার উপরের অর্ডারের জন্য পাওয়া যায়।'
+                            : 'EMI is available for orders of ৳5,000 and above.'}
+                        </p>
+                        <p className="text-sm text-gray-600 mt-2">
+                          {language === 'bn' 
+                            ? `বর্তমান অর্ডার মোট: ৳${total.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                            : `Current order total: ৳${total.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* COD Validation */}
+                {selectedPayment === 'cod' && (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <Truck className="w-6 h-6 text-blue-600" />
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        {language === 'bn' ? 'সিওডি বিকশুলতা' : 'COD Availability'}
+                      </h2>
+                    </div>
+
+                    {isValidatingCod && (
+                      <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                        <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
+                        <span className="text-sm text-blue-600">
+                          {language === 'bn' ? 'সিওডি বিকশুলতা যাচাই করা হচ্ছে...' : 'Validating COD availability...'}
+                        </span>
+                      </div>
+                    )}
+
+                    {!isValidatingCod && codValidation && (
+                      <>
+                        {codValidation.valid ? (
+                          <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                            <div className="flex items-start gap-2">
+                              <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                              <div className="flex-1">
+                                <p className="text-sm text-green-800 font-medium">
+                                  {language === 'bn' ? 'সিওডি বিকশুলতা আছে' : 'COD is available'}
+                                </p>
+                                {codFee > 0 && (
+                                  <p className="text-sm text-green-700 mt-1">
+                                    {language === 'bn' 
+                                      ? `অতিরিত সিওডি ফি: ৳${codFee.toFixed(0)}`
+                                      : `Additional COD fee: ৳${codFee.toFixed(0)}`}
+                                  </p>
+                                )}
+                                <p className="text-sm text-green-700 mt-1">
+                                  {language === 'bn' 
+                                    ? `আনুমান ডেলিভারি: ${codValidation.deliveryDays} দিন`
+                                      : `Estimated delivery: ${codValidation.deliveryDays} days`}
+                                  </p>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                            <div className="flex items-start gap-2">
+                              <AlertCircle className="w-4 h-4 text-red-600 mt-0.5" />
+                              <div className="flex-1">
+                                <p className="text-sm text-red-800 font-medium">
+                                  {language === 'bn' ? 'সিওডি বিকশুলতা নেই' : 'COD is not available'}
+                                </p>
+                                <p className="text-sm text-red-700 mt-1">
+                                  {language === 'bn' 
+                                    ? codValidation.reason 
+                                    : codValidation.reason}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {/* COD Fee Display */}
+                    <div className="mt-4">
+                      <CodFeeDisplay
+                        amount={total}
+                        fee={codFee}
+                        language={language}
+                        showBreakdown={true}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Local Payment Options */}
+                {['bkash', 'nagad', 'rocket', 'mcash'].includes(selectedPayment) && (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <Smartphone className="w-6 h-6 text-blue-600" />
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        {language === 'bn' ? 'মোবাইল পেমেন্ট' : 'Mobile Payment'}
+                      </h2>
+                    </div>
+
+                    {/* Selection Required Indicator */}
+                    {!selectedLocalPaymentMethod && (
+                      <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                        <div className="flex items-start gap-2">
+                          <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                          <p className="text-sm text-amber-800">
+                            {language === 'bn' 
+                              ? 'অনুবার থেকে পেমেন্ট পদ্ধতি নির্বাচন করুন'
+                              : 'Please select a payment method from options below to continue'}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    <LocalPaymentMethodSelector
+                      amount={total}
+                      selectedMethodCode={selectedPayment}
+                      onMethodSelect={handleGuestLocalPaymentMethodSelect}
+                      language={language}
+                      showFee={true}
+                    />
+
+                    {/* Local Payment Fee Display */}
+                    {localPaymentFee && (
+                      <div className="mt-4">
+                        <LocalPaymentFeeDisplay
+                          amount={total}
+                          methodCode={selectedPayment}
+                          language={language}
+                        />
+                      </div>
+                    )}
+
+                    {/* Local Payment Instructions */}
+                    <div className="mt-4">
+                      <LocalPaymentInstructions
+                        methodCode={selectedPayment}
+                        language={language}
+                      />
+                    </div>
+
+                    {/* Phone and PIN Input */}
+                    {selectedLocalPaymentMethod && (
+                      <div className="mt-4 space-y-4">
+                        {selectedLocalPaymentMethod.requiresPhone && (
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              {language === 'bn' ? 'ফোন নম্বর *' : 'Phone Number *'}
+                            </label>
+                            <input
+                              type="tel"
+                              value={localPaymentPhone}
+                              onChange={(e) => handleLocalPaymentPhoneChange(e.target.value)}
+                              placeholder="01XXXXXXXXX"
+                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+                        )}
+
+                        {selectedLocalPaymentMethod.requiresPin && (
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              {language === 'bn' ? 'পিন *' : 'PIN *'}
+                            </label>
+                            <input
+                              type="password"
+                              value={localPaymentPin}
+                              onChange={(e) => handleLocalPaymentPinChange(e.target.value)}
+                              placeholder={language === 'bn' ? 'আপনার পিন লিখুন' : 'Enter your PIN'}
+                              maxLength={5}
+                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {paymentErrors && (
                   <div className="p-3 bg-red-50 border border-red-200 rounded-md">
@@ -996,6 +1482,123 @@ export default function GuestCheckoutPage() {
                   </h3>
                   <p className="text-gray-600">
                     {paymentMethods.find(m => m.id === selectedPayment)?.name}
+                  </p>
+
+                  {/* EMI Details */}
+                  {selectedPayment === 'emi' && emiDetails && (
+                    <div className="mt-3 space-y-2">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">
+                          {language === 'bn' ? 'প্রোভাইডার:' : 'Provider:'}
+                        </span>
+                        <span className="font-medium text-gray-900">{emiDetails.provider.name}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">
+                          {language === 'bn' ? 'প্ল্যান:' : 'Plan:'}
+                        </span>
+                        <span className="font-medium text-gray-900">{emiDetails.planName}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">
+                          {language === 'bn' ? 'মাসিক ইএমআই:' : 'Monthly EMI:'}
+                        </span>
+                        <span className="font-medium text-blue-600">
+                          ৳{emiDetails.emiAmount.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">
+                          {language === 'bn' ? 'মেয়াদ:' : 'Duration:'}
+                        </span>
+                        <span className="font-medium text-gray-900">{emiDetails.duration} {language === 'bn' ? 'মাস' : 'months'}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">
+                          {language === 'bn' ? 'মোট পরিশোধ্য সমষি:' : 'Total Payable:'}
+                        </span>
+                        <span className="font-medium text-green-600">
+                          ৳{emiDetails.totalPayable.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* COD Details */}
+                  {selectedPayment === 'cod' && codValidation && (
+                    <div className="mt-3 space-y-2">
+                      {codFee > 0 && (
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-600">
+                            {language === 'bn' ? 'সিওডি ফি:' : 'COD Fee:'}
+                          </span>
+                          <span className="font-medium text-gray-900">
+                            ৳{codFee.toFixed(0)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">
+                          {language === 'bn' ? 'ডেলিভারি:' : 'Delivery:'}
+                        </span>
+                        <span className="font-medium text-gray-900">
+                          {codValidation.deliveryDays} {language === 'bn' ? 'দিন' : 'days'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Local Payment Details */}
+                  {['bkash', 'nagad', 'rocket', 'mcash'].includes(selectedPayment) && selectedLocalPaymentMethod && (
+                    <div className="mt-3 space-y-2">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">
+                          {language === 'bn' ? 'পদ্ধতি:' : 'Method:'}
+                        </span>
+                        <span className="font-medium text-gray-900">{selectedLocalPaymentMethod.displayName}</span>
+                      </div>
+                      {localPaymentFee && localPaymentFee.totalFee > 0 && (
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-600">
+                            {language === 'bn' ? 'পেমেন্ট ফি:' : 'Payment Fee:'}
+                          </span>
+                          <span className="font-medium text-red-600">
+                            +৳{localPaymentFee.totalFee.toFixed(2)}
+                          </span>
+                        </div>
+                      )}
+                      {localPaymentFee && (
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-600">
+                            {language === 'bn' ? 'মোট সমষি:' : 'Total Amount:'}
+                          </span>
+                          <span className="font-medium text-blue-600">
+                            ৳{localPaymentFee.totalAmount.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                      )}
+                      {localPaymentPhone && (
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-600">
+                            {language === 'bn' ? 'ফোন:' : 'Phone:'}
+                          </span>
+                          <span className="font-medium text-gray-900">{localPaymentPhone}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Shipping Method Summary */}
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                  <h3 className="font-medium text-gray-900 mb-2">
+                    {language === 'bn' ? 'শিপিং পদ্ধতি:' : 'Shipping Method:'}
+                  </h3>
+                  <p className="text-gray-600">
+                    {selectedShippingMethod === 'STANDARD' && (language === 'en' ? 'Standard Delivery (3-5 days)' : 'স্ট্যান্ডার্ড ডেলিভারি (৩-৫ দিন)')}
+                    {selectedShippingMethod === 'EXPRESS' && (language === 'en' ? 'Express Delivery (1-2 days)' : 'এক্সপ্রেস ডেলিভারি (১-২ দিন)')}
+                    {selectedShippingMethod === 'INSIDE_DHAKA' && (language === 'en' ? 'Inside Dhaka (1-2 days)' : 'ঢাকার ভেতরে (১-২ দিন)')}
+                    {selectedShippingMethod === 'OUTSIDE_DHAKA' && (language === 'en' ? 'Outside Dhaka (3-5 days)' : 'ঢাকার বাইরে (৩-৫ দিন)')}
                   </p>
                 </div>
                 
@@ -1082,14 +1685,27 @@ export default function GuestCheckoutPage() {
                   <span>{language === 'bn' ? 'উপমোট:' : 'Subtotal'}</span>
                   <span className="font-medium">{formatCurrency(subtotal)}</span>
                 </div>
-                <div className="flex items-center justify-between text-sm text-gray-600">
-                  <span>{language === 'bn' ? 'শিপিং:' : 'Shipping'}</span>
-                  <span className="font-medium">
-                    {shippingCost === 0 
-                      ? (language === 'bn' ? 'বিনামূল্যে' : 'Free') 
-                      : formatCurrency(shippingCost)}
-                  </span>
-                </div>
+                {/* Shipping cost and method details are shown after user has selected a shipping method (on 'shipping', 'payment', and 'review' steps) */}
+                {step !== 'address' && step !== 'info' && (
+                  <>
+                    <div className="flex items-start justify-between text-sm text-gray-600">
+                      <div className="flex-1">
+                        <span className="block">{language === 'bn' ? 'শিপিং:' : 'Shipping'}</span>
+                        {cartShippingMethod && (
+                          <span className="block text-xs text-gray-500 mt-1">
+                            {getShippingMethodDetails(cartShippingMethod, language).name}
+                            {language === 'en' ? ` (${getShippingMethodDetails(cartShippingMethod, language).days})` : ` (${getShippingMethodDetails(cartShippingMethod, language).daysBn})`}
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-medium">
+                        {shippingCost === 0 
+                          ? (language === 'bn' ? 'বিনামূল্যে' : 'Free') 
+                          : formatCurrency(shippingCost)}
+                      </span>
+                    </div>
+                  </>
+                )}
                 <div className="flex items-center justify-between text-sm text-gray-600">
                   <span>{language === 'bn' ? 'কর:' : 'Tax'}</span>
                   <span className="font-medium">{formatCurrency(tax)}</span>
@@ -1100,6 +1716,27 @@ export default function GuestCheckoutPage() {
                     <span className="font-medium">-{formatCurrency(discount)}</span>
                   </div>
                 )}
+                
+                {/* Payment Fees */}
+                {(selectedPayment === 'cod' && codFee > 0) && (
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <span>{language === 'bn' ? 'সিওডি ফি:' : 'COD Fee'}</span>
+                    <span className="font-medium">{formatCurrency(codFee)}</span>
+                  </div>
+                )}
+                {selectedPayment === 'emi' && emiDetails && emiDetails.processingFee > 0 && (
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <span>{language === 'bn' ? 'ইএমআই প্রসেসিং ফি:' : 'EMI Processing Fee'}</span>
+                    <span className="font-medium">{formatCurrency(emiDetails.processingFee)}</span>
+                  </div>
+                )}
+                {['bkash', 'nagad', 'rocket', 'mcash'].includes(selectedPayment) && localPaymentFee && localPaymentFee.totalFee > 0 && (
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <span>{language === 'bn' ? 'পেমেন্ট ফি:' : 'Payment Fee'}</span>
+                    <span className="font-medium">{formatCurrency(localPaymentFee.totalFee)}</span>
+                  </div>
+                )}
+                
                 <div className="flex items-center justify-between border-t border-gray-200 pt-3">
                   <span className="text-base font-semibold text-gray-900">
                     {language === 'bn' ? 'মোট:' : 'Total'}

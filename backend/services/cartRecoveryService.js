@@ -48,7 +48,7 @@ class CartRecoveryService {
   async generateRecoveryToken(cartId) {
     try {
       // Validate cart exists
-      const cart = await this.prisma.cart.findUnique({
+      const cart = await this.prisma.carts.findUnique({
         where: { id: cartId },
         include: {
           user: {
@@ -90,7 +90,7 @@ class CartRecoveryService {
       expiresAt.setDate(expiresAt.getDate() + this.defaultTokenExpiryDays);
 
       // Store recovery token in cart record
-      const updatedCart = await this.prisma.cart.update({
+      const updatedCart = await this.prisma.carts.update({
         where: { id: cartId },
         data: {
           recoveryToken: token,
@@ -138,7 +138,7 @@ class CartRecoveryService {
       const { discountCode = null, discountAmount = null, customMessage = null } = options;
 
       // Get cart with full details
-      const cart = await this.prisma.cart.findUnique({
+      const cart = await this.prisma.carts.findUnique({
         where: { id: cartId },
         include: {
           user: {
@@ -190,7 +190,7 @@ class CartRecoveryService {
 
       // Update discount code if provided
       if (discountCode) {
-        await this.prisma.cart.update({
+        await this.prisma.carts.update({
           where: { id: cartId },
           data: { 
             discountCode,
@@ -218,7 +218,7 @@ class CartRecoveryService {
       });
 
       // Update cart with email sent timestamp
-      await this.prisma.cart.update({
+      await this.prisma.carts.update({
         where: { id: cartId },
         data: { 
           recoveryEmailSentAt: new Date(),
@@ -267,7 +267,7 @@ class CartRecoveryService {
    */
   async scheduleRecoveryReminders(cartId) {
     try {
-      const cart = await this.prisma.cart.findUnique({
+      const cart = await this.prisma.carts.findUnique({
         where: { id: cartId },
         include: { user: { select: { email: true } } }
       });
@@ -283,7 +283,7 @@ class CartRecoveryService {
       const finalReminder = new Date(now.getTime() + this.reminderIntervals.final * 60 * 60 * 1000);
 
       // Store schedule in cart analytics
-      const analytics = await this.prisma.cartAnalytics.findUnique({
+      const analytics = await this.prisma.cart_analytics.findUnique({
         where: { cartId }
       });
 
@@ -299,7 +299,7 @@ class CartRecoveryService {
         const events = analytics.events || {};
         events.recoverySchedule = recoverySchedule;
         
-        await this.prisma.cartAnalytics.update({
+        await this.prisma.cart_analytics.update({
           where: { cartId },
           data: { events }
         });
@@ -364,7 +364,7 @@ class CartRecoveryService {
         where.userId = { not: null };
       }
 
-      const abandonedCarts = await this.prisma.cart.findMany({
+      const abandonedCarts = await this.prisma.carts.findMany({
         where,
         include: {
           user: {
@@ -491,7 +491,7 @@ class CartRecoveryService {
       const conversionRate = totalRecovered > 0 ? (totalConversions / totalRecovered) * 100 : 0;
 
       // Get recovery events
-      const recoveryEvents = await this.prisma.cartRecoveryEvent.groupBy({
+      const recoveryEvents = await this.prisma.cart_recovery_events.groupBy({
         by: ['eventType'],
         where: {
           ...(Object.keys(dateFilter).length > 0 && { createdAt: dateFilter })
@@ -500,7 +500,7 @@ class CartRecoveryService {
       });
 
       // Get revenue from recovered carts
-      const recoveredRevenue = await this.prisma.cart.aggregate({
+      const recoveredRevenue = await this.prisma.carts.aggregate({
         where: {
           recoveryAttempts: { gt: 0 },
           status: 'converted',
@@ -544,7 +544,7 @@ class CartRecoveryService {
    */
   async markCartAsAbandoned(cartId, reason = 'user_inactivity') {
     try {
-      const updatedCart = await this.prisma.cart.update({
+      const updatedCart = await this.prisma.carts.update({
         where: { id: cartId },
         data: {
           status: 'abandoned',
@@ -554,7 +554,7 @@ class CartRecoveryService {
       });
 
       // Create cart event
-      await this.prisma.cartEvent.create({
+      await this.prisma.cart_events.create({
         data: {
           cartId,
           eventType: 'cart_abandoned',
@@ -624,7 +624,7 @@ class CartRecoveryService {
       }
 
       // Update cart to active
-      const updatedCart = await this.prisma.cart.update({
+      const updatedCart = await this.prisma.carts.update({
         where: { id: cart.id },
         data: {
           status: 'active',
@@ -637,7 +637,7 @@ class CartRecoveryService {
       });
 
       // Create recovery event
-      await this.prisma.cartEvent.create({
+      await this.prisma.cart_events.create({
         data: {
           cartId: cart.id,
           userId: userId || cart.userId,
@@ -688,7 +688,7 @@ class CartRecoveryService {
       if (!userId) return null;
 
       // Get user's order history
-      const orders = await this.prisma.order.findMany({
+      const orders = await this.prisma.orders.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
         take: 5
@@ -736,7 +736,7 @@ class CartRecoveryService {
   async validateRecoveryToken(token) {
     try {
       // Find cart with valid recovery token
-      const cart = await this.prisma.cart.findFirst({
+      const cart = await this.prisma.carts.findFirst({
         where: {
           recoveryToken: token,
           recoveryTokenExpires: {
@@ -814,7 +814,7 @@ class CartRecoveryService {
   async cancelReminders(cartId) {
     try {
       // Update cart analytics to mark reminders as cancelled
-      const analytics = await this.prisma.cartAnalytics.findUnique({
+      const analytics = await this.prisma.cart_analytics.findUnique({
         where: { cartId }
       });
 
@@ -824,7 +824,7 @@ class CartRecoveryService {
           events.recoverySchedule.status = 'cancelled';
           events.recoverySchedule.cancelledAt = new Date().toISOString();
 
-          await this.prisma.cartAnalytics.update({
+          await this.prisma.cart_analytics.update({
             where: { cartId },
             data: { events }
           });
@@ -853,7 +853,7 @@ class CartRecoveryService {
    */
   async trackEmailOpen(token, metadata = {}) {
     try {
-      const cart = await this.prisma.cart.findFirst({
+      const cart = await this.prisma.carts.findFirst({
         where: { recoveryToken: token }
       });
 
@@ -872,7 +872,7 @@ class CartRecoveryService {
    */
   async trackLinkClick(token, metadata = {}) {
     try {
-      const cart = await this.prisma.cart.findFirst({
+      const cart = await this.prisma.carts.findFirst({
         where: { recoveryToken: token }
       });
 
@@ -1057,7 +1057,7 @@ Email: support@smarttechnologiesbd.com
    */
   async trackRecoveryEvent(cartId, eventType, metadata = {}) {
     try {
-      await this.prisma.cartRecoveryEvent.create({
+      await this.prisma.cart_recovery_events.create({
         data: {
           cartId,
           eventType,
@@ -1099,18 +1099,18 @@ Email: support@smarttechnologiesbd.com
         dayEnd.setHours(23, 59, 59, 999);
 
         const [abandoned, recovered, emailsSent] = await Promise.all([
-          this.prisma.cart.count({
+          this.prisma.carts.count({
             where: {
               status: 'abandoned',
               abandonedAt: { gte: dayStart, lte: dayEnd }
             }
           }),
-          this.prisma.cart.count({
+          this.prisma.carts.count({
             where: {
               recoveredAt: { gte: dayStart, lte: dayEnd }
             }
           }),
-          this.prisma.cart.count({
+          this.prisma.carts.count({
             where: {
               recoveryEmailSentAt: { gte: dayStart, lte: dayEnd }
             }

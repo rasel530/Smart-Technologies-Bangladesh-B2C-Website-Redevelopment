@@ -37,12 +37,12 @@ class AdminWishlistService {
       }
 
       // Total wishlists
-      const totalWishlists = await this.prisma.wishlist.count({
+      const totalWishlists = await this.prisma.wishlists.count({
         where: dateFilter
       });
 
       // Total wishlist items
-      const totalItems = await this.prisma.wishlistItem.count();
+      const totalItems = await this.prisma.wishlist_items.count();
 
       // Average items per wishlist
       const averageItemsPerWishlist = totalWishlists > 0 
@@ -50,7 +50,7 @@ class AdminWishlistService {
         : 0;
 
       // Public wishlists count
-      const publicWishlists = await this.prisma.wishlist.count({
+      const publicWishlists = await this.prisma.wishlists.count({
         where: {
           ...dateFilter,
           isPublic: true
@@ -58,7 +58,7 @@ class AdminWishlistService {
       });
 
       // Shared wishlists count (wishlists with shareToken)
-      const sharedWishlists = await this.prisma.wishlist.count({
+      const sharedWishlists = await this.prisma.wishlists.count({
         where: {
           ...dateFilter,
           shareToken: {
@@ -68,7 +68,7 @@ class AdminWishlistService {
       });
 
       // Get top 10 most wishlisted products
-      const topProducts = await this.prisma.wishlistItem.groupBy({
+      const topProducts = await this.prisma.wishlist_items.groupBy({
         by: ['productId'],
         _count: {
           productId: true
@@ -84,7 +84,7 @@ class AdminWishlistService {
       // Fetch product details for top products
       const topProductsWithDetails = await Promise.all(
         topProducts.map(async (item) => {
-          const product = await this.prisma.product.findUnique({
+          const product = await this.prisma.products.findUnique({
             where: { id: item.productId },
             select: {
               id: true,
@@ -110,7 +110,7 @@ class AdminWishlistService {
       );
 
       // Calculate conversion rate (items moved to cart / total items)
-      const moveEvents = await this.prisma.wishlistAnalytics.count({
+      const moveEvents = await this.prisma.wishlist_analytics.count({
         where: {
           eventType: 'move_to_cart'
         }
@@ -121,7 +121,7 @@ class AdminWishlistService {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      const creationTrend = await this.prisma.wishlist.groupBy({
+      const creationTrend = await this.prisma.wishlists.groupBy({
         by: ['createdAt'],
         where: {
           createdAt: {
@@ -195,7 +195,7 @@ class AdminWishlistService {
         where.userId = userId;
       }
 
-      const wishlists = await this.prisma.wishlist.findMany({
+      const wishlists = await this.prisma.wishlists.findMany({
         where,
         include: {
           user: {
@@ -217,7 +217,7 @@ class AdminWishlistService {
         take: limit
       });
 
-      const total = await this.prisma.wishlist.count({ where });
+      const total = await this.prisma.wishlists.count({ where });
 
       return {
         wishlists,
@@ -242,7 +242,7 @@ class AdminWishlistService {
   async getUserWishlists(userId) {
     try {
       // Get user details
-      const user = await this.prisma.user.findUnique({
+      const user = await this.prisma.users.findUnique({
         where: { id: userId },
         select: {
           id: true,
@@ -258,7 +258,7 @@ class AdminWishlistService {
       }
 
       // Get user's wishlists
-      const wishlists = await this.prisma.wishlist.findMany({
+      const wishlists = await this.prisma.wishlists.findMany({
         where: { userId },
         include: {
           _count: {
@@ -269,7 +269,7 @@ class AdminWishlistService {
       });
 
       // Get total items across all wishlists
-      const totalItems = await this.prisma.wishlistItem.count({
+      const totalItems = await this.prisma.wishlist_items.count({
         where: {
           wishlist: {
             userId
@@ -278,7 +278,7 @@ class AdminWishlistService {
       });
 
       // Get last activity (most recent wishlist update)
-      const lastActivity = await this.prisma.wishlist.findFirst({
+      const lastActivity = await this.prisma.wishlists.findFirst({
         where: { userId },
         orderBy: { updatedAt: 'desc' },
         select: { updatedAt: true }
@@ -303,7 +303,7 @@ class AdminWishlistService {
    */
   async deleteWishlist(wishlistId) {
     try {
-      const wishlist = await this.prisma.wishlist.findUnique({
+      const wishlist = await this.prisma.wishlists.findUnique({
         where: { id: wishlistId }
       });
 
@@ -311,7 +311,7 @@ class AdminWishlistService {
         throw new Error('Wishlist not found');
       }
 
-      await this.prisma.wishlist.delete({
+      await this.prisma.wishlists.delete({
         where: { id: wishlistId }
       });
 
@@ -344,7 +344,7 @@ class AdminWishlistService {
       }
 
       // Get analytics events
-      const events = await this.prisma.wishlistAnalytics.findMany({
+      const events = await this.prisma.wishlist_analytics.findMany({
         where: dateFilter,
         orderBy: { createdAt: 'desc' }
       });
@@ -360,7 +360,7 @@ class AdminWishlistService {
       const creationRate = creationEvents;
 
       // Average wishlist size
-      const wishlistSizes = await this.prisma.wishlist.findMany({
+      const wishlistSizes = await this.prisma.wishlists.findMany({
         include: {
           _count: {
             select: { items: true }
@@ -381,7 +381,7 @@ class AdminWishlistService {
           }
         }
       });
-      const totalWishlists = await this.prisma.wishlist.count();
+      const totalWishlists = await this.prisma.wishlists.count();
       const abandonmentRate = totalWishlists > 0 ? abandonedWishlists / totalWishlists : 0;
 
       // Sharing statistics
@@ -389,7 +389,7 @@ class AdminWishlistService {
       const exportEvents = events.filter(e => e.eventType === 'export').length;
 
       // Group creation trend by period
-      const creationTrend = await this.prisma.wishlist.findMany({
+      const creationTrend = await this.prisma.wishlists.findMany({
         where: dateFilter,
         select: {
           createdAt: true
@@ -479,7 +479,7 @@ class AdminWishlistService {
       }
 
       // Get products with wishlist counts, filtered at database level
-      const productsWithCounts = await this.prisma.wishlistItem.groupBy({
+      const productsWithCounts = await this.prisma.wishlist_items.groupBy({
         by: ['productId'],
         _count: {
           productId: true
@@ -501,7 +501,7 @@ class AdminWishlistService {
 
       const products = await Promise.all(
         paginatedProductIds.map(async (productId) => {
-          const product = await this.prisma.product.findUnique({
+          const product = await this.prisma.products.findUnique({
             where: { id: productId },
             select: {
               id: true,
@@ -524,7 +524,7 @@ class AdminWishlistService {
           if (!product) return null;
 
           // Get last added date
-          const lastAdded = await this.prisma.wishlistItem.findFirst({
+          const lastAdded = await this.prisma.wishlist_items.findFirst({
             where: { productId },
             orderBy: { addedAt: 'desc' },
             select: { addedAt: true }
@@ -718,7 +718,7 @@ class AdminWishlistService {
       }
 
       // Get users who have wishlists
-      const users = await this.prisma.user.findMany({
+      const users = await this.prisma.users.findMany({
         where: {
           ...where,
           wishlists: {
@@ -738,7 +738,7 @@ class AdminWishlistService {
       // Get wishlist details for each user
       const usersWithDetails = await Promise.all(
         users.map(async (user) => {
-          const totalItems = await this.prisma.wishlistItem.count({
+          const totalItems = await this.prisma.wishlist_items.count({
             where: {
               wishlist: {
                 userId: user.id
@@ -746,7 +746,7 @@ class AdminWishlistService {
             }
           });
 
-          const lastActivity = await this.prisma.wishlist.findFirst({
+          const lastActivity = await this.prisma.wishlists.findFirst({
             where: { userId: user.id },
             orderBy: { updatedAt: 'desc' },
             select: { updatedAt: true }
@@ -760,7 +760,7 @@ class AdminWishlistService {
         })
       );
 
-      const total = await this.prisma.user.count({
+      const total = await this.prisma.users.count({
         where: {
           ...where,
           wishlists: {

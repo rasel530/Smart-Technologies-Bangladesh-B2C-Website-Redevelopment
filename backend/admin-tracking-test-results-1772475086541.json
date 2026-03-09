@@ -1,0 +1,178 @@
+{
+  "timestamp": "2026-03-02T18:11:26.541Z",
+  "baseUrl": "http://localhost:3001",
+  "endpoints": {
+    "analytics": "/api/v1/admin/tracking/analytics",
+    "issues": "/api/v1/admin/tracking/issues",
+    "performance": "/api/v1/admin/tracking/performance",
+    "syncAll": "/api/v1/admin/tracking/sync-all",
+    "bulkUpdate": "/api/v1/admin/tracking/bulk-update"
+  },
+  "results": {
+    "analytics": [
+      {
+        "test": "Accessibility (No Auth)",
+        "method": "GET",
+        "url": "http://localhost:3001/api/v1/admin/tracking/analytics",
+        "statusCode": 401,
+        "success": true,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      },
+      {
+        "test": "Query Parameters",
+        "url": "http://localhost:3001/api/v1/admin/tracking/analytics?startDate=2025-01-01&endDate=2025-12-31",
+        "statusCode": 401,
+        "success": true,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      },
+      {
+        "test": "Query Parameters",
+        "url": "http://localhost:3001/api/v1/admin/tracking/analytics?startDate=2025-01-01",
+        "statusCode": 401,
+        "success": true,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      }
+    ],
+    "issues": [
+      {
+        "test": "Accessibility (No Auth)",
+        "method": "GET",
+        "url": "http://localhost:3001/api/v1/admin/tracking/issues",
+        "statusCode": 401,
+        "success": true,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      },
+      {
+        "test": "Query Parameters",
+        "url": "http://localhost:3001/api/v1/admin/tracking/issues?status=pending&startDate=2025-01-01",
+        "statusCode": 401,
+        "success": true,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      }
+    ],
+    "performance": [
+      {
+        "test": "Accessibility (No Auth)",
+        "method": "GET",
+        "url": "http://localhost:3001/api/v1/admin/tracking/performance",
+        "statusCode": 401,
+        "success": true,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      },
+      {
+        "test": "Query Parameters",
+        "url": "http://localhost:3001/api/v1/admin/tracking/performance?startDate=2025-01-01&endDate=2025-12-31",
+        "statusCode": 401,
+        "success": true,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      }
+    ],
+    "syncAll": [
+      {
+        "test": "Accessibility (No Auth)",
+        "method": "POST",
+        "url": "http://localhost:3001/api/v1/admin/tracking/sync-all",
+        "statusCode": 401,
+        "success": true,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      },
+      {
+        "test": "POST with empty body",
+        "url": "http://localhost:3001/api/v1/admin/tracking/sync-all",
+        "statusCode": 401,
+        "success": true,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      },
+      {
+        "test": "POST with courierServiceId",
+        "url": "http://localhost:3001/api/v1/admin/tracking/sync-all",
+        "statusCode": 401,
+        "success": true,
+        "data": {
+          "error": "Authentication required",
+          "message": "No token provided"
+        }
+      }
+    ],
+    "bulkUpdate": [
+      {
+        "test": "Accessibility (No Auth)",
+        "method": "POST",
+        "url": "http://localhost:3001/api/v1/admin/tracking/bulk-update",
+        "statusCode": 400,
+        "success": true,
+        "data": {
+          "success": false,
+          "error": "Validation failed",
+          "details": [
+            {
+              "type": "field",
+              "msg": "Invalid value",
+              "path": "orderIds",
+              "location": "body"
+            },
+            {
+              "type": "field",
+              "msg": "Invalid value",
+              "path": "trackingNumbers",
+              "location": "body"
+            }
+          ]
+        }
+      },
+      {
+        "test": "POST with order data",
+        "url": "http://localhost:3001/api/v1/admin/tracking/bulk-update",
+        "statusCode": 400,
+        "success": true,
+        "data": {
+          "success": false,
+          "error": "Validation failed",
+          "details": [
+            {
+              "type": "field",
+              "value": "00000000-0000-0000-0000-000000000001",
+              "msg": "Invalid value",
+              "path": "orderIds[0]",
+              "location": "body"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "summary": {
+    "totalTests": 12,
+    "passedTests": 12,
+    "failedTests": 0,
+    "successRate": "100.00",
+    "has404Error": false
+  }
+}

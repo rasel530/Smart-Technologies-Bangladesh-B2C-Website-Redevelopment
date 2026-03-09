@@ -1,0 +1,549 @@
+{
+  "timestamp": "2026-02-23T07:56:34.408Z",
+  "summary": {
+    "total": 39,
+    "passed": 39,
+    "failed": 0,
+    "skipped": 0,
+    "passRate": "100.00"
+  },
+  "tests": [
+    {
+      "name": "Address data extracted from stepData",
+      "passed": true,
+      "message": "Address data should be extracted from session.stepData",
+      "details": {
+        "addressData": {
+          "shippingAddressId": "addr-1",
+          "billingAddressId": "addr-2",
+          "useSameAddress": false,
+          "shippingAddress": {
+            "fullName": "John Doe",
+            "phone": "+8801234567890",
+            "addressLine1": "123 Main Street",
+            "addressLine2": "Apt 4B",
+            "city": "Dhaka",
+            "district": "Dhaka",
+            "postalCode": "1000"
+          },
+          "billingAddress": {
+            "fullName": "Jane Doe",
+            "phone": "+8800987654321",
+            "addressLine1": "456 Billing Street",
+            "addressLine2": "",
+            "city": "Dhaka",
+            "district": "Dhaka",
+            "postalCode": "1000"
+          },
+          "completed": true
+        }
+      },
+      "timestamp": "2026-02-23T07:56:34.389Z"
+    },
+    {
+      "name": "Shipping data extracted from stepData",
+      "passed": true,
+      "message": "Shipping data should be extracted from session.stepData",
+      "details": {
+        "shippingData": {
+          "method": "standard",
+          "methodId": "ship-1",
+          "cost": 50,
+          "estimatedDays": 3,
+          "completed": true
+        }
+      },
+      "timestamp": "2026-02-23T07:56:34.391Z"
+    },
+    {
+      "name": "Payment data extracted from stepData",
+      "passed": true,
+      "message": "Payment data should be extracted from session.stepData",
+      "details": {
+        "paymentData": {
+          "method": "cod",
+          "methodId": "pay-1",
+          "details": {
+            "codFee": 20,
+            "paymentFee": 0,
+            "totalAmount": 1070
+          },
+          "completed": true
+        }
+      },
+      "timestamp": "2026-02-23T07:56:34.391Z"
+    },
+    {
+      "name": "Address data extracted from session.data (fallback)",
+      "passed": true,
+      "message": "Address data should be extracted from session.data when stepData is missing",
+      "details": {
+        "addressData": {
+          "shippingAddressId": "addr-3",
+          "useSameAddress": true,
+          "shippingAddress": {
+            "fullName": "Bob Smith",
+            "phone": "+8801112223333",
+            "addressLine1": "789 Data Street",
+            "city": "Chittagong",
+            "district": "Chittagong",
+            "postalCode": "4000"
+          },
+          "completed": true
+        }
+      },
+      "timestamp": "2026-02-23T07:56:34.392Z"
+    },
+    {
+      "name": "Shipping data extracted from session.data (fallback)",
+      "passed": true,
+      "message": "Shipping data should be extracted from session.data when stepData is missing",
+      "details": {
+        "shippingData": {
+          "method": "express",
+          "cost": 100,
+          "estimatedDays": 1,
+          "completed": true
+        }
+      },
+      "timestamp": "2026-02-23T07:56:34.392Z"
+    },
+    {
+      "name": "Payment data extracted from session.data (fallback)",
+      "passed": true,
+      "message": "Payment data should be extracted from session.data when stepData is missing",
+      "details": {
+        "paymentData": {
+          "method": "bkash",
+          "methodId": "pay-2",
+          "details": {
+            "phoneNumber": "+8801112223333",
+            "paymentFee": 15,
+            "totalAmount": 1115
+          },
+          "completed": true
+        }
+      },
+      "timestamp": "2026-02-23T07:56:34.392Z"
+    },
+    {
+      "name": "stepData.address takes precedence",
+      "passed": true,
+      "message": "Address data should come from stepData, not session.data",
+      "details": {
+        "stepDataName": "From StepData",
+        "sessionDataName": "From SessionData",
+        "extractedName": "From StepData"
+      },
+      "timestamp": "2026-02-23T07:56:34.392Z"
+    },
+    {
+      "name": "stepData.shipping takes precedence",
+      "passed": true,
+      "message": "Shipping data should come from stepData, not session.data",
+      "details": {
+        "stepDataMethod": "priority",
+        "sessionDataMethod": "standard",
+        "extractedMethod": "priority"
+      },
+      "timestamp": "2026-02-23T07:56:34.392Z"
+    },
+    {
+      "name": "stepData.payment takes precedence",
+      "passed": true,
+      "message": "Payment data should come from stepData, not session.data",
+      "details": {
+        "stepDataMethod": "nagad",
+        "sessionDataMethod": "cod",
+        "extractedMethod": "nagad"
+      },
+      "timestamp": "2026-02-23T07:56:34.392Z"
+    },
+    {
+      "name": "Request has sessionId",
+      "passed": true,
+      "message": "Request should include sessionId",
+      "details": {
+        "sessionId": "session-101"
+      },
+      "timestamp": "2026-02-23T07:56:34.394Z"
+    },
+    {
+      "name": "Request has data object",
+      "passed": true,
+      "message": "Request should include data object",
+      "details": {
+        "hasData": true
+      },
+      "timestamp": "2026-02-23T07:56:34.394Z"
+    },
+    {
+      "name": "Request data includes address",
+      "passed": true,
+      "message": "Request data should include address",
+      "details": {
+        "hasAddress": true
+      },
+      "timestamp": "2026-02-23T07:56:34.394Z"
+    },
+    {
+      "name": "Request address is not empty {}",
+      "passed": true,
+      "message": "Request address should not be an empty object",
+      "details": {
+        "addressKeys": [
+          "shippingAddress",
+          "billingAddress",
+          "useSameAddress"
+        ],
+        "address": {
+          "shippingAddress": {
+            "firstName": "Alice",
+            "lastName": "Johnson",
+            "phone": "+8801234567890",
+            "address": "123 Test Avenue",
+            "addressLine2": "Floor 5",
+            "city": "Dhaka",
+            "district": "Dhaka",
+            "division": "dhaka",
+            "postalCode": "1200"
+          },
+          "useSameAddress": true
+        }
+      },
+      "timestamp": "2026-02-23T07:56:34.394Z"
+    },
+    {
+      "name": "Request address has shippingAddress",
+      "passed": true,
+      "message": "Request address should include shippingAddress",
+      "details": {
+        "shippingAddress": {
+          "firstName": "Alice",
+          "lastName": "Johnson",
+          "phone": "+8801234567890",
+          "address": "123 Test Avenue",
+          "addressLine2": "Floor 5",
+          "city": "Dhaka",
+          "district": "Dhaka",
+          "division": "dhaka",
+          "postalCode": "1200"
+        }
+      },
+      "timestamp": "2026-02-23T07:56:34.394Z"
+    },
+    {
+      "name": "Shipping address is properly converted",
+      "passed": true,
+      "message": "Shipping address should be converted to backend format (firstName from fullName)",
+      "details": {
+        "originalFullName": "Alice Johnson",
+        "convertedFirstName": "Alice",
+        "convertedLastName": "Johnson"
+      },
+      "timestamp": "2026-02-23T07:56:34.394Z"
+    },
+    {
+      "name": "Request data includes shipping",
+      "passed": true,
+      "message": "Request data should include shipping",
+      "details": {
+        "shipping": {
+          "method": "standard",
+          "methodId": "ship-std",
+          "cost": 60,
+          "estimatedDays": 2,
+          "completed": true
+        }
+      },
+      "timestamp": "2026-02-23T07:56:34.394Z"
+    },
+    {
+      "name": "Request data includes payment",
+      "passed": true,
+      "message": "Request data should include payment",
+      "details": {
+        "payment": {
+          "method": "cod",
+          "methodId": "pay-cod",
+          "details": {
+            "codFee": 25,
+            "paymentFee": 0,
+            "totalAmount": 1085
+          },
+          "completed": true
+        }
+      },
+      "timestamp": "2026-02-23T07:56:34.395Z"
+    },
+    {
+      "name": "After address step: hasAddressData",
+      "passed": true,
+      "message": "Address data should be available after address step",
+      "details": {
+        "hasAddress": true,
+        "hasShipping": false,
+        "hasPayment": false
+      },
+      "timestamp": "2026-02-23T07:56:34.395Z"
+    },
+    {
+      "name": "After shipping step: hasShippingData",
+      "passed": true,
+      "message": "Shipping data should be available after shipping step",
+      "details": {
+        "hasAddress": true,
+        "hasShipping": true,
+        "hasPayment": false
+      },
+      "timestamp": "2026-02-23T07:56:34.395Z"
+    },
+    {
+      "name": "After payment step: hasPaymentData",
+      "passed": true,
+      "message": "Payment data should be available after payment step",
+      "details": {
+        "hasAddress": true,
+        "hasShipping": true,
+        "hasPayment": true
+      },
+      "timestamp": "2026-02-23T07:56:34.395Z"
+    },
+    {
+      "name": "Complete flow: All data present in request",
+      "passed": {
+        "method": "bkash",
+        "methodId": "pay-flow-1",
+        "details": {
+          "phoneNumber": "+8801111111111",
+          "paymentFee": 20,
+          "totalAmount": 1170
+        },
+        "completed": true
+      },
+      "message": "Final request should contain address, shipping, and payment data",
+      "details": {
+        "hasAddress": true,
+        "hasShipping": true,
+        "hasPayment": true
+      },
+      "timestamp": "2026-02-23T07:56:34.395Z"
+    },
+    {
+      "name": "Complete flow: Request address is not empty",
+      "passed": true,
+      "message": "Request address should not be empty after completing all steps",
+      "details": {
+        "addressKeys": [
+          "shippingAddress",
+          "billingAddress",
+          "useSameAddress"
+        ],
+        "addressSize": 227
+      },
+      "timestamp": "2026-02-23T07:56:34.395Z"
+    },
+    {
+      "name": "Edge case 1: Only address present",
+      "passed": true,
+      "message": "Should extract address but not shipping/payment when they are missing",
+      "details": {
+        "hasAddress": true,
+        "hasShipping": false,
+        "hasPayment": false
+      },
+      "timestamp": "2026-02-23T07:56:34.396Z"
+    },
+    {
+      "name": "Edge case 2: No data present",
+      "passed": true,
+      "message": "Should handle gracefully when no data is present",
+      "details": {
+        "hasAddress": false,
+        "hasShipping": false,
+        "hasPayment": false
+      },
+      "timestamp": "2026-02-23T07:56:34.396Z"
+    },
+    {
+      "name": "Edge case 3: Mixed data sources",
+      "passed": true,
+      "message": "Should extract data from both stepData and data when mixed",
+      "details": {
+        "addressSource": "stepData",
+        "shippingSource": "data (fallback)",
+        "paymentSource": "stepData",
+        "hasAddress": true,
+        "hasShipping": true,
+        "hasPayment": true
+      },
+      "timestamp": "2026-02-23T07:56:34.396Z"
+    },
+    {
+      "name": "Console log: hasAddressData is true",
+      "passed": true,
+      "message": "Console log should show hasAddressData: true",
+      "details": {
+        "hasAddressData": true
+      },
+      "timestamp": "2026-02-23T07:56:34.403Z"
+    },
+    {
+      "name": "Console log: hasShippingData is true",
+      "passed": true,
+      "message": "Console log should show hasShippingData: true",
+      "details": {
+        "hasShippingData": true
+      },
+      "timestamp": "2026-02-23T07:56:34.404Z"
+    },
+    {
+      "name": "Console log: hasPaymentData is true",
+      "passed": true,
+      "message": "Console log should show hasPaymentData: true",
+      "details": {
+        "hasPaymentData": true
+      },
+      "timestamp": "2026-02-23T07:56:34.404Z"
+    },
+    {
+      "name": "Console log: requestAddress is not empty",
+      "passed": true,
+      "message": "Console log should show requestAddress is not empty {}",
+      "details": {
+        "requestAddressKeys": [
+          "shippingAddress",
+          "billingAddress",
+          "useSameAddress"
+        ],
+        "requestAddressSize": 203
+      },
+      "timestamp": "2026-02-23T07:56:34.404Z"
+    },
+    {
+      "name": "Before fix: Missing data would cause 400 error",
+      "passed": true,
+      "message": "Before fix, missing data would cause validation error",
+      "details": {
+        "hasAddress": false,
+        "hasShipping": false,
+        "hasPayment": false
+      },
+      "timestamp": "2026-02-23T07:56:34.404Z"
+    },
+    {
+      "name": "After fix: All data is properly extracted",
+      "passed": true,
+      "message": "After fix, all checkout data is properly extracted from stepData",
+      "details": {
+        "hasAddress": true,
+        "hasShipping": true,
+        "hasPayment": true
+      },
+      "timestamp": "2026-02-23T07:56:34.405Z"
+    },
+    {
+      "name": "After fix: Request address is not empty",
+      "passed": true,
+      "message": "After fix, request address contains proper data (not empty {})",
+      "details": {
+        "addressKeys": [
+          "shippingAddress",
+          "billingAddress",
+          "useSameAddress"
+        ],
+        "addressSize": 202
+      },
+      "timestamp": "2026-02-23T07:56:34.405Z"
+    },
+    {
+      "name": "After fix: Should resolve 400 Bad Request error",
+      "passed": {
+        "method": "cod",
+        "completed": true
+      },
+      "message": "After fix, the request should pass validation and return 200 OK",
+      "details": {
+        "hasShippingAddress": true,
+        "hasShipping": true,
+        "hasPayment": true
+      },
+      "timestamp": "2026-02-23T07:56:34.405Z"
+    },
+    {
+      "name": "Backward compatibility: Works with old format (data only)",
+      "passed": true,
+      "message": "Should work with sessions that only have data property (no stepData)",
+      "details": {
+        "hasAddress": true,
+        "hasShipping": true,
+        "hasPayment": true
+      },
+      "timestamp": "2026-02-23T07:56:34.406Z"
+    },
+    {
+      "name": "Backward compatibility: Request built correctly from old format",
+      "passed": {
+        "method": "cod",
+        "completed": true
+      },
+      "message": "Request should be built correctly from old format sessions",
+      "details": {
+        "hasAddress": true,
+        "hasShipping": true,
+        "hasPayment": true
+      },
+      "timestamp": "2026-02-23T07:56:34.407Z"
+    },
+    {
+      "name": "Backward compatibility: Fallback mechanism works",
+      "passed": true,
+      "message": "Fallback to session.data should work when stepData is not present",
+      "details": {
+        "hasStepData": false,
+        "extractedFromData": true
+      },
+      "timestamp": "2026-02-23T07:56:34.407Z"
+    },
+    {
+      "name": "useSameAddress: true - Flag preserved in request",
+      "passed": true,
+      "message": "useSameAddress flag should be preserved in the request",
+      "details": {
+        "useSameAddress": true
+      },
+      "timestamp": "2026-02-23T07:56:34.407Z"
+    },
+    {
+      "name": "useSameAddress: true - Only shipping address in request",
+      "passed": true,
+      "message": "When useSameAddress is true, only shipping address should be in request",
+      "details": {
+        "hasShippingAddress": true,
+        "hasBillingAddress": false
+      },
+      "timestamp": "2026-02-23T07:56:34.407Z"
+    },
+    {
+      "name": "useSameAddress: false - Both addresses in request",
+      "passed": {
+        "firstName": "Billing",
+        "lastName": "User",
+        "phone": "+8809999999999",
+        "address": "9 Billing Street",
+        "addressLine2": "",
+        "city": "Chittagong",
+        "district": "Chittagong",
+        "division": "dhaka",
+        "postalCode": "4000"
+      },
+      "message": "When useSameAddress is false, both shipping and billing addresses should be in request",
+      "details": {
+        "hasShippingAddress": true,
+        "hasBillingAddress": true,
+        "useSameAddress": false
+      },
+      "timestamp": "2026-02-23T07:56:34.407Z"
+    }
+  ]
+}

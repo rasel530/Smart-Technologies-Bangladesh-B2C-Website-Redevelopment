@@ -1,0 +1,536 @@
+/**
+ * Nagad Payment Component Styles
+ * Phase 7 Milestone 2: Payment Gateway Integration
+ */
+
+/* Container */
+.nagadContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Nagad Branding */
+.nagadBranding {
+  text-align: center;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f58220 0%, #e6731a 100%);
+  border-radius: 12px;
+  color: white;
+}
+
+.nagadLogo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.nagadIcon {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.nagadText {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+}
+
+.nagadTagline {
+  margin: 0;
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+/* Amount Display */
+.amountDisplay {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.amountLabel {
+  font-size: 0.875rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.amountValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f58220;
+}
+
+/* Wallet Input Section */
+.walletInputSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: white;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #f58220;
+  box-shadow: 0 0 0 3px rgba(245, 130, 32, 0.1);
+}
+
+.inputError {
+  border-color: #ef4444;
+}
+
+.inputError:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.inputHint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #666;
+}
+
+/* Error Message */
+.errorMessage {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Confirmation Section */
+.confirmationSection {
+  padding: 1rem;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.125rem;
+  cursor: pointer;
+  accent-color: #f58220;
+}
+
+.checkboxText {
+  font-size: 0.875rem;
+  color: #1a1a1a;
+  line-height: 1.5;
+}
+
+/* Terms Section */
+.termsSection {
+  margin-top: 0.5rem;
+}
+
+.termsDetails {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.termsSummary {
+  padding: 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: #1a1a1a;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.termsSummary:hover {
+  background: #f3f4f6;
+}
+
+.termsContent {
+  padding: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.termsList {
+  margin: 0;
+  padding-left: 1.5rem;
+  list-style-type: disc;
+}
+
+.termsList li {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.termsList li:last-child {
+  margin-bottom: 0;
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.backButton {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  background: white;
+  color: #1a1a1a;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.backButton:hover:not(:disabled) {
+  background: #f5f5f5;
+  border-color: #9ca3af;
+}
+
+.backButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.confirmButton {
+  flex: 2;
+  padding: 0.875rem 1.5rem;
+  background: #f58220;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s, transform 0.1s;
+}
+
+.confirmButton:hover:not(:disabled) {
+  background: #e6731a;
+  transform: translateY(-1px);
+}
+
+.confirmButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.confirmButton:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Security Notice */
+.securityNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 8px;
+}
+
+.securityIcon {
+  width: 20px;
+  height: 20px;
+  color: #22c55e;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.securityNotice p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #166534;
+  line-height: 1.5;
+}
+
+/* Support Section */
+.supportSection {
+  text-align: center;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.supportText {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.supportLink {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f58220;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.supportLink:hover {
+  color: #e6731a;
+}
+
+/* Info Section */
+.infoSection {
+  padding: 1rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.infoTitle {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.infoList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.infoItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.infoItem:last-child {
+  border-bottom: none;
+}
+
+.infoLabel {
+  font-size: 0.875rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.infoValue {
+  font-size: 0.875rem;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+/* Steps Section */
+.stepsSection {
+  padding: 1rem;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 8px;
+}
+
+.stepsTitle {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #166534;
+}
+
+.stepsList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step-counter;
+}
+
+.stepItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  counter-increment: step-counter;
+}
+
+.stepItem:last-child {
+  margin-bottom: 0;
+}
+
+.stepNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #22c55e;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.stepText {
+  font-size: 0.875rem;
+  color: #166534;
+  line-height: 1.5;
+  padding-top: 0.125rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .nagadBranding {
+    padding: 1.25rem;
+  }
+  
+  .nagadIcon {
+    font-size: 2rem;
+  }
+  
+  .nagadText {
+    font-size: 1.5rem;
+  }
+  
+  .amountValue {
+    font-size: 1.25rem;
+  }
+  
+  .actionButtons {
+    flex-direction: column;
+  }
+  
+  .backButton,
+  .confirmButton {
+    width: 100%;
+  }
+  
+  .infoItem {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .nagadBranding {
+    padding: 1rem;
+  }
+  
+  .nagadIcon {
+    font-size: 1.75rem;
+  }
+  
+  .nagadText {
+    font-size: 1.25rem;
+  }
+  
+  .amountDisplay {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+  
+  .input {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.9375rem;
+  }
+  
+  .stepNumber {
+    width: 24px;
+    height: 24px;
+    font-size: 0.8125rem;
+  }
+  
+  .stepText {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Accessibility */
+.input:focus-visible {
+  outline: 2px solid #f58220;
+  outline-offset: 2px;
+}
+
+.confirmButton:focus-visible,
+.backButton:focus-visible {
+  outline: 2px solid #f58220;
+  outline-offset: 2px;
+}
+
+.termsSummary:focus-visible {
+  outline: 2px solid #f58220;
+  outline-offset: 2px;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.infoSection,
+.stepsSection {
+  animation: fadeIn 0.3s ease-in;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .input {
+    border-width: 2px;
+  }
+  
+  .confirmButton {
+    border: 2px solid #1a1a1a;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .input,
+  .confirmButton,
+  .backButton,
+  .termsSummary {
+    transition: none;
+  }
+  
+  .confirmButton:hover:not(:disabled),
+  .backButton:hover:not(:disabled) {
+    transform: none;
+  }
+  
+  .infoSection,
+  .stepsSection {
+    animation: none;
+  }
+}

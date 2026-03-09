@@ -78,7 +78,7 @@ class EmiService {
 
       this.logger.info('[getEmiProviders] Prisma where clause', { where });
 
-      const providers = await this.prisma.emiProvider.findMany({
+      const providers = await this.prisma.emi_providers.findMany({
         where,
         orderBy: {
           name: 'asc'
@@ -168,7 +168,7 @@ class EmiService {
         }
       }
 
-      const plans = await this.prisma.emiPlan.findMany({
+      const plans = await this.prisma.emi_plans.findMany({
         where,
         orderBy: [
           { displayOrder: 'asc' },
@@ -216,7 +216,7 @@ class EmiService {
       }
 
       // Get all active plans that support the amount
-      const plans = await this.prisma.emiPlan.findMany({
+      const plans = await this.prisma.emi_plans.findMany({
         where: {
           isActive: true,
           minAmount: {
@@ -352,7 +352,7 @@ class EmiService {
       const amountValue = parseFloat(amount);
 
       // Get the plan details
-      const plan = await this.prisma.emiPlan.findUnique({
+      const plan = await this.prisma.emi_plans.findUnique({
         where: {
           id: planId
         },
@@ -447,7 +447,7 @@ class EmiService {
 
       // If planId is provided, validate against specific plan
       if (planId) {
-        const plan = await this.prisma.emiPlan.findUnique({
+        const plan = await this.prisma.emi_plans.findUnique({
           where: { id: planId }
         });
 
@@ -507,7 +507,7 @@ class EmiService {
         planId
       });
 
-      const plan = await this.prisma.emiPlan.findUnique({
+      const plan = await this.prisma.emi_plans.findUnique({
         where: { id: planId },
         include: {
           provider: true
@@ -549,7 +549,7 @@ class EmiService {
         providerId
       });
 
-      const provider = await this.prisma.emiProvider.findUnique({
+      const provider = await this.prisma.emi_providers.findUnique({
         where: { id: providerId },
         include: {
           emiPlans: {
@@ -677,7 +677,7 @@ class EmiService {
         throw new Error('Interest rate cannot be negative');
       }
 
-      const provider = await this.prisma.emiProvider.create({
+      const provider = await this.prisma.emi_providers.create({
         data: {
           name: name.trim(),
           logoUrl,
@@ -713,7 +713,7 @@ class EmiService {
   async updateEmiProvider(providerId, providerData) {
     try {
       // Check if provider exists
-      const existingProvider = await this.prisma.emiProvider.findUnique({
+      const existingProvider = await this.prisma.emi_providers.findUnique({
         where: { id: providerId }
       });
 
@@ -782,7 +782,7 @@ class EmiService {
         throw new Error('Minimum amount must be less than maximum amount');
       }
 
-      const provider = await this.prisma.emiProvider.update({
+      const provider = await this.prisma.emi_providers.update({
         where: { id: providerId },
         data: updateData,
         include: {
@@ -821,7 +821,7 @@ class EmiService {
   async deleteEmiProvider(providerId) {
     try {
       // Check if provider exists
-      const existingProvider = await this.prisma.emiProvider.findUnique({
+      const existingProvider = await this.prisma.emi_providers.findUnique({
         where: { id: providerId },
         include: {
           emiPlans: true
@@ -833,7 +833,7 @@ class EmiService {
       }
 
       // Delete provider (cascade will delete associated plans)
-      const provider = await this.prisma.emiProvider.delete({
+      const provider = await this.prisma.emi_providers.delete({
         where: { id: providerId }
       });
 
@@ -930,7 +930,7 @@ class EmiService {
         throw new Error('EMI provider not found');
       }
 
-      const plan = await this.prisma.emiPlan.create({
+      const plan = await this.prisma.emi_plans.create({
         data: {
           providerId,
           name: name.trim(),
@@ -972,7 +972,7 @@ class EmiService {
   async updateEmiPlan(planId, planData) {
     try {
       // Check if plan exists
-      const existingPlan = await this.prisma.emiPlan.findUnique({
+      const existingPlan = await this.prisma.emi_plans.findUnique({
         where: { id: planId }
       });
 
@@ -1059,7 +1059,7 @@ class EmiService {
         throw new Error('Minimum amount must be less than maximum amount');
       }
 
-      const plan = await this.prisma.emiPlan.update({
+      const plan = await this.prisma.emi_plans.update({
         where: { id: planId },
         data: updateData,
         include: {
@@ -1090,7 +1090,7 @@ class EmiService {
   async deleteEmiPlan(planId) {
     try {
       // Check if plan exists
-      const existingPlan = await this.prisma.emiPlan.findUnique({
+      const existingPlan = await this.prisma.emi_plans.findUnique({
         where: { id: planId }
       });
 
@@ -1098,7 +1098,7 @@ class EmiService {
         throw new Error('EMI plan not found');
       }
 
-      const plan = await this.prisma.emiPlan.delete({
+      const plan = await this.prisma.emi_plans.delete({
         where: { id: planId }
       });
 

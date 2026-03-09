@@ -255,6 +255,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Track mounted state to prevent hydration issues
   const [isMounted, setIsMounted] = React.useState(false);
   
+  // Track redirect status to prevent showing old page content during transitions
+  const [isRedirecting, setIsRedirecting] = React.useState(false);
+  
   // Set mounted state after first render
   React.useEffect(() => {
     setIsMounted(true);
@@ -481,20 +484,97 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log('[AuthContext] Logout');
     
     try {
+      // Set isRedirecting to false before logout to prevent showing old content
+      setIsRedirecting(false);
+      console.log('[AuthContext] Set isRedirecting to false before logout');
+      
+      // Set just_logged_out flag in sessionStorage before logout
+      // This prevents immediate auto-redirect on login page
+      sessionStorage.setItem('just_logged_out', 'true');
+      console.log('[AuthContext] Set just_logged_out flag in sessionStorage');
+      
+      // Show loading overlay immediately to prevent flash of old content
+      // Add null check to prevent errors if document.body is not available
+      if (document.body) {
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.id = 'logout-loading-overlay';
+        loadingOverlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 99999;
+        `;
+        loadingOverlay.innerHTML = `
+          <div class="flex flex-col items-center space-y-4">
+            <div class="relative">
+              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-t-2 border-blue-600"></div>
+              <div class="animate-spin rounded-full h-12 w-12 border-r-2 border-blue-400 absolute top-0 left-0" style="animation-delay: 0.15s"></div>
+            </div>
+            <p class="text-gray-600 text-sm font-medium">Logging out...</p>
+          </div>
+        `;
+        document.body.appendChild(loadingOverlay);
+        console.log('[AuthContext] Loading overlay added');
+      } else {
+        console.warn('[AuthContext] document.body is not available, skipping loading overlay');
+      }
+      
       // Use NextAuth signOut
       await nextAuthSignOut({ redirect: false });
+      console.log('[AuthContext] NextAuth signOut completed');
       
-      // Clear token from localStorage
+      // Clear token from localStorage (now also clears NextAuth session from sessionStorage)
       removeToken();
+      console.log('[AuthContext] Tokens cleared');
       
       // Clear local state
       dispatch({ type: 'LOGOUT' });
       dispatch({ type: 'SET_SESSION_TIMEOUT', payload: null });
+      console.log('[AuthContext] Local state cleared');
+      
+      // Clear page content to prevent flash during redirect
+      // Add null checks to prevent errors if document.body or document.head are not available
+      if (document.body) {
+        document.body.innerHTML = '';
+      }
+      if (document.head) {
+        document.head.innerHTML = '';
+      }
+      
+      // Set isRedirecting to true after redirect completes to indicate transition is done
+      setIsRedirecting(true);
+      console.log('[AuthContext] Set isRedirecting to true after redirect preparation');
+      
+      // Use window.location.replace() instead of href to prevent back button issues
+      // This ensures a clean page load without showing cached content
+      window.location.replace('/login');
     } catch (error) {
       console.error('[AuthContext] Logout error:', error);
+      // Set isRedirecting to true even on error to prevent showing old content
+      setIsRedirecting(true);
+      
       // Still logout locally even if NextAuth fails
+      removeToken();
       dispatch({ type: 'LOGOUT' });
       dispatch({ type: 'SET_SESSION_TIMEOUT', payload: null });
+      
+      // Clear page content even on error
+      // Add null checks to prevent errors if document.body or document.head are not available
+      if (document.body) {
+        document.body.innerHTML = '';
+      }
+      if (document.head) {
+        document.head.innerHTML = '';
+      }
+      
+      // Still use replace even on error
+      window.location.replace('/login');
     }
   };
 
@@ -653,6 +733,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     extendSession,
     updateUser,
     sessionTimeout: state.sessionTimeout,
+    isRedirecting,
   };
 
   // Get user's preferred language

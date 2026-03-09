@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import {
@@ -225,7 +225,7 @@ const InventoryImpact: React.FC<InventoryImpactProps> = ({
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      if (document.body && a.parentNode === document.body) { document.body.removeChild(a); }
     } catch (err) {
       setError('Error exporting inventory impact: ' + (err instanceof Error ? err.message : 'Unknown error'));
     }

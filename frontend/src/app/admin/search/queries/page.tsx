@@ -14,6 +14,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { withAuth } from '@/components/auth/withAuth';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 import { getAdminSearchQueries } from '@/lib/api/adminSearchAnalytics';
 
 interface QueryData {
@@ -77,7 +78,7 @@ function AdminSearchQueriesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AdminLayout title="Search Queries">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="mb-8">
@@ -124,7 +125,7 @@ function AdminSearchQueriesPage() {
         {/* Queries Table */}
         {!loading && queries.length > 0 && (
           <div className="bg-white shadow rounded-lg overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
+            <table className="w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th
@@ -244,7 +245,7 @@ function AdminSearchQueriesPage() {
           </div>
         )}
       </div>
-    </div>
+    </AdminLayout>
   );
 }
 

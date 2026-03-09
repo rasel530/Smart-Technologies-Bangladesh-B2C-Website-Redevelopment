@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipment Notification - {{companyName}}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .content {
+            padding: 30px;
+        }
+        .shipment-box {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .shipment-icon {
+            font-size: 64px;
+            margin-bottom: 10px;
+        }
+        .shipment-box h2 {
+            margin: 0 0 10px 0;
+            color: #667eea;
+            font-size: 24px;
+        }
+        .tracking-info {
+            background-color: #e8f5e9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .tracking-info h3 {
+            margin: 0 0 15px 0;
+            color: #2e7d32;
+        }
+        .tracking-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #c8e6c9;
+        }
+        .tracking-row:last-child {
+            border-bottom: none;
+        }
+        .tracking-label {
+            color: #666;
+            font-weight: 500;
+        }
+        .tracking-value {
+            color: #333;
+            font-weight: bold;
+        }
+        .tracking-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 24px;
+            background-color: #667eea;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .tracking-link:hover {
+            background-color: #5568d3;
+        }
+        .delivery-info {
+            background-color: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .delivery-info h3 {
+            margin: 0 0 10px 0;
+            color: #856404;
+        }
+        .delivery-info p {
+            margin: 5px 0;
+            color: #333;
+        }
+        .delivery-date {
+            font-size: 24px;
+            font-weight: bold;
+            color: #856404;
+            margin: 10px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #667eea;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .button:hover {
+            background-color: #5568d3;
+        }
+        .footer {
+            background-color: #f4f4f4;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .social-links {
+            margin-top: 20px;
+        }
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            font-size: 24px;
+            color: #667eea;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 100% !important;
+            }
+            .tracking-row {
+                flex-direction: column;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{companyName}}</h1>
+            <p style="color: #ffffff; margin-top: 10px;">Your Order Has Been Shipped!</p>
+        </div>
+
+        <div class="content">
+            <div class="shipment-box">
+                <div class="shipment-icon">🚚</div>
+                <h2>Order #{{orderNumber}} is on its way!</h2>
+                <p>Great news! Your order has been shipped and is now on its way to you.</p>
+            </div>
+
+            <div class="tracking-info">
+                <h3>Tracking Information</h3>
+                <div class="tracking-row">
+                    <span class="tracking-label">Tracking Number:</span>
+                    <span class="tracking-value">{{trackingNumber}}</span>
+                </div>
+                <div class="tracking-row">
+                    <span class="tracking-label">Courier Service:</span>
+                    <span class="tracking-value">{{courierService}}</span>
+                </div>
+                <div class="tracking-row">
+                    <span class="tracking-label">Shipped On:</span>
+                    <span class="tracking-value">{{shippedDate}}</span>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <a href="{{trackingUrl}}" class="tracking-link">Track Your Package</a>
+            </div>
+
+            <div class="delivery-info">
+                <h3>Estimated Delivery</h3>
+                <p>We expect your order to arrive by:</p>
+                <div class="delivery-date">{{estimatedDeliveryDate}}</div>
+                <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                    This is an estimated delivery date and may change due to unforeseen circumstances.
+                </p>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="{{orderDetailsUrl}}" class="button">View Order Details</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Thank you for shopping with {{companyName}}!</p>
+            <p style="margin-top: 10px;">If you have any questions about your shipment, please contact us:</p>
+            <p style="margin-top: 5px;">
+                <a href="mailto:{{supportEmail}}">{{supportEmail}}</a>
+            </p>
+            <p style="margin-top: 5px;">
+                <a href="{{websiteUrl}}">{{websiteUrl}}</a>
+            </p>
+
+            <div class="social-links">
+                <a href="{{facebookUrl}}" title="Facebook">📘</a>
+                <a href="{{twitterUrl}}" title="Twitter">🐦</a>
+                <a href="{{instagramUrl}}" title="Instagram">📷</a>
+            </div>
+
+            <p style="margin-top: 20px; font-size: 12px; color: #999;">
+                © {{currentYear}} {{companyName}}. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

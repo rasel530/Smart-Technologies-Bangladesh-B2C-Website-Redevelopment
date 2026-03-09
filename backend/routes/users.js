@@ -40,7 +40,7 @@ router.get('/', [
     } : {};
 
     const [users, total] = await Promise.all([
-      prisma.user.findMany({
+      prisma.users.findMany({
         where,
         skip: parseInt(skip),
         take: parseInt(limit),
@@ -61,7 +61,7 @@ router.get('/', [
         },
         orderBy: { createdAt: 'desc' }
       }),
-      prisma.user.count({ where })
+      prisma.users.count({ where })
     ]);
 
     res.json({
@@ -94,7 +94,7 @@ router.get('/:id', [
   try {
     const { id } = req.params;
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id },
       select: {
         id: true,
@@ -160,7 +160,7 @@ router.put('/:id', [
     const { firstName, lastName, phone, dateOfBirth, gender } = req.body;
 
     // Check if user exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { id }
     });
 
@@ -172,7 +172,7 @@ router.put('/:id', [
 
     // Check if phone is already used by another user
     if (phone && phone !== existingUser.phone) {
-      const phoneUser = await prisma.user.findFirst({
+      const phoneUser = await prisma.users.findFirst({
         where: { phone, NOT: { id } }
       });
 
@@ -190,7 +190,7 @@ router.put('/:id', [
     if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
     if (gender !== undefined) updateData.gender = gender;
 
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id },
       data: updateData,
       select: {
@@ -230,7 +230,7 @@ router.delete('/:id', [
     const { id } = req.params;
 
     // Check if user exists
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id },
       include: {
         _count: {
@@ -256,7 +256,7 @@ router.delete('/:id', [
       });
     }
 
-    await prisma.user.delete({
+    await prisma.users.delete({
       where: { id }
     });
 
@@ -325,7 +325,7 @@ router.put('/:id/addresses/:addressId', [
     console.log('[ADDRESS UPDATE] Parsed values:', { id, addressId, type, firstName, lastName, phone, address, addressLine2, city, district, division, upazila, postalCode, isDefault });
 
     // Check if address exists and belongs to user
-    const existingAddress = await prisma.address.findUnique({
+    const existingAddress = await prisma.addresses.findUnique({
       where: { id: addressId }
     });
 
@@ -343,7 +343,7 @@ router.put('/:id/addresses/:addressId', [
 
     // If isDefault is true, set all other addresses to false
     if (isDefault === true) {
-      await prisma.address.updateMany({
+      await prisma.addresses.updateMany({
         where: { userId: id, NOT: { id: addressId } },
         data: { isDefault: false }
       });
@@ -363,7 +363,7 @@ router.put('/:id/addresses/:addressId', [
     if (postalCode !== undefined) updateData.postalCode = postalCode;
     if (isDefault !== undefined) updateData.isDefault = isDefault;
 
-    const updatedAddress = await prisma.address.update({
+    const updatedAddress = await prisma.addresses.update({
       where: { id: addressId },
       data: updateData
     });
@@ -391,7 +391,7 @@ router.delete('/:id/addresses/:addressId', [
     const { id, addressId } = req.params;
 
     // Check if address exists and belongs to user
-    const existingAddress = await prisma.address.findUnique({
+    const existingAddress = await prisma.addresses.findUnique({
       where: { id: addressId },
       include: {
         _count: {
@@ -422,7 +422,7 @@ router.delete('/:id/addresses/:addressId', [
       });
     }
 
-    await prisma.address.delete({
+    await prisma.addresses.delete({
       where: { id: addressId }
     });
 
@@ -448,7 +448,7 @@ router.put('/:id/addresses/:addressId/default', [
     const { id, addressId } = req.params;
 
     // Check if address exists and belongs to user
-    const existingAddress = await prisma.address.findUnique({
+    const existingAddress = await prisma.addresses.findUnique({
       where: { id: addressId }
     });
 
@@ -466,17 +466,17 @@ router.put('/:id/addresses/:addressId/default', [
 
     // Set all other addresses to false and this one to true
     await prisma.$transaction([
-      prisma.address.updateMany({
+      prisma.addresses.updateMany({
         where: { userId: id, NOT: { id: addressId } },
         data: { isDefault: false }
       }),
-      prisma.address.update({
+      prisma.addresses.update({
         where: { id: addressId },
         data: { isDefault: true }
       })
     ]);
 
-    const updatedAddress = await prisma.address.findUnique({
+    const updatedAddress = await prisma.addresses.findUnique({
       where: { id: addressId }
     });
 
@@ -572,7 +572,7 @@ router.post('/:id/addresses/checkout', [
     const addressData = req.body;
 
     // Check if user exists
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id }
     });
 
@@ -885,7 +885,7 @@ router.post('/create-admin', [
     const { email, password, firstName, lastName } = req.body;
 
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { email }
     });
 
@@ -913,7 +913,7 @@ router.post('/create-admin', [
     const passwordHash = await bcrypt.hash(password, 10);
 
     // Create user with legacy admin role
-    const user = await prisma.user.create({
+    const user = await prisma.users.create({
       data: {
         email,
         password: passwordHash,
@@ -1007,7 +1007,7 @@ router.post('/:userId/roles', [
     const { role, expiresAt } = req.body;
 
     // Check if target user exists
-    const targetUser = await prisma.user.findUnique({
+    const targetUser = await prisma.users.findUnique({
       where: { id: userId },
       select: {
         id: true,

@@ -17,6 +17,7 @@ const { redisConnectionPool } = require('./services/redisConnectionPool');
 const { redisFallbackService } = require('./services/redisFallbackService');
 const { redisStartupValidator } = require('./services/redisStartupValidator');
 const { rateLimitService } = require('./services/rateLimitService');
+const { responseTransformer } = require('./middleware/responseTransformer');
 
 // Configure multer for file uploads
 const corporateDocsDir = path.join(__dirname, 'uploads', 'corporate-docs');
@@ -173,12 +174,11 @@ const PORT = configService.get('PORT');
 // Initialize SearchService and controllers
 const { SearchService } = require('./services/searchService');
 const { elasticsearchClientService } = require('./services/elasticsearch/client');
-const { PrismaClient } = require('@prisma/client');
 
 // Create search service instance
 const searchService = new SearchService(
   elasticsearchClientService.getClient(),
-  new PrismaClient(),
+  databaseService.getClient(),
   redisConnectionPool.getClient()
 );
 
@@ -395,6 +395,8 @@ app.use(authMiddleware.requestId());
 // General rate limiting
 app.use(authMiddleware.rateLimit());
 
+// Response transformer middleware - Transform snake_case to camelCase
+app.use(responseTransformer);
 
 // API routes - Mount with /api prefix
 app.use('/api', routeIndex);

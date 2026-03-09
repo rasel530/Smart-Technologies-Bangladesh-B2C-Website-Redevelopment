@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Search Analytics Admin Page
@@ -33,6 +33,7 @@ import {
   Zap
 } from 'lucide-react';
 import { withAuth } from '@/components/auth/withAuth';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 import {
   getAdminAnalyticsOverview,
   getAdminSearchQueries,
@@ -141,7 +142,7 @@ function SearchAnalyticsAdminPage(): JSX.Element {
       a.download = `search-analytics-${new Date().toISOString().split('T')[0]}.${exportFormat === 'csv' ? 'csv' : 'xlsx'}`;
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
+      if (document.body && a.parentNode === document.body) { document.body.removeChild(a); }
       window.URL.revokeObjectURL(url);
       setExporting(false);
     } catch (err) {
@@ -173,7 +174,7 @@ function SearchAnalyticsAdminPage(): JSX.Element {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AdminLayout title="Search Analytics">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -624,7 +625,7 @@ function SearchAnalyticsAdminPage(): JSX.Element {
           </>
         )}
       </div>
-    </div>
+    </AdminLayout>
   );
 }
 

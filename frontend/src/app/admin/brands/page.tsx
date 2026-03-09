@@ -3,6 +3,7 @@
 import React from 'react';
 import BrandList from '@/components/admin/BrandList';
 import { withAuth } from '@/components/auth/withAuth';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 /**
  * Brands Admin Page
@@ -13,7 +14,11 @@ import { withAuth } from '@/components/auth/withAuth';
  * - Navigation to create new brand
  */
 function BrandsPage() {
-  return <BrandList />;
+  return (
+    <AdminLayout title="Brand Management">
+      <BrandList />
+    </AdminLayout>
+  );
 }
 
 export default withAuth(BrandsPage, {
